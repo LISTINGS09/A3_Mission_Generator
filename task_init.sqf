@@ -16,8 +16,7 @@ waitUntil {sleep 1; DAC_Basic_Value > 0;};
 // ----------- VARIABLES START ---------------
 
 tg_taskFolder = "scripts\taskGenerator"; // Location used for loading the tasks.
-tg_missionTypes = ["mainMission"]; // Used globally and variables are built from these strings.. // "sideMission"
-
+tg_missionTypes = ["mainMission", "sideMission"]; // Used globally and variables are built from these strings.. // 
 
 tg_fnc_taskTestTaskA = compileFinal preprocessFileLineNumbers format["%1\tasks\test_task.sqf", tg_taskFolder];
 tg_fnc_taskTestTaskB = compileFinal preprocessFileLineNumbers format["%1\tasks\test_task.sqf", tg_taskFolder];
@@ -43,7 +42,7 @@ tg_sideMission_list = [
 
 //tg_sideMission_end = 0;	// sideMission - Complete game when 'tg_mainMission_cmp' equals 'tg_sideMission_end'
 //tg_sideMission_cmp = 0;	// sideMission - Counter of completions
-tg_sideMission_max = 3;	// sideMission - Max no missions to be active at any time
+tg_sideMission_max = 0;	// sideMission - Max no missions to be active at any time
 //tg_sideMission_last = "";	// sideMission - Last selected mission
 
 tg_mainMission_end = 5;	// mainMission - Complete game when 'tg_mainMission_cmp' equals 'tg_mainMission_end'
@@ -51,18 +50,19 @@ tg_mainMission_end = 5;	// mainMission - Complete game when 'tg_mainMission_cmp'
 tg_mainMission_max = 1;	// mainMission - Max no missions to be active at any time
 //tg_mainMission_last = "";	// mainMission - Last selected mission
 
-tg_playerSide = "GUER"; // The side players are on (used in triggers detection) (WEST/EAST/GUER)
+tg_playerSide = west; // The side players are on (used in triggers detection) MUST BE: west/east/resistance
 tg_missions_active = []; // Array currently active tasks [uniqueTaskName,taskType]
+tg_separateMarkers = false; // Should markers be split by tg_missionTypes?
 tg_counter = 1; // Internal mission number counter - Unique number for each generated mission.
 tg_debug = true; // Debug Mode
 tg_threadFree = true; // Flag to queue processing of tasks.
 
-
 // ----------- FUNCTIONS START ---------------
 
 // Compile Functions
-if (isNil("tg_fn_debugMsg")) then {tg_fnc_debugMsg = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_debugMsg.sqf", tg_taskFolder]; };
-if (isNil("tg_fn_nameGenerator")) then {tg_fnc_nameGenerator = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_nameGenerator.sqf", tg_taskFolder]; };
+if (isNil("tg_fnc_debugMsg")) then {tg_fnc_debugMsg = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_debugMsg.sqf", tg_taskFolder]; };
+if (isNil("tg_fnc_findSide")) then {tg_fnc_findSide = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_findSide.sqf", tg_taskFolder]; };
+if (isNil("tg_fnc_nameGenerator")) then {tg_fnc_nameGenerator = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_nameGenerator.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_missionEnd")) then {tg_fnc_missionEnd = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_missionEnd.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_missionSelect")) then {tg_fnc_missionSelect = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_missionSelect.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_findWorldLocation")) then {tg_fnc_findWorldLocation = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_findWorldLocation.sqf", tg_taskFolder]; };
@@ -87,7 +87,9 @@ if (isNil("tg_fnc_spawnDACzone")) then {tg_fnc_spawnDACzone = compileFinal prepr
 	} forEach allMapMarkers;
 	
 	missionNamespace setVariable [format["tg_%1_markers", _type], _typeArray];
-	if (count _typeArray == 0) then { [format["[TG-init] WARNING: '%1' markers: None found, random will be used!", _type]] call BIS_fnc_error; };
+	if (count _typeArray == 0) then {
+		[format["[TG-init] ERROR: No markers for '%1'", _type]] call tg_fnc_debugMsg; 
+	};
 	//[format ["[TG-init] DEBUG: '%1' markers: %2", _type, count _typeArray]] call tg_fnc_debugMsg;
 	//[format ["[TG-init] DEBUG: '%1' missions: %2", _type, count (missionNamespace getVariable [format["tg_%1_list",_type],[]])]] call tg_fnc_debugMsg;
 } forEach tg_missionTypes;
@@ -132,11 +134,18 @@ missionNamespace setVariable ["tg_blackList",_blackList];
 
 sleep 3; 
 
+// Make sure player side settings are correct.
+{
+	if (side _x != tg_playerSide && side _x in [west, east, independent]) exitWith {
+		[format["[TG-init] WARNING: %1's side does not match tg_playerSide (%2 vs %3)", _x, side _x, tg_playerSide]] call tg_fnc_debugMsg; 
+	};
+} forEach playableUnits	 + switchableUnits;
+
 // ----------- DEBUG ---------------
 
 [] spawn {
 	while{true} do {
-		hintSilent parseText format["[TG]<br/>Active Missions: %1<br/>%2<br/><br/>Lock<br/>%3<br/>", count tg_missions_active, tg_missions_active, tg_threadFree];
+		hintSilent parseText format["[TG]<br/>Active Missions: %1<br/>%2<br/><br/>Thread<br/>%3<br/>", count tg_missions_active, tg_missions_active, ['Locked','Free'] select tg_threadFree];
 		sleep 0.5;
 	};
 };

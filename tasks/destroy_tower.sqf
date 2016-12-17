@@ -81,27 +81,6 @@ if tg_debug then {
 
 sleep 1; 
 
-// Set default AI counts
-_countInfantry = ceil random [5, missionNamespace getVariable ["f_param_enemyInfantry",10], 0];
-_countVehicles = floor random [2, missionNamespace getVariable ["f_param_enemyVehicles",6], 0];
-_countArmour = floor random [1, missionNamespace getVariable ["f_param_enemyArmour",3], 0];
-_countAir = floor random [0, 0, 3];
-
-// Auto-Adjust the unit counts depending on params
-if (missionNamespace getVariable ["f_param_enemyAutoBalance",0] == 1) then {
-	_countInfantry = ceil random [1, (_countInfantry / 2) + ((count (playableUnits + switchableUnits)) * 0.4), 0];
-	_countVehicles = floor random [1, (_countVehicles / 2) + ((count (playableUnits + switchableUnits)) * 0.2), 0];
-	_countArmour = floor random [0, (_countArmour / 2) + ((count (playableUnits + switchableUnits)) * 0.1), 0];
-};
-
-// DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-_DACinfantry = [_countInfantry, 3, 50, 20];
-_DACvehicles = [_countVehicles, 3, 25, 8];
-_DACarmour = [_countArmour, 1, 25, 10];
-_DACheli = if (_countAir == 0) then {[]} else {[_countAir, 2, 5]};
-_DACcamp = [1, 2, 50, 0, 100, 10];
-_DACside = [0, 0, 0, 0];
-
 //[format["[TG] Counts for 'mainMission_%1_zone' (%6 players): [%2, %3, %4, %5]", tg_counter, _countInfantry, _countVehicles, _countArmour, _countAir, count (playableUnits + switchableUnits)]] call tg_fnc_debugMsg;
 
 // Spawn a Zone

@@ -29,14 +29,14 @@ if (getArray(configFile >> "CfgWorlds" >> worldName >> "centerPosition") isEqual
 	_searchPos = [_searchPos, 400, 600, true] call tg_fnc_findRandomEmpty;
 };
 
-if tg_debug then {
+/*if tg_debug then {
 	_tmpMkr = createMarkerLocal[format["markerRandomEmpty_%1", ceil random 100000], _searchPos];
 	_tmpMkr setMarkerTextLocal "RandomEmpty";
 	_tmpMkr setMarkerShapeLocal "ICON";
 	_tmpMkr setMarkerColorLocal "colorBlue";
 	_tmpMkr setMarkerSizeLocal [0.5,0.5];
 	_tmpMkr setMarkerTypeLocal "mil_dot";
-};
+};*/
 
 _searchPos = [_searchPos select 0, _searchPos select 1, 0];
 

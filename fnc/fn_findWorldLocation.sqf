@@ -72,13 +72,13 @@ if (_foundPos isEqualTo []) exitWith {
 
 [format ["[TG-findWorldLocation] DEBUG: Returning %1", _foundPos]] call tg_fnc_debugMsg;
 
-if tg_debug then {
+/*if tg_debug then {
 	_tmpMkr = createMarkerLocal[format["markerEmptyByType_%1", ceil random 100000], _emptyPos];
 	_tmpMkr setMarkerTextLocal "WorldLocation";
 	_tmpMkr setMarkerShapeLocal "ICON";
 	_tmpMkr setMarkerColorLocal "colorRed";
 	_tmpMkr setMarkerSizeLocal [0.5,0.5];
 	_tmpMkr setMarkerTypeLocal "mil_circle";
-};
+};*/
 
 _foundPos

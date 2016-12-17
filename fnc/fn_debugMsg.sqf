@@ -5,4 +5,4 @@ params ["_message"];
 systemChat _message;
 diag_log text _message;
 
-sleep 2;
+sleep 0.5;

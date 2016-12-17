@@ -15,7 +15,7 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 
 {
 	_missionType = _x;
-	[format ["[TG-createTask] DEBUG: Start for %1 ", _missionType]] call tg_fnc_debugMsg;
+	[format ["[TG-missionSelect] DEBUG: Start for %1 ", _missionType]] call tg_fnc_debugMsg;
 
 	// Count of active tasks for a type.
 	_missionCount = {(_x select 0) isEqualTo _missionType} count tg_missions_active;	
@@ -26,7 +26,7 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 	
 	// Don't start a new task if we've reached the limit.
 	if (_missionCount >= _missionMax) exitWith {
-		[format ["[TG-createTask] DEBUG: Exit for %1 (%2 >= %3)", _missionType, _missionCount, _missionMax]] call tg_fnc_debugMsg;
+		[format ["[TG-missionSelect] DEBUG: Exit for %1 (%2 >= %3)", _missionType, _missionCount, _missionMax]] call tg_fnc_debugMsg;
 	};*/
 	
 	// List all task scripts for the type.
@@ -35,7 +35,7 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 	// Spawn scripts while the number of current missions are below the required limit.
 	for [{private _i = _missionCount}, {_i < (missionNamespace getVariable [format["tg_%1_max", _missionType], 0])}, {_i = _i + 1}] do {
 		if (count _missionList == 0) exitWith {
-			[format ["[TG-createTask] ERROR: No missions found in 'tg_%1_list'.", _missionType]] call tg_fnc_debugMsg;
+			[format ["[TG-missionSelect] ERROR: 'tg_%1_list' has no listed missions.", _missionType]] call tg_fnc_debugMsg;
 		};
 			
 		// Get a random script from the mission list.
@@ -56,9 +56,9 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 		
 		// Execute the chosen mission.
 		_missionName = format["%1_%2", _chosenScript, tg_counter];
-		[format ["[TG-createTask] DEBUG: Running %1 from tg_%2_list", _chosenScript, _missionType]] call tg_fnc_debugMsg;
+		[format ["[TG-missionSelect] DEBUG: Running %1 from tg_%2_list", _chosenScript, _missionType]] call tg_fnc_debugMsg;
 		_result = [_missionType, _missionName] call (missionNamespace getVariable format["%1", _chosenScript]);
-		[format ["[TG-createTask] DEBUG: Completed %1 (%2)", _chosenScript, _result]] call tg_fnc_debugMsg;
+		[format ["[TG-missionSelect] DEBUG: Completed %1 (%2)", _chosenScript, _result]] call tg_fnc_debugMsg;
 		
 		// Store the mission if it executed correctly.
 		if (_result) then {
@@ -71,13 +71,13 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 		tg_counter = tg_counter + 1;
 	};
 	
-	[format ["[TG-createTask] DEBUG: End Loop (Counter: %1, Cur: %2, Max: %3, Cmp: %4, End: %5)", 
+	/*[format ["[TG-missionSelect] DEBUG: End Loop (Counter: %1, Cur: %2, Max: %3, Cmp: %4, End: %5)", 
 		tg_counter, 
 		{(_x select 0) isEqualTo _missionType} count tg_missions_active, 
 		missionNamespace getVariable [format["tg_%1_max", _missionType],"-"],
 		missionNamespace getVariable [format["tg_%1_cmp", _missionType],"-"],
 		missionNamespace getVariable [format["tg_%1_end", _missionType],"-"]]
-	] call tg_fnc_debugMsg;
+	] call tg_fnc_debugMsg;*/
 		
 } forEach _typeList;
 

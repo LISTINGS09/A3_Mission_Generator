@@ -35,13 +35,13 @@ if (_emptyPos isEqualTo []) exitWith {
 
 [format ["[TG-findEmptyType] DEBUG: Returning %1", _emptyPos]] call tg_fnc_debugMsg;
 
-if tg_debug then {
+/*if tg_debug then {
 	_tmpMkr = createMarkerLocal[format["markerEmptyByType_%1", ceil random 100000], _emptyPos];
 	_tmpMkr setMarkerTextLocal "EmptyByType";
 	_tmpMkr setMarkerShapeLocal "ICON";
 	_tmpMkr setMarkerColorLocal "colorBlue";
 	_tmpMkr setMarkerSizeLocal [0.5,0.5];
 	_tmpMkr setMarkerTypeLocal "mil_circle";
-};
+};*/
 
 _emptyPos
