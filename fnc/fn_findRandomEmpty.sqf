@@ -11,7 +11,7 @@
 
 params [["_searchPos",[],[[]]], ["_minDist",1,[1]], ["_maxDist",1000,[1000]], ["_skipSafe", false, [false]]];
 
-[format ["[TG-findRandomEmpty] DEBUG: Called (Pos: %1, Min: %2, Max: %3, Skip: %4)", _searchPos, _minDist, _maxDist, _skipSafe]] call tg_fnc_debugMsg;
+//[format ["[TG] DEBUG - fn_findRandomEmpty: Called (Pos: %1, Min: %2, Max: %3, Skip: %4)", _searchPos, _minDist, _maxDist, _skipSafe]] call tg_fnc_debugMsg;
 
 // If no position was passed, use world centre
 if (_searchPos isEqualTo []) then {
@@ -25,7 +25,7 @@ _searchPos = [[_searchPos select 0, _searchPos select 1, 0], _minDist, _maxDist,
 
 // World centre has been passed so try and find something near that point, ignoring safety.
 if (getArray(configFile >> "CfgWorlds" >> worldName >> "centerPosition") isEqualTo _searchPos && !_skipSafe) then {
-	[format ["[TG-findRandomEmpty] WARNING: Centre position match (%1), trying safe off.", _searchPos]] call tg_fnc_debugMsg;
+	[format ["[TG] WARNING: World Centre Position found (%1). Add more locations?", _searchPos]] call tg_fnc_debugMsg;
 	_searchPos = [_searchPos, 400, 600, true] call tg_fnc_findRandomEmpty;
 };
 
@@ -40,6 +40,6 @@ if (getArray(configFile >> "CfgWorlds" >> worldName >> "centerPosition") isEqual
 
 _searchPos = [_searchPos select 0, _searchPos select 1, 0];
 
-[format ["[TG-findRandomEmpty] DEBUG: Returning %1", _searchPos]] call tg_fnc_debugMsg;
+//[format ["[TG] DEBUG - fn_findRandomEmpty: Returning %1", _searchPos]] call tg_fnc_debugMsg;
 
 _searchPos

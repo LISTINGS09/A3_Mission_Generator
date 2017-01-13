@@ -1,30 +1,27 @@
-params [["_nearPos",[],[[]]]];
+params [["_nearPos", [], [[]]], ["_inDist", 1000, [1000]]];
 
 _pickedSide = [];
 _sideArray = [west, east, independent] - [tg_playerSide];
+_wasForced = false;
 
 // If another side is already nearby, use that side to prevent fights.
-if !(count _nearPos isEqualTo []) then {
-	_nearEnts = _nearPos nearEntities ["Man", 500];
-	[format["[TG-findSide] DEBUG: %1 nearby units found", count _nearEnts]] call tg_fnc_debugMsg;
-	
+if !(_nearPos isEqualTo []) then {
 	{
 		if (side _x in _sideArray) exitWith {
 			_sideArray = [side _x];
-			[format["[TG-findSide] DEBUG: side %1 forced", _sideArray]] call tg_fnc_debugMsg;
+			_wasForced = true;
 		};
-	} forEach _nearEnts;
+	} forEach (_nearPos nearEntities ["Man", _inDist]);
 };
 
 // Select a side to use.
 switch (selectRandom _sideArray) do {
-	case west: { _pickedSide = [west, [1, 1, 1, (selectRandom [1, 5, 9])]]; };
-	case east: { _pickedSide = [east, [0, 0, 0, (selectRandom [0, 4, 8])]]; };
-	case independent: { _pickedSide = [independent, [2, 2, 2, (selectRandom [2, 6, 10])]]; };
-	case default { _pickedSide = [west, [1, 1, 1, (selectRandom [3, 7, 11])]]; }; // FIA
+	case east: { _pickedSide = tg_sideEast; };
+	case independent: { _pickedSide = tg_sideGuer; };
+	case default { _pickedSide = tg_sideWest; }; // FIA
 };
 
-[format["[TG-findSide] DEBUG: Picked %1", _pickedSide]] call tg_fnc_debugMsg;
+//[format["[TG] fn_findSide: AI-%1 (Forced: %2)", _pickedSide, _wasForced]] call tg_fnc_debugMsg;
 
 _pickedSide
 

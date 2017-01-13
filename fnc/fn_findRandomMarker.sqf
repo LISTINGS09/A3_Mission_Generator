@@ -9,7 +9,7 @@
 
 params [["_missionType", (tg_missionTypes select 0), [""]]];
 
-[format ["[TG-findRandomMarker] DEBUG: Separate: %1 Type: %2)", missionNamespace getVariable ["tg_separateMarkers", false], _missionType]] call tg_fnc_debugMsg;
+//[format ["[TG] DEBUG - findRandomMarker: Separate: %1 Type: %2)", missionNamespace getVariable ["tg_separateMarkers", false], _missionType]] call tg_fnc_debugMsg;
 
 _markerList = [];
 
@@ -23,7 +23,7 @@ if !(missionNamespace getVariable ["tg_separateMarkers", false]) then {
 
 // No markers? Try to find a random world location.
 if (count _markerList < 1) exitWith {
-	[format ["[TG-findRandomMarker] DEBUG: No markers for tg_%1_markers!", _missionType]] call tg_fnc_debugMsg;
+	[format ["[TG] WARNING: No markers for tg_%1_markers!", _missionType]] call tg_fnc_debugMsg;
 	_finalPos = [] call tg_fnc_findWorldLocation;
 	
 	_finalPos
@@ -33,7 +33,7 @@ _marker = selectRandom _markerList;
 
 _finalPos = getMarkerPos _marker;
 
-[format ["[TG-findRandomMarker] DEBUG: Returning %1 for %2", _finalPos, _marker]] call tg_fnc_debugMsg;
+//[format ["[TG] DEBUG - findRandomMarker: Returning %1 for %2", _finalPos, _marker]] call tg_fnc_debugMsg;
 //if tg_debug then { _marker setMarkerColorLocal	"ColorYellow"; };
 
 _finalPos
