@@ -1,5 +1,6 @@
 // Should run at game start and is called after each completion.
 // Will either end the scenario or spawn another task as appropriate.
+if !isServer exitWith {};
 
 // Iterate all types or only a passed type.
 params [["_typeList", tg_missionTypes, [[],""]]];
@@ -7,12 +8,15 @@ params [["_typeList", tg_missionTypes, [[],""]]];
 // Convert to array if string was passed.
 if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 
-{
+[format["[TG] DEBUG: fn_missionSelect processing types: %1", _typeList]] call tg_fnc_debugMsg;
+
+{ 
 	// Wait for task thread to be free (prevents multiple tasks generating at once).
-	waitUntil{ sleep 5; tg_threadFree; };
+	waitUntil{ sleep 5; if tg_threadActive then { [format["[TG] DEBUG: fn_missionSelect %1 waiting for free thread (%1).", _x, tg_threadLockedBy]] call tg_fnc_debugMsg; }; !tg_threadActive; };
 	
 	// Stop any other tasks to be generated.
-	tg_threadFree = false;
+	tg_threadActive = true;
+	tg_threadLockedBy = format["Selecting %1",_x];
 	
 	private _missionType = _x;
 	
@@ -25,8 +29,11 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 	private _selectTry = 0;
 	private _selectMaxTry = 15;
 	
+	//[format["[TG] DEBUG: %1 Loop %2 vs %3", _missionType, _missionCount, missionNamespace getVariable [format["tg_%1_max", _missionType], 0]]] call tg_fnc_debugMsg;
+	
 	// Spawn scripts while the number of current missions are below the required limit.
 	for [{private _i = _missionCount}, {_i < (missionNamespace getVariable [format["tg_%1_max", _missionType], 0])}, {_i = _i + 1}] do {		
+		
 		if (count _missionList == 0) exitWith {
 			[format ["[TG] ERROR: 'tg_%1_list' has no listed missions.", _missionType]] call tg_fnc_debugMsg;
 		};
@@ -65,10 +72,10 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 		if (_selectTry >= _selectMaxTry) exitWith {
 			[format ["[TG] ERROR: Tried %1 times to find a '%2' - Aborting.", _selectTry, _missionType]] call tg_fnc_debugMsg;
 		};
-		
-		// Increment the internal counters & allow any other tasks to be generated.
-		tg_threadFree = true;
-		
-		sleep tg_taskDelay;
 	};		
+	
+	// Increment the internal counters & allow any other tasks to be generated.
+	tg_threadActive = false;
+	tg_threadLockedBy = "-";
+	
 } forEach _typeList;

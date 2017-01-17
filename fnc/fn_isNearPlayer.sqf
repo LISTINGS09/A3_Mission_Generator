@@ -1,7 +1,7 @@
 // Checks if a playable unit is within distance '_inDist' of the position '_nearPos'.
 // Used to prevent objectives from appearing where players are already present.
 
-params [["_nearPos", [], [[]]], ["_inDist", 2000, [2000]]];
+params [["_nearPos", [], [[]]], ["_inDist", tg_playerMaxMissionDist, [3000]]];
 
 _isNear = false;
 

@@ -21,12 +21,12 @@ if (_searchPos isEqualTo []) then {
 // Get blackList of Safe Zones.
 _blackList = if (_skipSafe) then { [] } else { missionNamespace getVariable ["tg_blackList",[]] };
 
-_searchPos = [[_searchPos select 0, _searchPos select 1, 0], _minDist, _maxDist, 3, 0, 20, 0, _blackList] call BIS_fnc_findSafePos;
+_searchPos = [[_searchPos select 0, _searchPos select 1, 0], _minDist, _maxDist, 3, 0, 0.25, 0, _blackList] call BIS_fnc_findSafePos;
 
 // World centre has been passed so try and find something near that point, ignoring safety.
 if (getArray(configFile >> "CfgWorlds" >> worldName >> "centerPosition") isEqualTo _searchPos && !_skipSafe) then {
-	[format ["[TG] WARNING: World Centre Position found (%1). Add more locations?", _searchPos]] call tg_fnc_debugMsg;
-	_searchPos = [_searchPos, 400, 600, true] call tg_fnc_findRandomEmpty;
+	[format ["[TG] DEBUG - fn_findRandomEmpty: No safe position found at %1 - WorldCentre was read", _searchPos]] call tg_fnc_debugMsg;
+	_searchPos = [_searchPos, 400, 1000, true] call tg_fnc_findRandomEmpty;
 };
 
 /*if tg_debug then {
@@ -40,6 +40,6 @@ if (getArray(configFile >> "CfgWorlds" >> worldName >> "centerPosition") isEqual
 
 _searchPos = [_searchPos select 0, _searchPos select 1, 0];
 
-//[format ["[TG] DEBUG - fn_findRandomEmpty: Returning %1", _searchPos]] call tg_fnc_debugMsg;
+[format ["[TG] DEBUG - fn_findRandomEmpty: Returning %1", _searchPos]] call tg_fnc_debugMsg;
 
 _searchPos

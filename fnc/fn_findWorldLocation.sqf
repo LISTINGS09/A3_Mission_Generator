@@ -8,6 +8,9 @@
 //
 // *** RETURNS ***
 // Position Array
+//
+// *** USAGE ***
+// [[0,0,0], "village", 5000] call tg_fnc_findWorldLocation;
 
 params [["_searchPos",[],[[]]], ["_findTypes","",[""]], ["_maxDist", 10000, [10000]], ["_skipSafe", false, [false]]];
 

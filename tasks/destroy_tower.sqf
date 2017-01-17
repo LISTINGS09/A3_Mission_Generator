@@ -18,7 +18,7 @@ private _missionDesc = [
 		"Intel has identified an enemy Radio Tower, destroy it.",
 		"A UAV has spotted an enemy Radio Tower recently built by the enemy, destroy it."
 	];	
-private _missionSize = if (_missionType != tg_missionTypes select 0) then {500} else {1000};
+private _missionSize = if (_missionType != tg_missionTypes select 0) then {400} else {700};
 private _missionCounter = tg_counter;
 
 // ----------- POSITION ---------------
@@ -32,11 +32,11 @@ while {_locAttempt < _maxAttempt} do {
 	private  _tempPos = [_missionType] call tg_fnc_findRandomMarker;
 	
 	// Find a random position 
-	private _minValue = (_locAttempt * 100) + floor random _missionSize;
-	_tempPos = [_tempPos, _minValue, _minValue + 200] call tg_fnc_findRandomEmpty;
+	private _minValue = _locAttempt * 100;
+	_tempPos = [_tempPos, _minValue, _minValue + 300] call tg_fnc_findRandomEmpty;
 	
 	// Validate position
-	private  _closePlayer = [_tempPos, _missionSize + _missionSize] call tg_fnc_isNearPlayer;
+	private  _closePlayer = [_tempPos, 2000] call tg_fnc_isNearPlayer;
 	private _closeMission = [_tempPos] call tg_fnc_isNearMission;
 
 	// Ensure the mission does not spawn near a player or near another mission of the same type.
@@ -45,18 +45,17 @@ while {_locAttempt < _maxAttempt} do {
 	};
 	
 	_locAttempt = _locAttempt + 1;
-	[format["[TG-%1] DEBUG: Near - %3%4retrying %5/%6", _missionName, _tempPos, ["","Player "] select _closePlayer, ["","Task "] select _closeMission, _locAttempt, _maxAttempt]] call tg_fnc_debugMsg;
+	[format["[TG-%1] DEBUG: Near %3%4 - Retrying %5/%6", _missionName, _tempPos, ["","Player "] select _closePlayer, ["","Mission "] select _closeMission, _locAttempt, _maxAttempt]] call tg_fnc_debugMsg;
 };
 
 // No valid location found, abort the mission!
 if (count _missionPos != 3 || _missionPos isEqualTo [0,0,0]) exitWith { false };
 
 // ----------- SIDE ---------------
+// Check if another mission is active nearby to force a side.
 private _missionSide = [_missionPos] call tg_fnc_findSide;
 
 // ----------- OBJECTIVE ---------------
-// Ending must make a call to 'tg_fnc_missionEnd' to allow the mission to be counted and new one generated.
-
 // Display mission marker.
 private _missionMarker = createMarker[format["%1_marker", _missionName], _missionPos];
 _missionMarker setMarkerShape "ICON";
@@ -66,8 +65,9 @@ _missionMarker setMarkerSize [1,1];
 _missionMarker setMarkerType "mil_circle";
 
 // Create Objective
-private _obj = "Land_TTowerBig_2_F" createVehicle _missionPos;
-missionNamespace setVariable [format["%1_Obj",_missionName], _obj];
+private _tower = (selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F"]) createVehicle _missionPos;
+missionNamespace setVariable [format["%1_Obj",_missionName], _tower];
+_tower setVectorUp [0,0,1];
 
 // Create Task
 private _missionTask = [format["%1_task", _missionName], true, [selectRandom _missionDesc, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "destroy"] call BIS_fnc_setTask;
@@ -80,7 +80,7 @@ _objTrigger setTriggerTimeout [5, 5, 5, false];
 _objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
 //_objTrigger triggerAttachVehicle [("C_Van_01_box_F" createVehicle _missionPos)];
 _objTrigger setTriggerStatements [ 	format["!alive %1_Obj",_missionName], 
-									format["['%1', '%2', true] spawn tg_fnc_missionEnd; '%1_marker' setMarkerColor 'ColorGrey'; [] spawn {sleep 120; deleteMarker '%1_marker';", _missionName, _missionType], 
+									format["['%1', '%2', true] spawn tg_fnc_missionEnd; '%1_marker' setMarkerColor 'ColorGrey'; [] spawn { sleep 60; deleteMarker '%1_marker'; };", _missionName, _missionType], 
 									"" ];
 
 // ----------- OTHER ---------------
@@ -93,41 +93,46 @@ private _DACvehicles = [([4, "medium", _missionType] call tg_fnc_balanceUnits), 
 private _DACarmour = [([1, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 25, 10];
 private _DACheli = if (random 1 > 0.95 && (_missionType == tg_missionTypes select 0)) then {[1,2,5]} else {[]};
 
-// If unit count is 0 clear the array and just leave the way-points.
-if (_DACvehicles select 0 == 0) then { _DACvehicles = [_DACvehicles select 2]; }; 
-if (_DACarmour select 0 == 0) then { _DACarmour = [_DACarmour select 2]; }; 
+// If unit count is 0 clear the array.
+if (_DACvehicles select 0 == 0) then { _DACvehicles = []; }; 
+if (_DACarmour select 0 == 0) then { _DACarmour = []; }; 
 
-// Spawn infantry-only Sentry Zone
-[
-	_missionSide select 0,
-	_missionName,
-	"sentryZone",
-	_missionPos,
-	100,
-	[[_missionCounter, 1, 0], [2, 1, 15, 5], [], [], [], _missionSide select 1]
-] call tg_fnc_spawnDACzone;
-
-// Spawn a large Mission Zone
-[
-	_missionSide select 0,
-	_missionName,
-	"missionZone",
-	_missionPos,
-	_missionSize,
-	[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, _DACheli, _missionSide select 1],
-	true
-] call tg_fnc_spawnDACzone;
+_DACZoneList = [
+	// Spawn an inner infantry-only Sentry Zone
+	[
+		_missionSide select 0,
+		_missionName,
+		"sentryZone",
+		_missionPos,
+		100,
+		[[_missionCounter, 1, 0], [random 3, 1, 15, 5], [], [], [], _missionSide select 1]
+	],
+	// Spawn a outer Mission Zone
+	[
+		_missionSide select 0,
+		_missionName,
+		"missionZone",
+		_missionPos,
+		_missionSize,
+		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, _DACheli, _missionSide select 1],
+		true
+	]
+];
 
 // Maybe spawn a Mortar Camp if is mainMission and over certain chance.
 if (random 1 > 0.85 && (_missionType == tg_missionTypes select 0)) then {
-	[
+	_DACZoneList append [[
 		_missionSide select 0,
 		_missionName,
 		"campZone",
 		_missionPos,
 		_missionSize,
-		[[_missionCounter, 1, 0], [], [], [], [1, 2, 50, 0, 100, 10], _missionSide select 1]
-	] call tg_fnc_spawnDACzone;
+		[[_missionCounter, 0, 0], [], [], [], [1, 2, 50, 0, 100, 5], _missionSide select 1]
+
+	]];
 };
+
+// Creates the DAC Zones above and sets one trigger to activate/deactivate them.
+[_missionName, _DACZoneList] call tg_fnc_DACzone_creator;
 
 true

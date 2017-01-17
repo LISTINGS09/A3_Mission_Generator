@@ -18,11 +18,11 @@ waitUntil {sleep 1; DAC_Basic_Value > 0;};
 tg_taskFolder = "scripts\taskGenerator"; // Location used for loading the tasks.
 tg_missionTypes = ["mainMission", "sideMission"]; // Used globally and variables are built from these strings.. // 
 
-tg_fnc_taskTestTaskA = compileFinal preprocessFileLineNumbers format["%1\tasks\test_task.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskB = compileFinal preprocessFileLineNumbers format["%1\tasks\test_task.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskC = compileFinal preprocessFileLineNumbers format["%1\tasks\test_task.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskD = compileFinal preprocessFileLineNumbers format["%1\tasks\test_task.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskE = compileFinal preprocessFileLineNumbers format["%1\tasks\test_task.sqf", tg_taskFolder];
+tg_fnc_taskTestTaskA = compileFinal preprocessFileLineNumbers format["%1\tasks\kill_leader.sqf", tg_taskFolder];
+tg_fnc_taskTestTaskB = compileFinal preprocessFileLineNumbers format["%1\tasks\kill_leader.sqf", tg_taskFolder];
+tg_fnc_taskTestTaskC = compileFinal preprocessFileLineNumbers format["%1\tasks\kill_leader.sqf", tg_taskFolder];
+tg_fnc_taskTestTaskD = compileFinal preprocessFileLineNumbers format["%1\tasks\kill_leader.sqf", tg_taskFolder];
+tg_fnc_taskTestTaskE = compileFinal preprocessFileLineNumbers format["%1\tasks\kill_leader.sqf", tg_taskFolder];
 
 // List of available main missions.
 tg_mainMission_list = [
@@ -41,45 +41,44 @@ tg_sideMission_list = [
 ];
 
 //tg_sideMission_end = 0;	// sideMission - Complete game when 'tg_mainMission_cmp' equals 'tg_sideMission_end'
-//tg_sideMission_cmp = 0;	// sideMission - Counter of completions
-tg_sideMission_max = 4;	// sideMission - Max no missions to be active at any time
+tg_sideMission_max = 2;	// sideMission - Max no missions to be active at any time
 tg_sideMission_dist = 1500; // Used in fn_isNearMission - New Missions will not be within this distance from others.
-//tg_sideMission_last = "";	// sideMission - Last selected mission
 
-//tg_sideWest = [west, [1, 1, 1, (selectRandom [1, 5, 9])]]; // West Side & DAC settings (NATO).
-//tg_sideWest = [west, [1, 6, 1, (selectRandom [1, 5, 9])]]; // West Side & DAC settings (NATO PACIFIC).
-//tg_sideWest = [west, [1, 7, 1, (selectRandom [1, 5, 9])]]; // West Side & DAC settings (NATO CTRG PACIFIC).
-//tg_sideWest = [west, [1, 11, 1, (selectRandom [3, 7, 11])]];	// West Side & DAC settings (FIA).
-//tg_sideEast = [east, [0, 0, 0, (selectRandom [0, 4, 8])]]; // East Side & DAC settings (CSAT).
-tg_sideEast = [east, [0, 4, 0, (selectRandom [0, 4, 8])]]; // East Side & DAC settings (CSAT PACIFIC).
-//tg_sideEast = [east, [0, 5, 0, (selectRandom [0, 4, 8])]]; // East Side & DAC settings (CSAT VIPER).
-//tg_sideEast = [east, [0, 10, 0, (selectRandom [0, 4, 8])]]; // East Side & DAC settings (FIA).
-//tg_sideGuer = [independent, [2, 2, 2, (selectRandom [2, 6, 10])]]; // Guer Side & DAC settings (AAF).
-tg_sideGuer = [independent, [2, 8, 2, (selectRandom [2, 6, 10])]]; // Guer Side & DAC settings (SYND).
-//tg_sideGuer = [independent, [2, 9, 2, (selectRandom [2, 6, 10])]]; // Guer Side & DAC settings (PARA).
-//tg_sideGuer = [independent, [2, 12, 2, (selectRandom [2, 6, 10])]]; // Guer Side & DAC settings (FIA).
-
+// FORMAT: <SIDE> = [[<SIDE>, <DAC UNIT CONFIG>, <DEFAULT SOLIDER>], ...]
+//tg_sideWest = [[west, [1, 1, 1, (selectRandom [1, 5, 9])], "B_Soldier_F"]]; // West Side & DAC settings (NATO).
+//tg_sideWest = [[west, [1, 6, 1, (selectRandom [1, 5, 9])], "B_T_Soldier_F"]]; // West Side & DAC settings (NATO PACIFIC).
+//tg_sideWest = [[west, [1, 7, 1, (selectRandom [1, 5, 9])], "B_CTRG_Soldier_tna_F"]]; // West Side & DAC settings (NATO CTRG PACIFIC).
+//tg_sideWest = [[west, [1, 11, 1, (selectRandom [3, 7, 11])], "B_G_Soldier_F"];	// West Side & DAC settings (FIA).
+//tg_sideEast = [[east, [0, 0, 0, (selectRandom [0, 4, 8])], "O_Soldier_F"]]; // East Side & DAC settings (CSAT).
+tg_sideEast = [[east, [0, 4, 0, (selectRandom [0, 4, 8])], "O_T_Soldier_F"]]; // East Side & DAC settings (CSAT PACIFIC).
+//tg_sideEast = [[east, [0, 5, 0, (selectRandom [0, 4, 8])], "O_V_Soldier_ghex_F"]]; // East Side & DAC settings (CSAT VIPER).
+//tg_sideEast = [[east, [0, 10, 0, (selectRandom [0, 4, 8])], "O_G_Soldier_F"]]; // East Side & DAC settings (FIA).
+//tg_sideGuer = [[independent, [2, 2, 2, (selectRandom [2, 6, 10])], "I_Soldier_F"]]; // Guer Side & DAC settings (AAF).
+tg_sideGuer = [[independent, [2, 8, 2, (selectRandom [2, 6, 10])], "I_C_Soldier_Bandit_7_F"]]; // Guer Side & DAC settings (SYND).
+//tg_sideGuer = [[independent, [2, 9, 2, (selectRandom [2, 6, 10])], "I_C_Soldier_Para_1_F"]]; // Guer Side & DAC settings (PARA).
+//tg_sideGuer = [[independent, [2, 12, 2, (selectRandom [2, 6, 10])], "I_G_Soldier_F"]]; // Guer Side & DAC settings (FIA).
 
 tg_mainMission_end = 10;	// mainMission - Complete game when 'tg_mainMission_cmp' equals 'tg_mainMission_end'
 tg_mainMission_dist = 3000; // Used in fn_isNearMission - New Missions will not be within this distance from others.
-//tg_mainMission_cmp = 0;	// mainMission - Counter of completions
 tg_mainMission_max = 2;	// mainMission - Max no missions to be active at any time
-//tg_mainMission_last = "";	// mainMission - Last selected mission
 
+tg_playerMaxMissionDist = 3000; // Minimum distance missions should spawn from players.
 tg_playerSide = west; // The side players are on (used in triggers detection) MUST BE: west/east/resistance
 tg_missions_active = []; // Array currently active tasks [uniqueTaskName,taskType]
 tg_separateMarkers = false; // Should markers be split by tg_missionTypes? (Allows for specific locations for side and main missions)
 
 tg_debug = true; // Debug Mode
-tg_taskDelay = 5; // Seconds to wait after completing tasks (60 default).
+tg_taskDelay = 30; // Seconds to wait after completing tasks (60 default).
 
 tg_counter = 1; // Internal mission number counter - Unique number for each generated mission, don't change this.
-tg_threadFree = true; // Internal flag to queue processing of tasks, don't change this.
-
+tg_threadActive = false; // Internal flag to queue processing of tasks, don't change this.
+tg_threadLockedBy = "-"; // Internal string for debugging.
 
 // ----------- FUNCTIONS START ---------------
 
 // Compile Functions
+if (isNil("tg_fnc_DACzone_creator")) then {tg_fnc_DACzone_creator = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_DACzone_creator.sqf", tg_taskFolder]; };
+if (isNil("tg_fnc_DACzone_spawn")) then {tg_fnc_DACzone_spawn = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_DACzone_spawn.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_balanceUnits")) then {tg_fnc_balanceUnits = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_balanceUnits.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_debugMsg")) then {tg_fnc_debugMsg = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_debugMsg.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_findEmptyByType")) then {tg_fnc_findEmptyByType = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_findEmptyByType.sqf", tg_taskFolder]; };
@@ -93,7 +92,8 @@ if (isNil("tg_fnc_isNearPlayer")) then {tg_fnc_isNearPlayer = compileFinal prepr
 if (isNil("tg_fnc_missionEnd")) then {tg_fnc_missionEnd = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_missionEnd.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_missionSelect")) then {tg_fnc_missionSelect = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_missionSelect.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_nameGenerator")) then {tg_fnc_nameGenerator = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_nameGenerator.sqf", tg_taskFolder]; };
-if (isNil("tg_fnc_spawnDACzone")) then {tg_fnc_spawnDACzone = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_spawnDACzone.sqf", tg_taskFolder]; };
+if (isNil("tg_fnc_nearestBuilding")) then {tg_fnc_nearestBuilding = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_nearestBuilding.sqf", tg_taskFolder]; };
+if (isNil("tg_fnc_objectSpawner")) then {tg_fnc_objectSpawner = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_objectSpawner.sqf", tg_taskFolder]; };
 
 // ----------- PREP ---------------
 
@@ -174,15 +174,20 @@ sleep 3;
 
 [] spawn {
 	while{true} do {
-		hintSilent parseText format["[TG]<br/>Active Missions: %1<br/>Main: %2 Side: %3<br/><br/>Thread: %4<br/>Complete: %5<br/>",
+		hintSilent parseText format["[TG]<br/>Active Missions: %1<br/>Main: %2/%3 Side: %4/%5<br/><br/>Lock: %6 (%7)<br/>Complete: %8<br/><br/>DAC:<br/>NewZone %9 - Camps %10<br/>",
 			count tg_missions_active,
 			{_x select 0 == tg_missionTypes select 0} count tg_missions_active,
+			missionNamespace getVariable [format["tg_%1_max", tg_missionTypes select 0], 0],
 			{_x select 0 == tg_missionTypes select 1} count tg_missions_active,
-			['Locked','Free'] select tg_threadFree,
-			missionNamespace getVariable [format["tg_%1_cmp", tg_missionTypes select 0],0]
+			missionNamespace getVariable [format["tg_%1_max", tg_missionTypes select 1], 0],
+			['Free','Active'] select tg_threadActive,
+			tg_threadLockedBy,
+			missionNamespace getVariable [format["tg_%1_cmp", tg_missionTypes select 0],0],
+			DAC_NewZone,
+			DAC_Init_Camps
 		];
 		
-		sleep 0.5;
+		sleep 0.1;
 	};
 };
 
