@@ -8,6 +8,9 @@
 //
 // *** RETURNS ***
 // Position Array
+//
+// *** USAGE ***
+// _searchPos = [[0,0,0], 100, 500, false] call tg_fnc_findRandomEmpty;
 
 params [["_searchPos",[],[[]]], ["_minDist",1,[1]], ["_maxDist",1000,[1000]], ["_skipSafe", false, [false]]];
 
@@ -18,8 +21,8 @@ if (_searchPos isEqualTo []) then {
 	_searchPos = [] call tg_fnc_findWorldLocation;
 };
 
-// Get blackList of Safe Zones.
-_blackList = if (_skipSafe) then { [] } else { missionNamespace getVariable ["tg_blackList",[]] };
+// Get blackList of Safe Zones, otherwise use empty array.
+_blackList = if (_skipSafe) then { [] } else { missionNamespace getVariable ["tg_blackList_marker",[]] };
 
 _searchPos = [[_searchPos select 0, _searchPos select 1, 0], _minDist, _maxDist, 3, 0, 0.25, 0, _blackList] call BIS_fnc_findSafePos;
 

@@ -9,6 +9,7 @@ if (!(_missionType in tg_missionTypes) || _missionName == "") exitWith {
 };
 
 // Set-up mission variables.
+private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
 		"Destroy a Communications Station recently occupied by enemy forces.",
@@ -18,7 +19,7 @@ private _missionDesc = [
 		"Intel has identified a small enemy Communications Station, destroy it.",
 		"A UAV has spotted an enemy Communications Station, it must be destroyed quickly."
 	];	
-private _missionSize = if (_missionType != tg_missionTypes select 0) then {400} else {700};
+private _missionSize = if _isMainMission then {700} else {400};
 private _missionCounter = tg_counter;
 
 // ----------- POSITION ---------------
@@ -36,7 +37,7 @@ while {_locAttempt < _maxAttempt} do {
 	_tempPos = [_tempPos, _minValue, _minValue + 300] call tg_fnc_findRandomEmpty;
 	
 	// Validate position
-	private  _closePlayer = [_tempPos, 2000] call tg_fnc_isNearPlayer;
+	private  _closePlayer = [_tempPos] call tg_fnc_isNearPlayer;
 	private _closeMission = [_tempPos] call tg_fnc_isNearMission;
 
 	// Ensure the mission does not spawn near a player or near another mission of the same type.
@@ -53,15 +54,14 @@ if (count _missionPos != 3 || _missionPos isEqualTo [0,0,0]) exitWith { false };
 
 // ----------- SIDE ---------------
 // Check if another mission is active nearby to force a side.
-private _missionSide = [_missionPos] call tg_fnc_findSide;
+([_missionPos] call tg_fnc_findSide) params ["_enemySide", "_enemyDAC", "_enemySoldier", "_enemyFlag"];
 
 // ----------- OBJECTIVE ---------------
 
 // Display mission marker.
 private _missionMarker = createMarker[format["%1_marker", _missionName], _missionPos];
 _missionMarker setMarkerShape "ICON";
-_missionMarker setMarkerText _missionName;
-_missionMarker setMarkerColor ([_missionSide select 0, true] call BIS_fnc_sideColor);
+_missionMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
 _missionMarker setMarkerSize [1,1];
 _missionMarker setMarkerType "mil_circle";
 
@@ -86,10 +86,6 @@ _dir = random 360;
 // Align the objective tower.
 (missionNamespace getVariable format["%1_Obj",_missionName]) setVectorUp [0,0,1];
 
-// Create Task
-private _missionTask = [format["%1_task", _missionName], true, [selectRandom _missionDesc, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "destroy"] call BIS_fnc_setTask;
-missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
-
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
 _objTrigger setTriggerTimeout [5, 5, 5, false];
@@ -101,14 +97,14 @@ _objTrigger setTriggerStatements [ 	format["!alive %1_Obj",_missionName],
 									"" ];
 
 // ----------- OTHER ---------------
-//_group1 = [_missionPos, _missionSide select 0, 4] call BIS_fnc_spawnGroup;
+//_group1 = [_missionPos, _enemySide, 4] call BIS_fnc_spawnGroup;
 //[_group1, getPos leader _group1, 50] spawn bis_fnc_taskPatrol;
 
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([12, "light", _missionType] call tg_fnc_balanceUnits), 3, 30, 15];
-private _DACvehicles = [([5, "medium", _missionType] call tg_fnc_balanceUnits), 2, 25, 10];
+private _DACinfantry = [([6, "light", _missionType] call tg_fnc_balanceUnits), 2, 30, 15];
+private _DACvehicles = [([4, "medium", _missionType] call tg_fnc_balanceUnits), 2, 25, 10];
 private _DACarmour = [([1, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 25, 10];
-private _DACheli = if (random 1 > 0.95 && (_missionType == tg_missionTypes select 0)) then {[1,2,5]} else {[]};
+private _DACheli = if (random 1 > 0.95 && _isMainMission) then {[1,2,5]} else {[]};
 
 // If unit count is 0 clear the array.
 if (_DACvehicles select 0 == 0) then { _DACvehicles = []; }; 
@@ -117,38 +113,65 @@ if (_DACarmour select 0 == 0) then { _DACarmour = []; };
 _DACZoneList = [
 	// Spawn an inner infantry-only Sentry Zone
 	[
-		_missionSide select 0,
+		_enemySide,
 		_missionName,
 		"sentryZone",
 		_missionPos,
 		100,
-		[[_missionCounter, 1, 0], [random 4, 1, 15, 5], [], [], [], _missionSide select 1]
+		[[_missionCounter, 1, 0], [random 4, 1, 15, 5], [], [], [], _enemyDAC]
 	],
 	// Spawn a outer Mission Zone
 	[
-		_missionSide select 0,
+		_enemySide,
 		_missionName,
 		"missionZone",
 		_missionPos,
 		_missionSize,
-		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, _DACheli, _missionSide select 1],
+		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, _DACheli, _enemyDAC],
 		true
 	]
 ];
 
+private _addText = "";
+
+// Spawn a Heli Zone (maybe)
+if (count _DACheli > 0) then {
+	_addText = "<br/><br/>Enemy air support is understood to be active in this area. Approach the area with extreme caution.";
+	_DACZoneList pushBack [
+			_enemySide,
+			_missionName,
+			"heliZone",
+			_missionPos,
+			_missionSize,
+			[[_missionCounter, 1, 0], [], [], [], _DACheli, _enemyDAC]
+		];
+};
+
 // Maybe spawn a Mortar Camp if is mainMission and over certain chance.
 if (random 1 > 0.75 && (_missionType == tg_missionTypes select 0)) then {
+	_addText = "<br/><br/>A mortar site is present somewhere near the objective. Expect the enemy will call in mortar support if you are spotted.";
 	_DACZoneList append [[
-		_missionSide select 0,
+		_enemySide,
 		_missionName,
 		"campZone",
 		_missionPos,
 		_missionSize,
-		[[_missionCounter, 0, 0], [], [], [], [1, 2, 50, 0, 100, 5], _missionSide select 1]
+		[[_missionCounter, 0, 0], [], [], [], [1, 2, 50, 0, 100, 5], _enemyDAC]
 	]];
 };
 
-// Creates the DAC Zones above and sets one trigger to activate/deactivate them.
-[_missionName, _DACZoneList] call tg_fnc_DACzone_creator;
+// Create a trigger that sets up a DAC Zone (we don't want 100's of active zones at the start takes ~20mins to initialise!)
+private _initTrigger = createTrigger ["EmptyDetector", _missionPos, false];
+_initTrigger setTriggerTimeout [1, 1, 1, false];
+_initTrigger setTriggerArea [tg_triggerRange + _missionSize, tg_triggerRange + _missionSize, 0, true];
+_initTrigger setTriggerActivation [format["%1", tg_playerSide], "PRESENT", false];
+_initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzone_creator; deleteVehicle thisTrigger;", _missionName, _DACZoneList], "" ];
+
+// Get a text summary of the difficulty and enemy strength for the task.
+private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
+
+// Create Task
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "destroy"] call BIS_fnc_setTask;
+missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true

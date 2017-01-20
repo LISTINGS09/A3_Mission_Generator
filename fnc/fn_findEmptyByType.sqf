@@ -1,5 +1,5 @@
 // Finds an empty position nearby a location the size of _type.
-// Defaults to a random empty area if position not provided.
+// Defaults to a random empty area if position not provided, IGNORES safe areas.
 //
 // *** PARAMETERS ***
 // _searchPos	ARRAY		Position to search around.
@@ -12,10 +12,10 @@
 
 params [["_searchPos", [], [[]]], ["_minDist", 100, [100]], ["_maxDist", 500, [500]], ["_type", "B_Heli_Transport_01_F", [""]]];
 
-//[format ["[TG] DEBUG - findEmptyType: Called (Pos: %1, Min: %2, Max: %3, Type: %4)", _searchPos, _minDist, _maxDist, _type]] call tg_fnc_debugMsg;
+//[format ["[TG] DEBUG findEmptyType: Called (Pos: %1, Min: %2, Max: %3, Type: %4)", _searchPos, _minDist, _maxDist, _type]] call tg_fnc_debugMsg;
 
 if !(isClass (configFile >> "cfgVehicles" >> _type)) then {
-	[format ["[TG] ERROR: Invalid vehicle type passed to fn_findEmptyByType: %1", _type]] call tg_fnc_debugMsg;
+	[format ["[TG] ERROR findEmptyType: Invalid vehicle type passed: %1", _type]] call tg_fnc_debugMsg;
 	_type = "B_Soldier_F";
 };
 
@@ -33,7 +33,7 @@ if (_emptyPos isEqualTo []) exitWith {
 	_emptyPos
 };
 
-[format ["[TG-findEmptyType] DEBUG: Returning %1", _emptyPos]] call tg_fnc_debugMsg;
+[format ["[TG] DEBUG findEmptyType: Returning %1", _emptyPos]] call tg_fnc_debugMsg;
 
 /*if tg_debug then {
 	_tmpMkr = createMarkerLocal[format["markerEmptyByType_%1", ceil random 100000], _emptyPos];

@@ -1,28 +1,22 @@
 // Finds a free area on the map, not in a blacklisted area.
 //
 // *** PARAMETERS ***
-// _searchPos	ARRAY		Position to search around.
-// _findTypes	STRING		Arma Location types to search for
+// _searchPos	ARRAY			Position to search around.
+// _findType	STRING/ARRAY	Arma Location types to search for (NameCityCapital, NameCity, NameVillage, NameMarine, NameLocal, Airport etc)
 //	_maxDist	INT			
-// _skipSafe	BOOLEAN		Skip any Blacklist/Safe Zone checking.
+// _skipSafe	BOOLEAN			Skip any Blacklist/Safe Zone checking.
 //
 // *** RETURNS ***
 // Position Array
 //
 // *** USAGE ***
-// [[0,0,0], "village", 5000] call tg_fnc_findWorldLocation;
+// [[0,0,0], "NameVillage", 5000] call tg_fnc_findWorldLocation;
 
-params [["_searchPos",[],[[]]], ["_findTypes","",[""]], ["_maxDist", 10000, [10000]], ["_skipSafe", false, [false]]];
+params [["_searchPos",[],[[]]], ["_findType",["NameCityCapital","NameCity","NameVillage","NameLocal"],["",[]]], ["_maxDist", 10000, [10000]], ["_skipSafe", false, [false]]];
 
-//[format ["[TG] DEBUG - findWorldLocation: Called (Pos: %1, Types: %2, Max: %3, Skip: %4)", _searchPos, _findTypes,  _maxDist, _skipSafe]] call tg_fnc_debugMsg;
+//[format ["[TG] DEBUG - findWorldLocation: Called (Pos: %1, Types: %2, Max: %3, Skip: %4)", _searchPos, _findType,  _maxDist, _skipSafe]] call tg_fnc_debugMsg;
 
-_findTypes = switch (toLower _findTypes) do {
-	case "capital":	{ ["NameCityCapital"]; };
-	case "city":	{ ["NameCity"]; };
-	case "village":	{ ["NameVillage"]; };
-	case "local": 	{ ["NameLocal"] };
-	default 		{ ["NameCityCapital","NameCity","NameVillage","NameLocal"]; };
-};
+if (_findType isEqualType "") then { _findType = [_findType]; };
 
 // If no position was passed, use world centre
 if (_searchPos isEqualTo []) then {
@@ -30,7 +24,7 @@ if (_searchPos isEqualTo []) then {
 	//[format ["[TG] DEBUG - findWorldLocation: Using %1 centrePosition: %2", worldName, _searchPos]] call tg_fnc_debugMsg;
 };
 
-_nearLocs = nearestLocations [_searchPos, _findTypes, _maxDist];
+_nearLocs = nearestLocations [_searchPos, _findType, _maxDist];
 
 //[format ["[TG-findWorldLocation] DEBUG: Found %1 locations", count _nearLocs]] call tg_fnc_debugMsg;
 
@@ -41,13 +35,13 @@ if (count _nearLocs > 0) then {
 	{
 		_foundPos = getPos (selectRandom _nearLocs);
 		
-		if tg_debug then {
+		/*if tg_debug then {
 			_tmpMkr = createMarkerLocal[format["NearLoc_%1%2", _forEachIndex, ceil random 500], _foundPos];
 			_tmpMkr setMarkerShapeLocal "ICON";
 			_tmpMkr setMarkerColorLocal "colorGrey";
 			_tmpMkr setMarkerSizeLocal [0.5,0.5];
 			_tmpMkr setMarkerTypeLocal "mil_dot";
-		};
+		};*/
 		
 		_nearLocs = _nearLocs - [_foundPos];
 		

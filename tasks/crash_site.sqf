@@ -12,14 +12,14 @@ if (!(_missionType in tg_missionTypes) || _missionName == "") exitWith {
 private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
-		"Destroy a Radio Tower recently constructed by enemy forces.",
-		"The enemy has established a Radio Tower at this location, destroy it.",
-		"We've picked up a signal indicating a Radio Tower is present in the area, destroy it.",
-		"Destroy the Radio Tower at the marked location.",
-		"Intel has identified an enemy Radio Tower, destroy it.",
-		"A UAV has spotted an enemy Radio Tower recently built by the enemy, destroy it."
+		"",
+		"",
+		"",
+		"",
+		"",
+		""
 	];	
-private _missionSize = if _isMainMission then {700} else {400};
+private _missionSize = if _isMainMission then {400} else {200};
 private _missionCounter = tg_counter;
 
 // ----------- POSITION ---------------
@@ -34,7 +34,7 @@ while {_locAttempt < _maxAttempt} do {
 	
 	// Find a random position 
 	private _minValue = _locAttempt * 100;
-	_tempPos = [_tempPos, _minValue, _minValue + 300] call tg_fnc_findRandomEmpty;
+	_tempPos = [_tempPos, _minValue + 300, _minValue + 300] call tg_fnc_findRandomEmpty;
 	
 	// Validate position
 	private  _closePlayer = [_tempPos] call tg_fnc_isNearPlayer;
@@ -65,9 +65,20 @@ _missionMarker setMarkerSize [1,1];
 _missionMarker setMarkerType "mil_circle";
 
 // Create Objective
-private _tower = (selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F"]) createVehicle _missionPos;
-missionNamespace setVariable [format["%1_Obj",_missionName], _tower];
-_tower setVectorUp [0,0,1];
+//private _tower = (selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F"]) createVehicle _missionPos;
+//missionNamespace setVariable [format["%1_Obj",_missionName], _tower];
+//_tower setVectorUp [0,0,1];
+
+private _obj = createVehicle [selectRandom ["Land_UWreck_Heli_Attack_02_F", "Land_HistoricalPlaneWreck_02_front_F", "Land_UWreck_MV22_F", "Land_Wreck_Plane_Transport_01_F"],_missionPos,[], 0, "can_collide"];
+_obj setVectorUp surfaceNormal position _obj;
+private _smoke = createVehicle ["SmokeShell",position _obj, [], 0, "CAN_COLLIDE"];
+_smoke attachTo [_obj, [0, 0, -5] ];
+
+if (daytime > 17 || daytime < 5) then {
+	for "_i" from 0 to 4 do {
+		_chem = createVehicle [selectRandom ["Chemlight_green","Chemlight_yellow","Chemlight_red","Chemlight_blue"], _missionPos, [], 7, "NONE"]; 
+	};
+};
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
@@ -84,65 +95,26 @@ _objTrigger setTriggerStatements [ 	format["!alive %1_Obj",_missionName],
 //[_group1, getPos leader _group1, 50] spawn bis_fnc_taskPatrol;
 
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([8, "light", _missionType] call tg_fnc_balanceUnits), 2, 30, 15];
-private _DACvehicles = [([4, "medium", _missionType] call tg_fnc_balanceUnits), 2, 25, 10];
-private _DACarmour = [([1, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 25, 10];
-private _DACheli = if (random 1 > 0.95 && _isMainMission) then {[1,2,5]} else {[]};
+private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), 2, 30, 15];
+private _DACvehicles = [([1, "medium", _missionType] call tg_fnc_balanceUnits), 2, 25, 10];
+private _DACarmour = [];
+private _DACheli =[];
 
 // If unit count is 0 clear the array.
 if (_DACvehicles select 0 == 0) then { _DACvehicles = []; }; 
-if (_DACarmour select 0 == 0) then { _DACarmour = []; }; 
 
 _DACZoneList = [
-	// Spawn an inner infantry-only Sentry Zone
-	[
-		_enemySide,
-		_missionName,
-		"sentryZone",
-		_missionPos,
-		100,
-		[[_missionCounter, 1, 0], [random 3, 1, 15, 5], [], [], [], _enemyDAC]
-	],
-	// Spawn a outer Mission Zone
+	// Spawn a Mission Zone
 	[
 		_enemySide,
 		_missionName,
 		"missionZone",
 		_missionPos,
 		_missionSize,
-		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, [], _enemyDAC],
+		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, _DACheli, _enemyDAC],
 		true
 	]
 ];
-
-private _addText = "";
-
-// Spawn a Heli Zone (maybe)
-if (count _DACheli > 0) then {
-	_addText = "<br/><br/>Enemy air support is understood to be active in this area. Approach the area with extreme caution.";
-	_DACZoneList pushBack [
-			_enemySide,
-			_missionName,
-			"heliZone",
-			_missionPos,
-			_missionSize,
-			[[_missionCounter, 1, 0], [], [], [], _DACheli, _enemyDAC]
-		];
-};
-
-// Maybe spawn a Mortar Camp if is mainMission and over certain chance.
-if (random 1 > 0.85 && (_missionType == tg_missionTypes select 0)) then {
-	_addText = "<br/><br/>A mortar site is present somewhere near the objective. Expect the enemy will call in mortar support if you are spotted.";
-	_DACZoneList append [[
-		_enemySide,
-		_missionName,
-		"campZone",
-		_missionPos,
-		_missionSize,
-		[[_missionCounter, 0, 0], [], [], [], [1, 2, 50, 0, 100, 5], _enemyDAC]
-
-	]];
-};
 
 // Create a trigger that sets up a DAC Zone (we don't want 100's of active zones at the start takes ~20mins to initialise!)
 private _initTrigger = createTrigger ["EmptyDetector", _missionPos, false];
@@ -155,7 +127,7 @@ _initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzo
 private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "destroy"] call BIS_fnc_setTask;
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "destroy"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true

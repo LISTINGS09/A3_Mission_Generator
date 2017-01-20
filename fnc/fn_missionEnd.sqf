@@ -5,7 +5,7 @@ params ["_missionName", "_missionType", ["_didWin", false, [false]]];
 
 // Complete the task for players.
 private _missionTask = missionNamespace getVariable format["%1_task", _missionName];
-if (!isNil _missionTask) then {
+if (!isNil "_missionTask") then {
 	if (_didWin) then {
 		[_missionTask, "Succeeded", true] spawn BIS_fnc_taskSetState;
 	} else {
@@ -38,6 +38,8 @@ tg_threadLockedBy = format["Ending %1",_missionName];
 
 // Locate the running mission.
 private _foundIndex = ([tg_missions_active, _missionName] call BIS_fnc_findNestedElement) select 0;
+
+if (isNil "_foundIndex") then { _foundIndex = -1; };
 
 //[format ["[TG] DEBUG: (fn_missionEnd) Index of %1 (%2) in %3", _missionName, _foundIndex, tg_missions_active]] call tg_fnc_debugMsg;
 

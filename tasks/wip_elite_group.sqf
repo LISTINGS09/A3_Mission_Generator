@@ -12,12 +12,12 @@ if (!(_missionType in tg_missionTypes) || _missionName == "") exitWith {
 private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
-		"Enemy forces are trying to occupy a nearby location, eliminate them.",
-		"A number of enemy groups have been spotted in this area, locate and eliminate all contacts.",
-		"Eliminate all enemy forces in the nearby area.",
-		"Enemy forces have recently entered this location, destroy them before they can reinforce it.",
-		"The enemy appears to have occupied this area overnight, eliminate all forces there.",
-		"The enemy is trying to occupy this area, move in and eliminate all resistance."
+		"",
+		"",
+		"",
+		"",
+		"",
+		""
 	];	
 private _missionSize = if _isMainMission then {600} else {200};
 
@@ -68,72 +68,46 @@ private _missionMarker = createMarker[format["%1_marker", _missionName], _missio
 _missionMarker setMarkerShape "ICON";
 _missionMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
 _missionMarker setMarkerSize [1,1];
-_missionMarker setMarkerType "mil_circle";
+_missionMarker setMarkerType "mil_unknown";
 
 // Create Objective
-private _milGroup = [_missionPos, _enemySide, [_enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier]] call BIS_fnc_spawnGroup;
-[_milGroup, _missionPos, 100] call bis_fnc_taskPatrol;
+private _milGroup = [_missionPos, _enemySide, [_enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier]] call BIS_fnc_spawnGroup;
+[_milGroup, _missionPos, 200] call bis_fnc_taskPatrol;
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
 _objTrigger setTriggerTimeout [12, 12, 12, false];
 _objTrigger setTriggerArea [(_missionSize / 100 * 75), (_missionSize / 100 * 75), 0, true];
 _objTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", false];
-_objTrigger setTriggerStatements [ 	format["count thisList < 4 && triggerActivated TR_DAC_%1",_missionName], 
+_objTrigger setTriggerStatements [ 	format["!alive ",_missionName], 
 									format["['%1', '%2', true] spawn tg_fnc_missionEnd; '%1_marker' setMarkerColor 'ColorGrey'; [] spawn { sleep 60; deleteMarker '%1_marker'; };", _missionName, _missionType], 
 									"" ];
 
 // ----------- OTHER ---------------
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([8, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 20, 5];
-private _DACvehicles = [([4, "medium", _missionType] call tg_fnc_balanceUnits), 2, 10, 6];
-private _DACarmour = [([2, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 8, 4];
-private _DACheli = if (random 1 > 0.65 && _isMainMission) then {[1,2,5]} else {[]};
+private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {3} else {2}, 20, 5];
+private _DACvehicles = [([1, "medium", _missionType] call tg_fnc_balanceUnits), 2, 10, 6];
+private _DACarmour = [];
+private _DACheli = [];
 
 // If unit count is 0 clear the array.
 if (_DACvehicles select 0 == 0) then { _DACvehicles = []; }; 
-if (_DACarmour select 0 == 0) then { _DACarmour = []; }; 
 
 // Set DAC Behaviour to garrison Buildings for a long time.
 _enemyDAC set [2,6];
 
 _DACZoneList = [
-	// Spawn an inner infantry-only Sentry Zone
+	// Spawn an infantry-only Zone
 	[
 		_enemySide,
 		_missionName,
 		"sentryZone",
 		_missionPos,
-		100,
-		[[_missionCounter, 1, 0], [random 3, 1, 10, 5], [], [], [], _enemyDAC] 
-	],
-	// Spawn a outer Mission Zone
-	[
-		_enemySide,
-		_missionName,
-		"missionZone",
-		_missionPos,
 		_missionSize,
-		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, [], _enemyDAC],
+		[[_missionCounter, 1, 0], _DACinfantry, [], [], [], _enemyDAC],
 		true
 	]
 ];
-
-private _addText = "";
-
-// Spawn a Heli Zone (maybe)
-if (count _DACheli > 0) then {
-	_addText = "<br/><br/>Enemy air assets are known be active in the area. If you maintain a low profile, you may be able to destroy them before they take-off.";
-	_DACZoneList pushBack [
-			_enemySide,
-			_missionName,
-			"heliZone",
-			_missionPos,
-			_missionSize + 200,
-			[[_missionCounter, 1, 0], [], [], [], _DACheli, _enemyDAC]
-		];
-	
-};
 
 // Create a trigger that sets up a DAC Zone (we don't want 100's of active zones at the start takes ~20mins to initialise!)
 private _initTrigger = createTrigger ["EmptyDetector", _missionPos, false];
@@ -142,14 +116,11 @@ _initTrigger setTriggerArea [tg_triggerRange + _missionSize, tg_triggerRange + _
 _initTrigger setTriggerActivation [format["%1", tg_playerSide], "PRESENT", false];
 _initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzone_creator; deleteVehicle thisTrigger;", _missionName, _DACZoneList], "" ];
 
-// Creates the DAC Zones above and sets one trigger to activate/deactivate them.
-//[_missionName, _DACZoneList] call tg_fnc_DACzone_creator;
-
 // Get a text summary of the difficulty and enemy strength for the task.
-private _textDifficulty = [if _isMainMission then {2} else {1},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
+private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "attack"] call BIS_fnc_setTask;
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "attack"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true

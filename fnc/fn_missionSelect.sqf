@@ -20,6 +20,9 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 	
 	private _missionType = _x;
 	
+	// If this isn't a valid mission type, just exit.
+	if !(_missionType in tg_missionTypes) exitWith {};
+	
 	// Count of active tasks for a type.
 	private _missionCount = {(_x select 0) isEqualTo _missionType} count tg_missions_active;	
 
@@ -78,4 +81,5 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 	tg_threadActive = false;
 	tg_threadLockedBy = "-";
 	
+	sleep tg_taskDelay;
 } forEach _typeList;
