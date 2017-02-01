@@ -1,23 +1,23 @@
 // Test Mission
-params [["_missionType", (tg_missionTypes select 0), [""]], ["_missionName", "", [""]]];
+params [["_missionType", "", [""]], ["_missionName", "", [""]]];
 
 // ----------- PREP ---------------
 // Make sure missionType is valid.
-if (!(_missionType in tg_missionTypes) || _missionName == "") exitWith {
-	["[TG] ERROR: Invalid mission: %1 %2", _missionName, _missionType] call tg_fnc_debugMsg;
-	false
+if (!(_missionType in tg_missionTypes) || _missionName == "") then {
+	["[TG] Invalid mission ('%1')",_missionType] call bis_fnc_error;
+	_missionType = tg_missionTypes select 0;
 };
 
 // Set-up mission variables.
 private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
-		"Enemy forces are trying to occupy a nearby location, eliminate them.",
-		"A number of enemy groups have been spotted in this area, locate and eliminate all contacts.",
-		"Eliminate all enemy forces in the nearby area.",
-		"Enemy forces have recently entered this location, destroy them before they can reinforce it.",
-		"The enemy appears to have occupied this area overnight, eliminate all forces there.",
-		"The enemy is trying to occupy this area, move in and eliminate all resistance."
+		"Enemy forces are trying to occupy an area near %1, eliminate them.",
+		"A number of enemy groups have been spotted nearby %1, locate and eliminate all contacts.",
+		"Eliminate all enemy forces in the area nearby %1.",
+		"Enemy forces have recently entered this location near %1, destroy them before they can reinforce it.",
+		"The enemy appears to have occupied this area near %1 overnight, eliminate all forces there.",
+		"The enemy is trying to occupy %1, move in and eliminate all resistance."
 	];	
 private _missionSize = if _isMainMission then {600} else {200};
 
@@ -85,8 +85,8 @@ _objTrigger setTriggerStatements [ 	format["count thisList < 4 && triggerActivat
 
 // ----------- OTHER ---------------
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([8, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 20, 5];
-private _DACvehicles = [([4, "medium", _missionType] call tg_fnc_balanceUnits), 2, 10, 6];
+private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 20, 5];
+private _DACvehicles = [([2, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 10, 6];
 private _DACarmour = [([2, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 8, 4];
 private _DACheli = if (random 1 > 0.65 && _isMainMission) then {[1,2,5]} else {[]};
 
@@ -149,7 +149,8 @@ _initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzo
 private _textDifficulty = [if _isMainMission then {2} else {1},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "attack"] call BIS_fnc_setTask;
+private _missionNameText = text nearestLocation [_missionPos, ""];
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + format[(selectRandom _missionDesc), _missionNameText] + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "attack"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true

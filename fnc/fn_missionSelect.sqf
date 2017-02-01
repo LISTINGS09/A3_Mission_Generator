@@ -30,7 +30,7 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 	private _missionList = missionNamespace getVariable format["tg_%1_list", _missionType];	
 	
 	private _selectTry = 0;
-	private _selectMaxTry = 15;
+	private _selectMaxTry = 8;
 	
 	//[format["[TG] DEBUG: %1 Loop %2 vs %3", _missionType, _missionCount, missionNamespace getVariable [format["tg_%1_max", _missionType], 0]]] call tg_fnc_debugMsg;
 	
@@ -81,5 +81,5 @@ if (_typeList isEqualType "") then { _typeList = [_typeList]; };
 	tg_threadActive = false;
 	tg_threadLockedBy = "-";
 	
-	sleep tg_taskDelay;
+	sleep 5;
 } forEach _typeList;

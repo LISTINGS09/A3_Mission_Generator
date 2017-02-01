@@ -3,21 +3,21 @@ params [["_missionType", (tg_missionTypes select 0), [""]], ["_missionName", "",
 
 // ----------- PREP ---------------
 // Make sure missionType is valid.
-if (!(_missionType in tg_missionTypes) || _missionName == "") exitWith {
-	["[TG-%1] ERROR: Invalid mission: %2", _missionName, _missionType] call tg_fnc_debugMsg;
-	false
+if (!(_missionType in tg_missionTypes) || _missionName == "") then {
+	["[TG] Invalid mission ('%1')",_missionType] call bis_fnc_error;
+	_missionType = tg_missionTypes select 0;
 };
 
 // Set-up mission variables.
 private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
-		"",
-		"",
-		"",
-		"",
-		"",
-		""
+		"The enemy has engaged a cargo transport flying over the area, search the area for nearby crates.",
+		"An enemy air transport has crashed at the location, search the area for crates.",
+		"Ammo crates have been spotted near a wreck, move in and secure them.",
+		"Search and secure the ammo crates at a downed transport.",
+		"An air transport carrying supplies has crashed. Secure the area and find the crates.",
+		"A crashed transport has been spotted near this location. Find the crates before the enemy can."
 	];	
 private _missionSize = if _isMainMission then {400} else {200};
 private _missionCounter = tg_counter;
@@ -69,24 +69,33 @@ _missionMarker setMarkerType "mil_circle";
 //missionNamespace setVariable [format["%1_Obj",_missionName], _tower];
 //_tower setVectorUp [0,0,1];
 
-private _obj = createVehicle [selectRandom ["Land_UWreck_Heli_Attack_02_F", "Land_HistoricalPlaneWreck_02_front_F", "Land_UWreck_MV22_F", "Land_Wreck_Plane_Transport_01_F"],_missionPos,[], 0, "can_collide"];
-_obj setVectorUp surfaceNormal position _obj;
-private _smoke = createVehicle ["SmokeShell",position _obj, [], 0, "CAN_COLLIDE"];
-_smoke attachTo [_obj, [0, 0, -5] ];
+private _wreck = (selectRandom ["Land_UWreck_Heli_Attack_02_F", "Land_HistoricalPlaneWreck_02_front_F", "Land_UWreck_MV22_F", "Land_Wreck_Plane_Transport_01_F"]) createVehicle _missionPos;
+_wreck setVectorUp surfaceNormal position _wreck;
 
-if (daytime > 17 || daytime < 5) then {
-	for "_i" from 0 to 4 do {
-		_chem = createVehicle [selectRandom ["Chemlight_green","Chemlight_yellow","Chemlight_red","Chemlight_blue"], _missionPos, [], 7, "NONE"]; 
+// Spawn smoke.
+private _smoke = createVehicle ["test_EmptyObjectForSmoke",_missionPos vectorAdd [0,0,1], [], 0, "CAN_COLLIDE"];
+
+// Get the number of crates to generate.
+_crateNo = if _isMainMission then { random 5 } else { random 3 };
+
+// Generate the crates.
+for "_i" from 0 to _crateNo do {
+	_ammoType = selectRandom tg_vehicles_ammo;
+	private _ammoPos = _missionPos findEmptyPosition [5, 15, _ammoType];
+	if (count _ammoPos > 0) then { 
+		private _ammoObj = _ammoType createVehicle _ammoPos;
+		_ammoObj allowDamage false;
+		_ammoObj setDir random 90;
+		["crash_crate",_ammoObj, _enemySide] call f_fnc_assignGear;
 	};
 };
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
 _objTrigger setTriggerTimeout [5, 5, 5, false];
-//_objTrigger setTriggerArea [50, 50, 0, true];
-_objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
-//_objTrigger triggerAttachVehicle [("C_Van_01_box_F" createVehicle _missionPos)];
-_objTrigger setTriggerStatements [ 	format["!alive %1_Obj",_missionName], 
+_objTrigger setTriggerArea [50, 50, 0, true];
+_objTrigger setTriggerActivation [format["%1", tg_playerSide], "PRESENT", false];
+_objTrigger setTriggerStatements [ 	"this", 
 									format["['%1', '%2', true] spawn tg_fnc_missionEnd; '%1_marker' setMarkerColor 'ColorGrey'; [] spawn { sleep 60; deleteMarker '%1_marker'; };", _missionName, _missionType], 
 									"" ];
 
@@ -96,7 +105,7 @@ _objTrigger setTriggerStatements [ 	format["!alive %1_Obj",_missionName],
 
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
 private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), 2, 30, 15];
-private _DACvehicles = [([1, "medium", _missionType] call tg_fnc_balanceUnits), 2, 25, 10];
+private _DACvehicles = [([1, "medium", _missionType] call tg_fnc_balanceUnits), 1, 25, 10];
 private _DACarmour = [];
 private _DACheli =[];
 
@@ -111,8 +120,7 @@ _DACZoneList = [
 		"missionZone",
 		_missionPos,
 		_missionSize,
-		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, _DACheli, _enemyDAC],
-		true
+		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, _DACheli, _enemyDAC]
 	]
 ];
 
@@ -127,7 +135,7 @@ _initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzo
 private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "destroy"] call BIS_fnc_setTask;
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "rearm"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true

@@ -3,21 +3,21 @@ params [["_missionType", (tg_missionTypes select 0), [""]], ["_missionName", "",
 
 // ----------- PREP ---------------
 // Make sure missionType is valid.
-if (!(_missionType in tg_missionTypes) || _missionName == "") exitWith {
-	["[TG-%1] ERROR: Invalid mission: %2", _missionName, _missionType] call tg_fnc_debugMsg;
-	false
+if (!(_missionType in tg_missionTypes) || _missionName == "") then {
+	["[TG] Invalid mission ('%1')",_missionType] call bis_fnc_error;
+	_missionType = tg_missionTypes select 0;
 };
 
 // Set-up mission variables.
 private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
-		"Locate and eliminate an HVT nearby the marked location.",
-		"An Officer has been spotted entering the area, they must be eliminated.",
-		"There is an enemy HVT awaiting extraction from this location, they must be eliminated.",
-		"Find and eliminate the Officer hiding somewhere around the area.",
-		"An HVT has been seen moving around the area, find them and kill them.",
-		"A high-ranking Officer is confirmed to be in the area, ensure they are eliminated."
+		"Locate and eliminate an HVT nearby %1 within the marked location.",
+		"An Officer has been spotted entering the area near %1, they must be eliminated.",
+		"There is an enemy HVT is trying to leave %1 and is awaiting extraction from this location, they must be eliminated.",
+		"Find and eliminate the Officer hiding somewhere nearby %1.",
+		"An HVT has been seen moving around the area outside %1, find them and kill them.",
+		"A high-ranking Officer is confirmed to be in the area near %1, ensure they are eliminated."
 	];	
 private _missionSize = if _isMainMission then {600} else {200};
 private _missionCounter = tg_counter;
@@ -95,8 +95,8 @@ _objTrigger setTriggerStatements [ 	format["!alive %1_HVT",_missionName],
 
 // ----------- OTHER ---------------
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([8, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 16, 8];
-private _DACvehicles = [([3, "medium", _missionType] call tg_fnc_balanceUnits), 2, 12, 6];
+private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 16, 8];
+private _DACvehicles = [([2, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 12, 6];
 private _DACarmour = [([1, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 8, 4];
 
 // If unit count is 0 clear the array.
@@ -123,8 +123,7 @@ _DACZoneList = [
 		"missionZone",
 		_missionPos,
 		_missionSize,
-		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, [], _enemyDAC],
-		true
+		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, [], _enemyDAC]
 	]
 ];
 
@@ -139,7 +138,8 @@ _initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzo
 private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "kill"] call BIS_fnc_setTask;
+private _missionNameText = text nearestLocation [_missionPos, ""];
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + format[(selectRandom _missionDesc), _missionNameText] + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "kill"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true

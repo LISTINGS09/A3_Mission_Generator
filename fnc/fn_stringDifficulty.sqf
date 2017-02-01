@@ -12,6 +12,8 @@
 
 params ["_difficulty", ["_infantryCount",[]], ["_motorisedCount",[]], ["_mechanisedCount",[]], ["_airCount",[]]];
 
+[format["[TG] DEBUG stringDifficulty: [%1, %2, %3, %4, %5]", _difficulty, _infantryCount, _motorisedCount, _mechanisedCount, _airCount]] call tg_fnc_debugMsg;
+
 _dEasy = ["I'm Bulletproof","Everyone Survives","Fish in a Barrel","Still Learning","Look; No Hands","Which part is the trigger?","Hugh Grant","Piece of Cake","Too Easy","Walk in the park","What a Lovely Day","Baby's First Mission","Too Young To Die"];
 _dMedi = ["Bring the Morphine","Not Everyone Survives","Bruce Willis","Lets Rock","It'll be OK","I Think I Left The Stove On","They call me the cleaner","I have pet names for my grenades","Not Too Rough"];
 _dHard = ["Bring the body-bags","I'm a big boy now","Chuck Norris","Come Get Some","Freight Train O'Death","None Shall Live","Nightmare"];
@@ -33,13 +35,13 @@ _textDifficulty = _textDifficulty + "<br/><font color='#00FF80'>Enemy Strength</
 		if (_forEachIndex == 0) then {
 			private _infCount = round ((_x select 0) * ((_x select 1) * (_x select 1)) / 10);
 			switch _infCount do {
-				case 0; case 1: { 
+				case 0: { 
 					_textDifficulty = _textDifficulty + format ["%1 - <font color='#008000'>Fireteam</font><br/>", _typeName, _infCount];
 				};
-				case 2; case 3: { 
+				case 1; case 2: { 
 					_textDifficulty = _textDifficulty + format ["%1 - <font color='#008000'>Squad</font><br/>", _typeName, _infCount];
 				};
-				case 4; case 5; case 6; case 7:	{
+				case 3; case 4; case 5; case 6: {
 					_textDifficulty = _textDifficulty + format ["%1 - <font color='#FFA500'>Platoon</font><br/>", _typeName, _infCount];
 				};
 				default {
@@ -47,7 +49,10 @@ _textDifficulty = _textDifficulty + "<br/><font color='#00FF80'>Enemy Strength</
 				};
 			}; 
 		} else {
-			switch (_x select 0) do {
+			switch (round (_x select 0)) do {
+				case 0: { 
+					_textDifficulty = _textDifficulty + format ["%1 - <font color='#008000'>Very Low</font><br/>",_typeName, _x select 0];
+				};
 				case 1: { 
 					_textDifficulty = _textDifficulty + format ["%1 - <font color='#008000'>Low</font><br/>",_typeName, _x select 0];
 				};

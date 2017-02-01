@@ -14,33 +14,36 @@ if !(_nearPos isEqualTo []) then {
 	} forEach (_nearPos nearEntities [["Man", "Air", "Car", "Tank"], _inDist]);
 };
 
-// Build a list of allowed Marker colours to match on.
-private _colorArray = [];
-private _colorSide = [];
-{
-	_colorArray pushBack ([_x, true] call BIS_fnc_sideColor);
-	_colorSide pushBack _x;
-} forEach _sideArray;
+// If no match, build a list of allowed Marker colours to match on.
+if (_reason isEqualTo "Random") then {
+	private _colorArray = [];
+	private _colorSide = [];
+	private _nearDist = _inDist;
+	{
+		_colorArray pushBack ([_x, true] call BIS_fnc_sideColor);
+		_colorSide pushBack _x;
+	} forEach _sideArray;
 
-// Iterate the markers and if one is close and matches a side color, use that side.
-{	
-	if ((getMarkerPos _x) distance2D _nearPos < _inDist) then {
-		private _findIndex = _colorArray find (getMarkerColor _x);
-		if (_findIndex >= 0) then {
-			_sideArray = [_colorSide select _findIndex];
-			_reason = "Marker";
+	// Iterate the markers and if one is close and matches a side color, use that side.
+	// Only matches if the distance was less than the previous check.
+	{	
+		if ((getMarkerPos _x) distance2D _nearPos < _nearDist) then {
+			private _findIndex = _colorArray find (getMarkerColor _x);
+			if (_findIndex >= 0) then {
+				_nearDist = (getMarkerPos _x) distance2D _nearPos;
+				_sideArray = [_colorSide select _findIndex];
+				_reason = "Marker";
+			};
 		};
-	};
-} forEach allMapMarkers;
+	} forEach allMapMarkers;
+};
 
 // Select a side to use.
 switch (selectRandom _sideArray) do {
-	case east: { _pickedSide = tg_sideEast; };
-	case independent: { _pickedSide = tg_sideGuer; };
-	case default { _pickedSide = tg_sideWest; }; // FIA
+	case east: { _pickedSide = selectRandom tg_sideEast; };
+	case independent: { _pickedSide = selectRandom tg_sideGuer; };
+	case default { _pickedSide = selectRandom tg_sideWest; }; // FIA
 };
-
-_pickedSide = selectRandom _pickedSide;
 
 //[format["[TG] fn_findSide: AI-%1 (%2)", _pickedSide, _reason]] call tg_fnc_debugMsg;
 

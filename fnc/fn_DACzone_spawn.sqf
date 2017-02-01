@@ -12,7 +12,17 @@ private _removeExtras = "";
 
 // Check something isn't badly wrong.
 if (isNil "_DACinit") exitWith {
-	[format["[TG] ERROR DACZone_Spawn: DAC init not specified for %1",_zoneName]] call tg_fnc_debugMsg;
+	["[TG] DAC init not specified (%1)",_zoneName] call bis_fnc_error;
+};
+
+// If a string was passed, convert it to a side.
+if (_missionSide isEqualType "") then {
+	_missionSide = switch (toLower _missionSide) do {
+		case "west": { west };
+		case "east": { east };
+		case "guer": { independent };
+		default { civilian };
+	};
 };
 
 // Add a marker for the zone if required.
@@ -28,29 +38,32 @@ if (_addMarker) then {
 };
 
 private _needsActivated = if ((_DACinit select 0) select 1 == 1) then {true} else {false};
+// (_DACinit select 0) set [1,0]; // DEBUG: Set the zone as active regardless.
 
 // DAC can only spawn one zone at a time, wait until the previous is completed.
-waitUntil{sleep 3; if (DAC_NewZone != 0) then {[format["[TG] DEBUG DACZone_Spawn: %1 waiting for DAC to finish (%2)", _zoneName, DAC_NewZone]] call tg_fnc_debugMsg;}; DAC_NewZone == 0; };
+waitUntil{sleep 1; DAC_NewZone == 0; };
 
 // Create the DAC Zone
 [format["[TG] DEBUG DACZone_Spawn: NewZone: [%1, %2, %2, 0, 0, %3]", _zonePos, _size, [_zoneName] + _DACinit]] call tg_fnc_debugMsg;
 [_zonePos, _size, _size, 0, 0, [_zoneName] + _DACinit] call DAC_fNewZone;
-
+/*
 private _waitTime = 0;
+private _waitTimeMax = ((_size / 100) * 8); // Estimate the time to wait roughly before forcing closure of the zone.
+if (_waitTimeMax < 40) then { _waitTimeMax = 40 };
+if (_waitTimeMax > 80) then { _waitTimeMax = 80 };
 
 // DEBUG - Sometimes DAC doesn't reset DAC_NewZone, how could it go so wrong?
 // Looks like error was related to DAC_Init_Camps not resetting, or failure to find all suitable WP zones.
-waitUntil{	sleep 5;
-			_waitTime = _waitTime + 5; 
-			if (DAC_NewZone != 0 && _waitTime >= 40 && _waitTime <= 60) then {
-				[format["[TG] WARNING: DAC_fNewZone %1 has taken over %2 secs DAC_NewZone (%3) - DAC_Init_Camps (%4)", _zoneName, _waitTime, DAC_NewZone, DAC_Init_Camps]] call tg_fnc_debugMsg; 
+waitUntil{	sleep 1;
+			_waitTime = _waitTime + 1; 
+			if (DAC_NewZone != 0 && (_waitTime mod 5 == 0) && _waitTime > 10 && _waitTime <= _waitTimeMax) then {
+				[format["[TG] WARNING: DAC_fNewZone %1 taken %2/%3 (IC:%4 CR:%5 MI:%6)", _zoneName, _waitTime, _waitTimeMax, DAC_Init_Counter, DAC_InCreate, DAC_Master_Init]] call tg_fnc_debugMsg; 
 			};
-			if (DAC_NewZone != 0 && _waitTime > 60) then {
-				[format["[TG] ERROR DACZone_Spawn: %1 Resetting - DAC_NewZone was %2, DAC_Init_Camps was %3", _zoneName, DAC_NewZone, DAC_Init_Camps]] call tg_fnc_debugMsg; 
-				format["Warning: DAC (%1) - Report to 26K", _zoneName] remoteExec ["SystemChat"];
+			if (DAC_NewZone != 0 && _waitTime > _waitTimeMax) then {
+				["[TG] DAC Zone killed after %2s ('%1' IC: %3 MI: %4)", _zoneName, _waitTimeMax, DAC_Init_Counter, DAC_Master_Init] call bis_fnc_error;
 				DAC_NewZone = 0; 
 			};
 			DAC_NewZone == 0; 
 		};
-
+*/
 [_zoneName, _zonePos, _size, _removeExtras, _needsActivated]

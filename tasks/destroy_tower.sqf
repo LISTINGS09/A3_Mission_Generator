@@ -3,9 +3,9 @@ params [["_missionType", (tg_missionTypes select 0), [""]], ["_missionName", "",
 
 // ----------- PREP ---------------
 // Make sure missionType is valid.
-if (!(_missionType in tg_missionTypes) || _missionName == "") exitWith {
-	["[TG-%1] ERROR: Invalid mission: %2", _missionName, _missionType] call tg_fnc_debugMsg;
-	false
+if (!(_missionType in tg_missionTypes) || _missionName == "") then {
+	["[TG] Invalid mission ('%1')",_missionType] call bis_fnc_error;
+	_missionType = tg_missionTypes select 0;
 };
 
 // Set-up mission variables.
@@ -65,9 +65,10 @@ _missionMarker setMarkerSize [1,1];
 _missionMarker setMarkerType "mil_circle";
 
 // Create Objective
-private _tower = (selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F"]) createVehicle _missionPos;
-missionNamespace setVariable [format["%1_Obj",_missionName], _tower];
-_tower setVectorUp [0,0,1];
+//private _tower = (selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F"]) createVehicle _missionPos;
+//missionNamespace setVariable [format["%1_Obj",_missionName], _tower];
+//_tower setVectorUp [0,0,1];
+[[[selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F"], [0,0,0], 0, format["%1_Obj",_missionName]]], _missionPos, random 90] call tg_fnc_objectSpawner;
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
@@ -84,8 +85,8 @@ _objTrigger setTriggerStatements [ 	format["!alive %1_Obj",_missionName],
 //[_group1, getPos leader _group1, 50] spawn bis_fnc_taskPatrol;
 
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([8, "light", _missionType] call tg_fnc_balanceUnits), 2, 30, 15];
-private _DACvehicles = [([4, "medium", _missionType] call tg_fnc_balanceUnits), 2, 25, 10];
+private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), 2, 30, 15];
+private _DACvehicles = [([2, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 25, 10];
 private _DACarmour = [([1, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 25, 10];
 private _DACheli = if (random 1 > 0.95 && _isMainMission) then {[1,2,5]} else {[]};
 
@@ -110,8 +111,7 @@ _DACZoneList = [
 		"missionZone",
 		_missionPos,
 		_missionSize,
-		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, [], _enemyDAC],
-		true
+		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, [], _enemyDAC]
 	]
 ];
 
@@ -140,7 +140,6 @@ if (random 1 > 0.85 && (_missionType == tg_missionTypes select 0)) then {
 		_missionPos,
 		_missionSize,
 		[[_missionCounter, 0, 0], [], [], [], [1, 2, 50, 0, 100, 5], _enemyDAC]
-
 	]];
 };
 
@@ -155,7 +154,7 @@ _initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzo
 private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "destroy"] call BIS_fnc_setTask;
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "destroy"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true

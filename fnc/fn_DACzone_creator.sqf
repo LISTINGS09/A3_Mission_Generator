@@ -4,7 +4,7 @@
 params ["_missionName", "_DACZoneList"];
 
 if (!isNil (missionNamespace getVariable format["TR_DAC_%1", _missionName])) exitWith {
-	[format["[TG] ERROR: Trigger 'TR_DAC_%1' already exists. Only one creator can be called per mission!",_zoneName]] call tg_fnc_debugMsg;
+	["[TG] Trigger already exists ('TR_DAC_%1')",_zoneName] call bis_fnc_error;
 };
 
 private _zoneList = [];
@@ -19,7 +19,7 @@ private _zoneList_areas_active = [];
 private _zoneList_areas_all = [];
 
 private _zoneList_pos = [0, 0, 0];
-private _zoneList_size = 1000;
+private _zoneList_size = 0;
 private _zoneList_extra = "";
 
 {
@@ -33,15 +33,15 @@ private _zoneList_extra = "";
 	_zoneList_areas_all pushBack _zoneName;	// Add the Zone to the master list.
 	
 	if _needsActivated then { _zoneList_areas_active pushBack _zoneName; };	// Add the Zone to the list to be activated.
-	if (_size + 500 > _zoneList_size) then {  _zoneList_size = _size + 500; };
+	if (_size + 1000 > _zoneList_size) then {  _zoneList_size = _size + 1000; };
 } forEach _zoneList;
 
-private _timeOut = 3;
+private _timeOut = 5;
 
 // If DAC is set to start inactive, spawn a trigger to activate it (_needsActivated lets us know if it needs done)
 private _zoneTrigger = createTrigger ["EmptyDetector", _zoneList_pos, false];
 _zoneTrigger setTriggerTimeout [_timeOut, _timeOut, _timeOut, false];
-_zoneTrigger setTriggerArea [_zoneList_size, _zoneList_size, 0, true];
+_zoneTrigger setTriggerArea [_zoneList_size, _zoneList_size, 0, true, 500];
 _zoneTrigger setTriggerActivation [format["%1", tg_playerSide], "PRESENT", true];
 // TODO: Future version of Arma can activate a trigger from any playable unit.
 //_zoneTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", true];
@@ -55,7 +55,7 @@ if (count _zoneList_areas_active > 0) then {
 	_activate_code = format[
 		"if !(missionNamespace getVariable ['%1',false]) then { 
 			[] spawn {
-				waitUntil{ sleep 1; DAC_NewZone == 0; };
+				waitUntil{ sleep 0.5; DAC_NewZone == 0; };
 				['[TG] DEBUG DAC: Activating [%2]'] call tg_fnc_debugMsg;
 				[%2] call DAC_Activate;
 			}; 
@@ -72,7 +72,7 @@ private _deactivate_code =
 			[] spawn { 
 				waitUntil{ sleep 1; DAC_NewZone == 0; };
 				['[TG] DEBUG DAC: Deleting %2'] call tg_fnc_debugMsg;
-				%2 call DAC_fDeleteZone; 
+				%2 call DAC_fDeleteZone;
 				%3
 				deleteVehicle TR_DAC_%1;
 			};

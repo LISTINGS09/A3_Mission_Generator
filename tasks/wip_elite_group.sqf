@@ -3,9 +3,9 @@ params [["_missionType", (tg_missionTypes select 0), [""]], ["_missionName", "",
 
 // ----------- PREP ---------------
 // Make sure missionType is valid.
-if (!(_missionType in tg_missionTypes) || _missionName == "") exitWith {
-	["[TG] ERROR: Invalid mission: %1 %2", _missionName, _missionType] call tg_fnc_debugMsg;
-	false
+if (!(_missionType in tg_missionTypes) || _missionName == "") then {
+	["[TG] Invalid mission ('%1')",_missionType] call bis_fnc_error;
+	_missionType = tg_missionTypes select 0;
 };
 
 // Set-up mission variables.
@@ -85,8 +85,8 @@ _objTrigger setTriggerStatements [ 	format["!alive ",_missionName],
 
 // ----------- OTHER ---------------
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {3} else {2}, 20, 5];
-private _DACvehicles = [([1, "medium", _missionType] call tg_fnc_balanceUnits), 2, 10, 6];
+private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 20, 5];
+private _DACvehicles = [([1, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 10, 6];
 private _DACarmour = [];
 private _DACheli = [];
 
@@ -120,7 +120,7 @@ _initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzo
 private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, true, true, "attack"] call BIS_fnc_setTask;
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "attack"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true
