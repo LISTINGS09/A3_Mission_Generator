@@ -75,12 +75,17 @@ missionNamespace setVariable [format["%1_task", _urbanName], _urbanTask];
 private _flag = (missionNamespace getVariable format["%1_Pole", _urbanName]);
 [_flag, ["Raise Flag", 
 	format["
-		if !(missionNamespace getVariable ['%1',false]) then {
-			['%1', 'sideMission', true] remoteExec ['tg_fnc_missionEnd', 2];
-			[(_this select 0), '\A3\Data_F\Flags\Flag_uk_CO.paa'] remoteExec ['setFlagTexture', 2];
-			'%1_Enemy_Flag' setMarkerColor '%5';
-			['%1', %2, %3, '%4'] remoteExec ['tg_fnc_safeZone_creator', 2];
-		};
-	", _urbanName, _urbanPos, _urbanRadius, _urbanNameText, ([tg_playerSide, true] call BIS_fnc_sideColor)]
+		['%1', 'sideMission', true] remoteExec ['tg_fnc_missionEnd', 2];
+		[(_this select 0), '\A3\Data_F\Flags\Flag_uk_CO.paa'] remoteExec ['setFlagTexture', 2];
+		'%1_Enemy_Flag' setMarkerColor '%5';
+		['%1', %2, %3, '%4'] remoteExec ['tg_fnc_safeZone_creator', 2];
+		[%2,tg_playerSide] remoteExec ['tg_fnc_ammoDrop', 2];
+	", _urbanName, _urbanPos, _urbanRadius, _urbanNameText, ([tg_playerSide, true] call BIS_fnc_sideColor)],
+	"",
+	0,
+	true,
+	true,
+	"",
+	"!(missionNamespace getVariable ['%1',false])"
 	]
 ] remoteExec ["addAction", 0, _flag];

@@ -4,6 +4,10 @@ private _pickedSide = [];
 private _sideArray = [west, east, independent] - [tg_playerSide]; // Remove the players side from the side selection.
 private _reason = "Random";
 
+if (count tg_sideWest == 0) then { _sideArray = _sideArray - [west]; };
+if (count tg_sideEast == 0) then { _sideArray = _sideArray - [east]; };
+if (count tg_sideGuer == 0) then { _sideArray = _sideArray - [independent]; };
+
 // If another side is already nearby, use that side to prevent fights.
 if !(_nearPos isEqualTo []) then {
 	{
@@ -42,7 +46,7 @@ if (_reason isEqualTo "Random") then {
 switch (selectRandom _sideArray) do {
 	case east: { _pickedSide = selectRandom tg_sideEast; };
 	case independent: { _pickedSide = selectRandom tg_sideGuer; };
-	case default { _pickedSide = selectRandom tg_sideWest; }; // FIA
+	case default { _pickedSide = selectRandom tg_sideWest; };
 };
 
 //[format["[TG] fn_findSide: AI-%1 (%2)", _pickedSide, _reason]] call tg_fnc_debugMsg;

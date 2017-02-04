@@ -7,14 +7,9 @@ tg_taskFolder = "scripts\taskGenerator"; // Location used for loading the tasks.
 tg_missionTypes = ["mainMission", "sideMission"]; // Used globally and variables are built from these strings.. // 
 
 tg_fnc_taskTestTaskA = compileFinal preprocessFileLineNumbers format["%1\tasks\crash_site.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskB = compileFinal preprocessFileLineNumbers format["%1\tasks\crash_site.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskC = compileFinal preprocessFileLineNumbers format["%1\tasks\crash_site.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskD = compileFinal preprocessFileLineNumbers format["%1\tasks\crash_site.sqf", tg_taskFolder];
-
-//tg_fnc_taskTestTaskA = compileFinal preprocessFileLineNumbers format["%1\tasks\clear_location.sqf", tg_taskFolder];
-//tg_fnc_taskTestTaskB = compileFinal preprocessFileLineNumbers format["%1\tasks\kill_leader.sqf", tg_taskFolder];
-//tg_fnc_taskTestTaskC = compileFinal preprocessFileLineNumbers format["%1\tasks\destroy_tower.sqf", tg_taskFolder];
-//tg_fnc_taskTestTaskD = compileFinal preprocessFileLineNumbers format["%1\tasks\radio_camp.sqf", tg_taskFolder];
+tg_fnc_taskTestTaskB = compileFinal preprocessFileLineNumbers format["%1\tasks\kill_leader.sqf", tg_taskFolder];
+tg_fnc_taskTestTaskC = compileFinal preprocessFileLineNumbers format["%1\tasks\destroy_tower.sqf", tg_taskFolder];
+tg_fnc_taskTestTaskD = compileFinal preprocessFileLineNumbers format["%1\tasks\radio_camp.sqf", tg_taskFolder];
 //tg_fnc_taskTestTaskE = compileFinal preprocessFileLineNumbers format["%1\tasks\clear_location.sqf", tg_taskFolder];
 
 // List of available main missions.
@@ -149,6 +144,7 @@ tg_threadLockedBy = "-"; // ** DONT EDIT ** Internal string for identification.
 // ----------- FUNCTIONS START ---------------
 
 // Compile Functions
+if (isNil("tg_fnc_ammoDrop")) then {tg_fnc_ammoDrop = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_ammoDrop.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_DACzone_creator")) then {tg_fnc_DACzone_creator = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_DACzone_creator.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_DACzone_spawn")) then {tg_fnc_DACzone_spawn = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_DACzone_spawn.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_balanceUnits")) then {tg_fnc_balanceUnits = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_balanceUnits.sqf", tg_taskFolder]; };
