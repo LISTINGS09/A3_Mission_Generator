@@ -14,7 +14,7 @@ _zoneMarker setMarkerShape "ELLIPSE";
 _zoneMarker setMarkerSize  [_zoneRadius + (_zoneRadius / 100 * 15), _zoneRadius + (_zoneRadius / 100 * 15)];
 _zoneMarker setMarkerColor ([tg_playerSide, true] call BIS_fnc_sideColor);
 _zoneMarker setMarkerBrush  "SolidBorder";
-_zoneMarker setMarkerAlpha 0.3;
+_zoneMarker setMarkerAlpha 0; // Hidden as fillGrid makes this pointless?
 
 // Unlock any locked vehicles (Cars / Boats) in the Safe Zone.
 private _nearVehicles = _zonePos nearEntities [["Car", "Boat", "Air"], _zoneRadius + (_zoneRadius / 100 * 50)];

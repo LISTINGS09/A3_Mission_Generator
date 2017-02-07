@@ -53,18 +53,18 @@ if (count _emptyPos == 0) then {
 
 if tg_debug then {
 	private _flagMarker = createMarkerLocal [format["%1_flag_marker", _urbanName], _emptyPos];
-	_flagMarker setMarkerType "Mil_Dot";
-	_flagMarker setMarkerColor "ColorYellow";
+	_flagMarker setMarkerTypeLocal "Mil_Dot";
+	_flagMarker setMarkerColorLocal "ColorYellow";
 };
 
 // Create Task
 private _urbanDesc = [
-		"Secure the area around <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> by locating and capturing the flag in the area.",
-		"Capture <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> by claiming the flagpole somewhere in the area.",
-		"<font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> is occupied by enemy forces, eliminate them and secure the area by claiming the flag.",
-		"Claim the flag located somewhere in <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> and eliminate all enemy forces there.",
+		"Secure the area around <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> then locate and capture the flag in the area.",
+		"Capture <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> by claiming the surrounding area and locating the flagpole somewhere in the area.",
+		"<font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> is occupied by enemy forces, eliminate them and secure the area by finally claiming the flag.",
+		"Claim the flag located somewhere in <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> after you have eliminated all enemy forces there.",
 		"Enemy forces have occupied <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color>, eliminate them and claim the flag in the area.",
-		"Locate the flagpole somewhere in <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> to liberate it from enemy forces."
+		"Locate the flagpole somewhere in <font color='#0080FF'><marker name='%1_Enemy_Flag'>%2</marker></font color> after you have liberated it from enemy forces."
 	];	
 
 private _textDifficulty = _urbanDifficulty call tg_fnc_stringDifficulty;
@@ -79,13 +79,28 @@ private _flag = (missionNamespace getVariable format["%1_Pole", _urbanName]);
 		[(_this select 0), '\A3\Data_F\Flags\Flag_uk_CO.paa'] remoteExec ['setFlagTexture', 2];
 		'%1_Enemy_Flag' setMarkerColor '%5';
 		['%1', %2, %3, '%4'] remoteExec ['tg_fnc_safeZone_creator', 2];
-		[%2,tg_playerSide] remoteExec ['tg_fnc_ammoDrop', 2];
+		[%2,playerSide] remoteExec ['tg_fnc_ammoDrop', 2];
 	", _urbanName, _urbanPos, _urbanRadius, _urbanNameText, ([tg_playerSide, true] call BIS_fnc_sideColor)],
 	"",
 	0,
 	true,
 	true,
 	"",
-	"!(missionNamespace getVariable ['%1',false])"
+	format["!(missionNamespace getVariable ['%1',false]) && (missionNamespace getVariable ['var_%1_cleared',0] >= (missionNamespace getVariable ['var_%1_total',0] - 3))", _urbanName]
 	]
 ] remoteExec ["addAction", 0, _flag];
+
+private _tempMkr = createMarkerLocal [format["tmp_%1",_urbanName], _urbanPos];
+_tempMkr setMarkerShapeLocal "ELLIPSE";
+_tempMkr setMarkerSizeLocal [_urbanRadius,_urbanRadius];
+
+// Get the Enemy Sides colour from the pre-made marker.
+private _enemySide = switch (toUpper (getMarkerColor format['%1_Enemy_Flag',_urbanName])) do {
+		case "COLORWEST": { west };
+		case "COLOREAST": { east };
+		default { independent };
+	};
+
+// Create the shaded sections.
+[_tempMkr, _urbanName, _enemySide, tg_playerSide, 0.2] call tg_fnc_fillGrid;
+deleteMarkerLocal _tempMkr;

@@ -149,6 +149,7 @@ if (isNil("tg_fnc_DACzone_creator")) then {tg_fnc_DACzone_creator = compileFinal
 if (isNil("tg_fnc_DACzone_spawn")) then {tg_fnc_DACzone_spawn = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_DACzone_spawn.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_balanceUnits")) then {tg_fnc_balanceUnits = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_balanceUnits.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_debugMsg")) then {tg_fnc_debugMsg = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_debugMsg.sqf", tg_taskFolder]; };
+if (isNil("tg_fnc_fillGrid")) then {tg_fnc_fillGrid = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_fillGrid.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_findEmptyByType")) then {tg_fnc_findEmptyByType = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_findEmptyByType.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_findObjects")) then {tg_fnc_findObjects = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_findObjects.sqf", tg_taskFolder]; };
 if (isNil("tg_fnc_findRandomEmpty")) then {tg_fnc_findRandomEmpty = compileFinal preprocessFileLineNumbers format["%1\fnc\fn_findRandomEmpty.sqf", tg_taskFolder]; };
