@@ -136,6 +136,7 @@ tg_triggerRange = 1500; // The default range Mission Triggers set set to activat
 
 tg_debug = TRUE; // Debug Mode
 tg_taskDelay = 30; // Seconds to wait after completing tasks (60 default).
+tg_dropType = ["crate_med"];
 
 tg_counter = 1; // ** DONT EDIT ** Internal mission number counter - Unique number for each generated mission
 tg_threadActive = false; // ** DONT EDIT ** Internal flag to queue processing of tasks, don't change this.
