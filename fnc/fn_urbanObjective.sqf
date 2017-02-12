@@ -86,13 +86,13 @@ private _flag = (missionNamespace getVariable format["%1_Pole", _urbanName]);
 	true,
 	true,
 	"",
-	format["!(missionNamespace getVariable ['%1',false]) && (missionNamespace getVariable ['var_%1_cleared',0] >= (missionNamespace getVariable ['var_%1_total',0] - 3))", _urbanName]
+	format["!(missionNamespace getVariable ['%1',false]) && (missionNamespace getVariable ['var_%1_cleared',0]) >= ((missionNamespace getVariable ['var_%1_total',0]) * 0.5)", _urbanName]
 	]
 ] remoteExec ["addAction", 0, _flag];
 
 private _tempMkr = createMarkerLocal [format["tmp_%1",_urbanName], _urbanPos];
 _tempMkr setMarkerShapeLocal "ELLIPSE";
-_tempMkr setMarkerSizeLocal [_urbanRadius,_urbanRadius];
+_tempMkr setMarkerSizeLocal [_urbanRadius * 0.5,_urbanRadius * 0.5];
 
 // Get the Enemy Sides colour from the pre-made marker.
 private _enemySide = switch (toUpper (getMarkerColor format['%1_Enemy_Flag',_urbanName])) do {
@@ -102,5 +102,5 @@ private _enemySide = switch (toUpper (getMarkerColor format['%1_Enemy_Flag',_urb
 	};
 
 // Create the shaded sections.
-[_tempMkr, _urbanName, _enemySide, tg_playerSide, 0.2] call tg_fnc_fillGrid;
+[_tempMkr, _urbanName, _enemySide, tg_playerSide, 0.6] call tg_fnc_fillGrid;
 deleteMarkerLocal _tempMkr;
