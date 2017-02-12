@@ -40,15 +40,14 @@ private _maxArea = if (_radX > _radY) then { _radX } else { _radY };
 // Find the centre of the cell the point is in.
 _objPos = [((floor ((_objPos select 0) / 100)) * 100) + 50, ((floor ((_objPos select 1) / 100)) * 100) + 50, 0];
 
-for [{_z = _maxArea * -1}, {_z <= _maxArea}, {_z = _z + 100}] do {
-	for [{_y = _maxArea * -1}, {_y <= _maxArea}, {_y = _y + 100}] do {
-		
-		private _tempPos = _objPos vectorAdd [_z, _y, 0];
+for [{_z = (floor (_maxArea / 100)) * -100}, {_z <= _maxArea}, {_z = _z + 100}] do {
+	for [{_y = (floor (_maxArea / 100)) * -100}, {_y <= _maxArea}, {_y = _y + 100}] do {
+		private _tempPos = _objPos vectorAdd [_z, _y, 0];	
 		if (random 1 > _rFill && {!surfaceIsWater _tempPos} && {_tempPos inArea _object}) then {
 			private _tempMkr = createMarker [format["girdMK_%1%2",_tempPos select 0, _tempPos select 1], _tempPos];
 			_tempMkr setMarkerShape "RECTANGLE";
 			_tempMkr setMarkerBrush "Solid"; // FDiagonal
-			_tempMkr setMarkerAlpha 0.5;
+			_tempMkr setMarkerAlpha 0.4;
 			_tempMkr setMarkerSize [50,50];
 
 			// If a side was provided as the starting colour, use that sides default.
