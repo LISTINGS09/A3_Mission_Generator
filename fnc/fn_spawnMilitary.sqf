@@ -53,6 +53,10 @@ switch (toLower format["%1",_milSide]) do {
 	};
 };
 
+if (_milSoldier != "" && _milSide != civilian) then {
+	private _milGroup = [_searchPos, _milSide, [_milSoldier, _milSoldier, _milSoldier, _milSoldier]] call BIS_fnc_spawnGroup;
+	[_milGroup, _searchPos, 50] call bis_fnc_taskPatrol;
+};
 private _counter = 0;
 
 if (count _buildingList == 0) then {
