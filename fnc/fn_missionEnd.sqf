@@ -48,7 +48,7 @@ if (_foundIndex >= 0) then {
 };
 
 // Set global mission variable to true (allows units/zones to be removed)
-missionNamespace setVariable [format["%1", _missionName], true];
+missionNamespace setVariable [format["%1", _missionName], true, true];
 
 tg_threadActive = false;
 tg_threadLockedBy = "-";
