@@ -142,86 +142,86 @@ private _fnc_createUnit = {
 
 [format ["[TG] DEBUG spawnMilitary: Starting - 0/%1 with %2 objects found in R%7 [%3,%4]", round _count, count _buildingList, _inDist, _milSide, _milSoldier]] call tg_fnc_debugMsg;
 
+if !(_milSide in [east, west, resistance]) exitWith {};
+
 // Loop the objects and generate a relevant vehicle for each type.
 {
 	private _building = _x;
 	
 	//[format ["[TG] DEBUG spawnMilitary: Processing %1 (%2)", _building, typeOf _building]] call tg_fnc_debugMsg;
 	
-	if (_milSide in [east, west, resistance]) then {
-		//diag_log text format["spawnMilitary checking: %1", typeOf _building];
-		switch (typeOf _building) do {
-			// Small Bunker
-			case "Land_BagBunker_Small_F"; case "Land_BagBunker_01_small_green_F"; case "Land_fortified_nest_small_EP1"; case "Fort_Nest"; case "Land_fortified_nest_small": {
-				if (random 1 > 0.75) then { 
-					[ _forEachIndex, selectRandom _vStatic, _building modelToWorld [0,0,0], getDir _building + 180 ] call _fnc_createVehicle;
-				} else {
-					[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), getDir _building + 180, _milSide, true ] call _fnc_createUnit;
-				};
+	//diag_log text format["spawnMilitary checking: %1", typeOf _building];
+	switch (typeOf _building) do {
+		// Small Bunker
+		case "Land_BagBunker_Small_F"; case "Land_BagBunker_01_small_green_F"; case "Land_fortified_nest_small_EP1"; case "Fort_Nest"; case "Land_fortified_nest_small": {
+			if (random 1 > 0.75) then { 
+				[ _forEachIndex, selectRandom _vStatic, _building modelToWorld [0,0,0], getDir _building + 180 ] call _fnc_createVehicle;
+			} else {
+				[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), getDir _building + 180, _milSide, true ] call _fnc_createUnit;
 			};
-			// Bunker Tower
-			case "Land_BagBunker_Tower_F"; case "Land_HBarrier_01_tower_green_F"; case "Land_Fort_Watchtower"; case "Land_Fort_Watchtower_EP1": {
-				private _man = [ _forEachIndex, _milSoldier, _building modelToWorld [0,1,2.78], getDir _building, _milSide ] call _fnc_createUnit;
-				_man setUnitPos "DOWN";
-				
-				if (random 1 > 0.75) then { 
-					[ _forEachIndex, selectRandom _vStatic, _building modelToWorld [0,-2,2.79], getDir _building + 180 ] call _fnc_createVehicle;
-				} else {
-					[ _forEachIndex, _milSoldier, _building modelToWorld [0,-2,2.79], getDir _building + 180, _milSide ] call _fnc_createUnit;
-				};
+		};
+		// Bunker Tower
+		case "Land_BagBunker_Tower_F"; case "Land_HBarrier_01_tower_green_F"; case "Land_Fort_Watchtower"; case "Land_Fort_Watchtower_EP1": {
+			private _man = [ _forEachIndex, _milSoldier, _building modelToWorld [0,1,2.78], getDir _building, _milSide ] call _fnc_createUnit;
+			_man setUnitPos "DOWN";
+			
+			if (random 1 > 0.75) then { 
+				[ _forEachIndex, selectRandom _vStatic, _building modelToWorld [0,-2,2.79], getDir _building + 180 ] call _fnc_createVehicle;
+			} else {
+				[ _forEachIndex, _milSoldier, _building modelToWorld [0,-2,2.79], getDir _building + 180, _milSide ] call _fnc_createUnit;
 			};
-			// Large Bunker
-			case "Land_BagBunker_Large_F"; case "Land_BagBunker_01_large_green_F"; case "Land_fortified_nest_big"; case "Land_fortified_nest_big_EP1": {
-				{
-					[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), random 360, _milSide, true ] call _fnc_createUnit;
-				} forEach [1,2,3];
-			};			
-			// Cargo HQ
-			case "Land_Cargo_HQ_V1_F"; case "Land_Medevac_HQ_V1_F"; case "Land_Cargo_HQ_V2_F"; case "Land_Cargo_HQ_V3_F"; case "Land_Cargo_HQ_V4_F"; case "Land_Research_HQ_F": {
-				{
-					[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), random 360, _milSide, true ] call _fnc_createUnit;
-				} forEach [1,2,3];
+		};
+		// Large Bunker
+		case "Land_BagBunker_Large_F"; case "Land_BagBunker_01_large_green_F"; case "Land_fortified_nest_big"; case "Land_fortified_nest_big_EP1": {
+			{
+				[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), random 360, _milSide, true ] call _fnc_createUnit;
+			} forEach [1,2,3];
+		};			
+		// Cargo HQ
+		case "Land_Cargo_HQ_V1_F"; case "Land_Medevac_HQ_V1_F"; case "Land_Cargo_HQ_V2_F"; case "Land_Cargo_HQ_V3_F"; case "Land_Cargo_HQ_V4_F"; case "Land_Research_HQ_F": {
+			{
+				[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), random 360, _milSide, true ] call _fnc_createUnit;
+			} forEach [1,2,3];
+		};
+		// Cargo Tower
+		case "Land_Cargo_Tower_V1_No1_F"; case "Land_Cargo_Tower_V1_No2_F"; case "Land_Cargo_Tower_V1_No3_F"; case "Land_Cargo_Tower_V1_No4_F"; case "Land_Cargo_Tower_V1_No5_F";
+		case "Land_Cargo_Tower_V1_No6_F"; case "Land_Cargo_Tower_V1_No7_F"; case "Land_Cargo_Tower_V3_F"; case "Land_Cargo_Tower_V1_F"; case "Land_Cargo_Tower_V2_F"; case "Land_Cargo_Tower_V4_F": {
+			{
+				[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), random 360, _milSide, true ] call _fnc_createUnit;
+			} forEach [1,2,3];
+		};
+		// Cargo Post
+		case "Land_Cargo_Patrol_V3_F"; case "Land_Cargo_Patrol_V1_F"; case "Land_Cargo_Patrol_V2_F"; case "Land_Cargo_Patrol_V4_F": {
+			if (random 1 > 0.75) then { 
+				[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), getDir _building + 180, _milSide, true ] call _fnc_createUnit;
 			};
-			// Cargo Tower
-			case "Land_Cargo_Tower_V1_No1_F"; case "Land_Cargo_Tower_V1_No2_F"; case "Land_Cargo_Tower_V1_No3_F"; case "Land_Cargo_Tower_V1_No4_F"; case "Land_Cargo_Tower_V1_No5_F";
-			case "Land_Cargo_Tower_V1_No6_F"; case "Land_Cargo_Tower_V1_No7_F"; case "Land_Cargo_Tower_V3_F"; case "Land_Cargo_Tower_V1_F"; case "Land_Cargo_Tower_V2_F"; case "Land_Cargo_Tower_V4_F": {
-				{
-					[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), random 360, _milSide, true ] call _fnc_createUnit;
-				} forEach [1,2,3];
+		};
+		// Cargo House
+		case "Land_Cargo_House_V3_F"; case "Land_Cargo_House_V1_F"; case "Land_Medevac_house_V1_F";
+		case "Land_Cargo_House_V2_F"; case "Land_Cargo_House_V4_F"; case "Land_Research_house_V1_F": {
+			if (random 1 > 0.75) then { 
+				[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), getDir _building + 180, _milSide, true ] call _fnc_createUnit;
 			};
-			// Cargo Post
-			case "Land_Cargo_Patrol_V3_F"; case "Land_Cargo_Patrol_V1_F"; case "Land_Cargo_Patrol_V2_F"; case "Land_Cargo_Patrol_V4_F": {
-				if (random 1 > 0.75) then { 
-					[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), getDir _building + 180, _milSide, true ] call _fnc_createUnit;
-				};
+		};
+		// Watchtower
+		case "Land_HBarrier_01_big_tower_green_F"; case "Land_HBarrierTower_F": {
+			if (random 1 > 0.65) then { 
+				[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), getDir _building + 180, _milSide, true ] call _fnc_createUnit;
 			};
-			// Cargo House
-			case "Land_Cargo_House_V3_F"; case "Land_Cargo_House_V1_F"; case "Land_Medevac_house_V1_F";
-			case "Land_Cargo_House_V2_F"; case "Land_Cargo_House_V4_F"; case "Land_Research_house_V1_F": {
-				if (random 1 > 0.75) then { 
-					[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), getDir _building + 180, _milSide, true ] call _fnc_createUnit;
-				};
-			};
-			// Watchtower
-			case "Land_HBarrier_01_big_tower_green_F"; case "Land_HBarrierTower_F": {
-				if (random 1 > 0.65) then { 
-					[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), getDir _building + 180, _milSide, true ] call _fnc_createUnit;
-				};
-			};
-			// Barracks
-			case "Land_Barracks_01_dilapidated_F"; case "Land_Barracks_01_grey_F"; case "Land_Barracks_01_camo_F"; case "Land_i_Barracks_V1_F"; case "Land_i_Barracks_V2_F"; 
-			case "Land_u_Barracks_V2_F"; case "Land_Mil_Barracks_i"; case "Land_Mil_Barracks_i_EP1"; case "Land_Budova4"; case "Land_Budova4_in": {
-				{
-					[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), random 360, _milSide, true ] call _fnc_createUnit;
-				} forEach [1,2];
-			};
-			// Any building with more than 5 positions and less than 5 men total will spawn a unit.
-			default {
-				private _bP = _building buildingPos -1;
-				if (count _bP > 4) then {
-					if (random 1 > 0.85 || _counter < 5) then { 
-						[ _forEachIndex, _milSoldier, selectRandom _bP, random 360, _milSide, true ] call _fnc_createUnit;
-					};
+		};
+		// Barracks
+		case "Land_Barracks_01_dilapidated_F"; case "Land_Barracks_01_grey_F"; case "Land_Barracks_01_camo_F"; case "Land_i_Barracks_V1_F"; case "Land_i_Barracks_V2_F"; 
+		case "Land_u_Barracks_V2_F"; case "Land_Mil_Barracks_i"; case "Land_Mil_Barracks_i_EP1"; case "Land_Budova4"; case "Land_Budova4_in": {
+			{
+				[ _forEachIndex, _milSoldier, selectRandom (_building buildingPos -1), random 360, _milSide, true ] call _fnc_createUnit;
+			} forEach [1,2];
+		};
+		// Any building with more than 5 positions and less than 5 men total will spawn a unit.
+		default {
+			private _bP = _building buildingPos -1;
+			if (count _bP > 4) then {
+				if (random 1 > 0.85 || _counter < 5) then { 
+					[ _forEachIndex, _milSoldier, selectRandom _bP, random 360, _milSide, true ] call _fnc_createUnit;
 				};
 			};
 		};

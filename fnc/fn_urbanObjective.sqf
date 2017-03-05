@@ -102,5 +102,5 @@ private _enemySide = switch (toUpper (getMarkerColor format['%1_Enemy_Flag',_urb
 	};
 
 // Create the shaded sections.
-[_tempMkr, _urbanName, _enemySide, tg_playerSide, 0.6] call tg_fnc_fillGrid;
+[_tempMkr, _urbanName, _enemySide, tg_playerSide, 0.2 + random 0.5] call tg_fnc_fillGrid;
 deleteMarkerLocal _tempMkr;

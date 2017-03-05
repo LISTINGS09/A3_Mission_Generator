@@ -235,8 +235,8 @@ if tg_debug then {
 	[] spawn {
 		while{true} do {
 			hintSilent parseText format["[TG]<br/>Active Missions: %1<br/>Main: %2/%3 Side: %4/%5<br/>
-				<br/>Lock: %6 (%7)<br/>Complete: %8<br/>
-				<br/>DAC:<br/>Complete: %8<br/>Init_Counter %10 - %9<br/>",
+				<br/>Lock: %6 (%7)<br/>Complete: %8<br/>Groups: %11<br/>
+				<br/>DAC:<br/>Complete: %8<br/>Init_Counter %10 - %9",
 				count tg_missions_active,
 				{_x select 0 == tg_missionTypes select 0} count tg_missions_active,
 				missionNamespace getVariable [format["tg_%1_max", tg_missionTypes select 0], 0],
@@ -246,7 +246,8 @@ if tg_debug then {
 				tg_threadLockedBy,
 				missionNamespace getVariable [format["tg_%1_cmp", tg_missionTypes select 0],0],
 				DAC_Init_Counter,
-				({_x == 0} count DAC_Init_Counter)
+				({_x == 0} count DAC_Init_Counter),
+				count allGroups
 			];
 			
 			

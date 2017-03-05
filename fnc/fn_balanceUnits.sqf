@@ -11,7 +11,10 @@ private _return = _number;
 
 // Get the number of current players.
 private _playerCount = count (playableUnits + switchableUnits);
-//private _playerCount = 20; // For testing limits.
+
+if (missionNamespace getVariable["f_param_hardMode",0] == 1) then {
+	_playerCount = 20; // For testing limits.
+};
 
 // Cap off, as we don't want 100+ units per objective.
 if (_playerCount > 20) then { _playerCount = 20; };

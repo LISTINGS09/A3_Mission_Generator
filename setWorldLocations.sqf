@@ -42,7 +42,7 @@ private _worldCentre = getArray (configFile >> "CfgWorlds" >> worldName >> "cent
 			private _DACZone = "";
 			switch (_forEachIndex) do {
 				case 0; case 1: { 
-					_DACZone = format["%1, '%2', 'urbanZone', %3, %4, [[%5, 1, 0], [([4, 'light', _missionType] call tg_fnc_balanceUnits), 2, 15, 10], [([2, 'medium', _missionType] call tg_fnc_balanceUnits), ceil random 2, 10, 5], [([random 2, 'heavy', _missionType] call tg_fnc_balanceUnits), 1, 10, 6], [%7], %6]",
+					_DACZone = format["%1, '%2', 'urbanZone', %3, %4, [[%5, 1, 0], [([6, 'light', _missionType] call tg_fnc_balanceUnits), 2, 15, 10], [([4, 'medium', _missionType] call tg_fnc_balanceUnits), ceil random 2, 10, 5], [([1 + random 3, 'heavy', _missionType] call tg_fnc_balanceUnits), 1, 10, 6], [%7], %6]",
 						_enemySide,
 						_locName,
 						_locPos,
@@ -54,7 +54,7 @@ private _worldCentre = getArray (configFile >> "CfgWorlds" >> worldName >> "cent
 					_locDiffString = "2,[4 + random 4,2,0],[random 5,0,0],[random 2,0,0]";
 				};
 				case 2: { 
-					_DACZone = format["%1, '%2', 'urbanZone', %3, %4, [[%5, 1, 0], [([2, 'light', _missionType] call tg_fnc_balanceUnits), 2, 10, 6], [([1, 'medium', _missionType] call tg_fnc_balanceUnits), 1, 10, 5], [([random 1, 'heavy', _missionType] call tg_fnc_balanceUnits), 1, 8, 4], [%7], %6]",
+					_DACZone = format["%1, '%2', 'urbanZone', %3, %4, [[%5, 1, 0], [([4, 'light', _missionType] call tg_fnc_balanceUnits), 2, 10, 6], [([1, 'medium', _missionType] call tg_fnc_balanceUnits), 1, 6, 3], [([random 1, 'heavy', _missionType] call tg_fnc_balanceUnits), 1, 4, 1], [%7], %6]",
 						_enemySide,
 						_locName,
 						_locPos,
@@ -66,7 +66,7 @@ private _worldCentre = getArray (configFile >> "CfgWorlds" >> worldName >> "cent
 					_locDiffString = "1,[random 4,2,0],[random 2,0,0],[random 1,0,0]";
 				};
 				case default { 
-					_DACZone = format["%1, '%2', 'urbanZone', %3, %4, [[%5, 1, 0], [([random 2, 'light', _missionType] call tg_fnc_balanceUnits), 1, 10, 5], [([random 1, 'medium', _missionType] call tg_fnc_balanceUnits), 1, 6, 3], [], [], %6]",
+					_DACZone = format["%1, '%2', 'urbanZone', %3, %4, [[%5, 1, 0], [([random 2, 'light', _missionType] call tg_fnc_balanceUnits), 1, 10, 5], [([random 1, 'medium', _missionType] call tg_fnc_balanceUnits), 1, 4, 1], [], [], %6]",
 						_enemySide,
 						_locName,
 						_locPos,
@@ -120,8 +120,8 @@ private _worldCentre = getArray (configFile >> "CfgWorlds" >> worldName >> "cent
 				if (typeOf _x != "") then {
 					_buildingList pushBack _x;
 				};
-			} forEach (_locPos nearObjects ["Building", _locRadius]);
-			
+			} forEach (nearestObjects [_locPos, ["Building"], _locRadius, false]); // (_locPos nearObjects ["Building", _locRadius]);
+
 			missionNamespace setVariable [format["%1_Buildings", _locName], _buildingList];
 			
 			// Create a trigger that spawns vehicles and end trigger for the zone when players are nearer
@@ -157,7 +157,7 @@ private _worldCentre = getArray (configFile >> "CfgWorlds" >> worldName >> "cent
 													deleteVehicle thisTrigger;",
 													_locPos,
 													_locRadius,
-													_locVehicles * 4,
+													_locVehicles * 6,
 													_enemySide,
 													_enemySoldier,
 													_locName
