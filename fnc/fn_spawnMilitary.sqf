@@ -91,15 +91,15 @@ private _fnc_createVehicle = {
 	
 	[_veh] spawn _fnc_damageVehicle;
 	
-	private _gunner = (createGroup _milSide) createUnit [_milSoldier,[0,0,0], [], 0, "NONE"];
+	private _gunner = (createGroup [_milSide,true]) createUnit [_milSoldier,[0,0,0], [], 0, "NONE"];
 	_gunner moveInGunner _veh;
-	_gunner enableDynamicSimulation true;
+	group _gunner enableDynamicSimulation true;
 	
 	if tg_debug then {
 		private _vehMarker = createMarkerLocal [format["%1_%2", _type, round (_loc select 0) + _id], _loc];
-		_vehMarker setMarkerType "Mil_dot";
-		_vehMarker setMarkerSize [0.8,0.8];
-		_vehMarker setMarkerColor "ColorGreen";
+		_vehMarker setMarkerTypeLocal "Mil_dot";
+		_vehMarker setMarkerSizeLocal [0.8,0.8];
+		_vehMarker setMarkerColorLocal "ColorGreen";
 	};
 	
 	_counter = _counter + 1;
@@ -111,7 +111,7 @@ private _fnc_createVehicle = {
 private _fnc_createUnit = {
 	params ["_id","_type","_loc","_dir","_side",["_isBuilding",false,[false]]];
 	
-	private _unit = (createGroup _side) createUnit [_type, _loc, [], 0, "NONE"];
+	private _unit = (createGroup [_side,true]) createUnit [_type, _loc, [], 0, "NONE"];
 	_unit setDir _dir;
 	_unit setFormDir _dir;
 		
@@ -122,13 +122,13 @@ private _fnc_createUnit = {
 		_unit setPosATL _loc;
 	};
 
-	_unit enableDynamicSimulation true;
+	group _unit enableDynamicSimulation true;
 	
 	if tg_debug then {
 		private _vehMarker = createMarkerLocal [format["%1_%2", _type, round (_loc select 0) + _id], _loc];
-		_vehMarker setMarkerType "Mil_dot";
-		_vehMarker setMarkerSize [0.8,0.8];
-		_vehMarker setMarkerColor "ColorOrange";
+		_vehMarker setMarkerTypeLocal "Mil_dot";
+		_vehMarker setMarkerSizeLocal [0.8,0.8];
+		_vehMarker setMarkerColorLocal "ColorOrange";
 	};
 	
 	_counter = _counter + 1;
@@ -140,16 +140,15 @@ private _fnc_createUnit = {
 	_unit
 };
 
-[format ["[TG] DEBUG spawnMilitary: Starting - 0/%1 with %2 objects found in R%7 [%3,%4]", round _count, count _buildingList, _inDist, _milSide, _milSoldier]] call tg_fnc_debugMsg;
-
 if !(_milSide in [east, west, resistance]) exitWith {};
+
+[format ["[TG] DEBUG spawnMilitary: Starting - 0/%1 with %2 objects found in R%7 [%3,%4]", round _count, count _buildingList, _inDist, _milSide, _milSoldier]] call tg_fnc_debugMsg;
 
 // Loop the objects and generate a relevant vehicle for each type.
 {
 	private _building = _x;
 	
 	//[format ["[TG] DEBUG spawnMilitary: Processing %1 (%2)", _building, typeOf _building]] call tg_fnc_debugMsg;
-	
 	//diag_log text format["spawnMilitary checking: %1", typeOf _building];
 	switch (typeOf _building) do {
 		// Small Bunker
@@ -226,7 +225,7 @@ if !(_milSide in [east, west, resistance]) exitWith {};
 			};
 		};
 	};
-	
+		
 	// Break the loop if we've reached the requested spawn limit.
 	if (_counter >= round (_count)) exitWith {};
 } forEach _buildingList;

@@ -29,17 +29,6 @@ if (_tgCmp >= _tgEnd && _tgEnd > 0) exitWith {
 	["End1"] call BIS_fnc_endMissionServer;
 };
 
-private _delCount = 0;
-// Group clean-up
-{
-	 if ({alive _x} count units _x == 0) then {
-		deleteGroup _x;
-		_delCount = _delCount + 1;
-	 };
-} forEach allGroups;
-
-[format ["[TG] DEBUG: (fn_missionEnd) Deleted %2 groups.", _delCount]] call tg_fnc_debugMsg;
-
 // Wait for task thread to be free to edit active missions.
 waitUntil{ sleep 5; if tg_threadActive then { [format["[TG] DEBUG: (fn_missionEnd) %1 (Type: %2) waiting for free thread (%3).", _missionName, _missionType, tg_threadLockedBy]] call tg_fnc_debugMsg; }; !tg_threadActive; };
 

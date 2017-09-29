@@ -105,9 +105,9 @@ private _fnc_createVehicle = {
 	
 	if tg_debug then {
 		private _vehMarker = createMarkerLocal [format["%1_%2", _type, round (_loc select 0) + _id], _loc];
-		_vehMarker setMarkerType "Mil_dot";
-		_vehMarker setMarkerSize [0.6,0.6];
-		_vehMarker setMarkerColor "ColorBlue";
+		_vehMarker setMarkerTypeLocal "Mil_dot";
+		_vehMarker setMarkerSizeLocal [0.6,0.6];
+		_vehMarker setMarkerColorLocal "ColorBlue";
 	};
 };
 

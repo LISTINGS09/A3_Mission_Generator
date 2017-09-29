@@ -134,7 +134,7 @@ tg_missions_active = []; // Array currently active tasks [uniqueTaskName,taskTyp
 tg_separateMarkers = FALSE; // Should markers be split by tg_missionTypes? (Allows for specific locations for side and main missions)
 tg_triggerRange = 1500; // The default range Mission Triggers set set to activate when players are near.
 
-tg_debug = TRUE; // Debug Mode
+tg_debug = FALSE; // Debug Mode
 tg_taskDelay = 30; // Seconds to wait after completing tasks (60 default).
 tg_dropType = ["crate_med"];
 
