@@ -1,4 +1,4 @@
-// Test Mission
+// Location must be cleared of enemy units.
 params [["_missionType", "", [""]], ["_missionName", "", [""]]];
 
 // ----------- PREP ---------------
@@ -12,12 +12,12 @@ if (!(_missionType in tg_missionTypes) || _missionName == "") then {
 private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
-		"Enemy forces are trying to occupy an area near %1, eliminate them.",
-		"A number of enemy groups have been spotted nearby %1, locate and eliminate all contacts.",
-		"Eliminate all enemy forces in the area nearby %1.",
-		"Enemy forces have recently entered this location near %1, destroy them before they can reinforce it.",
-		"The enemy appears to have occupied this area near %1 overnight, eliminate all forces there.",
-		"The enemy is trying to occupy %1, move in and eliminate all resistance."
+		"Enemy forces are trying to occupy an area near <font color='#00FFFF'>%1</font>, eliminate them.",
+		"A number of enemy groups have been spotted nearby <font color='#00FFFF'>%1</font>, locate and eliminate all contacts.",
+		"Eliminate all enemy forces in the area nearby <font color='#00FFFF'>%1</font>.",
+		"Enemy forces have recently entered this location near <font color='#00FFFF'>%1</font>, destroy them before they can reinforce it.",
+		"The enemy appears to have occupied this area near <font color='#00FFFF'>%1</font> overnight, eliminate all forces there.",
+		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>, move in and eliminate all resistance."
 	];	
 private _missionSize = if _isMainMission then {600} else {200};
 
@@ -70,6 +70,12 @@ _missionMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
 _missionMarker setMarkerSize [1,1];
 _missionMarker setMarkerType "mil_circle";
 
+private _zoneMarker = createMarker [format["%1_marker_zone", _missionName], _missionPos];
+_zoneMarker setMarkerShape "ELLIPSE";
+_zoneMarker setMarkerSize  [_missionSize * 1.5, _missionSize * 1.5];
+_zoneMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
+_zoneMarker setMarkerBrush  "Border";
+	
 // Create Objective
 private _milGroup = [_missionPos, _enemySide, [_enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier]] call BIS_fnc_spawnGroup;
 [_milGroup, _missionPos, 100] call bis_fnc_taskPatrol;
@@ -80,13 +86,13 @@ _objTrigger setTriggerTimeout [12, 12, 12, false];
 _objTrigger setTriggerArea [(_missionSize / 100 * 75), (_missionSize / 100 * 75), 0, true];
 _objTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", false];
 _objTrigger setTriggerStatements [ 	format["count thisList < 4 && triggerActivated TR_DAC_%1",_missionName], 
-									format["['%1', '%2', true] spawn tg_fnc_missionEnd; '%1_marker' setMarkerColor 'ColorGrey'; [] spawn { sleep 60; deleteMarker '%1_marker'; };", _missionName, _missionType], 
+									format["['%1', '%2', true] spawn tg_fnc_missionEnd; {_x setMarkerColor 'ColorGrey'} forEach ['%1_marker','%1_marker_zone']; [] spawn { sleep 60; {deleteMarker _x} forEach ['%1_marker','%1_marker_zone']; };", _missionName, _missionType], 
 									"" ];
 
 // ----------- OTHER ---------------
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 20, 5];
-private _DACvehicles = [([2, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 10, 6];
+private _DACinfantry = [([6, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {4} else {3}, 20, 5];
+private _DACvehicles = [([4, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {3} else {2}, 10, 6];
 private _DACarmour = [([2, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 8, 4];
 private _DACheli = if (random 1 > 0.65 && _isMainMission) then {[1,2,5]} else {[]};
 
@@ -150,6 +156,7 @@ private _textDifficulty = [if _isMainMission then {2} else {1},_DACinfantry, _DA
 
 // Create Task
 private _missionNameText = text nearestLocation [_missionPos, ""];
+if (_missionNameText isEqualTo "") then { _missionNameText = worldName; };
 private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + format[(selectRandom _missionDesc), _missionNameText] + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "attack"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 

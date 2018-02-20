@@ -12,12 +12,12 @@ if (!(_missionType in tg_missionTypes) || _missionName == "") then {
 private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
-		"Destroy a Radio Tower recently constructed by enemy forces.",
-		"The enemy has established a Radio Tower at this location, destroy it.",
-		"We've picked up a signal indicating a Radio Tower is present in the area, destroy it.",
-		"Destroy the Radio Tower at the marked location.",
-		"Intel has identified an enemy Radio Tower, destroy it.",
-		"A UAV has spotted an enemy Radio Tower recently built by the enemy, destroy it."
+		"Destroy a <font color='#00FFFF'>Radio Tower</font> recently constructed by enemy forces.",
+		"The enemy has established a <font color='#00FFFF'>Radio Tower</font> at this location, destroy it.",
+		"We've picked up a signal indicating a <font color='#00FFFF'>Radio Tower</font> is present in the area, destroy it.",
+		"Destroy the <font color='#00FFFF'>Radio Tower</font> at the marked location.",
+		"Intel has identified an enemy <font color='#00FFFF'>Radio Tower</font>, destroy it.",
+		"A UAV has spotted an enemy <font color='#00FFFF'>Radio Tower</font> recently built by the enemy, destroy it."
 	];	
 private _missionSize = if _isMainMission then {700} else {400};
 private _missionCounter = tg_counter;
@@ -64,20 +64,20 @@ _missionMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
 _missionMarker setMarkerSize [1,1];
 _missionMarker setMarkerType "mil_circle";
 
+private _zoneMarker = createMarker [format["%1_marker_zone", _missionName], _missionPos];
+_zoneMarker setMarkerShape "ELLIPSE";
+_zoneMarker setMarkerSize  [_missionSize * 1.5, _missionSize * 1.5];
+_zoneMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
+_zoneMarker setMarkerBrush  "Border";
+
 // Create Objective
-//private _tower = (selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F"]) createVehicle _missionPos;
-//missionNamespace setVariable [format["%1_Obj",_missionName], _tower];
-//_tower setVectorUp [0,0,1];
 [[[selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F"], [0,0,0], 0, format["%1_Obj",_missionName]]], _missionPos, random 90] call tg_fnc_objectSpawner;
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
 _objTrigger setTriggerTimeout [5, 5, 5, false];
-//_objTrigger setTriggerArea [50, 50, 0, true];
-_objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
-//_objTrigger triggerAttachVehicle [("C_Van_01_box_F" createVehicle _missionPos)];
 _objTrigger setTriggerStatements [ 	format["!alive %1_Obj",_missionName], 
-									format["['%1', '%2', true] spawn tg_fnc_missionEnd; '%1_marker' setMarkerColor 'ColorGrey'; [] spawn { sleep 60; deleteMarker '%1_marker'; };", _missionName, _missionType], 
+									format["['%1', '%2', true] spawn tg_fnc_missionEnd; {_x setMarkerColor 'ColorGrey'} forEach ['%1_marker','%1_marker_zone']; [] spawn { sleep 60; {deleteMarker _x} forEach ['%1_marker','%1_marker_zone']; };", _missionName, _missionType],
 									"" ];
 
 // ----------- OTHER ---------------
@@ -85,8 +85,8 @@ _objTrigger setTriggerStatements [ 	format["!alive %1_Obj",_missionName],
 //[_group1, getPos leader _group1, 50] spawn bis_fnc_taskPatrol;
 
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), 2, 30, 15];
-private _DACvehicles = [([2, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 25, 10];
+private _DACinfantry = [([6, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {3} else {2}, 30, 15];
+private _DACvehicles = [([3, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 25, 10];
 private _DACarmour = [([1, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 25, 10];
 private _DACheli = if (random 1 > 0.95 && _isMainMission) then {[1,2,5]} else {[]};
 
@@ -132,7 +132,7 @@ if (count _DACheli > 0) then {
 
 // Maybe spawn a Mortar Camp if is mainMission and over certain chance.
 if (random 1 > 0.85 && (_missionType == tg_missionTypes select 0)) then {
-	_addText = "<br/><br/>A mortar site is present somewhere near the objective. Expect the enemy will call in mortar support if you are spotted.";
+	_addText = "<br/><br/>A mortar site is present somewhere near the objective. Expect the enemy to call in mortar support if you are spotted.";
 	_DACZoneList append [[
 		_enemySide,
 		_missionName,

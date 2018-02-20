@@ -12,12 +12,12 @@ if (!(_missionType in tg_missionTypes) || _missionName == "") then {
 private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
 private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
 private _missionDesc = [
-		"",
-		"",
-		"",
-		"",
-		"",
-		""
+		"An <font color='#00FFFF'>Elite Group</font> has been spotted at this location, find and kill them.",
+		"A <font color='#00FFFF'>Specialist Unit</font> has been spotted moving around this area, hunt them down.",
+		"Track and eliminate a <font color='#00FFFF'>Special Forces</font> unit somewhere nearby.",
+		"One highly-trained group of <font color='#00FFFF'>Operators</font> is located somewhere nearby, find them.",
+		"A <font color='#00FFFF'>Crack Squad</font> of enemy soldiers have para-dropped into this area, locate and eliminate them.",
+		"Find and kill a <font color='#00FFFF'>Veteran Unit</font>, patrolling somewhere around this region."
 	];	
 private _missionSize = if _isMainMission then {600} else {200};
 
@@ -70,24 +70,38 @@ _missionMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
 _missionMarker setMarkerSize [1,1];
 _missionMarker setMarkerType "mil_unknown";
 
-// Create Objective
-private _milGroup = [_missionPos, _enemySide, [_enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier]] call BIS_fnc_spawnGroup;
-[_milGroup, _missionPos, 200] call bis_fnc_taskPatrol;
+private _zoneMarker = createMarker [format["%1_marker_zone", _missionName], _missionPos];
+_zoneMarker setMarkerShape "ELLIPSE";
+_zoneMarker setMarkerSize  [_missionSize * 1.5, _missionSize * 1.5];
+_zoneMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
+_zoneMarker setMarkerBrush  "Border";
+
+private _groupArr = [_enemySoldier,_enemySoldier];
+
+// Fill random soldiers depending on type
+for "_i" from 0 to (if _isMainMission then {random 4} else {random 2}) do {
+    _groupArr pushBack _enemySoldier;
+};
+
+// Create group, set skill and movement orders
+private _milGroup = [_missionPos, _enemySide, _groupArr] call BIS_fnc_spawnGroup;
+{_x addHeadGear "H_Beret_blk"; _x setSkill 0.5 + random 0.3; } forEach units _milGroup;
+[_milGroup, _missionPos, 100] call bis_fnc_taskPatrol;
+
+missionNamespace setVariable [format["%1_GROUP", _missionName], _milGroup];
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
-_objTrigger setTriggerTimeout [12, 12, 12, false];
-_objTrigger setTriggerArea [(_missionSize / 100 * 75), (_missionSize / 100 * 75), 0, true];
-_objTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", false];
-_objTrigger setTriggerStatements [ 	format["!alive ",_missionName], 
-									format["['%1', '%2', true] spawn tg_fnc_missionEnd; '%1_marker' setMarkerColor 'ColorGrey'; [] spawn { sleep 60; deleteMarker '%1_marker'; };", _missionName, _missionType], 
+_objTrigger setTriggerTimeout [5, 5, 5, false];
+_objTrigger setTriggerStatements [ 	format["(({alive _x} count units %1_GROUP) == 0);",_missionName], 
+									format["['%1', '%2', true] spawn tg_fnc_missionEnd; {_x setMarkerColor 'ColorGrey'} forEach ['%1_marker','%1_marker_zone']; [] spawn { sleep 60; {deleteMarker _x} forEach ['%1_marker','%1_marker_zone']; };", _missionName, _missionType],
 									"" ];
 
 // ----------- OTHER ---------------
 // DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([4, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 20, 5];
-private _DACvehicles = [([1, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 10, 6];
-private _DACarmour = [];
+private _DACinfantry = [([6, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {3} else {2}, 20, 5];
+private _DACvehicles = [([3, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 10, 6];
+private _DACarmour = [([1, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 8, 4];
 private _DACheli = [];
 
 // If unit count is 0 clear the array.
@@ -120,7 +134,7 @@ _initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzo
 private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "attack"] call BIS_fnc_setTask;
+private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + (selectRandom _missionDesc) + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "kill"] call BIS_fnc_setTask;
 missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
 
 true

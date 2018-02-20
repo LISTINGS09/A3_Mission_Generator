@@ -2,35 +2,40 @@
 if !isServer exitWith {};
 
 // ----------- VARIABLES START ---------------
+DAC_Direct_Start = true;
 
 tg_taskFolder = "scripts\taskGenerator"; // Location used for loading the tasks.
 tg_missionTypes = ["mainMission", "sideMission"]; // Used globally and variables are built from these strings.. // 
 
-tg_fnc_taskTestTaskA = compileFinal preprocessFileLineNumbers format["%1\tasks\crash_site.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskB = compileFinal preprocessFileLineNumbers format["%1\tasks\kill_leader.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskC = compileFinal preprocessFileLineNumbers format["%1\tasks\destroy_tower.sqf", tg_taskFolder];
-tg_fnc_taskTestTaskD = compileFinal preprocessFileLineNumbers format["%1\tasks\radio_camp.sqf", tg_taskFolder];
-//tg_fnc_taskTestTaskE = compileFinal preprocessFileLineNumbers format["%1\tasks\clear_location.sqf", tg_taskFolder];
+tg_fnc_taskClearLoc = compileFinal preprocessFileLineNumbers format["%1\tasks\clear_location.sqf", tg_taskFolder];
+tg_fnc_taskCrashSite = compileFinal preprocessFileLineNumbers format["%1\tasks\crash_site.sqf", tg_taskFolder];
+tg_fnc_taskDestroyCamp = compileFinal preprocessFileLineNumbers format["%1\tasks\destroy_camp.sqf", tg_taskFolder];
+tg_fnc_taskDestroyTower = compileFinal preprocessFileLineNumbers format["%1\tasks\destroy_tower.sqf", tg_taskFolder];
+tg_fnc_taskGroupKill = compileFinal preprocessFileLineNumbers format["%1\tasks\group_kill.sqf", tg_taskFolder];
+tg_fnc_taskHVTCap = compileFinal preprocessFileLineNumbers format["%1\tasks\hvt_capture.sqf", tg_taskFolder];
+tg_fnc_taskHVTKill = compileFinal preprocessFileLineNumbers format["%1\tasks\hvt_kill.sqf", tg_taskFolder];
+tg_fnc_taskVehCap = compileFinal preprocessFileLineNumbers format["%1\tasks\vehicle_capture.sqf", tg_taskFolder];
+tg_fnc_taskVehKill = compileFinal preprocessFileLineNumbers format["%1\tasks\vehicle_destroy.sqf", tg_taskFolder];
 
 // List of available main missions.
 tg_mainMission_list = [
-	"tg_fnc_taskTestTaskA",
-	"tg_fnc_taskTestTaskB",
-	"tg_fnc_taskTestTaskC",
-	"tg_fnc_taskTestTaskD"
+	"tg_fnc_taskClearLoc",
+	"tg_fnc_taskCrashSite",
+	"tg_fnc_taskDestroyCamp",
+	"tg_fnc_taskDestroyTower",
+	"tg_fnc_taskGroupKill",
+	"tg_fnc_taskHVTCap",
+	"tg_fnc_taskHVTKill",
+	"tg_fnc_taskVehCap",
+	"tg_fnc_taskVehKill"
 ];
 
 // List of available side missions.
-tg_sideMission_list = [
-	"tg_fnc_taskTestTaskA",
-	"tg_fnc_taskTestTaskB",
-	"tg_fnc_taskTestTaskC",
-	"tg_fnc_taskTestTaskD"
-];
+tg_sideMission_list = tg_mainMission_list;
 
 // Pre-filled arrays used in fn_spawnVeicle.
 // *** VANILLA ***
-/*
+
 // FORMAT: <SIDE> = [[<SIDE>, <DAC UNIT CONFIG>, <DEFAULT SOLIDER>], ...]
 private _fNATO = 	[west, [1, 1, 1, (selectRandom [1, 5, 9])], "B_Soldier_F", "Flag_NATO_F"]; // West Side & DAC settings (NATO).
 private _fNATOP = 	[west, [1, 6, 1, (selectRandom [1, 5, 9])], "B_T_Soldier_F", "Flag_NATO_F"]; // West Side & DAC settings (NATO PACIFIC).
@@ -57,10 +62,13 @@ tg_vehicles_land_civ_lrg = ["C_Truck_02_transport_F", "C_Truck_02_covered_F", "C
 tg_vehicles_land_civ_sml = ["C_Offroad_01_F", "C_Hatchback_01_F", "C_Offroad_02_unarmed_F"];
 tg_vehicles_land_west_sml = ["B_CTRG_LSV_01_light_F", "B_G_Offroad_01_F", "B_T_LSV_01_unarmed_F", "B_T_LSV_01_armed_F"];
 tg_vehicles_land_west_lrg = ["B_T_MRAP_01_F", "B_T_Truck_01_transport_F", "B_T_Truck_01_mover_F", "B_G_Van_01_transport_F"];
+tg_vehicles_land_west_arm = ["B_MBT_01_cannon_F","B_MBT_01_TUSK_F","B_APC_Tracked_01_AA_F","B_MBT_01_arty_F","B_MBT_01_mlrs_F","B_Heli_Attack_01_F"];
 tg_vehicles_land_east_sml = ["O_LSV_02_unarmed_F", "O_T_LSV_02_unarmed_F", "O_G_Offroad_01_F"];
 tg_vehicles_land_east_lrg = ["O_T_MRAP_02_ghex_F", "O_T_Truck_03_transport_ghex_F", "O_T_Truck_03_covered_ghex_F", "O_MRAP_02_F", "O_Truck_02_transport_F", "O_Truck_02_covered_F", "O_Truck_03_covered_F", "O_Truck_03_transport_F", "O_G_Van_01_transport_F"];
+tg_vehicles_land_east_arm = ["O_APC_Tracked_02_cannon_F","O_APC_Tracked_02_AA_F","O_MBT_02_arty_F","O_MBT_02_cannon_F","O_Heli_Attack_02_F"];
 tg_vehicles_land_guer_sml = ["I_G_Offroad_01_F", "I_C_Offroad_02_unarmed_F"];
 tg_vehicles_land_guer_lrg = ["I_MRAP_03_F", "I_Truck_02_transport_F", "I_Truck_02_covered_F", "I_G_Van_01_transport_F"];
+tg_vehicles_land_guer_arm = ["I_APC_tracked_03_cannon_F","I_MBT_03_cannon_F","I_Heli_light_03_F"];
 tg_vehicles_sea_civ = ["C_Boat_Civil_01_rescue_F", "C_Boat_Transport_02_F", "C_Rubberboat"];
 tg_vehicles_sea_west = ["B_Boat_Armed_01_minigun_F", "B_Boat_Transport_01_F", "B_Lifeboat"];
 tg_vehicles_sea_east = ["O_Boat_Armed_01_hmg_F", "O_Boat_Transport_01_F", "O_Lifeboat"];
@@ -71,7 +79,7 @@ tg_vehicles_util_east = ["O_T_Truck_03_fuel_ghex_F", "O_T_Truck_03_ammo_ghex_F",
 tg_vehicles_util_guer = ["I_Truck_02_fuel_F", "I_Truck_02_medical_F", "I_Truck_02_box_F", "I_G_Van_01_fuel_F"];
 tg_vehicles_ammo = ["Box_Syndicate_Ammo_F", "Box_Syndicate_Wps_F", "Box_Syndicate_WpsLaunch_F"];
 tg_vehicles_static = ["B_GMG_01_high_F","B_HMG_01_high_F"];
-*/
+/*
 // *** RHS ***
 // FORMAT: <SIDE> = [[<SIDE>, <DAC UNIT CONFIG>, <DEFAULT SOLIDER>], ...]
 private _fMSV_EMR = [east, [0, 17, 0, (selectRandom [0, 4, 8])], "rhs_msv_emr_rifleman", "rhs_Flag_Russia_F"];
@@ -104,10 +112,13 @@ tg_vehicles_land_civ_lrg = ["RHS_Ural_Civ_02", "RHS_Ural_Open_Civ_02", "RHS_Ural
 tg_vehicles_land_civ_sml = ["C_Offroad_01_F", "rhsgref_nat_uaz", "rhsgref_nat_uaz_open", "C_Offroad_02_unarmed_F"];
 tg_vehicles_land_west_sml = ["rhsgref_cdf_b_reg_uaz","rhsgref_cdf_b_reg_uaz_open"];
 tg_vehicles_land_west_lrg = ["rhsgref_cdf_b_ural","rhsusf_m1025_w","rhsusf_m998_w_2dr_halftop","rhsusf_m998_w_4dr_halftop","rhsusf_M1078A1P2_wd_fmtv_usarmy","rhsusf_M1078A1P2_wd_open_fmtv_usarmy"];
+tg_vehicles_land_west_arm = ["rhsusf_m1a1aimd_usarmy","rhsusf_m1a1aim_tuski_d","RHS_M2A2","RHS_M6","RHS_M2A2_BUSKI"];
 tg_vehicles_land_east_sml = ["rhs_uaz_open_MSV_01","RHS_UAZ_MSV_01"];
 tg_vehicles_land_east_lrg = ["rhs_tigr_msv","RHS_Ural_MSV_01","RHS_Ural_Open_MSV_01"];
+tg_vehicles_land_east_arm = ["rhs_btr80a_msv","rhs_bmp3_msv","rhs_zsu234_aa","rhs_bmp2k_tv","rhs_bmp1k_tv","rhs_t72bb_tv","rhs_t80b","rhs_bmd1k","rhs_bmd4m_vdv","rhs_bmd2k"];
 tg_vehicles_land_guer_sml = ["rhsgref_nat_uaz","rhsgref_nat_uaz_open","rhsgref_ins_g_uaz","rhsgref_ins_g_uaz_open"];
 tg_vehicles_land_guer_lrg = ["rhsgref_nat_ural","rhsgref_nat_ural_open","rhsgref_ins_g_ural","rhsgref_ins_g_ural_open"];
+tg_vehicles_land_guer_arm = ["rhsgref_ins_g_bmd1","rhsgref_ins_g_bmd2","rhsgref_ins_g_bmp1","rhsgref_ins_g_bmp2e","rhsgref_ins_g_t72bb"];
 tg_vehicles_sea_civ = ["C_Boat_Civil_01_rescue_F", "C_Boat_Transport_02_F", "C_Rubberboat"];
 tg_vehicles_sea_west = ["B_Boat_Transport_01_F", "B_Lifeboat"];
 tg_vehicles_sea_east = ["O_Boat_Transport_01_F", "O_Lifeboat"];
@@ -118,29 +129,35 @@ tg_vehicles_util_east = ["RHS_Ural_Fuel_MSV_01"];
 tg_vehicles_util_guer = ["rhsgref_cdf_ural_fuel"];
 tg_vehicles_ammo = ["Box_Syndicate_Ammo_F", "Box_Syndicate_Wps_F", "Box_Syndicate_WpsLaunch_F"];
 tg_vehicles_static = ["rhs_KORD_high_VDV","rhsgref_cdf_b_DSHKM","RHS_M2StaticMG_WD"];
+*/
 
 // *** CORE VARIABLES ***
+if (isNil "f_param_hardMode") then { f_param_hardMode = 1; }; // Force maximum units to spawn.
+
 tg_sideMission_end = 0;	// sideMission - Complete game when 'tg_mainMission_cmp' equals 'tg_sideMission_end'
 tg_sideMission_dist = 1500; // Used in fn_isNearMission - New Missions will not be within this distance from others.
-tg_sideMission_max = 3;	// sideMission - Max no missions to be active at any time
+tg_sideMission_max = 0;	// sideMission - Max no missions to be active at any time
 
-tg_mainMission_end = 10;	// mainMission - Complete game when 'tg_mainMission_cmp' equals 'tg_mainMission_end'
+tg_mainMission_end = 3;	// mainMission - Complete game when 'tg_mainMission_cmp' equals 'tg_mainMission_end'
 tg_mainMission_dist = 3000; // Used in fn_isNearMission - New Missions will not be within this distance from others.
 tg_mainMission_max = 2;	// mainMission - Max no missions to be active at any time
-
 tg_playerMaxMissionDist = 3000; // Minimum distance missions should spawn from players.
 tg_playerSide = independent; // The side players are on (used in triggers detection) MUST BE: west/east/resistance
-tg_missions_active = []; // Array currently active tasks [uniqueTaskName,taskType]
-tg_separateMarkers = FALSE; // Should markers be split by tg_missionTypes? (Allows for specific locations for side and main missions)
-tg_triggerRange = 1500; // The default range Mission Triggers set set to activate when players are near.
 
-tg_debug = FALSE; // Debug Mode
+tg_separateMarkers = FALSE; // Should markers be split by tg_missionTypes? (Allows for specific locations for side and main missions)
+tg_triggerRange = 2500; // The default range Mission Triggers set set to activate when players are near.
+
+if (missionNamespace getVariable["f_param_debugMode",0] == 1) then { tg_debug = TRUE; } else { tg_debug = FALSE; }; // Debug Mode
+tg_spawnFlagLocations = FALSE; // Populate all locations on the map with DAC and allow regions to be captured?
+tg_spawnAmbientObjects = TRUE; // Create vehicles and enemy units in valid buildings?
+
 tg_taskDelay = 30; // Seconds to wait after completing tasks (60 default).
-tg_dropType = ["crate_med"];
+tg_dropType = ["v_car"];
 
 tg_counter = 1; // ** DONT EDIT ** Internal mission number counter - Unique number for each generated mission
 tg_threadActive = false; // ** DONT EDIT ** Internal flag to queue processing of tasks, don't change this.
 tg_threadLockedBy = "-"; // ** DONT EDIT ** Internal string for identification.
+tg_missions_active = []; // ** DONT EDIT ** Array currently active tasks [uniqueTaskName,taskType]
 
 // ----------- FUNCTIONS START ---------------
 
@@ -223,7 +240,8 @@ missionNamespace setVariable ["tg_blackList_markers",_blackMkr];
 sleep 1;
 
 // Wait until DAC has initialised.
-waitUntil {sleep 1; DAC_Basic_Value > 0;};
+if (isNil "DAC_Basic_Value") then { ["[TG] WARNING: DAC_Basic_Value not set. Did you enable DAC?"] call tg_fnc_debugMsg; };
+waitUntil {sleep 1; missionNamespace getVariable ["DAC_Basic_Value",0] > 0;};
 
 // DAC will error if this parameter is not enabled!
 if !(missionNamespace getVariable ["DAC_Direct_Start",false]) then {
@@ -258,4 +276,4 @@ if tg_debug then {
 
 // ----------- MAIN START ---------------
 // Call the mission selection function.
-//[] spawn tg_fnc_missionSelect;
+if !(tg_spawnFlagLocations) then { [] spawn tg_fnc_missionSelect; };
