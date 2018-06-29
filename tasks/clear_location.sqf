@@ -1,163 +1,60 @@
-// Location must be cleared of enemy units.
-params [["_missionType", "", [""]], ["_missionName", "", [""]]];
+// Set-up mission variables.
+params [ ["_zoneID", 0] ];
 
-// ----------- PREP ---------------
-// Make sure missionType is valid.
-if (!(_missionType in tg_missionTypes) || _missionName == "") then {
-	["[TG] Invalid mission ('%1')",_missionType] call bis_fnc_error;
-	_missionType = tg_missionTypes select 0;
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+_playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
+_enemyType = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Squad",_enemySide],[""]]); // CfgGroups entry.
+_radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
+
+_nearLoc = nearestLocation [_centre, ""];
+_locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
+_locType = if (getPos _nearLoc distance2D _centre < 200) then { type _nearLoc } else { "Custom" };
+
+_minUnits = switch (_locType) do {
+	case "Airport": { 6 };
+	case "NameCityCapital": { 5 };
+	case "NameCity": { 4 };
+	case "NameVillage": { 3 };
+	case "NameLocal": { 3 };
+	default { 2 };
 };
 
-// Set-up mission variables.
-private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
-private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
-private _missionDesc = [
-		"Enemy forces are trying to occupy an area near <font color='#00FFFF'>%1</font>, eliminate them.",
+_missionDesc = [
+		"Enemy forces have occupied an area near <font color='#00FFFF'>%1</font>, eliminate them.",
 		"A number of enemy groups have been spotted nearby <font color='#00FFFF'>%1</font>, locate and eliminate all contacts.",
 		"Eliminate all enemy forces in the area nearby <font color='#00FFFF'>%1</font>.",
-		"Enemy forces have recently entered this location near <font color='#00FFFF'>%1</font>, destroy them before they can reinforce it.",
-		"The enemy appears to have occupied this area near <font color='#00FFFF'>%1</font> overnight, eliminate all forces there.",
-		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>, move in and eliminate all resistance."
-	];	
-private _missionSize = if _isMainMission then {600} else {200};
+		"Enemy forces have recently entered <font color='#00FFFF'>%1</font>, destroy them before they can reinforce it.",
+		"The enemy appears to have occupied <font color='#00FFFF'>%1</font> overnight, eliminate all forces there.",
+		"Enemy forces are trying to capture <font color='#00FFFF'>%1</font>, move in and eliminate all resistance."
+	];		
 
-private _missionCounter = tg_counter;
+_locPos = [_centre, 1, _radius, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+_locPos = _locPos findEmptyPosition [1, 25, "B_Soldier_F"];
 
-// ----------- POSITION ---------------
-// Loop to check if no players are nearby the area.
-private _locAttempt = 0;
-private _maxAttempt = 10;
-private _missionPos = [];
-private _locType = if !_isMainMission then {"NameVillage"} else {"NameCity"};
-
-while {_locAttempt < _maxAttempt} do {
-	// Pick a random location from a random marker.
-	private _tempPos = [([_missionType] call tg_fnc_findRandomMarker), _locType, 5000] call tg_fnc_findWorldLocation;
-	
-	// Validate position
-	private _closePlayer = [_tempPos] call tg_fnc_isNearPlayer;
-	private _closeMission = [_tempPos] call tg_fnc_isNearMission;
-
-	// Ensure the mission does not spawn near a player or near another mission of the same type.
-	if (!_closePlayer && !_closeMission) exitWith {
-		_missionPos = _tempPos;
-	};
-	
-	_locAttempt = _locAttempt + 1;
-	[format["[TG] DEBUG (%1): Near %3%4 - Retrying %5/%6", _missionName, _tempPos, ["","Player "] select _closePlayer, ["","Mission "] select _closeMission, _locAttempt, _maxAttempt]] call tg_fnc_debugMsg;
-};
-
-// No valid location found, abort the mission!
-if (count _missionPos != 3 || _missionPos isEqualTo [0,0,0]) exitWith { false };
-
-// Place the marker on a nearby road.
-private _roadList = _missionPos nearRoads 300;
-
-// If a road is found, put the new location there.
-if (count _roadList > 0) then {
-	_missionPos = getPos (selectRandom _roadList);
-};
-
-// ----------- SIDE ---------------
-// Check if another mission is active nearby to force a side.
-([_missionPos] call tg_fnc_findSide) params ["_enemySide", "_enemyDAC", "_enemySoldier", "_enemyFlag"];
-
-// ----------- OBJECTIVE ---------------
-// Display mission marker.
-private _missionMarker = createMarker[format["%1_marker", _missionName], _missionPos];
-_missionMarker setMarkerShape "ICON";
-_missionMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
-_missionMarker setMarkerSize [1,1];
-_missionMarker setMarkerType "mil_circle";
-
-private _zoneMarker = createMarker [format["%1_marker_zone", _missionName], _missionPos];
-_zoneMarker setMarkerShape "ELLIPSE";
-_zoneMarker setMarkerSize  [_missionSize * 1.5, _missionSize * 1.5];
-_zoneMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
-_zoneMarker setMarkerBrush  "Border";
+// No near position found, just use the centre.
+if (count _locPos <= 0) then { _locPos = _centre; };
 	
 // Create Objective
-private _milGroup = [_missionPos, _enemySide, [_enemySoldier, _enemySoldier, _enemySoldier, _enemySoldier]] call BIS_fnc_spawnGroup;
-[_milGroup, _missionPos, 100] call bis_fnc_taskPatrol;
+_milGroup = [_locPos, _enemySide, _enemyType] call BIS_fnc_spawnGroup;
+[_milGroup, _centre, 50] call bis_fnc_taskPatrol;
+
+// Add to Zeus
+{
+	_x addCuratorEditableObjects [units _milGroup, TRUE];
+} forEach allCurators;
 
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
-_objTrigger setTriggerTimeout [12, 12, 12, false];
-_objTrigger setTriggerArea [(_missionSize / 100 * 75), (_missionSize / 100 * 75), 0, true];
-_objTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", false];
-_objTrigger setTriggerStatements [ 	format["count thisList < 4 && triggerActivated TR_DAC_%1",_missionName], 
-									format["['%1', '%2', true] spawn tg_fnc_missionEnd; {_x setMarkerColor 'ColorGrey'} forEach ['%1_marker','%1_marker_zone']; [] spawn { sleep 60; {deleteMarker _x} forEach ['%1_marker','%1_marker_zone']; };", _missionName, _missionType], 
+missionNamespace setVariable [format["ZMM_%1_TSK_Group", _zoneID], _milGroup];
+
+_objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
+_objTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", FALSE];
+_objTrigger setTriggerArea [_radius, _radius, 0, TRUE];
+_objTrigger setTriggerStatements [  format["count thisList <=  %1", _minUnits], 
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_%1_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 
-// ----------- OTHER ---------------
-// DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([6, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {4} else {3}, 20, 5];
-private _DACvehicles = [([4, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {3} else {2}, 10, 6];
-private _DACarmour = [([2, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 8, 4];
-private _DACheli = if (random 1 > 0.65 && _isMainMission) then {[1,2,5]} else {[]};
-
-// If unit count is 0 clear the array.
-if (_DACvehicles select 0 == 0) then { _DACvehicles = []; }; 
-if (_DACarmour select 0 == 0) then { _DACarmour = []; }; 
-
-// Set DAC Behaviour to garrison Buildings for a long time.
-_enemyDAC set [2,6];
-
-_DACZoneList = [
-	// Spawn an inner infantry-only Sentry Zone
-	[
-		_enemySide,
-		_missionName,
-		"sentryZone",
-		_missionPos,
-		100,
-		[[_missionCounter, 1, 0], [random 3, 1, 10, 5], [], [], [], _enemyDAC] 
-	],
-	// Spawn a outer Mission Zone
-	[
-		_enemySide,
-		_missionName,
-		"missionZone",
-		_missionPos,
-		_missionSize,
-		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, [], _enemyDAC],
-		true
-	]
-];
-
-private _addText = "";
-
-// Spawn a Heli Zone (maybe)
-if (count _DACheli > 0) then {
-	_addText = "<br/><br/>Enemy air assets are known be active in the area. If you maintain a low profile, you may be able to destroy them before they take-off.";
-	_DACZoneList pushBack [
-			_enemySide,
-			_missionName,
-			"heliZone",
-			_missionPos,
-			_missionSize + 200,
-			[[_missionCounter, 1, 0], [], [], [], _DACheli, _enemyDAC]
-		];
-	
-};
-
-// Create a trigger that sets up a DAC Zone (we don't want 100's of active zones at the start takes ~20mins to initialise!)
-private _initTrigger = createTrigger ["EmptyDetector", _missionPos, false];
-_initTrigger setTriggerTimeout [1, 1, 1, false];
-_initTrigger setTriggerArea [tg_triggerRange + _missionSize, tg_triggerRange + _missionSize, 0, true];
-_initTrigger setTriggerActivation [format["%1", tg_playerSide], "PRESENT", false];
-_initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzone_creator; deleteVehicle thisTrigger;", _missionName, _DACZoneList], "" ];
-
-// Creates the DAC Zones above and sets one trigger to activate/deactivate them.
-//[_missionName, _DACZoneList] call tg_fnc_DACzone_creator;
-
-// Get a text summary of the difficulty and enemy strength for the task.
-private _textDifficulty = [if _isMainMission then {2} else {1},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
-
 // Create Task
-private _missionNameText = text nearestLocation [_missionPos, ""];
-if (_missionNameText isEqualTo "") then { _missionNameText = worldName; };
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + format[(selectRandom _missionDesc), _missionNameText] + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "attack"] call BIS_fnc_setTask;
-missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName], [_locName] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "attack"] call BIS_fnc_setTask;
 
-true
+TRUE

@@ -204,4 +204,20 @@ _noun = [
 	"Yam"
 ];
 
-format["%1 %2",selectRandom _adj, selectRandom _noun]
+_pre = [
+	"Assault",
+	"Codename",
+	"Invasion",
+	"Mission",
+	"Objective",
+	"Operation",
+	"Project",
+	"Raid",
+	"Strike",
+	"Task Force",
+	"War Game"
+];
+
+params [["_prefix", selectRandom _pre]];
+
+format["%1: %2 %3", _prefix, selectRandom _adj, selectRandom _noun]

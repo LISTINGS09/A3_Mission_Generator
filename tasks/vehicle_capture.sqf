@@ -1,17 +1,15 @@
-// Test Mission
-params [["_missionType", (tg_missionTypes select 0), [""]], ["_missionName", "", [""]]];
-
-// ----------- PREP ---------------
-// Make sure missionType is valid.
-if (!(_missionType in tg_missionTypes) || _missionName == "") then {
-	["[TG] Invalid mission ('%1')",_missionType] call bis_fnc_error;
-	_missionType = tg_missionTypes select 0;
-};
-
 // Set-up mission variables.
-private _isMainMission = if (_missionType == tg_missionTypes select 0) then {true} else {false};
-private _missionTitle = format["%1: %2", (["Side","Main"] select (_missionType == "mainMission")), [] call tg_fnc_nameGenerator];
-private _missionDesc = [
+params [ ["_zoneID", 0], "_targetPos"];
+
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+_playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
+_radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
+_vehClass = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Util",_enemySide],[""]]);
+_vehTank = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Heavy",_enemySide],[""]]);
+_picture = "truck";
+
+_missionDesc = [
 		"Commandeer a <font color='#00FFFF'>%1</font> that has been abandoned in the area.",
 		"An enemy crew have dismounted from a <font color='#00FFFF'>%1</font>, move in and capture it.",
 		"Capture a <font color='#00FFFF'>%1</font> somewhere in the area.",
@@ -19,155 +17,63 @@ private _missionDesc = [
 		"The crew of a <font color='#00FFFF'>%1</font> ejected and fled the area, locate and capture the vehicle.",
 		"A <font color='#00FFFF'>%1</font> was abandoned by its crew. Find and capture the vehicle."
 	];	
-private _missionSize = if _isMainMission then {700} else {400};
-private _missionCounter = tg_counter;
 
-// ----------- POSITION ---------------
-// Loop to check if no players are nearby the area.
-private _locAttempt = 0; 
-private _maxAttempt = 10; 
-private _missionPos = [];
-
-while {_locAttempt < _maxAttempt} do {
-	// Pick a random location from a marker.
-	private  _tempPos = [_missionType] call tg_fnc_findRandomMarker;
-	
-	// Find a random position 
-	private _minValue = _locAttempt * 100;
-	_tempPos = [_tempPos, _minValue, _minValue + 300] call tg_fnc_findRandomEmpty;
-	
-	// Validate position
-	private  _closePlayer = [_tempPos] call tg_fnc_isNearPlayer;
-	private _closeMission = [_tempPos] call tg_fnc_isNearMission;
-
-	// Ensure the mission does not spawn near a player or near another mission of the same type.
-	if (!_closePlayer && !_closeMission) exitWith {
-		_missionPos = _tempPos;
-	};
-	
-	_locAttempt = _locAttempt + 1;
-	[format["[TG-%1] DEBUG: Near %3%4 - Retrying %5/%6", _missionName, _tempPos, ["","Player "] select _closePlayer, ["","Mission "] select _closeMission, _locAttempt, _maxAttempt]] call tg_fnc_debugMsg;
+if !(isClass (configFile >> "CfgVehicles" >> _vehClass)) exitWith {
+	format["[ZMM] Invalid vehicle class: %1", _vehClass] call zmm_fnc_logMsg;
+	false
 };
 
-// No valid location found, abort the mission!
-if (count _missionPos != 3 || _missionPos isEqualTo [0,0,0]) exitWith { false };
-
-// ----------- SIDE ---------------
-// Check if another mission is active nearby to force a side.
-([_missionPos] call tg_fnc_findSide) params ["_enemySide", "_enemyDAC", "_enemySoldier", "_enemyFlag"];
-
-// ----------- OBJECTIVE ---------------
-// Display mission marker.
-private _missionMarker = createMarker[format["%1_marker", _missionName], _missionPos];
-_missionMarker setMarkerShape "ICON";
-_missionMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
-_missionMarker setMarkerSize [1,1];
-_missionMarker setMarkerType "mil_circle";
-
-private _zoneMarker = createMarker [format["%1_marker_zone", _missionName], _missionPos];
-_zoneMarker setMarkerShape "ELLIPSE";
-_zoneMarker setMarkerSize  [_missionSize * 1.5, _missionSize * 1.5];
-_zoneMarker setMarkerColor ([_enemySide, true] call BIS_fnc_sideColor);
-_zoneMarker setMarkerBrush  "Border";
-
-// Create Objective
-private _vehClass = selectRandom (missionNamespace getVariable[format["tg_vehicles_util_%1",_enemySide],[""]]);
-
-if (_vehClass isEqualTo "") exitWith { false };
+_emptyPos = _targetPos findEmptyPosition [1, 25, _vehClass];
 	
-private _vehObj = _vehClass createVehicle _missionPos;
-private _vehName = [getText (configFile >> "CfgVehicles" >> _vehClass >> "displayname"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
-missionNamespace setVariable [format["%1_VEH",_missionName], _vehObj];
+_veh = _vehClass createVehicle _emptyPos;
+_vehName = [getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
 
-_vehObj setFuel random 0.4;
-_vehObj setVehicleAmmo random 0.6;
-_vehObj lock true;
+missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _veh];
 
-[_vehObj, ["<t color='#00FFFF'>Unlock</t>", {[(_this select 0),false] remoteExec ["lock",(_this select 0)]},"",0,true,true,"","(locked _target > 1)",5]] remoteExec ["addAction",0,_vehObj];
+// Orient to road
+if (isOnRoad _veh) then { _veh setDir getDir (roadAt _veh); };
+
+_veh setFuel random 0.4;
+_veh setVehicleAmmo random 0.6;
+_veh lock TRUE;
+
+[_veh,  
+format["<t color='#72E500'>Unlock %1</t>", _vehName],  
+"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa",  
+"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa",  
+"_this distance _target < 4 && locked _target >= 1",  
+"_caller distance _target < 4 && locked _target >= 1",  
+{},  
+{},  
+{ [_target, FALSE] remoteExec ["lock",_target]; },   
+{},   
+[],   
+1,   
+10] remoteExec ["bis_fnc_holdActionAdd", 0, _veh];
+
+// Add to Zeus
+{
+	_x addCuratorEditableObjects [[_veh], TRUE];
+} forEach allCurators;
 
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", _missionPos, false];
-_objTrigger setTriggerTimeout [5, 5, 5, false];
-_objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
-_objTrigger setTriggerArea [_missionSize, _missionSize, 0, true];
-_objTrigger triggerAttachVehicle [_vehObj];
-_objTrigger setTriggerStatements [ 	format["this && alive %1_VEH",_missionName], 
-									format["['%1', '%2', true] spawn tg_fnc_missionEnd; deleteVehicle %1_TR_FAIL; {_x setMarkerColor 'ColorGrey'} forEach ['%1_marker','%1_marker_zone']; [] spawn { sleep 60; {deleteMarker _x} forEach ['%1_marker','%1_marker_zone']; };", _missionName, _missionType],
+
+
+_objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
+_objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", FALSE];
+_objTrigger setTriggerArea [_radius, _radius, 0, TRUE];
+_objTrigger triggerAttachVehicle [_veh];
+_objTrigger setTriggerStatements [ 	format["this && alive ZMM_%1_OBJ", _zoneID], 
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_%1_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 									
-missionNamespace setVariable [format["%1_TR_WIN",_missionName], _objTrigger];
-									
-private _failTrigger = createTrigger ["EmptyDetector", _missionPos, false];
-_failTrigger setTriggerTimeout [5, 5, 5, false];
-_failTrigger setTriggerStatements [ format["!alive %1_VEH",_missionName], 
-									format["['%1', '%2', true] spawn tg_fnc_missionEnd; deleteVehicle %1_TR_WIN; {_x setMarkerColor 'ColorGrey'} forEach ['%1_marker','%1_marker_zone']; [] spawn { sleep 60; {deleteMarker _x} forEach ['%1_marker','%1_marker_zone']; };", _missionName, _missionType],
+// Create Failure Trigger
+_faiTrigger = createTrigger ["EmptyDetector", [0,0,0], FALSE];
+_faiTrigger setTriggerStatements [ 	format["!alive ZMM_%1_TSK_Vehicle", _zoneID], 
+									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_%1_FAIL', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, "Grey"],
 									"" ];
-									
-missionNamespace setVariable [format["%1_TR_FAIL",_missionName], _failTrigger];
-
-
-// ----------- OTHER ---------------
-//_group1 = [_missionPos, _enemySide, 4] call BIS_fnc_spawnGroup;
-//[_group1, getPos leader _group1, 50] spawn bis_fnc_taskPatrol;
-
-// DAC = [UnitCount, UnitSize, WaypointPool, WaypointsGiven]
-private _DACinfantry = [([6, "light", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {3} else {2}, 30, 15];
-private _DACvehicles = [([3, "medium", _missionType] call tg_fnc_balanceUnits), if _isMainMission then {2} else {1}, 25, 10];
-private _DACarmour = [([1, "heavy", _missionType] call tg_fnc_balanceUnits), 1, 25, 10];
-private _DACheli = if (random 1 > 0.95 && _isMainMission) then {[1,2,5]} else {[]};
-
-// If unit count is 0 clear the array.
-if (_DACvehicles select 0 == 0) then { _DACvehicles = []; }; 
-if (_DACarmour select 0 == 0) then { _DACarmour = []; }; 
-
-_DACZoneList = [
-	// Spawn an inner infantry-only Sentry Zone
-	[
-		_enemySide,
-		_missionName,
-		"sentryZone",
-		_missionPos,
-		100,
-		[[_missionCounter, 1, 0], [random 3, 1, 15, 5], [], [], [], _enemyDAC]
-	],
-	// Spawn a outer Mission Zone
-	[
-		_enemySide,
-		_missionName,
-		"missionZone",
-		_missionPos,
-		_missionSize,
-		[[_missionCounter, 1, 0], _DACinfantry, _DACvehicles, _DACarmour, [], _enemyDAC]
-	]
-];
-
-private _addText = "";
-
-// Spawn a Heli Zone (maybe)
-if (count _DACheli > 0) then {
-	_addText = "<br/><br/>Enemy air support is understood to be active in this area. Approach the area with extreme caution.";
-	_DACZoneList pushBack [
-			_enemySide,
-			_missionName,
-			"heliZone",
-			_missionPos,
-			_missionSize,
-			[[_missionCounter, 1, 0], [], [], [], _DACheli, _enemyDAC]
-		];
-};
-
-// Create a trigger that sets up a DAC Zone (we don't want 100's of active zones at the start takes ~20mins to initialise!)
-private _initTrigger = createTrigger ["EmptyDetector", _missionPos, false];
-_initTrigger setTriggerTimeout [1, 1, 1, false];
-_initTrigger setTriggerArea [tg_triggerRange + _missionSize, tg_triggerRange + _missionSize, 0, true];
-_initTrigger setTriggerActivation [format["%1", tg_playerSide], "PRESENT", false];
-_initTrigger setTriggerStatements [ "this", format["['%1',%2] spawn tg_fnc_DACzone_creator; deleteVehicle thisTrigger;", _missionName, _DACZoneList], "" ];
-
-// Get a text summary of the difficulty and enemy strength for the task.
-private _textDifficulty = [if _isMainMission then {1} else {0},_DACinfantry, _DACvehicles, _DACarmour, _DACheli] call tg_fnc_stringDifficulty;
 
 // Create Task
-private _missionTask = [format["%1_task", _missionName], true, ["<font color='#00FF80'>Summary</font><br/>" + format[selectRandom _missionDesc,_vehName] + _addText + _textDifficulty, _missionTitle, ""], _missionPos, "CREATED", 1, if (time < 300) then { false } else { true }, true, "getin"] call BIS_fnc_setTask;
-missionNamespace setVariable [format["%1_task", _missionName], _missionTask];
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _vehName], ["Target"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "truck"] call BIS_fnc_setTask;
 
-true
+TRUE
