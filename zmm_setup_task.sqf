@@ -6,7 +6,10 @@ params [[ "_zoneID", 0]];
 // Create Insert/Exfil Tasks
 _lzLocs = missionNamespace getVariable [ format["ZMM_%1_LZLocations", _zoneID], [] ];
 
-if (count _lzLocs > 0) then {
+// Are we in CTI Mode?
+_isCTI = missionNamespace getVariable ["ZZM_CTIMode", FALSE];
+
+if (count _lzLocs > 0 && !_isCTI) then {
 	// Mark Insertion.
 	_posInsert = [selectRandom _lzLocs, random 50, random 360] call BIS_fnc_relPos;
 	_mrkr = createMarker [format["MKR_%1_START", _zoneID], _posInsert];
@@ -65,12 +68,13 @@ _nearLoc = nearestLocation [_centre, ""];
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
 
 // Fill Objectives - Building
-_allBlds = nearestObjects [_centre, ["building"], _radius, TRUE];
-_lrgBlds = _allBlds select {count (_x buildingPos -1) >= 4};
+_allBlds = nearestObjects [_centre, ["building"], _radius - 50, TRUE];
+_lrgBlds = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ]; // Get Large Buildings
 
 if (count _allBlds > 0) then {
 	if (count _lrgBlds > 0) then {
-		_objectives pushBack [[position (_lrgBlds select 0)],"hvt_kill.sqf"];
+		_objectives pushBack [[_zoneID, selectRandom _lrgBlds],"hvt_kill.sqf"];
+		_objectives pushBack [[_zoneID, selectRandom _lrgBlds],"hvt_rescue.sqf"];
 	};
 	
 	// Special Building Objective Types
@@ -130,7 +134,7 @@ for [{_i = 25}, {_i <= (_radius / 1.5)}, {_i = _i + 25}] do {
 };
 
 // Fill Objectives - Anywhere
-if (count (missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], [] ]) > 0) then { _objectives pushBack [[_zoneID], "defend_location.sqf", [300, FALSE, FALSE]]; };
+if (count (missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], [] ]) > 0 && !_isCTI) then { _objectives pushBack [[_zoneID], "defend_location.sqf", [300, FALSE, FALSE]]; }; // Never defend in a CTI.
 _objectives pushBack [[_zoneID], "clear_location.sqf", [900]];
 _objectives pushBack [[_zoneID], "group_kill.sqf"];
 _objectives pushBack [[_zoneID], "destroy_cache.sqf"];

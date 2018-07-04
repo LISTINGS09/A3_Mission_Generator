@@ -98,8 +98,8 @@ for "_i" from 1 to (_enemyCount) do {
 			if (_finalDir >= 0) exitWith {}; 
 		} forEach [_p1, _p2, _p3, _p4];
 		
-		_unit setFormDir _finalDir; // Doesn't work?
 		_unit setDir _finalDir; // Doesn't work?
+		_unit setFormDir _finalDir; // Doesn't work?
 		_unit doWatch (_unit getPos [200,_finalDir]); // Works!
 		
 		// Semi-exposed area, set to kneel.

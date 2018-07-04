@@ -12,7 +12,6 @@ _nearLoc = nearestLocation [_centre, ""];
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
 _locType = if (getPos _nearLoc distance2D _centre < 200) then { type _nearLoc } else { "Custom" };
 
-
 _flagNo = switch (_locType) do {
 	case "Airport": { 4 };
 	case "NameCityCapital": { 5 };
@@ -23,12 +22,12 @@ _flagNo = switch (_locType) do {
 };
 
 _missionDesc = [
-		"Secure the area around <font color='#0080FF'>%1</font color> then locate and capture the flag(s) in the area.",
-		"Capture <font color='#0080FF'>%1</font color> by claiming the surrounding area and locating the flag(s) somewhere in the area.",
-		"<font color='#0080FF'>%1</font color> is occupied by enemy forces, eliminate them and secure the area by claiming the flag(s).",
-		"Claim the flag(s) located somewhere in <font color='#0080FF'>%1</font color> after you have eliminated all enemy forces there.",
-		"Enemy forces have occupied <font color='#0080FF'>%1</font color>, eliminate them and claim the flag(s) in the area.",
-		"Locate the flag(s) somewhere in <font color='#0080FF'>%1</font color> after you have liberated it from enemy forces."
+		"Secure the area around <font color='#0080FF'>%1</font color> then locate and capture the <font color='#00FFFF'>%2 flag%3</font color> in the area.",
+		"Capture <font color='#0080FF'>%1</font color> by claiming the surrounding area and locating the <font color='#00FFFF'>%2 flag%3</font color> somewhere in the area.",
+		"<font color='#0080FF'>%1</font color> is occupied by enemy forces, eliminate them and secure the area by claiming the <font color='#00FFFF'>%2 flag%3</font color>.",
+		"Claim the <font color='#00FFFF'>%2 flag%3</font color> located somewhere in <font color='#0080FF'>%1</font color> after you have eliminated all enemy forces there.",
+		"Enemy forces have occupied <font color='#0080FF'>%1</font color>, eliminate them and claim the <font color='#00FFFF'>%2 flag%3</font color> in the area.",
+		"Locate the <font color='#00FFFF'>%2 flag%3</font color> somewhere in <font color='#0080FF'>%1</font color> after you have liberated it from enemy forces."
 	];
 	
 // Add any missed buildings.
@@ -87,20 +86,13 @@ _zmm_getFlag = {
 	_flagVar select 0
 };
 
-_flagGrp = createGroup [_enemySide, TRUE];
+_enemyGrp = createGroup [_enemySide, TRUE];
 _flagType = [ _enemySide, FALSE ] call _zmm_getFlag;
 _flagPTex = [ _playerSide, TRUE ] call _zmm_getFlag;
 _flagActivation = [];
 
 {	
 	_flag = createVehicle [ _flagType, _x, [], 0, "NONE" ];
-		
-	if (underwater _flag) then {
-		_flag setPosASL [position _flag select 0, position _flag select 1, 0];
-		_flagStone = createSimpleObject [ "Land_W_sharpStone_02", [ 0, 0, 0 ] ];
-		_flagStone setPosASL [ getMarkerPos _flagMarker select 0, (getMarkerPos _flagMarker select 1) - 5, -1 ];
-	};
-	
 	_flag allowDamage FALSE;
 	_flag setVariable [ "var_Number", _forEachIndex, TRUE ];
 	_flag setVariable [ "var_zoneID", _zoneID, TRUE ];
@@ -146,24 +138,31 @@ _flagActivation = [];
 	_mrk setMarkerColor format[ "color%1", _enemySide ];
 	_mrk setMarkerSize [ 0.8, 0.8 ];
 	
-	// Spawn filler objects
-	for "_i" from 0 to 1 + random 3 do {
-		_sObj = createSimpleObject [selectRandom ["Land_WoodenCrate_01_F","Land_WoodenCrate_01_stack_x3_F","Land_WoodenCrate_01_stack_x5_F","Land_TentA_F","Land_Pallets_stack_F","Land_PaperBox_01_open_empty_F","Land_CratesWooden_F","Land_Sacks_heap_F"], _flag getPos [random 5, random 360]]; 
-		_sObj setDir random 360;
-	};
-	
-	for "_i" from 0 to 1 + random 2 do {
-		_unitType = selectRandom _menArray;
-		_unit = _flagGrp createUnit [_unitType, (_flag getPos [random 15, random 360]), [], 0, "NONE"];
-		doStop _unit;
-		_unit setDir ((_flag getRelDir _unit) - 180);
-		_unit setUnitPos "MIDDLE";
-		_unit setBehaviour "SAFE";
+	if (underwater _flag) then {
+		_flag setPosASL [position _flag select 0, position _flag select 1, 0];
+		_flagStone = createSimpleObject [ "Land_W_sharpStone_02", [ 0, 0, 0 ] ];
+		_flagStone setPosASL [ getMarkerPos _flagMarker select 0, (getMarkerPos _flagMarker select 1) - 5, -1 ];
+	} else {
+		// Spawn filler objects
+		for "_i" from 0 to 1 + random 3 do {
+			_sObj = createSimpleObject [selectRandom ["Land_WoodenCrate_01_F", "Land_WoodenCrate_01_stack_x3_F", "Land_WoodenCrate_01_stack_x5_F", "Land_TentA_F", "Land_Pallets_stack_F", "Land_PaperBox_01_open_empty_F", "Land_CratesWooden_F", "Land_Sacks_heap_F"], AGLToASL (_flag getPos [2 + random 5, random 360])]; 
+			_sObj setDir random 360;
+		};
+		
+		for "_i" from 0 to 1 + random 2 do {
+			_unitType = selectRandom _menArray;
+			_unit = _enemyGrp createUnit [_unitType, (_flag getPos [random 15, random 360]), [], 0, "NONE"];
+			doStop _unit;
+			_unit setDir ((_flag getRelDir _unit) - 180);
+			_unit setFormDir ((_flag getRelDir _unit) - 180);
+			_unit setUnitPos "MIDDLE";
+			_unit setBehaviour "SAFE";
+		};
 	};
 } forEach _flagLocs; 
 
 // Wait before setting DS to allow positions to set.
-_flagGrp spawn { sleep 5; _this enableDynamicSimulation TRUE };
+_enemyGrp spawn { sleep 5; _this enableDynamicSimulation TRUE };
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
@@ -172,6 +171,6 @@ _objTrigger setTriggerStatements [  (_flagActivation joinString " && "),
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName], [_locName] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "attack"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, count _flagActivation, if (count _flagActivation > 1) then {"s"} else {""}], ["Capture"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "attack"] call BIS_fnc_setTask;
 
 TRUE

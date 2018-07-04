@@ -55,7 +55,7 @@ _fnc_spawnGroup = {
 	};
 };
 
-["ERROR", format["Creating Patrols - Zone %1 (%2)", _zoneID, _locType]] call zmm_fnc_logMsg;
+["DEBUG", format["Creating Patrols - Zone %1 (%2)", _zoneID, _locType]] call zmm_fnc_logMsg;
 
 switch (_locType) do {
 	case "Airport": { 

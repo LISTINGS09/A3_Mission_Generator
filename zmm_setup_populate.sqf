@@ -51,20 +51,16 @@ switch (_locType) do {
 _return = [];
 
 if !(_locType isEqualTo "Ambient") then {
-	if (missionNamespace getVariable ["ZZM_CTIMode", FALSE]) then {
-		// Filled world only has one type of objective.
-		[_zoneID] execVM format["%1\tasks\capture_location.sqf", ZMM_FolderLocation];
-	} else {
-		// This function returns some settings to overwrite AI population.
-		// e.g. Defence missions have no AI to start.
-		_return = [_zoneID] call zmm_fnc_setupTask;
-	};
+	// This function returns some settings to overwrite AI population.
+	// e.g. Defence missions have no AI to start.
+	//[_zoneID] execVM format["%1\tasks\capture_object.sqf", ZMM_FolderLocation];
+	_return = [_zoneID] call zmm_fnc_setupTask;
 };
 
 _return params [["_ovQRF", _qrfTime], ["_patrols", TRUE], ["_garrison", TRUE] ];
 if !(_ovQRF isEqualTo _qrfTime) then { _qrfTime = _ovQRF };
 
-["DEBUG", format["Zone %1 Patrol: %2  Garrison: %3  QRF: %4", _zoneID, _patrols, _garrison, _qrfTime]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone %1 (%2) Patrol: %3  Garrison: %4  QRF: %5", _zoneID, _locType, _patrols, _garrison, _qrfTime]] call zmm_fnc_logMsg;
 
 // Populate the area
 if _patrols then { [ _zoneID, _locType ] spawn zmm_fnc_areaPatrols };

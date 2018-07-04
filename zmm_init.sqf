@@ -1,4 +1,4 @@
-// Start ZMM by running this script from the folder location its saved to:
+// Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
 
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
