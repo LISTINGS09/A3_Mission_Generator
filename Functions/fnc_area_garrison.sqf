@@ -31,6 +31,7 @@ for "_i" from 1 to (_enemyCount) do {
 		// Spawn stationary soldiers.
 		if (random 1 > 0.8) then {
 			_unit = _grp createUnit [_unitType, [0,0,0], [], 0, "NONE"];
+			[_unit] joinSilent _grp; 
 			_unit setPos (([_centre, random 150, random 360] call BIS_fnc_relPos) findEmptyPosition [0, 25, _unitType]);
 			_unit setFormDir ((_unit getRelDir _centre) - 180);
 			_unit setDir ((_unit getRelDir _centre) - 180);
@@ -44,6 +45,7 @@ for "_i" from 1 to (_enemyCount) do {
 	_bPos = _bPos - [_newPos];
 
 	_unit = _grp createUnit [_unitType, [0,0,0], [], 0, "NONE"];
+	[_unit] joinSilent _grp; 
 	_unit setPosATL _newPos;
 	
 	_unitEyePos = eyePos _unit;

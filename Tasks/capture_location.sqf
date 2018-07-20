@@ -152,6 +152,7 @@ _flagActivation = [];
 		for "_i" from 0 to 1 + random 2 do {
 			_unitType = selectRandom _menArray;
 			_unit = _enemyGrp createUnit [_unitType, (_flag getPos [random 15, random 360]), [], 0, "NONE"];
+			[_unit] joinSilent _enemyGrp; 
 			doStop _unit;
 			_unit setDir ((_flag getRelDir _unit) - 180);
 			_unit setFormDir ((_flag getRelDir _unit) - 180);

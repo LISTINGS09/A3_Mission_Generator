@@ -21,6 +21,8 @@ _fnc_spawnGroup = {
 		_group = objNull;
 		_type = selectRandom _types;
 		
+		["DEBUG", format["Zone%1 (%3) - Spawning %2", _zoneID, _type, _side]] call zmm_fnc_logMsg;
+		
 		if (typeName _type == typeName "") then {
 			if (isClass (configFile >> "CfgVehicles" >> _type)) then {
 				_isAir = FALSE;
@@ -36,6 +38,12 @@ _fnc_spawnGroup = {
 				
 				createVehicleCrew _veh;
 				
+				// Switch units side to Zone side.
+				if (side driver _veh != _side) then {
+					_sideGrp = createGroup [_side, TRUE];
+					(crew _veh) joinSilent _sideGrp;
+				};
+				
 				{ _x addCuratorEditableObjects [ crew _veh, TRUE ] } forEach allCurators;
 				
 				[driver _veh, _marker, "SHOWMARKER"] spawn zmm_fnc_aiUPS;
@@ -43,7 +51,7 @@ _fnc_spawnGroup = {
 				["ERROR", format["Invalid vehicle class: %1", _type]] call zmm_fnc_logMsg;
 			};
 		} else {
-			_group = [[0,0,0], (missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST]), _type] call BIS_fnc_spawnGroup;
+			_group = [[0,0,0], _side, _type] call BIS_fnc_spawnGroup;
 			_group spawn { sleep 30; _this enableDynamicSimulation TRUE };
 			
 			{ _x addCuratorEditableObjects [ units _group, TRUE ] } forEach allCurators;

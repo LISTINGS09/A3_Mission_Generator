@@ -69,7 +69,7 @@ _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } 
 
 // Fill Objectives - Building
 _allBlds = nearestObjects [_centre, ["building"], _radius - 50, TRUE];
-_lrgBlds = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ]; // Get Large Buildings
+_lrgBlds = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 4}) ]; // Get Large Buildings
 
 if (count _allBlds > 0) then {
 	if (count _lrgBlds > 0) then {
