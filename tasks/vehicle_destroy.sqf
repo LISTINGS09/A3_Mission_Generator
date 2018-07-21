@@ -20,6 +20,7 @@ _missionDesc = [
 // Chance for heavy armour
 if (random 100 > 50) then {
 	_vehClass = _vehTank;
+	if (_vehClass isEqualType []) then { _vehClass = _vehClass#0 };
 	_picture = "destroy";
 	
 	_missionDesc = [

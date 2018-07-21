@@ -24,6 +24,7 @@ if (count _bPos isEqualTo 0) then {
 _grp = createGroup [_side, TRUE];
 
 for "_i" from 1 to (_enemyCount) do {
+	if (count _menArray isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 	 _unitType = selectRandom _menArray;
 	 _inHouse = TRUE;
 	 

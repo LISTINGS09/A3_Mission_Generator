@@ -54,7 +54,7 @@ _locName = if (getPos _nearLoc distance2D _pos < 200) then { text _nearLoc } els
 _side = [ _pos, _radius * 5] call _zmm_fnc_findSide;
 missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Set Side
 
-["DEBUG", format["Creating Zone %1 (%2 - %3 - %4)", _zoneID, _desc_type, _locName, _pos]] call zmm_fnc_logMsg;
+["DEBUG", format["Creating Zone %1 [%2] (%3 - %4 - %5)", _zoneID, _side, _desc_type, _locName, _pos]] call zmm_fnc_logMsg;
 
 // Set sizes of area based on type.
 _iconSize = 1;

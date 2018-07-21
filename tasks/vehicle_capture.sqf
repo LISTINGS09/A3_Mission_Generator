@@ -6,8 +6,6 @@ _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], 
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
 _vehClass = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Util",_enemySide],[""]]);
-_vehTank = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Heavy",_enemySide],[""]]);
-_picture = "truck";
 
 _missionDesc = [
 		"Commandeer a <font color='#00FFFF'>%1</font> that has been abandoned in the area.",

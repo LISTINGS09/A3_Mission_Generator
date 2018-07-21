@@ -2,11 +2,11 @@
 // [] execVM "scripts\ZMM\zmm_init.sqf";
 
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
-ZMM_DEBUG = TRUE;
+ZMM_DEBUG = FALSE;
 f_param_ZMMMode = 1;
 
 // Choose West Faction
-switch (missionNamespace getVariable ["f_param_factionWest",0]) do {	
+switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {	
 	case 0: {
 		// WEST - US ARMY D
 		ZMM_WESTFlag = ["FlagCarrierUSA", "\ca\data\flag_usa_co.paa"];
@@ -115,7 +115,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",0]) do {
 };
 
 // Choose East Faction
-switch (missionNamespace getVariable ["f_param_factionEast",0]) do {	
+switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {	
 	case 0: {
 		// EAST - RU DESERT
 		ZMM_EASTFlag = ["rhs_Flag_Russia_F", "\ca\data\flag_rus_co.paa"];
