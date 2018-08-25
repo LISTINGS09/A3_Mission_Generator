@@ -30,7 +30,7 @@ _objTrigger = createTrigger ["EmptyDetector", position _targetBld, FALSE];
 _objTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", FALSE];
 _objTrigger setTriggerArea [_max, _max, 0, TRUE];
 _objTrigger setTriggerStatements [  "count thisList <= 2", 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_%1_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 
 // Create Task

@@ -1,7 +1,7 @@
 // Spawns a markers/missions over all locations in a world.
 if !isServer exitWith {};
 
-params [ ["_pos", [0,0,0]], ["_desc_type", "Custom"], ["_radius", 150] ];
+params [ ["_pos", [0,0,0]], ["_locType", "Custom"], ["_radius", 150] ];
 
 _zmm_fnc_findSide = {
 	params [[ "_nearPos", []], ["_inDist", 0]];
@@ -54,36 +54,55 @@ _locName = if (getPos _nearLoc distance2D _pos < 200) then { text _nearLoc } els
 _side = [ _pos, _radius * 5] call _zmm_fnc_findSide;
 missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Set Side
 
-["DEBUG", format["Creating Zone %1 [%2] (%3 - %4 - %5)", _zoneID, _side, _desc_type, _locName, _pos]] call zmm_fnc_logMsg;
+["DEBUG", format["Creating Zone %1 [%2] (%3 - %4 - %5)", _zoneID, _side, _locType, _locName, _pos]] call zmm_fnc_logMsg;
 
 // Set sizes of area based on type.
 _iconSize = 1;
 _locSize = 1;
 
-switch (_desc_type) do {
+missionNamespace setVariable [format[ "ZMM_%1_PatrolsEnabled", _zoneID ], TRUE];
+
+switch (_locType) do {
 	case "Airport": { 
 		_iconSize = 1.2;
 		_locSize = 1.25;
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 20];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 5];
 	};
 	case "NameCityCapital": { 
 		_iconSize = 1.1;
 		_locSize = 1.25;
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 20];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
 	};
 	case "NameCity": { 
 		_iconSize = 1;
 		_locSize = 1;
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 16];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 2];
 	};
 	case "NameVillage": { 
 		_iconSize = 0.8;
 		_locSize = 0.75;
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 10];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 2];
 	};
 	case "NameLocal": { 
 		_iconSize = 0.6;
 		_locSize = 0.75;
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 2];
 	};
 	case "Ambient": {
 		_iconSize = 0.4;
 		_locSize = 0.75;
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 0];
 	};
 };
 
@@ -104,7 +123,7 @@ _mrk setMarkerSize [ _radius * _locSize, _radius * _locSize];
 _mrk = createMarkerLocal [ format["MKR_%1_MAX", _zoneID], _pos ];
 _mrk setMarkerShapeLocal "ELLIPSE";
 _mrk setMarkerBrushLocal "BORDER";
-_mrk setMarkerAlphaLocal 0.5;
+_mrk setMarkerAlphaLocal 0.2;
 _mrk setMarkerColorLocal format["color%1", _side];
 _mrk setMarkerSizeLocal [ _radius * 2, _radius * 2];
 
@@ -112,9 +131,9 @@ _mrk setMarkerSizeLocal [ _radius * 2, _radius * 2];
 _mrk = createMarkerLocal [ format["MKR_%1_TRG", _zoneID], _pos ];
 _mrk setMarkerShapeLocal "ELLIPSE";
 _mrk setMarkerBrushLocal "BORDER";
-_mrk setMarkerAlphaLocal 0.5;
+_mrk setMarkerAlphaLocal 0.2;
 _mrk setMarkerColorLocal format[ "color%1", "Black" ];
-_mrk setMarkerSizeLocal [ _radius * 3, _radius * 3];
+_mrk setMarkerSizeLocal [ _radius * 6, _radius * 6];
 
 // Create QRF Points - Collect all roads ~1.5km around the location that are not in a safe location.
 _QRFLocs = [];
@@ -140,20 +159,24 @@ _allBlds = nearestObjects [_pos, ["building"], _radius * _locSize, TRUE];
 _lrgBlds = (_allBlds select {count (_x buildingPos -1) >= 4});
 missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], _lrgBlds ]; // Set Large Buildings
 
-// Ambient - EXIT - Only zones need a garrison.
-if (_desc_type isEqualTo "Ambient") exitWith {
+// *** Ambient - EXIT ***
+if (_locType isEqualTo "Ambient") exitWith {
 	format["MKR_%1_LOC", _zoneID] setMarkerSize [ 0.5, 0.5];
 	format["MKR_%1_MIN", _zoneID] setMarkerAlpha 0;
 	format["MKR_%1_MAX", _zoneID] setMarkerAlphaLocal 0;
 	format["MKR_%1_TRG", _zoneID] setMarkerAlphaLocal 0;
 
 	_setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
-	_setupTrg setTriggerArea [ _radius * 4, _radius * 4, 0, FALSE, 150 ];
+	_setupTrg setTriggerArea [ _radius * 6, _radius * 6, 0, FALSE, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", FALSE ];
 	_setupTrg setTriggerStatements [ "this", 
-									format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _desc_type], 
+									format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
 									""];
 };
+
+// Genuine location, so add it to locations list.
+if (isNil "ZMM_ZoneMarkers") then { ZMM_ZoneMarkers = [] };
+ZMM_ZoneMarkers pushBack format["MKR_%1_LOC", _zoneID];
 
 // The following takes a little time.
 [_pos, _radius, _locSize, _zoneID] spawn {
@@ -188,14 +211,17 @@ if (_desc_type isEqualTo "Ambient") exitWith {
 	missionNamespace setVariable [ format["ZMM_%1_FlatLocations", _zoneID], _groundLocs ]; // Set QRF Locations
 };
 
-// SETUP - Location Creation Trigger when player is near.
-if (missionNamespace getVariable ["ZZM_CTIMode", FALSE]) then {
+if ((missionNamespace getVariable ["ZZM_Mode", 0]) > 0) then {
+	// CTI Mode - Create trigger when player nears Zone.
 	_setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
-	_setupTrg setTriggerArea [ _radius * 3, _radius * 3, 0, FALSE, 150 ];
+	_setupTrg setTriggerArea [ _radius * 6, _radius * 6, 0, FALSE, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", FALSE ];
 	_setupTrg setTriggerStatements [ "this", 
-									format [ "[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _desc_type ], 
+									format [ "[%1] spawn zmm_fnc_setupPopulate;", _zoneID ], 
 									""];
 } else {
-	[ _zoneID, _desc_type ] spawn zmm_fnc_setupPopulate;
+	// Non-CTI Mode - Fill Zone immediately.
+	[ _zoneID, _locType ] spawn zmm_fnc_setupPopulate;
 };
+
+_zoneID

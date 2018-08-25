@@ -1,0 +1,1 @@
+if !isServer exitWith {};

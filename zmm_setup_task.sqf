@@ -1,13 +1,39 @@
 // Iterates the Zone and selects a suitable objective.
 if !isServer exitWith {};
 
-params [[ "_zoneID", 0]];
+params [ "_zoneID" ];
+
+// Are we in CTI Mode?
+_isCTI = (missionNamespace getVariable ["ZZM_Mode", 0]) > 0;
+
+// Zone not defined - Pick a random one.
+if (isNil "_zoneID") then {
+	_markersAll = missionNamespace getVariable ["ZMM_ZoneMarkers", []];
+	_markersFar = [];
+	
+	if (_markersAll isEqualTo []) exitWith {}; // No markers so just exit.
+	
+	{
+		_mkr = _x;
+		if ((playableUnits + switchableUnits) findIf { _x distance (getmarkerPos _mkr) < 1500 } isEqualTo -1) then { _markersFar pushBack _mkr };
+	} forEach _markersAll;
+	
+	_foundZone = selectRandom _markersAll;
+	
+	if !(_markersFar isEqualTo []) then { _foundZone = selectRandom _markersFar };
+	
+	ZMM_ZoneMarkers = ZMM_ZoneMarkers - [_foundZone];
+	
+	_zoneID = parseNumber ((_foundZone splitString "_") select 1);
+};
+
+if (isNil "_zoneID") exitWith { ["ERROR", "Invalid Objective Zone"] call zmm_fnc_logMsg };
+
+// Set global mission variable to FALSE.
+missionNamespace setVariable ["ZMM_DONE", FALSE, TRUE];
 
 // Create Insert/Exfil Tasks
 _lzLocs = missionNamespace getVariable [ format["ZMM_%1_LZLocations", _zoneID], [] ];
-
-// Are we in CTI Mode?
-_isCTI = missionNamespace getVariable ["ZZM_CTIMode", FALSE];
 
 if (count _lzLocs > 0 && !_isCTI) then {
 	// Mark Insertion.
@@ -38,14 +64,14 @@ if (count _lzLocs > 0 && !_isCTI) then {
 	
 	// Exfil Task
 	_exfilTsk = createTrigger ["EmptyDetector", _posExfil, FALSE];
-	_exfilTsk setTriggerStatements [format["(missionNamespace getVariable ['ZMM_%1_DONE', FALSE] || missionNamespace getVariable ['ZMM_%1_FAIL', FALSE])", _zoneID], 
+	_exfilTsk setTriggerStatements [format["(missionNamespace getVariable ['ZMM_DONE', FALSE] || missionNamespace getVariable ['ZMM_%1_FAIL', FALSE])", _zoneID], 
 									format["['ZMM_%1_TaskExfil', TRUE, ['Extract to the marked location and RTB.', 'Extract', 'MKR_%1_END'], objNull, 'ASSIGNED', 1, TRUE, TRUE, 'exit'] call BIS_fnc_setTask;", _zoneID], 
 									""];
 	
 	_exfilTrg = createTrigger ["EmptyDetector", _posExfil, FALSE];
 	_exfilTrg setTriggerArea [75, 75, 0, FALSE, 100];
 	_exfilTrg setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
-	_exfilTrg setTriggerStatements [format["(missionNamespace getVariable ['ZMM_%1_DONE', FALSE] || missionNamespace getVariable ['ZMM_%1_FAIL', FALSE]) && this", _zoneID], 
+	_exfilTrg setTriggerStatements [format["(missionNamespace getVariable ['ZMM_DONE', FALSE] || missionNamespace getVariable ['ZMM_%1_FAIL', FALSE]) && this", _zoneID], 
 									format["'MKR_%1_END' setMarkerColor 'ColorGrey'; ['ZMM_%1_TaskExfil', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; 
 									if (missionNamespace getVariable ['ZMM_%1_Failed', FALSE]) then { 
 										playSound selectRandom ['cp_exfil_successful_primary_failed_1', 'cp_exfil_successful_primary_failed_2', 'cp_exfil_successful_primary_failed_3'];
@@ -143,14 +169,24 @@ _objectives pushBack [[_zoneID], "upload_data.sqf"];
 _objectives pushBack [[_zoneID], "paradrop.sqf"];
 
 if (count _objectives == 0) exitWith { 
-	["DEBUG", format["No objectives for location at %1 (%2)", _centre, worldName]] call zmm_fnc_logMsg;
+	["ERROR", format["No objectives for Zone %1 (%2, %3)", _zoneID, _locName, _centre]] call zmm_fnc_logMsg;
 };
 
 // Create the Objective
 (selectRandom _objectives) params ["_args", "_script", ["_overWrite", []]];
 
-["DEBUG", format["Creating Objective %1 at %3 (%2)", _script, worldName, _locName]] call zmm_fnc_logMsg;
+if (count _overWrite > 0) then {
+	_overWrite params [["_qrfTime", 600], ["_patrols", TRUE], ["_garrison", TRUE] ];
+	
+	if !(_qrfTime isEqualTo 600) then { missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime] };
+	if !_patrols then { missionNamespace setVariable [format[ "ZMM_%1_PatrolsEnabled", _zoneID ], FALSE] };
+	if !_garrison then { missionNamespace setVariable [format[ "ZMM_%1_GarrisonCount", _zoneID ], 0] };	
+};
+
+["DEBUG", format["Creating Objective %1 at %2", _script, _locName]] call zmm_fnc_logMsg;
 
 _nul = _args execVM format["%1\tasks\%2", ZMM_FolderLocation, _script];
 
-_overWrite
+//if _isCTI then { [_zoneID] spawn zmm_fnc_setupPopulate };
+
+TRUE

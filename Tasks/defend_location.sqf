@@ -31,7 +31,7 @@ _objTrigger setTriggerArea [_radius, _radius, 0, FALSE];
 _objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
 _objTrigger setTriggerTimeout [1500, 1500, 1500, FALSE];
 _objTrigger setTriggerStatements [ 	"this", 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_%1_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 
 // Create Task

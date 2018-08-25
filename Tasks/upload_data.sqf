@@ -116,7 +116,7 @@ missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _dataObj];
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _objTrigger setTriggerStatements [ 	format["(ZMM_%1_OBJ getVariable ['var_dataSent', FALSE])", _zoneID], 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_%1_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 
 // Create Task
