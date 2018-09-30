@@ -1,27 +1,37 @@
-if !isServer exitWith {};
-
 params [
 	"_targetPos",
 	"_posArray",
 	"_side",
-	"_unitArray"
+	"_unitClass"
 ];
-
 _reinfGrp = grpNull;
 _grpVeh = objNull;
 _vehType = "";
 _sleep = TRUE;
 _tooClose = FALSE;
 _dir = 0;
+_customInit = "";
 
+// No positions to use
 if (count _posArray == 0) exitWith {};
+
+// Fix any positions are not in array format
+{
+	switch (typeName _x) do {
+		case "STRING": { _posArray set [_forEachIndex, getMarkerPos _x] };
+		case "OBJECT": { _posArray set [_forEachIndex, getPos _x] };
+	};
+} forEach _posArray;
+
 _startingPos = selectRandom _posArray;
-_unitClass = selectRandom _unitArray;
-
-_manArray = missionNamespace getVariable [format["ZMM_%1Man", _side], ["B_Soldier_F"]];
-
+_startingPos set [2,0];
 _dir = _startingPos getDir _targetPos;
+_manArray = missionNamespace getVariable [format["ZRF_%1Soldier", _side], ["B_Soldier_F"]];
 
+// If _unitClass is array, extract the custom init.
+if (_unitClass isEqualType []) then { _customInit = _unitClass # 1; _unitClass = _unitClass # 0 };
+
+// Check if _unitClass is an air vehicle.
 _isAir = FALSE;
 if (_unitClass isEqualType "") then {
 	if ("Air" in ([(configFile >> "CfgVehicles" >> _unitClass), TRUE] call BIS_fnc_returnParents)) then { _isAir = TRUE };
@@ -33,7 +43,7 @@ _maxDist = if _isAir then {1000} else {500};
 	if (alive _x && _x distance2D _startingPos < _maxDist) exitWith { _tooClose = true};
 } forEach (playableUnits + switchableUnits);
 
-if _tooClose exitWith { [_targetPos, _posArray, _side, _unitArray] call zmm_fnc_spawnUnit; };
+if _tooClose exitWith { [_targetPos, _posArray, _side, _unitClass] call zmm_fnc_spawnUnit };
 
 if (_unitClass isEqualType "") then {
 	_vehType = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "vehicleClass");
@@ -48,12 +58,12 @@ if (_unitClass isEqualType "") then {
 	
 	if (_vehType == "car") then {
 		_soldierArr = [];
-		
+	
 		for [{_i = 1}, {_i <= count (fullCrew [_veh, "", true])}, {_i = _i + 1}] do {
 			_soldierArr pushBack (selectRandom _manArray);
 		};
 	
-		_reinfGrp = [[_veh, 15, random 360] call BIS_fnc_relPos, _side, _soldierArr] call BIS_fnc_spawnGroup;
+		_reinfGrp = [_veh getPos [15, random 360], _side, _soldierArr] call BIS_fnc_spawnGroup;
 		_grpVeh = _veh;
 		_reinfGrp addVehicle _grpVeh;
 		_wp = _reinfGrp addWaypoint [position _veh, 0];
@@ -64,7 +74,7 @@ if (_unitClass isEqualType "") then {
 		// Convert crew if using another faction vehicle.
 		if (([getNumber (configFile >> "CfgVehicles" >> _unitClass >> "Side")] call BIS_fnc_sideType) != _side) then {
 			_reinfGrp = createGroup _side;
-			{[_x] joinSilent _reinfGrp;} forEach (crew _veh);
+			(crew _veh) join _reinfGrp;
 		};
 		
 		_reinfGrp = group effectiveCommander _veh;
@@ -83,8 +93,10 @@ if (_unitClass isEqualType "") then {
 	};
 };
 
+// Run custom init for vehicle (set camos etc).
+if !(_customInit isEqualTo "") then { call compile _customInit; };
+
 if !_isAir then {
-	
 	_newWP = _reinfGrp addWaypoint [_targetPos, 100];
 	_newWP setWaypointType "SAD";
 
@@ -140,13 +152,13 @@ if !_isAir then {
 } else {
 	// Unit is a transport.
 	_reinfGrp setBehaviour "CARELESS";
-	_soldierArr = [];
+	_soldierArr = [selectRandom _manArray];
 	
-	for [{_i = 1}, {_i <= (([_unitClass, true] call BIS_fnc_crewCount) - ([_unitClass, false] call BIS_fnc_crewCount))}, {_i = _i + 1}] do {
+	for [{_i = 1}, {_i < (([_unitClass, true] call BIS_fnc_crewCount) - ([_unitClass, false] call BIS_fnc_crewCount))}, {_i = _i + 1}] do {
 		_soldierArr pushBack (selectRandom _manArray);
 	};
 
-	_paraUnit = [[_grpVeh, 15, random 360] call BIS_fnc_relPos, _side, _soldierArr] call BIS_fnc_spawnGroup;
+	_paraUnit = [[0,0,0], _side, _soldierArr] call BIS_fnc_spawnGroup;
 	{
 		_x assignAsCargo _grpVeh;
 		[_x] orderGetIn TRUE;
@@ -189,8 +201,9 @@ if !_isAir then {
 	};
 	_newWP = _paraUnit addWaypoint [_targetPos, 100];
 	_newWP setWaypointType "GUARD";
+	_reinfGrp = _paraUnit;
 };
 
-if (_sleep) then {
-	sleep random 20;
-};
+{ _x addCuratorEditableObjects [(units _reinfGrp) + [_grpVeh], TRUE] } forEach allCurators;
+
+if (_sleep) then { sleep random 20 };

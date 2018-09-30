@@ -1,966 +1,461 @@
-// =========================================================================================================
-//  Urban Patrol Script  
-//  Version: 2.2.0
-//  Author: Kronzky (www.kronzky.info / kronzky@gmail.com)
+//
+//  Urban Patrol Script Zeus Edition
+//  Version: 1.0
+//  Author: 2600K & Kronzky (www.kronzky.info / kronzky@gmail.com)
 //  BIS Forum: http://forums.bistudio.com/showthread.php?147904-Urban-Patrol-Script&highlight=Urban+Patrol+Script
-// ---------------------------------------------------------------------------------------------------------
+//
 //  Required parameters:
-//    unit          = Unit to patrol area (1st argument)
-//    markername    = Name of marker that covers the active area. (2nd argument)
-//    (e.g. nul=[this,"town"] execVM "ups.sqf")
+//    unit          = Unit to patrol zone
+//    markername    = Name of marker/trigger that covers the active zone
 //
 //  Optional parameters: 
-//    random        = Place unit at random start position.
-//    randomdn      = Only use random positions on ground level.
-//    randomup      = Only use random positions at top building positions. 
-//    min:n/max:n   = Create a random number (between min and max) of 'clones'.
-//    prefix:string = Cloned units' names will start with this prefix.
-//    nomove        = Unit will stay at start position until enemy is spotted.
-//    nofollow      = Unit will only follow an enemy within the marker area.
-//    delete:n      = Delete dead units after 'n' seconds.
-//    nowait        = Do not wait at patrol end points.
-//    noslow        = Keep default behaviour of unit (don't change to "safe" and "limited").
-//    noai          = Don't use enhanced AI for evasive and flanking maneuvers.
-//    showmarker    = Display the area marker.
-//    trigger       = Display a message when no more units are left in sector.
-//    empty:n       = Consider area empty, even if 'n' units are left.
-//    track         = Display a position and destination marker for each unit.
+//    RANDOM        = Start unit at random position in zone
+//    NOWP        	= Unit will hold position until enemy is spotted
+//    NOFOLLOW      = Unit will only follow an enemy within the marker zone.
+//    NOSLOW        = Keep default behaviour of unit (don't change to "safe" and "limited").
+//    NOAI          = Don't use enhanced AI for evasive and flanking maneuvers.
+//    SHOWMARKER    = Display the zone marker.
+//    TRACK         = Display a position and destination marker for each unit.
 //
 //	  _nul = [this,"UPSZ","RANDOM"] execVM "scripts\UPS\UPS_Lite.sqf";
-// =========================================================================================================
+//
+if !isServer exitWith {};
 
-if (!isServer) exitWith {};
-	
-// how far opfors should move away if they're under attack
-// set this to 200-300, when using the script in open areas (rural surroundings)
-#define SAFEDIST 150
+// Global Script Variables
+_cycle = 5; 		// Script Cycle Time (seconds)
+_safeDist = 200; 	// How far to move when under attack in meters
+_closeEnough = 50; 	// WP Completion Radius
+_shareDist = 500; 	// AI Comms Range in meters
+_alertTime = 60; 	// AI Alert after spotting enemy
+_artyTime = 120;	// Arty delay between firing
+_artyRural = 250;	// Arty dispersion in rural areas
+_artyUrban = 150;	// Arty dispersion in urban areas
 
-// how close unit has to be to target to generate a new one 
-#define CLOSEENOUGH 10
+// Disable debug mode if not set
+if (isNil "ZAI_Debug") then { ZAI_Debug = FALSE };
 
-// how close units have to be to each other to share information
-#define SHAREDIST 500
-
-// how long AI units should be in alert mode after initially spotting an enemy
-#define ALERTTIME 120
-
-// ---------------------------------------------------------------------------------------------------------
-//echo format["[K] %1",_this];
-
-// convert argument list to uppercase
-_UCthis = [];
-for [{_i=0},{_i<count _this},{_i=_i+1}] do {_e=_this select _i; if (typeName _e=="STRING") then {_e=toUpper(_e)};_UCthis set [_i,_e]};
-
-// ***************************************** SERVER INITIALIZATION *****************************************
-
-	// global functions
-if (isNil("KRON_UPS_INIT")) then {
-	KRON_UPS_INIT=0;
-
-	// find a random position within a radius
-	KRON_randomPos = {
-		private["_tx","_ty","_xout","_yout"];
-		params["_cx","_cy","_rx","_ry","_cd","_sd","_ad"];
-		_tx=random (_rx*2)-_rx;
-		_ty=random (_ry*2)-_ry;
-		_xout=if (_ad!=0) then {_cx+ (_cd*_tx - _sd*_ty)} else {_cx+_tx};
-		_yout=if (_ad!=0) then {_cy+ (_sd*_tx + _cd*_ty)} else {_cy+_ty};
-		[_xout,_yout]
-	};
-	// find any building (and its possible building positions) near a position
-	KRON_PosInfo = {
-		private["_lst","_bld","_bldpos"];
-		params["_pos"];
-		_lst= nearestObjects [_pos,["House","vbs2_house"],20];
-		if (count _lst==0) then {_bld=0;_bldpos=0} else {_bld=_lst select 0; _bldpos=[_bld] call KRON_BldPos}; 
-		[_bld,_bldpos]
-	};
-	/// find the highest building position	
-	KRON_BldPos = {
-		private ["_bi","_bldpos","_maxZ","_bp","_bz","_higher"];
-		params["_bld"];
-		_maxZ=0;_bi=0;_bldpos=0;
-		while {_bi>=0} do {
-			_bp = _bld BuildingPos _bi;
-			if ((_bp select 0)==0) then {
-				_bi=-99
-			} else {
-				_bz=_bp select 2;
-				_higher = ((_bz>_maxZ) || ((abs(_bz-_maxZ)<.5) && (random 1>.5))); 
-				if ((_bz>4) && _higher) then {_maxZ=_bz; _bldpos=_bi}
-			};
-			_bi=_bi+1
-		};
-		_bldpos
-	};
-
-	KRON_OnRoad = {
-		private["_lst"];
-		params["_pos","_car","_tries"];
-		_lst=_pos nearRoads 4;
-		if ((count _lst!=0) && (_car || !(surfaceIsWater _pos))) then {_tries=99}; 
-		(_tries+1)
-	};
-	
-	KRON_getDirPos = {
-		private["_a","_b","_return"]; 
-		params["_from","_to"];
-		_return = 0; 
-		_a = (_to select 0) - (_from select 0);
-		_b = (_to select 1) - (_from select 1);
-		if (_a != 0 || _b != 0) then {_return = _a atan2 _b}; 
-		if ( _return < 0 ) then { _return = _return + 360 };
-		_return
-	};
-	
-	KRON_distancePosSqr = {
-		(((_this select 0) select 0)-((_this select 1) select 0))^2 + (((_this select 0) select 1)-((_this select 1) select 1))^2
-	};
-	
-	KRON_relPos = {
-		private["_xout","_yout"];
-		params["_p","_d","_a"];
-		_p params["_xc","_yc"];
-		_xout=_xc + sin(_a)*_d;
-		_yout=_yc + cos(_a)*_d;
-		[_xout,_yout,0]
-	};
-	
-	KRON_rotpoint = {
-		private["_cd","_sd","_xout","_yout"];
-		params["_cp","_a","_tx","_ty"];
-		_cp params["_cx","_cy"];
-		_cd=cos(_a*-1);
-		_sd=sin(_a*-1);
-		_xout={if (_a!=0) then {_cx+ (_cd*_tx - _sd*_ty)} else {_cx+_tx}};
-		_yout={if (_a!=0) then {_cy+ (_sd*_tx + _cd*_ty)} else {_cy+_ty}};
-		[_xout,_yout,0]
-	};
-	
-	KRON_stayInside = {
-		private["_tp","_tx","_ty","_fx","_fy"];
-		params["_np","_cp","_rx","_ry","_d"];
-		_np params["_nx","_ny"];
-		_cp params["_cx","_cy"];
-		_tp = [_cp,_d,(_nx-_cx),(_ny-_cy)] call KRON_rotpoint;
-		_tx = _tp select 0; _fx=_tx;
-		_ty = _tp select 1; _fy=_ty;
-		if (_tx<(_cx-_rx)) then {_fx=_cx-_rx};
-		if (_tx>(_cx+_rx)) then {_fx=_cx+_rx};
-		if (_ty<(_cy-_ry)) then {_fy=_cy-_ry};
-		if (_ty>(_cy+_ry)) then {_fy=_cy+_ry};
-		if ((_fx!=_tx) || (_fy!=_ty)) then {_np = [_cp,_d*-1,(_fx-_cx),(_fy-_cy)] call KRON_rotpoint};
-		_np;
-	};
-		
-	// Misc
-	KRON_getArg = {
-		private["_a","_v"];
-		params["_cmd","_arg","_list"];
-		_a=-1; 
-		{
-			_a=_a+1;
-			_v=format["%1",_list select _a];
-			if (_v==_cmd) then {_arg=(_list select _a+1)};
-		} forEach _list;
-		_arg
-	};
-	KRON_deleteDead = {
-		params["_u","_s"];
-		_u removeAllEventHandlers "killed";
-		sleep _s;
-		deleteVehicle _u;
-	};
-	KRON_KnownEnemy=[objNull,objNull,objNull]; // enemy information is shared between different groups
-	
-	if (isNil("KRON_UPS_Debug")) then { KRON_UPS_Debug = 0; };
-	KRON_UPS_Instances=0;
-	KRON_UPS_Total=0;
-	KRON_UPS_INIT=1;
-};
-
-if ((count _this) < 2) exitWith {
-	if (format["%1",_this]!="INIT") then {hint "UPS: Unit and marker name have to be defined!"};
-};
-_exit = false;
-_onroof = false;
-
-// ---------------------------------------------------------------------------------------------------------
-waitUntil {KRON_UPS_INIT==1};
-
-// get name of area marker 
-_areamarker = _this select 1;
-if (isNil ("_areamarker")) exitWith {
-	hint "UPS: Area marker not defined.\n(Typo, or name not enclosed in quotation marks?)";
-};	
-
-_centerPos = [];
-_centerX = [];
-_centerY = [];
-_rangeX = 0;
-_rangeY = 0;
-_areaDir = 0;
-_areaname = "";
-_areatrigger = objNull;
-_showmarker = "HIDEMARKER";
-_fn_getAreaInfo = {
-	if (typeName _areamarker=="String") then {
-		// remember center position of area marker
-		_centerPos = getMarkerPos _areamarker;
-		_centerX = abs(_centerPos select 0);
-		_centerY = abs(_centerPos select 1);
-	
-		// X/Y range of target area
-		_areasize = getMarkerSize _areamarker;
-		_rangeX = _areasize select 0;
-		_rangeY = _areasize select 1;
-		// marker orientation (needed as negative value!)
-		_areaDir = (markerDir _areamarker) * -1;
-	
-		_areaname = _areamarker;
-		
-		// show area marker 
-		_showmarker = if ("SHOWMARKER" in _UCthis) then {"SHOWMARKER"} else {"HIDEMARKER"};
-		if (_showmarker=="HIDEMARKER") then {
-			_areamarker setMarkerAlpha 0;
-		};
-	} else {
-		_centerPos = getPos _areamarker;
-		_centerX = abs(_centerPos select 0);
-		_centerY = abs(_centerPos select 1);
-	
-		// X/Y range of target area
-		_rangeX = triggerArea _areamarker select 0;
-		_rangeY = triggerArea _areamarker select 1;
-		// marker orientation (needed as negative value!)
-		_areaDir = (getDir _areamarker) * -1;
-		
-		_areaname = vehicleVarName _areamarker;
-	};
-	// update trigger position
-	if !(isNull _areatrigger) then {
-		_areatrigger setPos [_centerX,_centerY];
+// Message Logging Function
+_ZAI_LogMsg = {
+	params [["_lev", ""], ["_msg", ""]];
+	if (ZAI_Debug || _lev != "DEBUG") then { 
+		systemChat format["UPS %1: %2",_lev, _msg];
+		diag_log text format["[UPS] %1: %2",_lev, _msg];
 	};
 };
 
-[] call _fn_getAreaInfo;
-
-// wait until mission start to continue
-sleep (random 5);
-
-KRON_UPS_Instances = KRON_UPS_Instances + 1;
-
-// unit that's moving
-_obj = _this select 0;		
-
-if (isNil "_obj") exitWith {
-	diag_log text format["[UPS] ERROR: Invalid UPS Unit %1", _obj];
-	hint format["[UPS] ERROR: Invalid UPS Unit %1", _obj];
+// We need a group and marker as minimum
+if (count _this < 2) exitWith {
+	if (format["%1",_this]!="INIT") then {
+		["ERROR", "Unit and marker name have to be defined!"] call _ZAI_LogMsg;
+	};
 };
 
-_upsUnit = _obj;
-// is anybody alive in the group?
-_exit = true;		
-if (typeName _obj == "OBJECT") then {
-	if (alive _upsUnit) then {_exit = false;}		
+// Convert params to UPPER CASE
+_params = [];
+{ if ( _x isEqualType "" ) then { _params pushBack (toUpper _x) } } forEach _this;
+
+params ["_grp", "_areaMarker"];
+
+if (isNil "_areaMarker") exitWith { ["ERROR", "Area marker not defined. Typo, or name not enclosed in quotation marks?"] call _ZAI_LogMsg };	
+
+private ["_areaName","_areaSize"];
+
+if (_areaMarker isEqualType "") then {
+	_areaName = _areaMarker;
+	_areaSize = getMarkerSize _areaMarker;
+	if !("SHOWMARKER" in _params) then { _areaMarker setMarkerAlpha 0; };
 } else {
-	if (count _obj > 0) then {
-		{if (alive _x) then {_upsUnit = _x; _exit = false;}} forEach _obj;
-	};
+	_areaName = vehicleVarName _areaMarker;
+	_areaSize = triggerArea _areaMarker;
 };
+
+if (_areaSize#0 == 0 || count _areaSize == 0) exitWith { ["ERROR", format["Invalid Marker/Trigger: %1",_areaName]] call _ZAI_LogMsg };
+
+// Minimum WP distance
+_minDist = (_areaSize#0 + _areaSize#1) / 4;
+
+// Wait until mission start to continue
+sleep 3 + random 3;
+
+// Update instance counter.
+missionNamespace setVariable ["ZAI_ID", (missionNamespace getVariable ["ZAI_ID", 0]) + 1];
+
+if (isNil "_grp") exitWith { ["ERROR", format["Invalid Object %1", _grp]] call _ZAI_LogMsg };
+if (_grp isEqualType objNull) then { _grp = group _grp };
+if ({alive _x} count units _grp == 0) then { ["ERROR", format["No living units in %1", _grp]] call _ZAI_LogMsg };
+
+if ((_grp getVariable ["ZAI_ID", -1]) > 0) exitWith { ["ERROR", format["UPS Already Active on %1", _grp]] call _ZAI_LogMsg };
 
 // give this group a unique index
-_grpidx = format["%1",KRON_UPS_Instances];
-_grpName = format["UPS_%1_%2",(side _upsUnit),_grpidx];
+_grpIDx = str ZAI_ID;
+_grp setGroupId [format["ZAI_%1_%2", side _grp, _grpIDx]];
+_grp setVariable ["ZAI_ID", ZAI_ID];
+missionNamespace setVariable [format ["ZAI_%1_%2", side _grp, _grpIDx], _grp];
 
-// remember the original group members, so we can later find a new leader, in case he dies
-_groupMembers = units _upsUnit;
-KRON_UPS_Total = KRON_UPS_Total + (count _groupMembers);
+// What type of "vehicle" is unit ?
+_isAir = {assignedVehicle _x isKindOf "air"} count units _grp > 0;
+_isBoat = {assignedVehicle _x isKindOf "ship"} count units _grp > 0;
+_isCar = {assignedVehicle _x isKindOf "car"} count units _grp > 0 || {assignedVehicle _x isKindOf "tank"} count units _grp > 0 || {assignedVehicle _x isKindOf "armored"} count units _grp > 0;
+_isArty = {assignedVehicle _x isKindOf "StaticMortar"} count units _grp > 0;
+_isStatic = {assignedVehicle _x isKindOf "staticWeapon"} count units _grp > 0 || {assignedVehicle _x isKindOf "static"} count units _grp > 0;
 
-// what type of "vehicle" is unit ?
-_isMan = _upsUnit isKindOf "Man";
-_isCar = _upsUnit isKindOf "Car";
-_isBoat = _upsUnit isKindOf "Ship";
-_isPlane = _upsUnit isKindOf "Air";
+_isMan = !_isAir && !_isBoat && !_isCar && !_isStatic && !_isArty;
+
+// Make the leader the driver since RHS hates
+_grpVehicle = objNull;
+{ 
+	if (!isNull assignedVehicle _x) then { _grpVehicle = vehicle _x };
+} forEach units _grp;
+
+if (!isNull _grpVehicle) then { _grp selectLeader driver _grpVehicle };
+
+_upsType = ([(["","Man"] select _isMan), (["","Air"] select _isAir), (["","Ship"] select _isBoat), (["","Vehicle"] select _isCar), (["","Static"] select _isStatic), (["","Artillery"] select _isArty) ] - [""]) joinString ", ";
+["DEBUG", format["[%1] was detected as %2", groupID _grp, _upsType]] call _ZAI_LogMsg;
+
+// Tolerance high for choppers & planes
+if _isAir then { _closeEnough = 5000 };
 
 // check to see whether group is neutral (for attack and avoidance manoeuvres)
-_isSoldier = false;
+_isSoldier = FALSE;
 {
-	if (((side _upsUnit) getFriend _x)<.6) exitWith {
-		_isSoldier = true;
-	};
-} forEach [east,west,independent,civilian];
+	if (side _grp getFriend _x < 0.6) exitWith { _isSoldier = TRUE };
+} forEach [EAST, WEST, INDEPENDENT, CIVILIAN];
 
-_friends = [];
-_enemies = [];	
-_sharedEnemy = [side _upsUnit] call BIS_fnc_sideID;
+_alliedUnitList = [];
+
 if _isSoldier then {
 	{
-		if ([side _x, side _upsUnit] call BIS_fnc_areFriendly) then {
-			_friends pushBack _x;
-		} else {
-			_enemies pushBack _x;
-		};
-	} forEach allUnits - _groupMembers;
+		if ([side _x, side _grp] call BIS_fnc_areFriendly) then { _alliedUnitList pushBack _x };
+	} forEach allUnits;
 };
-sleep .01;
-//player sidechat format["%1, friends: %2, enemies: %3 (%4)",_upsUnit,_friends,_enemies,_sharedEnemy];
 
-// global unit variable to externally influence script 
-_named = false;
-_upsUnitname = format["%1_%2",side _upsUnit, _grpidx];
-if ("NAMED" in _UCthis) then {
-	_named = true;
-	_upsUnitname = format["%1",_upsUnit];
-	_grpidx = _upsUnitname;
+_alliedUnitList = _alliedUnitList - (switchableUnits + playableUnits) - (units _grp);
+
+// Remember the original group members
+_grpUnits = units _grp;
+
+_noFollow = ("NOFOLLOW" in _params);
+_noShare = ("NOSHARE" in _params);
+_holdMove = ("NOMOVE" in _params || "NOWP" in _params);
+if ("NOAI" in _params) then {_isSoldier = FALSE }; // suppress fight behaviour
+
+if (!_holdMove && !("NOSLOW" in _params)) then {
+	_grp setBehaviour "SAFE"; 
+	_grp setSpeedMode "LIMITED";
 };
-// create global variable for this group
-call compile format ["KRON_UPS_%1=1",_upsUnitname];
 
-// store some trig calculations
-_cosDir=cos(_areaDir);
-_sinDir=sin(_areaDir);
-
-// minimum distance of new target position
-if (_rangeX==0) exitWith {
-	diag_log text format["ERROR: UPS Cannot patrol Sector: %1 - No Area Marker",_areaname]; 
-	hint format["UPS: Cannot patrol Sector: %1\nArea Marker doesn't exist",_areaname]; 
-};
-_minDist=(_rangeX^2+_rangeY^2)/4;
-
-// remember the original mode & speed
-_orgBehaviour = behaviour _upsUnit;
-_orgSpeed = speedMode _upsUnit;
-_speedMode = _orgSpeed;
-
-// set first target to current position (so we'll generate a new one right away)
-_currPos = getPos _upsUnit;
-_orgPos = _currPos;
-_orgWatch=[_currPos,50,getDir _upsUnit] call KRON_relPos; 
-_orgDir = getDir _upsUnit;
-_avoidPos = [0,0];
-_flankPos = [0,0];
-_attackPos = [0,0];
-
-_dist = 0;
-_lastDist = 0;
-_lastMove1 = 0;
-_lastMove2 = 0;
-_maxMove=0;
-_moved=0;
-
-_damm=0;
-_dammChg=0;
-_lastDamm = 0;
-_timeOnTarget = 0;
-
-_fightMode = "walk";
-_fm=0;
-_wasHit = false;
-_hitPos=[0,0,0];
-_react = 99;
-_lastDamage = 0;
-_lastknown = 0;
-_opfknowval = 0;
-
-_sin90=1; _cos90=0;
-_sin270=-1; _cos270=0;
-
-// set target tolerance high for choppers & planes
-_closeEnough=CLOSEENOUGH*CLOSEENOUGH;
-if (_isPlane) then {_closeEnough=5000};
-
-sleep .01;
-// ***************************************** optional arguments *****************************************
-
-// wait at patrol end points
-_pause = if ("NOWAIT" in _UCthis) then {"NOWAIT"} else {"WAIT"};
-// don't move until an enemy is spotted
-_nomove  = if ("NOMOVE" in _UCthis || "NOWP" in _UCthis) then {"NOMOVE"} else {"MOVE"};
-// don't follow outside of marker area
-_nofollow = if ("NOFOLLOW" in _UCthis) then {"NOFOLLOW"} else {"FOLLOW"};
-// share enemy info 
-_shareinfo = if ("NOSHARE" in _UCthis) then {"NOSHARE"} else {"SHARE"};
-// "area cleared" trigger activator
-_usetrigger = if ("TRIGGER" in _UCthis) then {"TRIGGER"} else {if ("SILENTTRIGGER" in _UCthis) then {"SILENTTRIGGER"} else {"NOTRIGGER"}};
-// suppress fight behaviour
-if ("NOAI" in _UCthis) then {_isSoldier=false};
-// adjust cycle delay 
-_cycle = ["CYCLE:",10,_UCthis] call KRON_getArg;
-// drop units at random positions
-_initpos = "ORIGINAL";
-if ("RANDOM" in _UCthis) then {_initpos = "RANDOM"};
-if ("RANDOMUP" in _UCthis) then {_initpos = "RANDOMUP"}; 
-if ("RANDOMDN" in _UCthis) then {_initpos = "RANDOMDN"}; 
-// don't position groups or vehicles on rooftops
-if ((_initpos!="ORIGINAL") && ((!_isMan) || (count _groupMembers)>1)) then {_initpos="RANDOMDN"};
-// set behaviour modes (or not)
-_noslow = if ("NOSLOW" in _UCthis) then {"NOSLOW"} else {"SLOW"};
-
-if (_noslow != "NOSLOW") then {
-	_upsUnit setBehaviour "SAFE"; 
-	_upsUnit setSpeedMode "LIMITED";
-	_orgBehaviour = "SAFE";
-	_orgSpeed = "LIMITED";
-	_speedMode = "LIMITED";
-}; 
-
-// make start position random 
-if (_initpos!="ORIGINAL") then {
-	// find a random position (try a max of 20 positions)
-	_try=0;
-	_bld=0;
-	_bldpos=0;
-	while {_try<20} do {
-		_currPos=[_centerX,_centerY,_rangeX,_rangeY,_cosDir,_sinDir,_areaDir] call KRON_randomPos;
-		if ((_initpos=="RANDOMUP") || ((_initpos=="RANDOM") && (random 1>.75))) then {
-			_posinfo=[_currPos] call KRON_PosInfo;
-			// _posinfo: [0,0]=no house near, [obj,-1]=house near, but no roof positions, [obj,pos]=house near, with roof pos
-			_bld=_posinfo select 0;
-			_bldpos=_posinfo select 1;
-		};
-		if (_isPlane || _isBoat || !(surfaceIsWater _currPos)) then {
-			if (((_initpos=="RANDOM") || (_initpos=="RANDOMUP")) && (_bldpos>0)) then {_try=99};
-			if (((_initpos=="RANDOM") || (_initpos=="RANDOMDN")) && (_bldpos==0)) then {_try=99};
-		};
-		_try=_try+1;
+// Set random pos if required.
+_unitPos = getPos leader _grp;
+if ("RANDOM" in _params) then {
+	if (dynamicSimulationEnabled _grp) then { ["WARNING", format["%1 at %2 has DS Enabled", _grp, getPos leader _grp]] call _ZAI_LogMsg };
+	
+	// Find a random position (try a max of 20 positions)
+	_randPos = _unitPos;
+	for "_i" from 1 to 20 do {
+		_randPos = [_areaMarker] call BIS_fnc_randomPosTrigger;
+		
+		if (_isAir) exitWith {};
+		if (_isBoat && surfaceIsWater _randPos) exitWith {};
+		if (!surfaceIsWater _randPos) exitWith {};
 	};
-	if (_bldpos==0) then {
-		if (_isMan) then {
-			_currPos = [_currPos, 1, 150, 4] call BIS_fnc_findSafePos;
-			{_x setPos _currPos} forEach units _upsUnit; 
-		} else {
-			_tempPos = _currPos findEmptyPosition [0, 150, typeOf _upsUnit];
-			if (count _tempPos > 0) then {
-				_upsUnit setPos _tempPos; 
-			} else {
-				_upsUnit setPos _currPos; 
-			};
-		};
-	} else {
-		// put the unit on top of a building
-		_upsUnit setPos (_bld buildingPos _bldpos); 
-		_upsUnit setUnitPos "up";
-		_currPos = getPos _upsUnit;
-		_onroof = true;
-		_exit=true; // don't patrol if on roof
+	
+	// Put vehicle to a random spot
+	if (!isNull _grpVehicle) then {
+		_tempPos = _randPos findEmptyPosition [0, 25, typeOf _grpVehicle];
+		if (count _tempPos > 0) then { _grpVehicle setPos _tempPos } else { _grpVehicle setPos _randPos };
 	};
+	
+	// Move anyone over 150m away to the area.
+	_randPos = [_randPos, 1, 50, 2, 0, 0, 0, [], [_unitPos,_unitPos]] call BIS_fnc_findSafePos;
+	{
+		if (getPos _x distance2D _randPos > 150) then { _x setPos _randPos };
+	} forEach units _grp;
 };
-sleep .01;
 
 // track unit
-_track = 	if (("TRACK" in _UCthis) || (KRON_UPS_Debug > 0)) then {"TRACK"} else {"NOTRACK"};
-_trackername = "";
-_destName = "";
-_markerDot = "";
-if (_track=="TRACK") then {
-	_track = "TRACK";
-	_trackername=format["trk_%1",_grpidx];
-	_markerobj = createMarkerLocal [_trackername,[0,0]];
-	_markerobj setMarkerShapeLocal "ICON";
-	_markerDot = "";
-	{
-		if (isClass(configFile >> "cfgMarkers" >> _x)) then {_markerDot = _x};
-	} forEach ["DOT","WTF_Dot","MIL_DOT"];
-	if (_markerDot=="") exitWith {};
-	_trackername setMarkerTypeLocal _markerDot;
-	_markercolor = switch (side _upsUnit) do {
-		case west: {"ColorWest"};
-		case east: {"ColorEast"};
-		case independent: {"ColorGuer"};
-		default {"ColorBlack"};
-	};
-	_trackername setMarkerColorLocal _markercolor;
-	_trackername setMarkerTextLocal format["%1",_grpidx];
-	_trackername setMarkerPosLocal (getPos _upsUnit); 
-	_trackername setMarkerSizeLocal [.5,.5];
-	
-	_destName=format["dest_%1",_grpidx];
-	_markerobj = createMarkerLocal [_destName,[0,0]];
-	_markerobj setMarkerShapeLocal "ICON";
-	if (isClass(configFile >> "cfgMarkers" >> "WTF_Flag")) then {"WTF_FLAG"} else {"FLAG"};
-	_markertype = "";
-	{
-		if (isClass(configFile >> "cfgMarkers" >> _x)) then {_markertype = _x};
-	} forEach ["FLAG","WTF_Flag","mil_objective"];
-	_destName setMarkerTypeLocal _markertype;
-	_destName setMarkerColorLocal _markercolor;
-	_destName setMarkerTextLocal format["%1",_grpidx];
-	_destName setMarkerSizeLocal [.5,.5];
+_trackGrp = ("TRACK" in _params || ZAI_Debug);
+if (_trackGrp) then {
+	_trakMarker = createMarkerLocal [format["trk_%1",_grpIDx], [0,0]];
+	_trakMarker setMarkerShapeLocal "ICON";
+	_trakMarker setMarkerTypeLocal "MIL_DOT";
+	_trakMarker setMarkerColorLocal format["Color%1", side _grp];
+	_trakMarker setMarkerTextLocal format["%1", _grpIDx];
+	_trakMarker setMarkerPosLocal (getPos leader _grp); 
+	_trakMarker setMarkerSizeLocal [.5,.5];
 };	
-sleep .01;
 
-// delete dead units
-_deletedead = ["DELETE:",0,_UCthis] call KRON_getArg;
-if (_deletedead>0) then {
-	{_x addEventHandler['killed',format["[_this select 0,%1] spawn KRON_deleteDead",_deletedead]]}forEach _groupMembers;
-};
+// UPS Loop Common Variables
+_lastDamage = 0;
+_lastCount = 0;
+_lastPos = _unitPos;
+_timeOnTarget = 0;
 
-// how many group clones?
-// TBD: add to global side arrays?
-_mincopies = ["MIN:",0,_UCthis] call KRON_getArg;
-_maxcopies = ["MAX:",0,_UCthis] call KRON_getArg;
-if (_mincopies>_maxcopies) then {_maxcopies=_mincopies};
-if (_maxcopies>50) then { _maxcopies = 50; };
-if (_maxcopies>0) then {
-	if !(_isMan) exitWith {hint "Vehicles cannot be cloned."};
-	_copies=_mincopies+round(random (_maxcopies-_mincopies));
-	// any init strings?
-	_initstr = ["INIT:","",_UCthis] call KRON_getArg;
-
-	// name of clones
-	_nameprefix = ["PREFIX:","UPSCLONE",_UCthis] call KRON_getArg;
-
-	// create the clones
-	for "_grpcnt" from 1 to _copies do {
-		// group leader
-		_unittype=typeOf _upsUnit;
-		// copy groups
-		if (isNil ("KRON_cloneindex")) then {
-			KRON_cloneindex = 0;
-		}; 
-		// make the clones civilians
-		// use random Civilian models for single unit groups
-		if ((_unittype=="C_man_1") && (count _groupMembers==1)) then {_rnd=1+round(random 6); if (_rnd>1) then {_unittype=format["C_man_polo_%1_F",_rnd]}};
-		
-		_grp = createGroup [side _upsUnit,true];
-		_lead = _grp createUnit [_unittype, getPos _upsUnit, [], 0, "form"];
-		KRON_cloneindex = KRON_cloneindex+1;
-		_lead setVehicleVarName format["%1%2",_nameprefix,KRON_cloneindex];
-		call compile format["%1%2=_lead",_nameprefix,KRON_cloneindex];
-		_lead setBehaviour _orgBehaviour;
-		_lead setSpeedMode _orgSpeed;
-		_lead setSkill skill _upsUnit;
-		//_lead setVehicleInit _initstr;
-		[_lead] join _grp;
-		_grp selectLeader _lead;
-		// copy team members (skip the leader)
-		_c=0;
-		{
-			_c=_c+1;
-			if (_c>1) then {
-				_newunit = _grp createUnit [typeOf _x, getPos _x, [],0,"form"];
-				KRON_cloneindex = KRON_cloneindex+1;
-				_newunit setVehicleVarName format["%1%2",_nameprefix,KRON_cloneindex];
-				call compile format["%1%2=_newunit",_nameprefix,KRON_cloneindex];
-				_newunit setBehaviour _orgBehaviour;
-				_newunit setSpeedMode _orgSpeed;
-				_newunit setSkill skill _x;
-				//_newunit setVehicleInit _initstr;
-				[_newunit] join _grp;
-			};
-		} forEach _groupMembers;
-		_nul=[_lead,_areamarker,_pause,_noslow,_nomove,_nofollow,_initpos,_track,_showmarker,_shareinfo,"DELETE:",_deletedead] call zmm_fnc_aiUPS;
-		sleep .05;
-	};	
-	//processInitCommands;
-};
-sleep .01;
-
-
-// units that can be left for area to be "cleared"
-_zoneempty = ["EMPTY:",0,_UCthis] call KRON_getArg;
-
-// create area trigger
-if (_usetrigger!="NOTRIGGER") then {
-	_trgside = switch (side _upsUnit) do { case west: {"WEST"}; case east: {"EAST"}; case independent: {"GUER"}; default {"CIV"};};
-	_trgname="KRON_Trig_"+_trgside+"_"+_areaname;
-	call compile format["%1=objNull",_trgname];
-	_flgname="KRON_Cleared_"+_areaname;
-	// has the trigger been created already?
-	KRON_TRGFlag=objNull;
-	call compile format["%1=false",_flgname];
-	call compile format["KRON_TRGFlag=%1",_trgname];
-	if (isNull KRON_TRGFlag) then {
-		// trigger doesn't exist yet, so create one (make it a bit bigger than the marker, to catch path finding 'excursions' and flanking moves)
-		call compile format["%1=createTrigger['EmptyDetector',[_centerX,_centerY]];",_trgname];
-		call compile format["_areatrigger = %1",_trgname];
-		call compile format["%1 setTriggerArea[_rangeX*1.5,_rangeY*1.5,markerDir _areaname,true]",_trgname];
-		call compile format["%1 setTriggerActivation[_trgside,'PRESENT',true]",_trgname];
-		call compile format["%1 setEffectCondition 'true'",_trgname];
-		call compile format["%1 setTriggerTimeout [5,7,10,true]",_trgname];
-		if (_usetrigger!="SILENTTRIGGER") then {
-			_markerhide = 0;
-			_markershow = .8;
-			if (_showmarker=="HIDEMARKER") then {
-				_markershow = 0;
-			};
-			call compile format["%1 setTriggerStatements['count thisList<=%6', 'titleText [''SECTOR <%2> CLEARED'',''PLAIN''];''%2'' setMarkerAlpha %4;%3=true;', 'titleText [''SECTOR <%2> HAS BEEN RE-OCCUPIED'',''PLAIN''];''%2'' setMarkerAlpha %5;%3=false;']", _trgname,_areaname,_flgname,_markerhide,_markershow,_zoneempty];
-		} else {
-			call compile format["%1 setTriggerStatements['count thisList<=%3', '%2=true;', '%2=false;']", _trgname,_flgname,_zoneempty];
-		};
-	};
-	sleep .01;
-};
-
-// init done
-_makeNewTarget=true;
-_newPos=false;
-_targetPos = _currPos;
-_swimming = false;
-_waiting = if (_nomove=="NOMOVE") then {9999} else {0};
-
-// exit if something went wrong during initialization (or if unit is on roof)
-if _exit exitWith {
-	if ((KRON_UPS_DEBUG>0) && !_onroof) then {hint "Initialization aborted"};
-};
+if _isMan then { { _x disableAI "AUTOCOMBAT" } forEach units _grp };
+_grp deleteGroupWhenEmpty TRUE; // Don't keep the group when empty.
 
 // ************************************************ MAIN LOOP ************************************************
-_loop = true;
 _currCycle = _cycle;
-while {_loop} do {
-	sleep .01;
 
-	// keep track of how long we've been moving towards a destination
-	_timeOnTarget = _timeOnTarget + _currCycle;
-	_react = _react + _currCycle;
-			
-	// did anybody in the group got hit?
-	_newDamage=0; 
+while {TRUE} do {
+	if (isNil "_grp") exitWith {}; // Group was deleted?
+	if (units _grp select { alive _x } isEqualTo []) exitWith {}; // No-one is alive.
+	if ({isPlayer _x} count units _grp > 0) exitWith { { if (isPlayer _x) exitWith { _grp selectLeader _x } } forEach units _grp }; // Player is in the group, make them lead and exit.
+
+	//_timeOnTarget = _timeOnTarget + _currCycle; // Track duration moving towards a destination
+	//_react = _react + _currCycle;
+	_wasHit = FALSE;
+
+	// Check for damage to group
+	_newDamage = 0; 
 	{
-		if (((damage _x)>0.2) || (isNull _x)) then {
-			_newDamage=_newDamage+(damage _x); 
-			// damage has increased since last round
+		if (damage _x > 0.2) then {
+			_newDamage = _newDamage + (damage _x); 
+			// Increased since last check
 			if (_newDamage > _lastDamage) then {
+				["DEBUG", format["[%1] Taken Damage (%2/%3)", _grpIDx, _newDamage, _lastDamage]] call _ZAI_LogMsg;
 				_lastDamage = _newDamage; 
-				_wasHit = true;
+				_wasHit = TRUE;
+				_currCycle = 1;
 			};
-			_hitPos=getPos _x; 
 			if (!alive _x) then {
-				_groupMembers = _groupMembers - [_x]; 
-				_friends = _friends - [_x];
+				_grpUnits = _grpUnits - [_x]; 
+				_alliedUnitList = _alliedUnitList - [_x];
 			};
 		};
-	} forEach _groupMembers;
-	sleep .01;
-
-	// nobody left alive, exit routine
-	if (count _groupMembers==0) then {
-		_exit = true;
-	} else {
-		// did the leader die?
-		if (!alive _upsUnit) then {
-			_upsUnit = _groupMembers select 0; 
-			group _upsUnit selectLeader _upsUnit;
-			if (isPlayer _upsUnit) then { _exit = true };
-		};
-	};
+	} forEach _grpUnits;
 	
-	// current position
-	_currPos = getPos _upsUnit; _currX = _currPos select 0; _currY = _currPos select 1;
-	if (_track=="TRACK") then { _trackername setMarkerPos _currPos; };
+	// groups current position
+	_unitPos = getPos leader _grp;
+	if (_trackGrp) then { format["trk_%1",_grpIDx] setMarkerPos _unitPos; };
 	
 	// if the AI is a civilian we don't have to bother checking for enemy encounters
-	if (_isSoldier && count _enemies > 0 && !_exit) then {
-		// if the leader comes across another unit that's either injured or dead, go into combat mode as well. 
-		// If the other person is still alive, share enemy information.
-		if (_shareinfo=="SHARE") then {
-			_others=_friends - _groupMembers - [player];
+	_foundEnemy = leader _grp findNearestEnemy _unitPos;
+	
+	// Enemy was detected plan attack route
+	if (leader _grp distance2D _foundEnemy < 1500) then {		
+		// If we're in safe, go aware.
+		if (behaviour leader _grp == "SAFE") then { leader _grp setBehaviour (["COMBAT", "AWARE"] select _isMan) };
+
+		// Send to other allies.
+		if (!_noShare) then {			
 			{
-				if (!(isNull _x) && (_upsUnit distance _x < SHAREDIST) && behaviour _x in ["COMBAT"]) exitWith {
-					_wasHit = true; 					
-					if (_hitPos select 0 == 0) then {_hitPos = getPos _x};
-					if (alive _x) then {
-						_foundEnemy = _x findNearestEnemy _x;
-						// Enemy is alive and not bleeding out.
-						if (alive _foundEnemy && lifeState _foundEnemy != "INCAPACITATED") then {
-							if (_upsUnit knowsAbout _x > 3) then { _upsUnit reveal _foundEnemy; };
-							if (isNull (KRON_KnownEnemy select _sharedEnemy)) then { KRON_KnownEnemy set [_sharedEnemy,_foundEnemy]; };
-						};
-					};
+				if (_x knowsAbout _foundEnemy < _grp knowsAbout _foundEnemy) then { 
+					["DEBUG", format["[%1] Revealed [%2] to [%3] (%4/%5)", _grpIDx, _foundEnemy, group _x, _x knowsAbout _foundEnemy, _grp knowsAbout _foundEnemy]] call _ZAI_LogMsg;
+					(group _x) reveal _foundEnemy;
 				};
-			} forEach _others;
-		};
-		sleep .01;
-
-		// did the group spot an enemy?
-		_lastknown = _opfknowval;
-		_opfknowval = 0; 
-		_maxknowledge = 0;
-		{
-			_knows = _upsUnit knowsAbout _x; 
-			if ((alive _x) && (_knows > 0.2) && (_knows > _maxknowledge)) then {
-				//diag_log text format["[UPS] Share: %1 Object: %2 - Knows: %3 - Alive: %4",groupId (group _x),_x,(_knows>0.2),(alive _x)];
-				KRON_KnownEnemy set [_sharedEnemy,_x]; 
-				_opfknowval = _opfknowval + _knows; 
-				_maxknowledge = _knows;
-			};
-			if (!alive _x) then {_enemies=_enemies-[_x]};
-			if (_maxknowledge==4) exitWith {};
-		} forEach _enemies;
-		sleep .01;
-		
-		_pursue=false;
-		_accuracy=100;
-		// opfor spotted an enemy or got shot, so start pursuit
-		if (_opfknowval > _lastknown || _wasHit) then {
-			_pursue = true;
-			// make the exactness of the target dependent on the knowledge about the shooter
-			_accuracy=21-(_maxknowledge*5);
+			} forEach (_alliedUnitList select {(_x distance2D _foundEnemy < _shareDist || _isStatic) && leader _x isEqualTo _x});
 		};
 		
-		// remove target if downed or dead.
-		if ((lifeState (KRON_KnownEnemy select _sharedEnemy) in ["DEAD","DEAD-RESPAWN","DEAD-SWITCHING","INCAPACITATED"]) && {!isNull (KRON_KnownEnemy select _sharedEnemy)}) then { 
-			KRON_KnownEnemy set [_sharedEnemy,objNull]; 
-		};
+		// Recently reacted, enemy going too fast or too far
+		if (_timeOnTarget > time || speed _foundEnemy > 100 || leader _grp distance2D _foundEnemy > _shareDist) exitWith {};
 		
-		// don't react to new fatalities if less than 120 seconds have passed since the last one or no enemy to chase
-		if (_react < 120 && _fightMode != "walk" || isNull (KRON_KnownEnemy select _sharedEnemy)) then { 
-			_pursue = false;
-		};
-
-		if (_pursue) then {
-			// get position of spotted unit in player group, and watch that spot
-			_offsx = _accuracy / 2 - random _accuracy;
-			_offsY = _accuracy / 2 - random _accuracy;
-			
-			_targetPos = getPos (KRON_KnownEnemy select _sharedEnemy);
-			_targetPos = [(_targetPos select 0) + _offsX, (_targetPos select 1) + _offsY];
-			_targetX = _targetPos select 0;
-			_targetY = _targetPos select 1;
-			{_x doWatch _targetPos} forEach units _upsUnit;
-			sleep .01;			
-
-			// also go into "combat mode"
-			_upsUnit setSpeedMode "FULL"; 
-			_speedMode = "FULL";
-			_upsUnit setBehaviour "COMBAT";
-			_pause="NOWAIT";
-			_waiting=0;
-			
-			// angle from unit to target
-			_dir1 = [_currPos,_targetPos] call KRON_getDirPos;
-			// angle from target to unit (reverse direction)
-			_dir2 = (_dir1+180) mod 360;
-			// angle from fatality to target
-			_dir3 = if (_hitPos select 0 != 0) then {[_hitPos,_targetPos] call KRON_getDirPos} else {_dir1};
-			_dd=(_dir1-_dir3);
-			
-			// unit position offset straight towards target
-			_relUX = sin(_dir1)*SAFEDIST;
-			_relUY = cos(_dir1)*SAFEDIST;
-			// target position offset straight towards unit
-			_relTX = sin(_dir2)*SAFEDIST;
-			_relTY = cos(_dir2)*SAFEDIST;
-			
-			// go either left or right (depending on location of fatality - or randomly if no fatality)
-			_sinU=_sin90; _cosU=_cos90; _sinT=_sin270; _cosT=_cos270;
-			if ((_dd<0) || (_dd==0 && (random 1)>.5)) then {_sinU=_sin270; _cosU=_cos270; _sinT=_sin90; _cosT=_cos90};
-
-			// avoidance position (right or left of unit)
-			_avoidX = _currX + _cosU*_relUX - _sinU*_relUY;
-			_avoidY = _currY + _sinU*_relUX + _cosU*_relUY;
-			_avoidPos = [_avoidX,_avoidY];
-			// flanking position (right or left of target)
-			_flankX = _targetX + _cosT*_relTX - _sinT*_relTY;
-			_flankY = _targetY + _sinT*_relTX + _cosT*_relTY;
-			_flankPos = [_flankX,_flankY];
-			// final target position
-			_attackPos = _targetPos;
-			// for now we're stepping a bit to the side
-			_targetPos = _avoidPos;
-
-			if (_nofollow=="NOFOLLOW") then {
-				_avoidPos = [_avoidPos,_centerPos,_rangeX,_rangeY,_areaDir] call KRON_stayInside;
-				_flankPos = [_flankPos,_centerPos,_rangeX,_rangeY,_areaDir] call KRON_stayInside;
-				_attackPos = [_attackPos,_centerPos,_rangeX,_rangeY,_areaDir] call KRON_stayInside;
-				_targetPos = [_targetPos,_centerPos,_rangeX,_rangeY,_areaDir] call KRON_stayInside;
-			};
-			
-			_react = 0;
-			_fightMode = "fight";
-			_timeOnTarget = 0; 
-			_fm = 1;
-			if (KRON_UPS_Debug != 0) then {
-				{
-					_x params ["_type","_pos","_color"];
-					if (isNil format ["Marker_%1_%2",_grpName,_type]) then {
-						private _tempMarker = createMarkerLocal [format ["Marker_%1_%2",_grpName,_type],_pos];
-						_tempMarker setMarkerTypeLocal "mil_objective";
-						_tempMarker setMarkerColorLocal _color;
-						_tempMarker setMarkerTextLocal format["%1:%2",_type,_grpidx];
-						_tempMarker setMarkerSizeLocal [.5,.5];
-					};
-					format ["Marker_%1_%2",_grpName,_type] setMarkerPosLocal _pos;
-					format ["Marker_%1_%2",_grpName,_type] setMarkerAlphaLocal 1;
-				} forEach [["Dead",_hitPos,"ColorGrey"],["Avoid",_avoidPos,"ColorRed"],["Flank",_flankPos,"ColorOrange"],["Target",_attackPos,"ColorBlack"]];
-			};
-			_newPos = true;
-			// speed up the cycle duration after an incident
-			if (_currCycle >= _cycle) then { _currCycle = 1 };
-		};
-	}; 
-	sleep .01;
-
-	if !_newPos then {
-		// calculate new distance
-		// if we're waiting at a waypoint, no calculating necessary
-		if (_waiting <= 0) then {
-			// distance to target
-			_dist = [_currPos,_targetPos] call KRON_distancePosSqr;
-			if (_lastDist == 0) then { _lastDist = _dist };
-			_moved = abs(_dist-_lastDist);
-			// adjust the target tolerance for fast moving vehicles
-			if (_moved > _maxMove) then { _maxMove = _moved; if (_maxMove / 40 > _closeEnough) then { _closeEnough = _maxMove / 40 }};
-			// how much did we move in the last three cycles?
-			_ttm = _moved + _lastMove1 + _lastMove2;
-			_damm = damage _upsUnit;
-			// is our damage changing (increasing)?
-			_dammChg = abs(_damm - _lastDamm);
-			
-			// we're either close enough, seem to be stuck, or are getting damaged, so find a new target 
-			if (!_swimming && (_dist <= _closeEnough || _ttm < .2 || _dammChg > 0.01 || _timeOnTarget > ALERTTIME)) then {
-				_makeNewTarget = true;
-			};
-
-			// in 'attack (approach) mode', so follow the flanking path (don't make it too predictable though)
-			if (_fightMode != "walk" && _dist <= _closeEnough) then {
-				if ((random 1)<.95) then {
-					if (_flankPos select 0!=0) then {
-						_targetPos=_flankPos; _flankPos=[0,0]; _makeNewTarget=false; _newPos=true;
-						_fm=1;
-					} else {
-						if (_attackPos select 0!=0) then {
-							_targetPos=_attackPos; _attackPos=[0,0]; _makeNewTarget=false; _newPos=true;
-							_fm=2;
-						};
-					};
-				};
-			};
-			sleep .01;
-
-			// make new target
-			if _makeNewTarget then {
-				if (_nomove == "NOMOVE" && _timeOnTarget > ALERTTIME) then {
-					if (([_currPos,_orgPos] call KRON_distancePosSqr) < _closeEnough) then {
-						_newPos = false;
-					} else {
-						_targetPos = _orgPos;
-					};
-				} else {
-					// re-read marker position/size
-					[] call _fn_getAreaInfo;
-					// find a new target that's not too close to the current position
-					_targetPos=_currPos;
-					_tries=0;
-					while {([_currPos,_targetPos] call KRON_distancePosSqr) < _minDist && _tries < 20} do {
-						_tries = _tries + 1;
-						// generate new target position (on the road)
-						_tries = 0;
-						while {_tries < 20} do {
-							_targetPos=[_centerX,_centerY,_rangeX,_rangeY,_cosDir,_sinDir,_areaDir] call KRON_randomPos; 
-							if _isCar then {
-								_roadList = (_targetPos nearRoads 100) select { count (roadsConnectedTo _x) > 0};
-								if (count _roadList > 0) then {
-									_targetPos = getPos (_roadList select 0);
-									_tries=99;
-								};
-							} else {
-								_tries=99;
-							};
-							sleep .01;			
-						};
-					};
-				};
-				_avoidPos = [0,0]; _flankPos = [0,0]; _attackPos = [0,0];
-				_wasHit = false;
-				_hitPos = [0,0,0];
-				_fm = 0;
-				_upsUnit setSpeedMode _orgSpeed;
-				_upsUnit setBehaviour _orgBehaviour;
-				_newPos = true;
+		["DEBUG", format["[%1] Attacking (%2 %3m)", _grpIDx, name _foundEnemy, leader _grp distance2D _foundEnemy]] call _ZAI_LogMsg;
+		
+		// Final location depends of knowsAbout of enemy.
+		_enemyOffset = (21 - ((_grp knowsAbout _foundEnemy) * 5)) * 5;
+		_attackPos = _foundEnemy getPos [random _enemyOffset, random 360];
+		
+		// In contact with target so request a fire mission at target position.
+		if (_wasHit) then {
+			 missionNamespace setVariable ["ZAI_ArtyRequest", _attackPos];
+			 
+			// If infantry were shot, return fire
+			if (_isMan) then {
+				{ _x enableAI "AUTOCOMBAT"; _x setUnitPosWeak "DOWN" } forEach units _grp;
+				{ 
+					_x doWatch _foundEnemy; 
+					if (random 1 > 0.5) then { sleep 1; _x selectWeapon "throw"; _x forceWeaponFire ["SmokeShellMuzzle","SmokeShellMuzzle"] };
+				} forEach units _grp;
 				
-				if (KRON_UPS_Debug != 0) then {
-					{
-						format ["Marker_%1_%2",_grpName,_x] setMarkerAlphaLocal 0;
-					} forEach ["Dead","Avoid","Flank","Target"];
-				};
-	
-				// if we're waiting at patrol end points then don't create a new target right away. Keep cycling though to check for enemy encounters
-				if (_pause != "NOWAIT" && _waiting < 0) then {_waiting = (15 + random 20)};
+				(selectRandom units _grp) suppressFor (10 + random 10);
 			};
 		};
-	};
-	sleep .01;
+			
+		if _isStatic exitWith {};
+		
+		_timeOnTarget = time + _alertTime;
+		_holdMove = FALSE;
+		
+		_upsUnit = leader _grp;
+		_avoidPos = _upsUnit getRelPos [_safeDist,(_upsUnit getRelDir _foundEnemy) - (90 + random 25 - random 25)]; // Left of Unit
+		_flankPos = _foundEnemy getRelPos [_safeDist,(_foundEnemy getRelDir _upsUnit) + (90 + random 25 - random 25)]; // Left of Target
+		
+		_avoidPosR = _upsUnit getRelPos [_safeDist,(_upsUnit getRelDir _foundEnemy) + (90 + random 25 - random 25)]; // Right of Unit
+		_flankPosR = _foundEnemy getRelPos [_safeDist,(_foundEnemy getRelDir _upsUnit) - (90 + random 25 - random 25)]; // Right of Target
+		
+		// If one side is closer than the other, go that way.
+		if (_upsUnit distance2D _flankPosR < _upsUnit distance2D _flankPos) then { _avoidPos = _avoidPosR; _flankPos = _flankPosR };	
+		
+		// Find a suitable road nearby
+		_roads = (_flankPos nearRoads 100) select { count (roadsConnectedTo _x) > 0};
+		if (_isCar && !(_roads isEqualTo [])) then { _flankPos = getPos (_roads#0) };
+		
+		// Add evade position if on food and close to target.
+		_evadeWPs = if (_isMan && (_unitPos distance2D _attackPos < _safeDist || _wasHit)) then { [_avoidPos, _flankPos, _attackPos] } else { [_flankPos, _attackPos] };
+		
+		// Clear wayPoints	
+		while {count wayPoints _grp > 0} do { deleteWaypoint ((wayPoints _grp)#0) };
+		//_grp addWaypoint [getPos leader _grp,0];
+		
+		{
+			_wp = _grp addWaypoint [_x, 0];
+			_wp setWaypointPosition [_x, 0];
+			_wp setWaypointType "MOVE";
+			_wp setWaypointFormation selectRandom ["LINE", "WEDGE", "DIAMOND"];		
+			_wp setWaypointSpeed (["NORMAL", "FULL"] select _isCar);
+			_wp setWaypointBehaviour (["AWARE", "COMBAT"] select _isCar);
+			_wp setWaypointCompletionRadius (_closeEnough / 2);
+			
+			if (_x isEqualTo _flankPos && !canFire (vehicle leader _grp)) then { _wp setWaypointType "GETOUT" };
+			if (_x isEqualTo _attackPos) then { _wp setWaypointType "SAD" };
+			if (_forEachIndex == 0) then { _grp setCurrentWaypoint _wp };
+		} forEach _evadeWPs;
 
-	// if in water, get right back out of it again
-	if (surfaceIsWater _currPos) then {
-		if (_isMan && !_swimming) then {
-			_drydist=999;
-			// look around, to find a dry spot
-			for [{_a=0}, {_a<=270}, {_a=_a+90}] do {
-				_dp=[_currPos,30,_a] call KRON_relPos; 
-				if !(surfaceIsWater _dp) then {_targetPos=_dp};
-			};
-			_newPos = true; 
-			_swimming = true;
+		// If marker isn't in the area, don't move out of it (TODO: Map to nearest location?)
+		if (_noFollow) then {
+			if !(_avoidPos inArea _areaName) then { _avoidPos = _unitPos };
+			if !(_flankPos inArea _areaName) then { _flankPos = _unitPos };
+			if !(_attackPos inArea _areaName) then { _attackPos = _unitPos };
+			if !(_targetPos inArea _areaName) then { _targetPos = _unitPos };
+		};
+		
+		if ZAI_Debug then {
+			_grpName = format["UPS_%1_%2",side _grp, _grpIDx];
+			{
+				_x params ["_type","_pos","_color"];
+				if (_pos in _evadeWPs && isNil format ["Marker_%1_%2",_grpName,_type]) then {
+					private _tempMarker = createMarkerLocal [format ["Marker_%1_%2",_grpName,_type],_pos];
+					_tempMarker setMarkerTypeLocal "mil_objective";
+					_tempMarker setMarkerColorLocal _color;
+					_tempMarker setMarkerTextLocal format["%1:%2",_type,_grpIDx];
+					_tempMarker setMarkerSizeLocal [.5,.5];
+				};
+				format ["Marker_%1_%2",_grpName,_type] setMarkerPosLocal _pos;
+				format ["Marker_%1_%2",_grpName,_type] setMarkerAlphaLocal 1;
+			} forEach [["Evade",_avoidPos,"ColorOrange"],["Flank",_flankPos,"ColorGreen"],["Target",_attackPos,"ColorYellow"]];
 		};
 	} else {
-		_swimming = false;
+		// Reset combat mode to aware to keep units moving
+		if (_isMan && behaviour leader _grp == "COMBAT") then { {_x disableAI "AUTOCOMBAT"; _x setBehaviour "AWARE" } forEach units _grp };
 	};
+				
+	// Find new WP if we don't have one
+	if (!_isStatic && !_holdMove && (count wayPoints _grp) - (currentWaypoint _grp) isEqualTo 0) then {	
+		// find a new target that's not too close to the current position
+		_newGrpPos = getPos leader _grp;				
 		
-	_waiting = _waiting - _currCycle;
-	if (_waiting <= 0 && _newPos) then {
-		// tell unit about new target position
-		if (_fightMode != "walk") then {
-			// reset patrol speed after following enemy for a while
-			if (_timeOnTarget > ALERTTIME) then {
-				_fightMode = "walk";
-				_speedMode = _orgSpeed;
-				_upsUnit setSpeedMode _speedMode;
-				_upsUnit setBehaviour _orgBehaviour;
-				_timeOnTarget = 0;
+		_tries = 0;
+				
+		while {(_unitPos distance2D _newGrpPos) < _minDist} do {
+			_tries = _tries + 1;
+			_tempPos = [_areaMarker] call BIS_fnc_randomPosTrigger;					
+			_roads = (_tempPos nearRoads 100) select { count (roadsConnectedTo _x) > 0};
+			_water = surfaceIsWater _tempPos;
+			
+			// Air takes any location.
+			if _isAir exitWith { _newGrpPos = _tempPos };
+			
+			// Boats need water.
+			if (_water && _isBoat) exitWith { _newGrpPos = _tempPos };
+			
+			// Cars need a road
+			if (!_water && _isCar && !(_roads isEqualTo [])) exitWith { _newGrpPos = getPos (_roads#0) };
+			
+			// Infantry
+			if (!_water && _isMan && !(_roads isEqualTo []) && random 1 > 0.5) exitWith { _newGrpPos = getPos (_roads#0) };
+			if (!_water && _isMan) exitWith { _newGrpPos = _tempPos; };
+			
+			if (_tries > 10) exitWith { 
+				["WARNING", format["[%1] Tried %2 times to find WP [%3]",_grpIDx, _tries, _upsType]] call _ZAI_LogMsg;
+				_newGrpPos = _tempPos
 			};
 			
-			// use individual doMoves if pursuing enemy, as otherwise the group breaks up too much
-			{_x doMove _targetPos} forEach _groupMembers;
-		} else {
-			_upsUnit move _targetPos;
-			_upsUnit setSpeedMode _speedMode;
+			sleep 0.1;
+		};
+		["DEBUG", format["[%1] Found WP %2m after %3 tries",_grpIDx, round (_unitPos distance2D _newGrpPos), _tries]] call _ZAI_LogMsg;
+				
+		_wp = _grp addWaypoint [_newGrpPos, 0];
+		_wp setWaypointPosition [_newGrpPos, 0];
+		_wp setWaypointType (["MOVE", "SAD"] select (_isMan && random 1 < 0.1));
+		_wp setWaypointFormation selectRandom ["FILE", "COLUMN", "DIAMOND"];
+		_wp setWaypointSpeed "LIMITED";
+		_wp setWaypointBehaviour (["AWARE", "SAFE"] select (missionNamespace getVariable ["ZAI_ArtyRequest", []] isEqualTo []));
+		_wp setWaypointCompletionRadius (_closeEnough / 2);
+		_grp setCurrentWaypoint _wp;
+	};
+	
+	// Artillery Support
+	if _isArty then {	
+		_artyTarget = missionNamespace getVariable ["ZAI_ArtyRequest", []];
+		if (_artyTarget isEqualTo []) exitWith {};
+		
+		if (_timeOnTarget > time) exitWith {
+			["DEBUG", format["[%1] Artillery Aborted (%2s until ready)", _grpIDx, _timeOnTarget - time]] call _ZAI_LogMsg;
 		};
 		
-		if (_track=="TRACK") then { 
-			switch (_fm) do {
-				case 1: 
-					{_destName setmarkerSize [.4,.4]};
-				case 2: 
-					{_destName setmarkerSize [.6,.6]};
-				default
-					{_destName setmarkerSize [.5,.5]};
-			};
-			_destName setMarkerPos _targetPos;
+		_artyRadius = if ((count (nearestObjects [_artyTarget, ["building"], 50]) > 8)) then { _artyUrban } else { _artyRural }; // 150 urban, 250 otherwise
+		
+		// Wait 30s before rechecking
+		if (!canFire (vehicle leader _grp) || {alive _x && !isAgent teamMember _x && side _x in [side _grp, CIVILIAN]} count (_artyTarget nearEntities [["Man"], (_artyRadius - 50)]) > 0) exitWith {
+			_timeOnTarget = time + 5;
+			["DEBUG", format["[%1] Artillery Aborted (%2)", _grpIDx, [format["Allies within %1m", _artyRadius],"Gun Disabled"] select (!canFire (vehicle leader _grp))]] call _ZAI_LogMsg;
+			
 		};
-		_dist = 0; 
-		_moved = 0; 
-		_lastMove1 = 10; 
-		_waiting = -1; 
-		_newPos = false;
-		_swimming = false;
+
+		["DEBUG", format["[%1] Artillery Mission (%2)", _grpIDx, _artyTarget]] call _ZAI_LogMsg;
+		
+		for "_i" from 1 to 8 do {
+			leader _grp commandArtilleryFire [(_artyTarget getPos [random _artyRadius, random 360]), (getArtilleryAmmo [vehicle leader _grp] select 0), 1];
+			sleep 2 + random 2;
+		};
+		
+		(vehicle leader _grp) setVehicleAmmo 1;
+		missionNamespace setVariable ["ZAI_ArtyRequest", []];
+		_timeOnTarget = time + _artyTime;
+	};
+
+	// Check for any AI Issues!
+	if (!_isStatic && !_holdMove && !dynamicSimulationEnabled _grp) then {
+		if ((_lastPos distance2D getPos leader _grp) == 0) then {
+			_lastCount = _lastCount + 1;
+			
+			// Vehicles
+			if (!_isMan) then {
+				if (_lastCount == 10) then { 
+					while {count wayPoints _grp > 0} do { deleteWaypoint ((wayPoints _grp)#0) };
+					_wp = _grp addWaypoint [getPos leader _grp, 0];
+					["WARNING", format["[%1] Vehicle has not moved for %2 cycles", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+				};
+				if (_lastCount == 20) then {
+					vehicle leader _grp setFuel 0.05;
+					_grp leaveVehicle vehicle leader _grp;
+					["WARNING", format["[%1] Vehicle has not moved for %2 cycles", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+				};
+			};
+			
+			// Infantry
+			if (_isMan) then {
+				if (_lastCount MOD 5 == 0) then {
+					(leader _grp) selectWeapon primaryWeapon (leader _grp);
+					["WARNING", format["[%1] Leader has not moved for %2 cycles", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+				};
+				if (_lastCount == 15) then {
+					{
+						_x setPos ([getPos _x, 1, 25, 2, 0, 0, 0, [], [getPos _x, getPos _x]] call BIS_fnc_findSafePos);
+					} forEach units _grp;
+					["WARNING", format["[%1] Leader has not moved for %2 cycles", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+				};
+			};
+		} else {
+			_lastCount = 0;
+		};
 	};
 	
-	// move on
-	_lastDist = _dist;
-	_lastMove2 = _lastMove1;
-	_lastMove1 = _moved;
-	_lastDamm = _damm;
-
-	// check external loop switch
-	_cont = (call compile format ["KRON_UPS_%1",_upsUnitname]);
-	if (_cont == 0) then {_exit=true};
+	_lastPos = getPos leader _grp;
 	
-	_makeNewTarget = false;
-	if (_exit || isNil "_upsUnit") then {
-		_loop = false;
-	} else {
-		// slowly increase the cycle duration after an incident
-		if (_currCycle < _cycle) then { _currCycle = _currCycle + 0.5};
-		sleep _currCycle;
-	};
+	// slowly increase the cycle duration after an incident
+	if (_currCycle < _cycle) then { _currCycle = _currCycle + 0.5};
+	sleep _currCycle;
 };
 
-if (_track == "TRACK") then {
-	_trackername setMarkerType _markerDot;
-	_destName setMarkerType "Empty";
-};
-_friends = nil;
-_enemies = nil;
+["DEBUG", format["[%1] Loop Aborted!", _grpIDx]] call _ZAI_LogMsg;

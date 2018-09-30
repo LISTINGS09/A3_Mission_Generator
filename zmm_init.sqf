@@ -3,10 +3,10 @@
 
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_DEBUG = !isMultiplayer;
-f_param_ZMMMode = 1;
+ZZM_CTIMode = FALSE;
 
 // Choose West Faction
-switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {	
+switch (missionNamespace getVariable ["f_param_factionWest",0]) do {	
 	case 0: {
 		// WEST - US ARMY D
 		ZMM_WESTFlag = ["FlagCarrierUSA", "\ca\data\flag_usa_co.paa"];
@@ -115,7 +115,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 };
 
 // Choose East Faction
-switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {	
+switch (missionNamespace getVariable ["f_param_factionEast",0]) do {	
 	case 0: {
 		// EAST - RU DESERT
 		ZMM_EASTFlag = ["rhs_Flag_Russia_F", "\ca\data\flag_rus_co.paa"];
@@ -184,12 +184,27 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "East" >> "OPF_T_F" >> "Infantry" >> "O_T_InfTeam"];
 		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "OPF_T_F" >> "Infantry" >> "O_T_InfSquad"];
 		ZMM_EASTVeh_Truck = [configFile >> "CfgGroups" >> "East" >> "OPF_T_F" >> "Motorized_MTP" >> "O_T_MotInf_Reinforcements"];
-		ZMM_EASTVeh_Util = ["O_T_Truck_02_Ammo_F","O_T_Truck_02_fuel_F","O_T_Truck_02_box_F"];
+		ZMM_EASTVeh_Util = ["O_T_Truck_03_ammo_ghex_F","O_T_Truck_03_fuel_ghex_F","O_T_Truck_03_medical_ghex_F","O_T_Truck_03_repair_ghex_F"];
 		ZMM_EASTVeh_Light = ["O_T_MRAP_02_hmg_ghex_F","O_T_LSV_02_armed_F"];
 		ZMM_EASTVeh_Medium = ["O_T_APC_Tracked_02_cannon_ghex_F","O_T_APC_Wheeled_02_rcws_ghex_F"];
 		ZMM_EASTVeh_Heavy = ["O_T_APC_Tracked_02_AA_ghex_F","O_T_MBT_02_cannon_ghex_F"];
 		ZMM_EASTVeh_Air = ["O_Heli_Light_02_unarmed_F","O_Heli_Transport_04_bench_F"];
 		ZMM_EASTVeh_CAS = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F","O_Plane_CAS_02_dynamicLoadout_F"];
+	};
+	case 5: {
+		// EAST - SYNDIKAT
+		ZMM_EASTFlag = ["Flag_Syndikat_F", "\A3\Data_F_Exp\Flags\flag_SYND_CO.paa"];
+		ZMM_EASTMan = ["I_C_Soldier_Para_7_F","I_C_Soldier_Para_4_F","I_C_Soldier_Para_1_F","I_C_Soldier_Para_2_F"];
+		ZMM_EASTGrp_Sentry = [configFile >> "CfgGroups" >> "Indep" >> "IND_C_F" >> "Infantry" >> "ParaFireTeam"];
+		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "Indep" >> "IND_C_F" >> "Infantry" >> "ParaFireTeam"];
+		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "Indep" >> "IND_C_F" >> "Infantry" >> "ParaCombatGroup"];
+		ZMM_EASTVeh_Truck = ["I_C_Van_01_transport_F"];
+		ZMM_EASTVeh_Util = ["I_G_Offroad_01_repair_F","I_G_Van_01_fuel_F"];
+		ZMM_EASTVeh_Light = ["I_C_Offroad_02_LMG_F","I_C_Offroad_02_AT_F"];
+		ZMM_EASTVeh_Medium = [["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1],TRUE] call BIS_fnc_initVehicle;"],["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_03',1],TRUE] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Heavy = [["O_MBT_04_cannon_F","[_grpVeh,['Jungle',1],TRUE] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Air = ["I_Heli_light_03_unarmed_F"];
+		ZMM_EASTVeh_CAS = [["I_Heli_light_03_dynamicLoadout_F","[_grpVeh,['Green',1],TRUE] call BIS_fnc_initVehicle;"]];
 	};
 	default {
 		// EAST - FIA
@@ -208,7 +223,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 };
 
-// GUER
+// GUER - AAF
 ZMM_GUERFlag = ["Flag_AAF_F", "\A3\Data_F\Flags\Flag_AAF_CO.paa"];
 ZMM_GUERMan = ["I_Soldier_F","I_Soldier_LAT_F","I_Soldier_GL_F","I_Soldier_AR_F"];
 ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "Indep" >> "IND_F" >> "Infantry" >> "HAF_InfSentry"];
@@ -222,11 +237,13 @@ ZMM_GUERVeh_Heavy = ["I_MBT_03_cannon_F"];
 ZMM_GUERVeh_Air = ["I_Heli_light_03_unarmed_F","I_Heli_Transport_02_F"];
 ZMM_GUERVeh_CAS = ["I_Heli_light_03_dynamicLoadout_F","I_Plane_Fighter_03_dynamicLoadout_F","I_Plane_Fighter_04_F"];
 
-// ZZM_Mode = 0 - Objective Selection
-// ZZM_Mode = 1 - CTI Intel Mode
-if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_ZMMMode",1] };
+if (isNil "ZZM_CTIMode") then {
+	// ZZM_Mode = 0 - Objective Selection
+	// ZZM_Mode = 1 - CTI Intel Mode
+	ZZM_CTIMode = !((missionNamespace getVariable ["f_param_ZMMMode",0]) isEqualTo 0);
+};
 
-if (ZZM_Mode isEqualTo 0 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief.sqf", ZMM_FolderLocation] };
+if (!ZZM_CTIMode && leader player == player && {hasInterface}) then { _nul = [] execVM format["%1\zmm_brief.sqf", ZMM_FolderLocation] };
 
 if isServer then {
 	EAST setFriend [RESISTANCE, 0];
@@ -234,7 +251,9 @@ if isServer then {
 	WEST setFriend [RESISTANCE, 0];
 	RESISTANCE setFriend [WEST, 0];
 	
-	// Register Functions
+	if (isNil "ZMM_playerSide") then { missionNamespace setVariable ["ZMM_playerSide", side ((playableUnits + switchableUnits) select 0), TRUE]; };
+	ZMM_enemySides = [ WEST, EAST, INDEPENDENT ] - [ ZMM_playerSide ];
+	
 	if (isNil("zmm_fnc_nameGen")) then {zmm_fnc_nameGen = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_nameGen.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_logMsg")) then {zmm_fnc_logMsg = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_logMsg.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_spawnUnit")) then {zmm_fnc_spawnUnit = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnUnit.sqf", ZMM_FolderLocation]; };
@@ -242,41 +261,16 @@ if isServer then {
 	if (isNil("zmm_fnc_areaPatrols")) then {zmm_fnc_areaPatrols = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_patrols.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_areaQRF")) then {zmm_fnc_areaQRF = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_qrf.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_aiUPS")) then {zmm_fnc_aiUPS = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_ups.sqf", ZMM_FolderLocation]; };
-	if (isNil("zmm_fnc_intelAdd")) then {zmm_fnc_intelAdd = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_intel_add.sqf", ZMM_FolderLocation]; };
 	
 	if (isNil("zmm_fnc_setupZone")) then {zmm_fnc_setupZone = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_zone.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupPopulate")) then {zmm_fnc_setupPopulate = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_populate.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupTask")) then {zmm_fnc_setupTask = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_task.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupWorld")) then {zmm_fnc_setupWorld = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_world.sqf", ZMM_FolderLocation]; };
-	if (isNil("zmm_fnc_setupSelection")) then {zmm_fnc_setupSelection = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_selection.sqf", ZMM_FolderLocation]; };
-		
-	// Create a safe zone around all players.
-	{
-		_makeSZ = TRUE;
-		_unit = _x;
-		
-		// Don't create a safe zone if the unit is already inside one!
-		{
-			if ((getPos _unit) inArea _x && {(toUpper _x) find "SAFEZONE" >= 0}) exitWith { _makeSZ = FALSE };
-		} forEach allMapMarkers;
-	
-		if _makeSZ then {
-			ZMM_playerSide = side _x;
-			_safeMrk = createMarker [ format["SAFEZONE_PRE%1",_forEachIndex], getPos _x ];
-			_safeMrk setMarkerShape "ELLIPSE";
-			_safeMrk setMarkerBrush "FDiagonal";
-			_safeMrk setMarkerAlpha 0.3;
-			_safeMrk setMarkerColor format["color%1", side _x];
-			_safeMrk setMarkerSize [ 1500, 1500];
-			["DEBUG", format["Safe Zone '%1' created at %2", _safeMrk, getPos _x]] call zmm_fnc_logMsg;
-		};
-	} forEach (playableUnits + switchableUnits);
-	
-	ZMM_enemySides = [ WEST, EAST, INDEPENDENT ] - [ ZMM_playerSide ];
+	if (isNil("zmm_fnc_setupCustom")) then {zmm_fnc_setupCustom = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_custom.sqf", ZMM_FolderLocation]; };
 	
 	// Populate Locations
 	[] spawn zmm_fnc_setupWorld;
 	
 	// Waits for publicVariable then creates zone.
-	if (ZZM_Mode isEqualTo 0) then { [] call zmm_fnc_setupSelection }; 
+	if !ZZM_CTIMode then { [] call zmm_fnc_setupCustom };
 };
