@@ -6,8 +6,6 @@ _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], 
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
 _vehClass = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Util",_enemySide],[""]]);
-_vehTank = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Heavy",_enemySide],[""]]);
-_picture = "truck";
 
 _missionDesc = [
 		"Commandeer a <font color='#00FFFF'>%1</font> that has been abandoned in the area.",
@@ -64,7 +62,7 @@ _objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", FALSE];
 _objTrigger setTriggerArea [_radius, _radius, 0, TRUE];
 _objTrigger triggerAttachVehicle [_veh];
 _objTrigger setTriggerStatements [ 	format["this && alive ZMM_%1_OBJ", _zoneID], 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_%1_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 									
 // Create Failure Trigger

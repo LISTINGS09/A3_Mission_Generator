@@ -415,7 +415,7 @@ while {TRUE} do {
 	};
 
 	// Check for any AI Issues!
-	if (!_isStatic && !_holdMove && !dynamicSimulationEnabled _grp) then {
+	if (!_isStatic && !_holdMove && !dynamicSimulationEnabled _grp && !dynamicSimulationEnabled _grpVehicle) then {
 		if ((_lastPos distance2D getPos leader _grp) == 0) then {
 			_lastCount = _lastCount + 1;
 			

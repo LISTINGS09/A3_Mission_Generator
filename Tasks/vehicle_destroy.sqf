@@ -20,6 +20,7 @@ _missionDesc = [
 // Chance for heavy armour
 if (random 100 > 50) then {
 	_vehClass = _vehTank;
+	if (_vehClass isEqualType []) then { _vehClass = _vehClass#0 };
 	_picture = "destroy";
 	
 	_missionDesc = [
@@ -63,7 +64,7 @@ missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _veh];
 
 _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
 _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID], 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_%1_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 
 // Create Task
