@@ -7,7 +7,7 @@ _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _enemyType = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Squad",_enemySide],[""]]); // CfgGroups entry.
 _radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
 
-_nearLoc = nearestLocation [_centre, ""];
+_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
 _locType = if (getPos _nearLoc distance2D _centre < 200) then { type _nearLoc } else { "Custom" };
 

@@ -5,7 +5,7 @@ _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
 
-_nearLoc = nearestLocation [_centre, ""];
+_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
 
 _missionDesc = [
@@ -35,6 +35,6 @@ _objTrigger setTriggerStatements [ 	"this",
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _targetName], ["Defence"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "defend"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName], ["Defence"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "defend"] call BIS_fnc_setTask;
 
 TRUE

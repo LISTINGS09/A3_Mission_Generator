@@ -9,6 +9,8 @@ _menArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
 
 if (_enemyCount < 0) then { _enemyCount = missionNamespace getVariable [format[ "ZMM_%1_Garrison", _zoneID ], 14] };
 
+if (_enemyCount < 1) exitWith {};
+
 if (count _buildings isEqualTo 0 && count _bPos isEqualTo 0) exitWith {};
 
 if (count _bPos isEqualTo 0) then {

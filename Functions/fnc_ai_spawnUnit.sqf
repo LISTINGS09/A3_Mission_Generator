@@ -26,7 +26,7 @@ if (count _posArray == 0) exitWith {};
 _startingPos = selectRandom _posArray;
 _startingPos set [2,0];
 _dir = _startingPos getDir _targetPos;
-_manArray = missionNamespace getVariable [format["ZRF_%1Soldier", _side], ["B_Soldier_F"]];
+_manArray = missionNamespace getVariable [format["ZMM_%1Man", _side], ["B_Soldier_F"]];
 
 // If _unitClass is array, extract the custom init.
 if (_unitClass isEqualType []) then { _customInit = _unitClass # 1; _unitClass = _unitClass # 0 };

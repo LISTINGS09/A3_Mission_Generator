@@ -9,7 +9,7 @@ _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], 
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _radius = (getMarkerSize _markerName) select 0; // Area of Marker.
 
-_nearLoc = nearestLocation [_centre, ""];
+_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
 _locType = if (getPos _nearLoc distance2D _centre < 200) then { type _nearLoc } else { "Custom" };
 

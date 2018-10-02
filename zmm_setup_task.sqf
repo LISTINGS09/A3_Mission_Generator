@@ -35,6 +35,7 @@ missionNamespace setVariable ["ZMM_DONE", FALSE, TRUE];
 // Create Insert/Exfil Tasks
 _lzLocs = missionNamespace getVariable [ format["ZMM_%1_LZLocations", _zoneID], [] ];
 
+/* Disabled INFIL/EXFIL Objectives
 if (count _lzLocs > 0 && !_isCTI) then {
 	// Mark Insertion.
 	_posInsert = [selectRandom _lzLocs, random 50, random 360] call BIS_fnc_relPos;
@@ -80,6 +81,7 @@ if (count _lzLocs > 0 && !_isCTI) then {
 									}", _zoneID], 
 									""];
 };
+*/
 
 // Find a Main Objective
 _objectives = [];
@@ -180,8 +182,8 @@ if (count _overWrite > 0) then {
 	_overWrite params [["_qrfTime", 600], ["_patrols", TRUE], ["_garrison", TRUE] ];
 	
 	if !(_qrfTime isEqualTo 600) then { missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime] };
-	if !_patrols then { missionNamespace setVariable [format[ "ZMM_%1_PatrolsEnabled", _zoneID ], FALSE] };
-	if !_garrison then { missionNamespace setVariable [format[ "ZMM_%1_GarrisonCount", _zoneID ], 0] };	
+	if !_patrols then { missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], FALSE] };
+	if !_garrison then { missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 0] };	
 };
 
 ["DEBUG", format["Creating Objective %1 at %2", _script, _locName]] call zmm_fnc_logMsg;

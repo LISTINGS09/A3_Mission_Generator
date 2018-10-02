@@ -7,9 +7,6 @@ params [
 	["_maxWave", 4]
 ];
 
-// If no locations are present, exit script.
-if (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []] isEqualTo []) exitWith { ["WARNING", format["No locations found to spawn QRF%1", _zoneID]] call zmm_fnc_logMsg };
-
 // If set only create the trigger and exit.
 if _triggerOnly exitWith {
 	if ((missionNamespace getVariable [format['ZMM_%1_QRFTime', _zoneID], 600]) isEqualTo 0 || (missionNamespace getVariable [format['ZMM_%1_QRFWaves', _zoneID], 3]) isEqualTo 0)	exitWith {};
@@ -26,6 +23,8 @@ if _triggerOnly exitWith {
 };
 
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
+
+["DEBUG", format["QRF Timer Started - Zone %1 (%2s %3 Waves)", _zoneID, _delay, _maxWave]] call zmm_fnc_logMsg;
 
 // TODO: Add custom QRFs per Location Type.
 sleep (_delay / 4);
@@ -44,8 +43,6 @@ _heavy = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
 _air = missionNamespace getVariable [format["ZMM_%1Veh_Air",_side],[]];
 _cas = missionNamespace getVariable [format["ZMM_%1Veh_CAS",_side],[]];
 
-if (_locType isEqualTo "") then { _locType = type (nearestLocation [_centre,""]) };
-
 // MAIN
 // Spawn waves.
 for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
@@ -57,18 +54,18 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 	
 	switch (_wave) do {
 		case 1: {
-			[_centre, _locations, _side, selectRandom [_light, _truck]] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom [_light, _air]] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_light + _truck)] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_light + _air)] call zmm_fnc_spawnUnit;
 		};
 		case 2: {
-			[_centre, _locations, _side, selectRandom [_light, _truck]] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom [_light, _medium]] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom [_medium, _air]] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_light + _truck)] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_medium + _air)] call zmm_fnc_spawnUnit;
 		};
 		default {
-			[_centre, _locations, _side, selectRandom [_light, _medium]] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom [_medium, _heavy]] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom [_cas, _air]] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_cas + _air)] call zmm_fnc_spawnUnit;
 		};
 	};
 

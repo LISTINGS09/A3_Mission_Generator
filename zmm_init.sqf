@@ -3,7 +3,9 @@
 
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_DEBUG = !isMultiplayer;
-f_param_ZMMMode = 0;
+// ZZM_Mode = 0 - Objective Selection
+// ZZM_Mode = 1 - CTI Intel Mode
+ZZM_Mode = 0;
 
 // Choose West Faction
 switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {	
@@ -224,7 +226,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 };
 
 // Choose Guer Faction
-/*switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {	
+switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {	
 	case 0: {
 		// EAST - RU DESERT
 		ZMM_GUERFlag = ["rhs_Flag_Russia_F", "\ca\data\flag_rus_co.paa"];
@@ -316,10 +318,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_GUERVeh_CAS = ["B_Heli_Light_01_dynamicLoadout_F"];
 	};
 };
-*/
 
-// ZZM_Mode = 0 - Objective Selection
-// ZZM_Mode = 1 - CTI Intel Mode
 if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_ZMMMode", 1] };
 
 if (ZZM_Mode isEqualTo 0 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief.sqf", ZMM_FolderLocation] };

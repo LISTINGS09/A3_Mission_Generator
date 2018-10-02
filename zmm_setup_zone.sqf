@@ -59,11 +59,10 @@ missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Se
 // Set default sizes of area based on type.
 _iconSize = 1;
 _locSize = 1;
+missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], TRUE];
 missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 12];
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
 missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 2];
-
-missionNamespace setVariable [format[ "ZMM_%1_PatrolsEnabled", _zoneID ], TRUE];
 
 switch (_locType) do {
 	case "Airport": { 
@@ -85,7 +84,7 @@ switch (_locType) do {
 		_locSize = 1;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 16];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 2];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
 	};
 	case "NameVillage": { 
 		_iconSize = 0.8;

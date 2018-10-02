@@ -3,7 +3,7 @@ zmm_fnc_canSelect = { missionNamespace getVariable ["ZMM_missionStarted",FALSE] 
 
 zmm_fnc_selectLocation = {
 	if (call zmm_fnc_canSelect) exitWith { systemChat "[ZMM] ERROR: Mission is already in progress."; };
-	systemChat "Click on a Location, then click confirm in map screen when done.";
+	systemChat "Click on any Location, then click 'Confirm Selection' in map screen when done.";
 	onMapSingleClick 	"private _locArr = nearestLocations [_pos, ['NameLocal', 'NameVillage', 'NameCity', 'NameCityCapital', 'Airport'], 150];
 						if (count _locArr > 0) then {
 								systemChat format['Target: %1', text (_locArr select 0)];

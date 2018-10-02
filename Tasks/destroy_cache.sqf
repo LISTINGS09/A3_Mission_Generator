@@ -17,7 +17,7 @@ _missionDesc = [
 		"A UAV has spotted an enemy smuggling <font color='#00FFFF'>%1 Ammo Caches</font> into the area, find and destroy them."
 	];
 
-_nearLoc = nearestLocation [_centre, ""];
+_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
 _locType = if (getPos _nearLoc distance2D _centre < 200) then { type _nearLoc } else { "Custom" };
 
 _cacheNo = switch (_locType) do {

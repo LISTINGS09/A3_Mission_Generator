@@ -7,7 +7,7 @@ _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
 _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
 
-_nearLoc = nearestLocation [_centre, ""];
+_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
 
 _missionDesc = [

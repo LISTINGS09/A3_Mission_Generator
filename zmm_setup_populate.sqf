@@ -14,7 +14,9 @@ if (!(_locType isEqualTo "Ambient") && ZZM_Mode isEqualTo 0) then {
 };
 
 // Populate the area
-[ _zoneID, _locType] spawn zmm_fnc_areaPatrols;
-[ _zoneID] spawn zmm_fnc_areaGarrison;
-[ _zoneID, TRUE] spawn zmm_fnc_areaQRF;
+if (missionNamespace getVariable [ format[ "ZMM_%1_Patrols", _zoneID ], TRUE]) then { [ _zoneID, _locType] spawn zmm_fnc_areaPatrols };
+if (missionNamespace getVariable [ format[ "ZMM_%1_Garrison", _zoneID ], 14] > 0) then { [ _zoneID] spawn zmm_fnc_areaGarrison };
+if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) > 0) then { [ _zoneID, TRUE] spawn zmm_fnc_areaQRF };
+
+
 
