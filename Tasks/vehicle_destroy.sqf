@@ -4,7 +4,7 @@ params [ ["_zoneID", 0], "_targetPos"];
 _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
-_vehClass = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Util",_enemySide],[""]]);
+_vehClass = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Util",_enemySide],[""]]) + ["B_Radar_System_01_F", "B_SAM_System_03_F"];
 _vehTank = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Heavy",_enemySide],[""]]);
 _picture = "truck";
 
@@ -35,7 +35,7 @@ if (random 100 > 50) then {
 
 if !(isClass (configFile >> "CfgVehicles" >> _vehClass)) exitWith {
 	format["[ZMM] Invalid vehicle class: %1", _vehClass] call zmm_fnc_logMsg;
-	false
+	FALSE
 };
 
 _emptyPos = _targetPos findEmptyPosition [1, 25, _vehClass];

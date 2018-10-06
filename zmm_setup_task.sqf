@@ -88,11 +88,10 @@ _objectives = [];
 
 _centre = missionNamespace getVariable [ format[ "ZMM_%1_Location", _zoneID ], [0,0,0] ];
 _side = missionNamespace getVariable [ format[ "ZMM_%1_EnemySide", _zoneID ], EAST ];
-_pSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0;
 
 // Get Location Name
-_nearLoc = nearestLocation [_centre, ""];
+_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
 
 // Fill Objectives - Building
@@ -188,6 +187,12 @@ if (count _overWrite > 0) then {
 
 ["DEBUG", format["Creating Objective %1 at %2", _script, _locName]] call zmm_fnc_logMsg;
 
-_nul = _args execVM format["%1\tasks\%2", ZMM_FolderLocation, _script];
+_result = _args execVM format["%1\tasks\%2", ZMM_FolderLocation, _script];
+
+/* execVM doesn't return values?
+if !_result then {
+	["ERROR", format["Failed to Create: %1", _script]] call zmm_fnc_logMsg;
+	[_zoneID] call zmm_fnc_setupTask;
+};*/
 
 TRUE

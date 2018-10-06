@@ -80,32 +80,38 @@ for "_i" from 0 to _civNum do {
 	// Build success trigger when HVT is alive and far from objective.
 	_hvtActivation pushBack format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre];
 	
-	// Select random pose for HVT.
-	[_hvt, selectRandom ["AmovPercMstpSnonWnonDnon_Ease", "Acts_JetsMarshallingStop_loop", "Acts_JetsShooterIdle"]] remoteExec ["switchMove"]; 
-	_hvt disableAI "ALL";
+	removeFromRemainsCollector [_hvt];
 	_hvt setDir random 360;
-
-	// Add HVT Action for player.
-	[_hvt, 
-		"<t color='#00FF80'>Untie Hostage</t>", 
-		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_unbind_ca.paa",  
-		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_unbind_ca.paa",  
-		"_this distance _target < 3",   
-		"_caller distance _target < 3",   
-		{}, 
-		{}, 
-		{ 
-			[_target, "ALL"] remoteExec ["enableAI", _target]; 
-			[_target, ""] remoteExec ["playMoveNow", _target];  
-			[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
-			sleep 1;
-			[_target] joinSilent group _caller; 
-		}, 
-		{}, 
-		[], 
-		3, 
-		10 
-	] remoteExec ["BIS_fnc_holdActionAdd", 0];
+	_hvt disableAI "ALL";
+	
+	if (!isNil "ace_captives_setHandcuffed") then {
+		[_hvt, TRUE] call ace_captives_setHandcuffed;
+	} else {
+		// Select random pose for HVT.
+		[_hvt, selectRandom ["AmovPercMstpSnonWnonDnon_Ease", "Acts_JetsMarshallingStop_loop", "Acts_JetsShooterIdle"]] remoteExec ["switchMove"]; 
+		
+		// Add HVT Action for player.
+		[_hvt, 
+			"<t color='#00FF80'>Untie Hostage</t>", 
+			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_unbind_ca.paa",  
+			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_unbind_ca.paa",  
+			"_this distance _target < 3",   
+			"_caller distance _target < 3",   
+			{}, 
+			{}, 
+			{ 
+				[_target, "ALL"] remoteExec ["enableAI", _target]; 
+				[_target, ""] remoteExec ["playMoveNow", _target];  
+				[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
+				sleep 1;
+				[_target] joinSilent group _caller; 
+			}, 
+			{}, 
+			[], 
+			3, 
+			10 
+		] remoteExec ["BIS_fnc_holdActionAdd", 0];
+	};
 	
 	{
 		_x addCuratorEditableObjects [[_hvt], TRUE];

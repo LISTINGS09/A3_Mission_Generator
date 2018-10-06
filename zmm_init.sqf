@@ -2,10 +2,13 @@
 // [] execVM "scripts\ZMM\zmm_init.sqf";
 
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
-ZMM_DEBUG = !isMultiplayer;
+ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
 // ZZM_Mode = 1 - CTI Intel Mode
 ZZM_Mode = 0;
+
+"Group" setDynamicSimulationDistance 800;
+"Vehicle" setDynamicSimulationDistance 650;
 
 // Choose West Faction
 switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {	

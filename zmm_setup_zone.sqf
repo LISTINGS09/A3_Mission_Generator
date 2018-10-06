@@ -42,19 +42,19 @@ _zmm_fnc_findSide = {
 	_foundSide
 };
 
+// Set default trigger radius
+_triggerRadius = (_radius * 6) max 1000;
+
 // Set the Zone ID - Used to reference the area in-mission.
 _zoneID = (missionNamespace getVariable ["ZZM_zoneID",0]) + 1;	// Unique per instance.	
 missionNamespace setVariable ["ZZM_zoneID", _zoneID]; // Set Current Zone ID	
 missionNamespace setVariable [format["ZMM_%1_Location", _zoneID], _pos]; // Set Zone Centre
 
-_nearLoc = nearestLocation [_pos, ""];
-_locName = if (getPos _nearLoc distance2D _pos < 200) then { text _nearLoc } else { "this Location" };
-
 // Find a suitable enemy side.
 _side = [ _pos, _radius * 5] call _zmm_fnc_findSide;
 missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Set Side
 
-["DEBUG", format["Creating Zone %1 [%2] (%3 - %4 - %5)", _zoneID, _side, _locType, _locName, _pos]] call zmm_fnc_logMsg;
+["DEBUG", format["Creating Zone %1 [%2] (%3 - %4) TR:%5m", _zoneID, _side, _locType, _pos, _triggerRadius]] call zmm_fnc_logMsg;
 
 // Set default sizes of area based on type.
 _iconSize = 1;
@@ -77,28 +77,28 @@ switch (_locType) do {
 		_locSize = 1.25;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 20];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
 	};
 	case "NameCity": { 
 		_iconSize = 1;
 		_locSize = 1;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 16];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
 	};
 	case "NameVillage": { 
 		_iconSize = 0.8;
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 10];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 2];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
 	};
 	case "NameLocal": { 
 		_iconSize = 0.6;
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 2];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
 	};
 	case "Ambient": {
 		_iconSize = 0.4;
@@ -136,7 +136,7 @@ _mrk setMarkerShapeLocal "ELLIPSE";
 _mrk setMarkerBrushLocal "BORDER";
 _mrk setMarkerAlphaLocal 0.2;
 _mrk setMarkerColorLocal format[ "color%1", "Black" ];
-_mrk setMarkerSizeLocal [ _radius * 6, _radius * 6];
+_mrk setMarkerSizeLocal [ _triggerRadius, _triggerRadius];
 
 // Create QRF Points - Collect all roads ~1.5km around the location that are not in a safe location.
 _QRFLocs = [];
@@ -166,11 +166,11 @@ missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], _lrgBlds ]; 
 if (_locType isEqualTo "Ambient") exitWith {
 	format["MKR_%1_LOC", _zoneID] setMarkerSize [ 0.5, 0.5];
 	format["MKR_%1_MIN", _zoneID] setMarkerAlpha 0;
-	format["MKR_%1_MAX", _zoneID] setMarkerAlphaLocal 0;
-	format["MKR_%1_TRG", _zoneID] setMarkerAlphaLocal 0;
+	//format["MKR_%1_MAX", _zoneID] setMarkerAlphaLocal 0;
+	//format["MKR_%1_TRG", _zoneID] setMarkerAlphaLocal 0;
 
 	_setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
-	_setupTrg setTriggerArea [ _radius * 6, _radius * 6, 0, FALSE, 150 ];
+	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, FALSE, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", FALSE ];
 	_setupTrg setTriggerStatements [ "this", 
 									format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
@@ -220,7 +220,7 @@ if (ZZM_Mode isEqualTo 0) then {
 } else {
 	// CTI Mode - Create trigger when player nears Zone.
 	_setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
-	_setupTrg setTriggerArea [ _radius * 6, _radius * 6, 0, FALSE, 150 ];
+	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, FALSE, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", FALSE ];
 	_setupTrg setTriggerStatements [ "this", 
 									format [ "[%1] spawn zmm_fnc_setupPopulate;", _zoneID ], 

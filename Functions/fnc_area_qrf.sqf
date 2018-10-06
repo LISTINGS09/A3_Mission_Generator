@@ -7,16 +7,18 @@ params [
 	["_maxWave", 4]
 ];
 
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
+
 // If set only create the trigger and exit.
 if _triggerOnly exitWith {
 	if ((missionNamespace getVariable [format['ZMM_%1_QRFTime', _zoneID], 600]) isEqualTo 0 || (missionNamespace getVariable [format['ZMM_%1_QRFWaves', _zoneID], 3]) isEqualTo 0)	exitWith {};
-	
-	_centre = missionNamespace getVariable [ format[ "ZMM_%1_Location", _zoneID ], [0,0,0]];
+
 	_radius = (getMarkerSize format["MKR_%1_MAX", _zoneID]) select 0;
 	_timeOut = (missionNamespace getVariable ['ZMM_%1_QRFTime', 600]) / 2;
 
 	_detectedTrg = createTrigger ["EmptyDetector", _centre, FALSE];
-	_detectedTrg setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
+	_detectedTrg setTriggerActivation ["ANYPLAYER", format["%1 D", _side], FALSE];
 	_detectedTrg setTriggerTimeout [_timeOut, _timeOut, _timeOut, TRUE];
 	_detectedTrg setTriggerArea [_radius, _radius, 0, FALSE];
 	_detectedTrg setTriggerStatements ["this", format["[%1, FALSE, (missionNamespace getVariable ['ZMM_%1_QRFTime', 600]), (missionNamespace getVariable ['ZMM_%1_QRFWaves', 3])] spawn zmm_fnc_areaQRF;", _zoneID], ""];
@@ -29,8 +31,6 @@ missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
 // TODO: Add custom QRFs per Location Type.
 sleep (_delay / 4);
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
-_side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
 _locations = missionNamespace getVariable [format["ZMM_%1_QRFLocations", _zoneID], []];
 
 _sentry = missionNamespace getVariable [format["ZMM_%1Grp_Sentry",_side],[]];

@@ -28,9 +28,10 @@ _bldPos = _bld buildingPos -1;
 // Create HVT Team
 _milGroup = [[0,0,0], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
 {
-	if (leader _x == _x) then { _x addHeadGear "H_Beret_blk"; };
+	if (leader _x == _x) then { _x addHeadGear "H_Beret_blk"; removeFromRemainsCollector [_x]; };
 	
 	doStop _x;
+
 	_x setSkill 0.5 + random 0.3;
 	if (count _bldPos > 0) then {
 		_tempPos = selectRandom _bldPos;

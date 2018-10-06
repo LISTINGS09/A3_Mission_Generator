@@ -92,20 +92,22 @@ _grp setGroupId [format["ZAI_%1_%2", side _grp, _grpIDx]];
 _grp setVariable ["ZAI_ID", ZAI_ID];
 missionNamespace setVariable [format ["ZAI_%1_%2", side _grp, _grpIDx], _grp];
 
-// What type of "vehicle" is unit ?
-_isAir = {assignedVehicle _x isKindOf "air"} count units _grp > 0;
-_isBoat = {assignedVehicle _x isKindOf "ship"} count units _grp > 0;
-_isCar = {assignedVehicle _x isKindOf "car"} count units _grp > 0 || {assignedVehicle _x isKindOf "tank"} count units _grp > 0 || {assignedVehicle _x isKindOf "armored"} count units _grp > 0;
-_isArty = {assignedVehicle _x isKindOf "StaticMortar"} count units _grp > 0;
-_isStatic = {assignedVehicle _x isKindOf "staticWeapon"} count units _grp > 0 || {assignedVehicle _x isKindOf "static"} count units _grp > 0;
-
-_isMan = !_isAir && !_isBoat && !_isCar && !_isStatic && !_isArty;
-
 // Make the leader the driver since RHS hates
 _grpVehicle = objNull;
 { 
 	if (!isNull assignedVehicle _x) then { _grpVehicle = vehicle _x };
 } forEach units _grp;
+
+// What type of "vehicle" is unit ?
+_isAir = _grpVehicle isKindOf "air";
+_isBoat = _grpVehicle isKindOf "ship";
+_isCar = _grpVehicle isKindOf "car" || _grpVehicle isKindOf "tank" || _grpVehicle isKindOf "armored";
+_isArty = if (!isNull _grpVehicle) then { "Artillery" in getArray (configFile >> "CfgVehicles" >> typeOf _grpVehicle >> "availableForSupportTypes") } else { FALSE }; 
+_isStatic = _grpVehicle isKindOf "staticWeapon" || _grpVehicle isKindOf "static";
+_isMan = !_isAir && !_isBoat && !_isCar && !_isStatic && !_isArty;
+
+if (!isNull _grpVehicle && _isMan) then { ["WARNING", format["[%1] was an unknown vehicle type", typeOf _grpVehicle]] call _ZAI_LogMsg; };
+if (!isNull _grpVehicle) then { _grp selectLeader driver _grpVehicle };
 
 if (!isNull _grpVehicle) then { _grp selectLeader driver _grpVehicle };
 
@@ -255,9 +257,14 @@ while {TRUE} do {
 		_enemyOffset = (21 - ((_grp knowsAbout _foundEnemy) * 5)) * 5;
 		_attackPos = _foundEnemy getPos [random _enemyOffset, random 360];
 		
-		// In contact with target so request a fire mission at target position.
+		// If no arty target has been requested yet, set one
+		if ((missionNamespace getVariable [format["ZAI_%1_ArtyRequest", side _grp], []]) isEqualTo []) then {
+			missionNamespace setVariable [format["ZAI_%1_ArtyRequest", side _grp], _attackPos];
+		};
+		
+		// In contact with target so request an immediate fire mission at target position.
 		if (_wasHit) then {
-			 missionNamespace setVariable ["ZAI_ArtyRequest", _attackPos];
+			 missionNamespace setVariable [format["ZAI_%1_ArtyRequest", side _grp], _attackPos];
 			 
 			// If infantry were shot, return fire
 			if (_isMan) then {
@@ -271,7 +278,7 @@ while {TRUE} do {
 			};
 		};
 			
-		if _isStatic exitWith {};
+		if (_isStatic || !_isSoldier) exitWith {};
 		
 		_timeOnTarget = time + _alertTime;
 		_holdMove = FALSE;
@@ -379,14 +386,14 @@ while {TRUE} do {
 		_wp setWaypointType (["MOVE", "SAD"] select (_isMan && random 1 < 0.1));
 		_wp setWaypointFormation selectRandom ["FILE", "COLUMN", "DIAMOND"];
 		_wp setWaypointSpeed "LIMITED";
-		_wp setWaypointBehaviour (["AWARE", "SAFE"] select (missionNamespace getVariable ["ZAI_ArtyRequest", []] isEqualTo []));
+		_wp setWaypointBehaviour (["AWARE", "SAFE"] select (missionNamespace getVariable [format["ZAI_%1_ArtyRequest", side _grp], []] isEqualTo []));
 		_wp setWaypointCompletionRadius (_closeEnough / 2);
 		_grp setCurrentWaypoint _wp;
 	};
 	
 	// Artillery Support
 	if _isArty then {	
-		_artyTarget = missionNamespace getVariable ["ZAI_ArtyRequest", []];
+		_artyTarget = missionNamespace getVariable [format["ZAI_%1_ArtyRequest", side _grp], []];
 		if (_artyTarget isEqualTo []) exitWith {};
 		
 		if (_timeOnTarget > time) exitWith {
@@ -406,11 +413,11 @@ while {TRUE} do {
 		
 		for "_i" from 1 to 8 do {
 			leader _grp commandArtilleryFire [(_artyTarget getPos [random _artyRadius, random 360]), (getArtilleryAmmo [vehicle leader _grp] select 0), 1];
-			sleep 2 + random 2;
+			sleep 5 + random 2;
 		};
 		
 		(vehicle leader _grp) setVehicleAmmo 1;
-		missionNamespace setVariable ["ZAI_ArtyRequest", []];
+		missionNamespace setVariable [format["ZAI_%1_ArtyRequest", side _grp], []];
 		_timeOnTarget = time + _artyTime;
 	};
 
