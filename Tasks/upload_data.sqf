@@ -8,12 +8,12 @@ _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID],
 _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
 
 _missionDesc = [
-		"We have tracked a %2 data leak, to a crashed <font color='#00FFFF'>%1</font> at this location, upload the data to our network.",
-		"A <font color='#00FFFF'>%1</font> crashed containing %2 data. Locate it and upload the data to your PDA, erasing the vehicles memory banks.",
-		"We've picked up a signal indicating a <font color='#00FFFF'>%1</font> was forced to land, it contains vital %2 data, upload the data to an overhead satellite.",
-		"The enemy have located a <font color='#00FFFF'>%1</font> containing %2 data. Upload the data to a secure location before it can be accessed by the enemy.",
-		"Locate the <font color='#00FFFF'>%1</font> somewhere in the area and upload the %2 data on it to our network.",
-		"A <font color='#00FFFF'>%1</font> has crashed somewhere nearby, locate it and upload the %2 data from it to your PDA."
+		"We have tracked a leak of %2, to a crashed <font color='#00FFFF'>%1</font> at this location, upload the data to our network.",
+		"A <font color='#00FFFF'>%1</font> crashed containing %2. Locate it and upload the data to your PDA, erasing the vehicles memory banks.",
+		"We've picked up a signal indicating a <font color='#00FFFF'>%1</font> was forced to land, it contains %2, upload the data to an overhead satellite.",
+		"The enemy have located a <font color='#00FFFF'>%1</font> containing %2. Upload the data to a secure location before it can be accessed by the enemy.",
+		"Locate the <font color='#00FFFF'>%1</font> somewhere in the area and upload %2 found on it to our network.",
+		"A <font color='#00FFFF'>%1</font> has crashed somewhere nearby, locate it and upload %2 from it to your PDA."
 	];
 
 _bldPos = [];
@@ -31,18 +31,22 @@ if (random 100 > 50 && count _bldPos > 0) then {
 	
 	// Add Action to open Terminal.
 	[_dataObj, 
-		 "<t color='#00FF80'>Open Terminal</t>", 
-		 "\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_hack_ca.paa",  
-		 "\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_hack_ca.paa",  
-		 "!(_target getVariable ['var_canUse', FALSE]) && _this distance _target < 3", 
-		 "!(_target getVariable ['var_canUse', FALSE]) && _caller distance _target < 3", 
-		 {}, 
-		 {}, 
-		 {[_target,3] remoteExec ["BIS_fnc_dataTerminalAnimate",_target]; _target setVariable ["var_canUse", TRUE, TRUE]}, 
-		 {}, 
-		 [], 
-		 1, 
-		 10 
+	"<t color='#00FF80'>Open Terminal</t>", 
+	"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_hack_ca.paa",  
+	"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_hack_ca.paa",  
+	"!(_target getVariable ['var_canUse', FALSE]) && _this distance _target < 3", 
+	"!(_target getVariable ['var_canUse', FALSE]) && _caller distance _target < 3", 
+	{}, 
+	{}, 
+	{
+		[_target,3] remoteExec ["BIS_fnc_dataTerminalAnimate",_target]; 
+		_target setVariable ["var_canUse", TRUE, TRUE];
+		[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
+	}, 
+	{}, 
+	[], 
+	1, 
+	10 
 	] remoteExec ["bis_fnc_holdActionAdd"];
 } else {
 	_dataPos = if (count _locations > 0) then { selectRandom _locations } else { [_centre, 100 + random 150, random 360] call BIS_fnc_relPos };
@@ -64,11 +68,11 @@ if (random 100 > 50 && count _bldPos > 0) then {
 
 _dataObj allowDamage FALSE;
 _dataName = [getText (configFile >> "CfgVehicles" >> _dataType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
-_dataHeading = selectRandom [
-	format["%1 Data",selectRandom ["Weapon", "Radio", "Flight", "Mapping", "Survey", "NBC", "Target"]],
-	format["%1 Locations",selectRandom ["Intel", "Camp", "POW", "Minefield", "HVT", "Storage", "Bunker"]],
-	format["%1 List",selectRandom ["Prisoner", "Informant", "Stockpile", "Asset", "Payload", "Target"]]
-];
+_dataHeading = selecTRandom [
+		format["%1 Data", selectRandom ["Weapon", "Radio", "Flight", "Mapping", "Survey", "NBC", "Target", "Account"]],
+		format["%1 Locations", selectRandom ["Intel", "Camp", "POW", "Minefield", "HVT", "Storage", "Bunker", "GOAT", "Testing"]],
+		format["a list of %1", selectRandom ["Prisoners", "Informants", "Stockpiles", "Assets", "Codes", "Target", "Recipes"]]
+	];
 
 [_dataObj, 
 	"<t color='#00FF80'>Start Transmission</t>", 
@@ -98,6 +102,7 @@ _dataHeading = selectRandom [
 		} else { 
 			parseText "<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\upload_ca.paa'/><br/><br/><t size='1.5'>Upload</t><br/><br/><t size='1.5' color='#00CD00'>Complete</t><br/><t color='#00CD00'></t><br/><br/><t size='1.5' color='#CCCCCC'>Shutting Down</t><br/><br/>" remoteExec ["hintSilent"]; 
 			_target setVariable ["var_dataSent", TRUE, TRUE]; 
+			[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
 			sleep 1; 
 			[_target, 0] remoteExec ["BIS_fnc_dataTerminalAnimate", _target]; 
 		}; 
@@ -120,6 +125,6 @@ _objTrigger setTriggerStatements [ 	format["(ZMM_%1_OBJ getVariable ['var_dataSe
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _dataName, _dataHeading], ["Upload"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "upload"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _dataName, _dataHeading], ["Upload"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "upload"] call BIS_fnc_setTask;
 
 TRUE

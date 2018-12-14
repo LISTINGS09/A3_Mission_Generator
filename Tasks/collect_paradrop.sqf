@@ -40,12 +40,12 @@ _lightObj attachTo [_dropObj,[0, 0, ((boundingBoxReal _dropObj) select 1) select
 	 "(_target getVariable ['var_canUse', TRUE])", 
 	 {}, 
 	 {}, 
-	 {_target setVariable ["var_canUse", FALSE, TRUE]}, 
+	 { _target setVariable ["var_canUse", FALSE, TRUE]; [ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"]; }, 
 	 {}, 
 	 [], 
 	 1, 
 	 10 
-] remoteExec ["bis_fnc_holdActionAdd"];
+] remoteExec ["bis_fnc_holdActionAdd", 0, _dropObj];
 
 missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _dropObj];
 
@@ -65,6 +65,6 @@ _objTrigger setTriggerStatements [  format["!(ZMM_%1_OBJ getVariable ['var_canUs
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _dropName], ["Drop"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "airdrop"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _dropName], ["Drop"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "airdrop"] call BIS_fnc_setTask;
 
 TRUE

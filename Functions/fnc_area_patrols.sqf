@@ -32,13 +32,14 @@ _fnc_spawnGroup = {
 		if (count _types isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 		_type = selectRandom _types;
 		_customInit = "";
-		["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType "") then { _type } else { configName _type }, _side, _marker]] call zmm_fnc_logMsg;
 		
 		// If _unitClass is array, extract the custom init.
 		if (_type isEqualType []) then {
 			_customInit = _type#1;
 			_type = _type#0;
 		};
+		
+		["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType "") then { _type } else { configName _type }, _side, _marker]] call zmm_fnc_logMsg;
 		
 		if (typeName _type == typeName "") then {
 			if (isClass (configFile >> "CfgVehicles" >> _type)) then {
@@ -88,7 +89,7 @@ _fnc_spawnGroup = {
 	};
 };
 
-["DEBUG", format["Creating Patrols - Zone %1 (%2)", _zoneID, _locType]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 (%2) - Creating Patrols", _zoneID, _locType]] call zmm_fnc_logMsg;
 
 switch (_locType) do {
 	case "Airport": { 

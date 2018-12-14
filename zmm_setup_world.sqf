@@ -11,6 +11,7 @@ if !isServer exitWith {};
 		_pos = getArray (_x >> 'position');
 		_radius = getNumber (_x >> 'radiusA') max getNumber (_x >> 'radiusB');
 		_locType = getText (_x >> 'type');
+		_locName = getText (_x >> 'name');
 		
 		_pos set [2,0];
 			
@@ -32,6 +33,9 @@ if !isServer exitWith {};
 				if (_pos inArea _x) then { _bypass = TRUE };
 			};
 			
+			// Don't let the area be too big.
+			if (_radius > 500) then { _radius = 500 };
+			
 			if _bypass exitWith {};
 		} forEach allMapMarkers;
 		
@@ -42,13 +46,13 @@ if !isServer exitWith {};
 				if _create then { 
 					// Are we in CTI Mode?
 					if (ZZM_Mode isEqualTo 0) then {
-						_zoneId = [_pos, "Ambient", _radius ] call zmm_fnc_setupZone;
+						_zoneId = [_pos, "Ambient", _radius, _locName, _locType ] call zmm_fnc_setupZone;
 					} else {
-						_zoneId = [_pos, _locType, _radius ] call zmm_fnc_setupZone;
+						_zoneId = [_pos, _locType, _radius, _locName ] call zmm_fnc_setupZone;
 					};
 				} else {
 					if (random 100 > 50) then {
-						_zoneID = [_pos, "Ambient", _radius] call zmm_fnc_setupZone;
+						_zoneID = [_pos, "Ambient", _radius, _locName, _locType] call zmm_fnc_setupZone;
 					};
 				};
 			};

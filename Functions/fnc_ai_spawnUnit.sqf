@@ -4,6 +4,7 @@ params [
 	"_side",
 	"_unitClass"
 ];
+
 _reinfGrp = grpNull;
 _grpVeh = objNull;
 _vehType = "";
@@ -73,7 +74,7 @@ if (_unitClass isEqualType "") then {
 		
 		// Convert crew if using another faction vehicle.
 		if (([getNumber (configFile >> "CfgVehicles" >> _unitClass >> "Side")] call BIS_fnc_sideType) != _side) then {
-			_reinfGrp = createGroup _side;
+			_reinfGrp = createGroup [_side, true];
 			(crew _veh) join _reinfGrp;
 		};
 		

@@ -6,17 +6,15 @@ _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], 
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
 _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
-
-_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
-_locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
+_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
 _missionDesc = [
-		"Locate and rescue <font color='#00FFFF'>%2 %3</font> who have been captured nearby %1.",
-		"Save <font color='#00FFFF'>%2 %3</font> who were spotted by the enemy entering %1, they must be saved.",
-		"There are <font color='#00FFFF'>%2 %3</font> who where trying to flee %1 but were captured and are awaiting execution, rescue them.",
-		"Find and rescue <font color='#00FFFF'>%2 %3</font> being held hostage somewhere nearby %1.",
-		"Set free <font color='#00FFFF'>%2 %3</font> last seen around the area outside %1, find them and rescue them.",
-		"A group of <font color='#00FFFF'>%2 %3</font> are confirmed to be in the area near %1, ensure they are brought back to safety."
+		"Locate and rescue <font color='#00FFFF'>%2 %3s</font> who have been captured nearby %1.",
+		"Save <font color='#00FFFF'>%2 %3s</font> who were spotted by the enemy entering %1, they must be saved.",
+		"There are <font color='#00FFFF'>%2 %3s</font> who where trying to flee %1 but were captured and are awaiting execution, rescue them.",
+		"Find and rescue <font color='#00FFFF'>%2 %3s</font> being held hostage somewhere nearby %1.",
+		"Set free <font color='#00FFFF'>%2 %3s</font> last seen around the area outside %1, find them and rescue them.",
+		"A group of <font color='#00FFFF'>%2 %3s</font> are confirmed to be in the area near %1, ensure they are brought back to safety."
 	];
 
 // Use a zone buildings if no building was passed.
@@ -49,7 +47,7 @@ _mrk setMarkerSize [ 0.8, 0.8 ];
 _civNum = 1 + random 2;
 _hvtActivation = [];
 
-_rescueType = if (random 50 > 100) then { "Soldiers" } else { "Civilians" };
+_rescueType = if (random 50 > 100) then { "Soldier" } else { "Civilian" };
 _tempPlayer = (allPlayers select {alive _x}) select 0;
 
 for "_i" from 0 to _civNum do {
@@ -71,10 +69,17 @@ for "_i" from 0 to _civNum do {
 		_hvt setPosATL (_bldLoc findEmptyPosition [5, 25, "B_Soldier_F"]);
 	};
 	
+	// Child task
+	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Rescue the captured %1 from enemy forces, ensuring they come to no harm.", _rescueType], format["Rescue %1 #%2", _rescueType, _i + 1], format["MKR_%1_OBJ", _zoneID]], objNull, "AUTOASSIGNED", 1, FALSE, TRUE, format["move%1", _i + 1]] call BIS_fnc_setTask;
+	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
+	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre],
+									format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState;", _zoneID, _i],
+									"" ];
+	
 	// Failure trigger when HVT is dead.
 	_hvtTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_hvtTrigger setTriggerStatements [ 	format["!alive ZMM_%1_HVT_%2", _zoneID, _i], 
-									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; ['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%3' } forEach ['MKR_%1_LOC','MKR_%1_MIN','MKR_%1_OBJ','MKR_%1_ICO']", _zoneID, _i, "Grey"],
 									"" ];
 									
 	// Build success trigger when HVT is alive and far from objective.
@@ -110,7 +115,7 @@ for "_i" from 0 to _civNum do {
 			[], 
 			3, 
 			10 
-		] remoteExec ["BIS_fnc_holdActionAdd", 0];
+		] remoteExec ["BIS_fnc_holdActionAdd", 0, _hvt];
 	};
 	
 	{
@@ -148,6 +153,6 @@ _objTrigger setTriggerStatements [ 	(_hvtActivation joinString " && "),
 									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN','MKR_%1_OBJ','MKR_%1_ICO']", _zoneID, _playerSide],
 									"" ];
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, round _civNum, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "help"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, round _civNum, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "help"] call BIS_fnc_setTask;
 
 TRUE

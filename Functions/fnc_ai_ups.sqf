@@ -1,6 +1,6 @@
 //
 //  Urban Patrol Script Zeus Edition
-//  Version: 1.0
+//  Version: 1.1
 //  Author: 2600K & Kronzky (www.kronzky.info / kronzky@gmail.com)
 //  BIS Forum: http://forums.bistudio.com/showthread.php?147904-Urban-Patrol-Script&highlight=Urban+Patrol+Script
 //
@@ -27,7 +27,7 @@ _safeDist = 200; 	// How far to move when under attack in meters
 _closeEnough = 50; 	// WP Completion Radius
 _shareDist = 500; 	// AI Comms Range in meters
 _alertTime = 60; 	// AI Alert after spotting enemy
-_artyTime = 120;	// Arty delay between firing
+_artyTime = 300;	// Arty delay between firing
 _artyRural = 250;	// Arty dispersion in rural areas
 _artyUrban = 150;	// Arty dispersion in urban areas
 
@@ -153,24 +153,33 @@ if ("RANDOM" in _params) then {
 	
 	// Find a random position (try a max of 20 positions)
 	_randPos = _unitPos;
-	for "_i" from 1 to 20 do {
+
+	_choosePos = TRUE;
+	_counter = 0;
+	while {_choosePos} do {
+		_counter = _counter + 1;
 		_randPos = [_areaMarker] call BIS_fnc_randomPosTrigger;
 		
-		if (_isAir) exitWith {};
-		if (_isBoat && surfaceIsWater _randPos) exitWith {};
-		if (!surfaceIsWater _randPos) exitWith {};
+		// If no mines are nearby check agains the type.
+		if (isNull (nearestObject [_randPos, "MineGeneric"])) then {
+			if (_isBoat && surfaceIsWater _randPos) exitWith { _choosePos = FALSE };
+			if (!surfaceIsWater _randPos) exitWith { _choosePos = FALSE };
+		};
+		
+		// Just exit if we've been searching too long.
+		if (_counter > 25) then { _choosePos = FALSE };
 	};
 	
 	// Put vehicle to a random spot
 	if (!isNull _grpVehicle) then {
-		_tempPos = _randPos findEmptyPosition [0, 25, typeOf _grpVehicle];
+		_tempPos = _randPos findEmptyPosition [0, 50, typeOf _grpVehicle];
 		if (count _tempPos > 0) then { _grpVehicle setPos _tempPos } else { _grpVehicle setPos _randPos };
 	};
 	
-	// Move anyone over 150m away to the area.
+	// Move anyone over 100m away to the area.
 	_randPos = [_randPos, 1, 50, 2, 0, 0, 0, [], [_unitPos,_unitPos]] call BIS_fnc_findSafePos;
 	{
-		if (getPos _x distance2D _randPos > 150) then { _x setPos _randPos };
+		if (getPos _x distance2D _randPos > 100) then { _x setPos _randPos };
 	} forEach units _grp;
 };
 
@@ -192,7 +201,6 @@ _lastCount = 0;
 _lastPos = _unitPos;
 _timeOnTarget = 0;
 
-if _isMan then { { _x disableAI "AUTOCOMBAT" } forEach units _grp };
 _grp deleteGroupWhenEmpty TRUE; // Don't keep the group when empty.
 
 // ************************************************ MAIN LOOP ************************************************
@@ -302,12 +310,11 @@ while {TRUE} do {
 		
 		// Clear wayPoints	
 		while {count wayPoints _grp > 0} do { deleteWaypoint ((wayPoints _grp)#0) };
-		//_grp addWaypoint [getPos leader _grp,0];
 		
 		{
-			_wp = _grp addWaypoint [_x, 0];
-			_wp setWaypointPosition [_x, 0];
+			_wp = _grp addWaypoint [_x, 25];
 			_wp setWaypointType "MOVE";
+			_wp setWaypointForceBehaviour TRUE;
 			_wp setWaypointFormation selectRandom ["LINE", "WEDGE", "DIAMOND"];		
 			_wp setWaypointSpeed (["NORMAL", "FULL"] select _isCar);
 			_wp setWaypointBehaviour (["AWARE", "COMBAT"] select _isCar);
@@ -343,7 +350,11 @@ while {TRUE} do {
 		};
 	} else {
 		// Reset combat mode to aware to keep units moving
-		if (_isMan && behaviour leader _grp == "COMBAT") then { {_x disableAI "AUTOCOMBAT"; _x setBehaviour "AWARE" } forEach units _grp };
+		if (_isMan) then { 
+			{ _x disableAI "AUTOCOMBAT"; _x setBehaviour "SAFE"; _x enableAttack false } forEach units _grp;
+			sleep 1;
+			{ _x enableAI "AUTOCOMBAT"; _x enableAttack true } forEach units _grp;
+		};
 	};
 				
 	// Find new WP if we don't have one
@@ -379,10 +390,10 @@ while {TRUE} do {
 			
 			sleep 0.1;
 		};
-		["DEBUG", format["[%1] Found WP %2m after %3 tries",_grpIDx, round (_unitPos distance2D _newGrpPos), _tries]] call _ZAI_LogMsg;
-				
-		_wp = _grp addWaypoint [_newGrpPos, 0];
-		_wp setWaypointPosition [_newGrpPos, 0];
+		["DEBUG", format["[%1] Found WP [%2] %3m after %4 tries",_grpIDx, _newGrpPos, round (_unitPos distance2D _newGrpPos), _tries]] call _ZAI_LogMsg;
+
+		_wp = _grp addWaypoint [_newGrpPos, 25];
+		//_wp setWaypointType "MOVE";
 		_wp setWaypointType (["MOVE", "SAD"] select (_isMan && random 1 < 0.1));
 		_wp setWaypointFormation selectRandom ["FILE", "COLUMN", "DIAMOND"];
 		_wp setWaypointSpeed "LIMITED";
@@ -397,7 +408,7 @@ while {TRUE} do {
 		if (_artyTarget isEqualTo []) exitWith {};
 		
 		if (_timeOnTarget > time) exitWith {
-			["DEBUG", format["[%1] Artillery Aborted (%2s until ready)", _grpIDx, _timeOnTarget - time]] call _ZAI_LogMsg;
+			//["DEBUG", format["[%1] Artillery Aborted (%2s until ready)", _grpIDx, _timeOnTarget - time]] call _ZAI_LogMsg;
 		};
 		
 		_artyRadius = if ((count (nearestObjects [_artyTarget, ["building"], 50]) > 8)) then { _artyUrban } else { _artyRural }; // 150 urban, 250 otherwise
@@ -428,29 +439,38 @@ while {TRUE} do {
 			
 			// Vehicles
 			if (!_isMan) then {
-				if (_lastCount == 10) then { 
+				if (_lastCount == 10) exitWith { 
 					while {count wayPoints _grp > 0} do { deleteWaypoint ((wayPoints _grp)#0) };
 					_wp = _grp addWaypoint [getPos leader _grp, 0];
-					["WARNING", format["[%1] Vehicle has not moved for %2 cycles", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+					["WARNING", format["[%1] Vehicle held for %2 cycles - Clearing WPs", _grpIDx, _lastCount]] call _ZAI_LogMsg;
 				};
-				if (_lastCount == 20) then {
+				if (_lastCount == 20) exitWith {
+					vehicle leader _grp setDamage 0;
+					_grp leaveVehicle vehicle leader _grp;
+					["WARNING", format["[%1] Vehicle held for %2 cycles - Repairing", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+				};
+				if (_lastCount == 30) exitWith {
 					vehicle leader _grp setFuel 0.05;
 					_grp leaveVehicle vehicle leader _grp;
-					["WARNING", format["[%1] Vehicle has not moved for %2 cycles", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+					["WARNING", format["[%1] Vehicle held for %2 cycles - Abandoning", _grpIDx, _lastCount]] call _ZAI_LogMsg;
 				};
 			};
 			
 			// Infantry
 			if (_isMan) then {
-				if (_lastCount MOD 5 == 0) then {
-					(leader _grp) selectWeapon primaryWeapon (leader _grp);
-					["WARNING", format["[%1] Leader has not moved for %2 cycles", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+				if (_lastCount == 10) exitWith {
+					while {count wayPoints _grp > 0} do { deleteWaypoint ((wayPoints _grp)#0) };
+					["WARNING", format["[%1] Leader held for %2 cycles - Clearing WPs", _grpIDx, _lastCount]] call _ZAI_LogMsg;
 				};
-				if (_lastCount == 15) then {
+				if (_lastCount == 15) exitWith {
 					{
 						_x setPos ([getPos _x, 1, 25, 2, 0, 0, 0, [], [getPos _x, getPos _x]] call BIS_fnc_findSafePos);
 					} forEach units _grp;
-					["WARNING", format["[%1] Leader has not moved for %2 cycles", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+					["WARNING", format["[%1] Leader held for %2 cycles - Moving to SafePos", _grpIDx, _lastCount]] call _ZAI_LogMsg;
+				};
+				if (_lastCount MOD 5 == 0) then {
+					(leader _grp) selectWeapon primaryWeapon (leader _grp);
+					["WARNING", format["[%1] Leader held for %2 cycles - Resetting Weapon", _grpIDx, _lastCount]] call _ZAI_LogMsg;
 				};
 			};
 		} else {

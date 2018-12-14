@@ -21,7 +21,7 @@ if (count _bPos isEqualTo 0) then {
 	} forEach _buildings;
 };
 
-["DEBUG", format["Creating Garrison -  Zone %1 with %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Creating Garrison: %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
 
 _grp = createGroup [_side, TRUE];
 

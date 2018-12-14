@@ -9,7 +9,7 @@ params [ "_zoneID", ["_locType", ""] ];
 if (!(_locType isEqualTo "Ambient") && ZZM_Mode isEqualTo 0) then {
 	// This function returns some settings to overwrite AI population.
 	// e.g. Defence missions have no AI to start.
-	//[_zoneID] execVM format["%1\tasks\capture_object.sqf", ZMM_FolderLocation];
+	//[_zoneID] execVM format["%1\tasks\hvt_rescue.sqf", ZMM_FolderLocation];
 	[_zoneID] call zmm_fnc_setupTask;
 };
 

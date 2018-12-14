@@ -6,9 +6,7 @@ _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], 
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
 _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
-
-_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
-_locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
+_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
 _missionDesc = [
 		"Locate and eliminate a <font color='#00FFFF'>HVT</font> nearby %1 within the marked location.",
@@ -57,7 +55,7 @@ _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_HVT", _zoneID],
 									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName], ["Killer"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "target"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName], ["Killer"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "target"] call BIS_fnc_setTask;
 //missionNamespace setVariable ["ZMM_Task", _missionTask, TRUE];
 
 TRUE

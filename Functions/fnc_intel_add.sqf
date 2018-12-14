@@ -28,6 +28,7 @@ if (_value isEqualType []) exitWith {
 				format["Intel Collected by %1 - Check Map", name player] remoteExec ["systemChat"];
 				[] remoteExec ["zmm_fnc_setupTask", 2];
 			}; 
+			[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
 		}, 
 		{}, 
 		[], 
@@ -60,12 +61,13 @@ if (_value isKindOf "Man") exitWith {
 						format["Intel Collected by %1 - Check Map", name player] remoteExec ["systemChat"];
 						[] remoteExec ["zmm_fnc_setupTask", 2];
 					}; 
+					[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
 				}, 
 				{}, 
 				[], 
 				3, 
 				10
-			] remoteExec ["bis_fnc_holdActionAdd"];
+			] remoteExec ["bis_fnc_holdActionAdd", 0, _intel];
 		}; 
 	}];
 };

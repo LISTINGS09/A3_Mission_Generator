@@ -35,9 +35,6 @@ if (count _nearTowers > 0) then {
 	_obj setVectorUp [0,0,1];
 };
 
-_objName = [getText (configFile >> "CfgVehicles" >> _objClass >> "displayname"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
-
-
 missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _obj];
 
 // Create Completion Trigger
@@ -47,6 +44,6 @@ _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _objName], ["Destroy"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "destroy"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _objClass >> "displayName")] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> _objClass >> "editorPreview")], ["Tower"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "destroy"] call BIS_fnc_setTask;
 
 TRUE

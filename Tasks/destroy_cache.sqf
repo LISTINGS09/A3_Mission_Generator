@@ -7,18 +7,17 @@ _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
 _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
 _radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
+_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+_locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 _missionDesc = [
-		"Destroy <font color='#00FFFF'>%1 Equipment Caches</font> recently dropped for enemy forces.",
-		"The enemy has collected <font color='#00FFFF'>%1 Weapon Caches</font> at this location, destroy it.",
-		"We've picked up a signal indicating <font color='#00FFFF'>%1 Weapons Caches</font> are present in the area, destroy it.",
-		"Destroy the <font color='#00FFFF'>%1 Enemy Caches</font> at the marked location.",
-		"Intel has identified <font color='#00FFFF'>%1 Weapons Caches</font> here, destroy them.",
-		"A UAV has spotted an enemy smuggling <font color='#00FFFF'>%1 Ammo Caches</font> into the area, find and destroy them."
+		"Destroy <font color='#00FFFF'>%1 Equipment Caches</font> recently dropped for enemy forces near %2.",
+		"The enemy has collected <font color='#00FFFF'>%1 Weapon Caches</font> being stored somewhere at %2, destroy them.",
+		"We've picked up a signal from %2 indicating <font color='#00FFFF'>%1 Weapons Caches</font> are present in the area, destroy them.",
+		"Destroy the <font color='#00FFFF'>%1 Enemy Caches</font> concealed somewhere at %2.",
+		"Intel has identified <font color='#00FFFF'>%1 Weapons Caches</font> being stored at %2, locate and destroy them.",
+		"A UAV flying over %2 has spotted an enemy smuggling <font color='#00FFFF'>%1 Ammo Caches</font> into the area, find and destroy them."
 	];
-
-_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
-_locType = if (getPos _nearLoc distance2D _centre < 200) then { type _nearLoc } else { "Custom" };
 
 _cacheNo = switch (_locType) do {
 	case "Airport": { 5 };
@@ -67,21 +66,31 @@ for "_i" from 0 to _cacheNo do {
 		_ammoObj setPosATL _ammoPos;
 		_ammoObj setDir random 360;
 		
-		_mrkr = createMarker [format["MKR_%1_%2_OBJ", _zoneID, _i], [_ammoPos, random 50, random 360] call BIS_fnc_relPos];
-		_mrkr setMarkerShape "ELLIPSE";
-		_mrkr setMarkerBrush "SolidBorder";
-		_mrkr setMarkerSize [50,50];
-		_mrkr setMarkerAlpha 0.4;
-		_mrkr setMarkerColor format["Color%1",_enemySide];
-		
-		missionNamespace setVariable [format["ZMM_%1_%2_OBJ", _zoneID, _i], _ammoObj];
-		
-		_crateActivation pushBack format["!alive ZMM_%1_%2_OBJ", _zoneID, _i];
-		
-		clearWeaponCargoGlobal _ammoObj;
-		clearMagazineCargoGlobal _ammoObj;
-		clearItemCargoGlobal _ammoObj;
-		clearBackpackCargoGlobal _ammoObj;
+		// If the crate was moved safely, create the task.
+		if (alive _ammoObj) then {
+			_mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], [_ammoPos, random 50, random 360] call BIS_fnc_relPos];
+			_mrkr setMarkerShape "ELLIPSE";
+			_mrkr setMarkerBrush "SolidBorder";
+			_mrkr setMarkerSize [50,50];
+			_mrkr setMarkerAlpha 0.4;
+			_mrkr setMarkerColor format["Color%1",_enemySide];
+			
+			missionNamespace setVariable [format["ZMM_%1_OBJ_%2", _zoneID, _i], _ammoObj];
+			
+			// Child task
+			_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Locate the enemy cache somewhere within the marked area.<br/><br/>Target Cache: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _ammoType >> "displayName"), getText (configFile >> "CfgVehicles" >> _ammoType >> "editorPreview")], format["Cache #%1", _i + 1], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "AUTOASSIGNED", 1, FALSE, TRUE, format["move%1", _i + 1]] call BIS_fnc_setTask;
+			_childTrigger = createTrigger ["EmptyDetector", getPos _ammoObj, false];
+			_childTrigger setTriggerStatements [  format["!alive ZMM_%1_OBJ_%2", _zoneID, _i],
+										format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; 'MKR_%1_OBJ_%2' setMarkerAlpha 0;", _zoneID, _i],
+										"" ];
+			
+			_crateActivation pushBack format["!alive ZMM_%1_OBJ_%2", _zoneID, _i];
+			
+			clearWeaponCargoGlobal _ammoObj;
+			clearMagazineCargoGlobal _ammoObj;
+			clearItemCargoGlobal _ammoObj;
+			clearBackpackCargoGlobal _ammoObj;
+		};
 	};
 };
 
@@ -92,6 +101,6 @@ _objTrigger setTriggerStatements [  (_crateActivation joinString " && "),
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _crateNo], ["Cache Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "box"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _crateNo, _locName], ["Cache Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "box"] call BIS_fnc_setTask;
 
 TRUE

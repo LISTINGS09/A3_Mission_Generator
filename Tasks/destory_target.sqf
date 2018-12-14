@@ -13,8 +13,6 @@ _missionDesc = [
 		"Destroy the <font color='#00FFFF'>%1</font> somewhere around this location."
 	];
 
-_vehName = [getText (configFile >> "CfgVehicles" >> (typeOf _targetObj) >> "displayname"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
-
 missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _targetObj];
 
 // Create Completion Trigger
@@ -24,6 +22,6 @@ _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _vehName], ["Demolition"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "destroy"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> (typeOf _targetObj) >> "displayName")] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> (typeOf _targetObj) >> "editorPreview")], ["Demolition"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "destroy"] call BIS_fnc_setTask;
 
 TRUE

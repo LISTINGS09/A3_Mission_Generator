@@ -8,18 +8,18 @@ _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zone
 _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
 
 _missionDesc = [
-		"We have tracked a %2 data leak to a <font color='#00FFFF'>%1</font> at this location, find it and download the data.",
-		"A <font color='#00FFFF'>%1</font> containing %2 data has been located. Find it and download the data from it.",
-		"We've picked up a signal indicating a <font color='#00FFFF'>%1</font> is in the area. It contains vital %2 data; locate it and download the data.",
-		"The enemy have located a <font color='#00FFFF'>%1</font> containing %2 data. Download the data from it before it can be accessed by the enemy.",
-		"Locate the <font color='#00FFFF'>%1</font> containing %2 data and download the information from it.",
-		"A <font color='#00FFFF'>%1</font> has been spotted in this area, find it and download the %2 data from it."
+		"We have tracked a leak of %2 to a <font color='#00FFFF'>%1</font> at this location, find it and download the data.",
+		"A <font color='#00FFFF'>%1</font> containing %2 has been located. Find it and download the data from it.",
+		"We've picked up a signal indicating a <font color='#00FFFF'>%1</font> is in the area. It contains %2 and is vital it is recovered; locate it and download the data.",
+		"The enemy have located a <font color='#00FFFF'>%1</font> that is carrying %2. Download the data from it before it can be accessed by the enemy.",
+		"Locate the <font color='#00FFFF'>%1</font> which details %2 and download the information from it.",
+		"A <font color='#00FFFF'>%1</font> has been spotted in this area, find it and download %2 from it."
 	];
 
 _bldPos = [];
 { _bldPos append (_x buildingPos -1) } forEach _buildings;
 	
-_dataType = selectRandom ["B_UAV_02_dynamicLoadout_F","B_UAV_05_F","B_UGV_01_F","O_UAV_02_dynamicLoadout_F"];
+_dataType = selectRandom ["B_UAV_02_dynamicLoadout_F", "B_UAV_05_F", "B_UGV_01_F", "O_UAV_02_dynamicLoadout_F"];
 _dataPos = [0,0,0];
 
 if (count _locations > 0) then { 
@@ -48,13 +48,11 @@ if (random 100 > 50 && count _bldPos > 0) then {
 	_smokeObj attachTo [_dataObj, [0,0,0]];
 };
 
-_dataName = [getText (configFile >> "CfgVehicles" >> _dataType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
-
-_dataHeading = selectRandom [
-	format["%1 Data",selectRandom ["Weapon", "Radio", "Flight", "Mapping", "Survey", "NBC", "Target"]],
-	format["%1 Locations",selectRandom ["Intel", "Camp", "POW", "Minefield", "HVT", "Storage", "Bunker"]],
-	format["%1 List",selectRandom ["Prisoner", "Informant", "Stockpile", "Asset", "Payload", "Target"]]
-];
+_dataHeading = selecTRandom [
+		format["%1 Data", selectRandom ["Weapon", "Radio", "Flight", "Mapping", "Survey", "NBC", "Target", "Account"]],
+		format["%1 Locations", selectRandom ["Intel", "Camp", "POW", "Minefield", "HVT", "Storage", "Bunker", "GOAT", "Testing"]],
+		format["a list of %1", selectRandom ["Prisoners", "Informants", "Stockpiles", "Assets", "Codes", "Target", "Recipes"]]
+	];
 
 _dataObj setVariable ["var_dataType", _dataHeading, TRUE];
 _dataObj setVariable ["var_zoneID", _zoneID, TRUE];
@@ -71,6 +69,7 @@ _dataObj setVariable ["var_zoneID", _zoneID, TRUE];
 	_target setVariable ["var_dataSent", TRUE, TRUE]; 
 	sleep 5; 
 	"" remoteExec ["hintSilent"]; 
+	[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
 	}, 
 	{parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\download_ca.paa'/><br/><br/><t size='1.5'>%1</t><br/><br/><t size='1.5' color='#FF0000'>Cancelled</t><br/><t color='#FF0000'>(%2)</t><br/><br/><br/><br/>", _target getVariable ["var_dataType","Data"], name _caller] remoteExec ["hintSilent"];}, 
 	[], 
@@ -93,6 +92,6 @@ _faiTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _dataName, _dataHeading], ["Download"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "download"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _dataType >> "displayName"), _dataHeading], ["Download"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "download"] call BIS_fnc_setTask;
 
 TRUE

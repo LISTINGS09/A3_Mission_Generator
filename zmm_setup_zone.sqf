@@ -1,7 +1,7 @@
 // Spawns a markers/missions over all locations in a world.
 if !isServer exitWith {};
 
-params [ ["_pos", [0,0,0]], ["_locType", "Custom"], ["_radius", 150] ];
+params [ ["_pos", [0,0,0]], ["_locType", "Custom"], ["_radius", 150], ["_locName", "Unnamed"], ["_orgType", "Custom"] ];
 
 _zmm_fnc_findSide = {
 	params [[ "_nearPos", []], ["_inDist", 0]];
@@ -49,12 +49,14 @@ _triggerRadius = (_radius * 6) max 1000;
 _zoneID = (missionNamespace getVariable ["ZZM_zoneID",0]) + 1;	// Unique per instance.	
 missionNamespace setVariable ["ZZM_zoneID", _zoneID]; // Set Current Zone ID	
 missionNamespace setVariable [format["ZMM_%1_Location", _zoneID], _pos]; // Set Zone Centre
+missionNamespace setVariable [format["ZMM_%1_Name", _zoneID], _locName]; // Set Zone Name
+missionNamespace setVariable [format["ZMM_%1_Type", _zoneID], [_orgType, _locType] select (isNil "")]; // Set Zone Type (Original)
 
 // Find a suitable enemy side.
 _side = [ _pos, _radius * 5] call _zmm_fnc_findSide;
 missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Set Side
 
-["DEBUG", format["Creating Zone %1 [%2] (%3 - %4) TR:%5m", _zoneID, _side, _locType, _pos, _triggerRadius]] call zmm_fnc_logMsg;
+["DEBUG", format["Creating Zone %1 [%2] - %6 (%3) %4 TR:%5m", _zoneID, _side, _locType, _pos, _triggerRadius, _locName]] call zmm_fnc_logMsg;
 
 // Set default sizes of area based on type.
 _iconSize = 1;
@@ -114,6 +116,7 @@ _mrk = createMarker [ format["MKR_%1_LOC", _zoneID], _pos ];
 _mrk setMarkerType (if (_side == WEST) then { "b_unknown" } else { if (_side == EAST) then { "o_unknown" } else { "n_unknown" };});
 _mrk setMarkerColor format["color%1", _side];
 _mrk setMarkerSize [ _iconSize, _iconSize];
+if (ZMM_Debug) then { _mrk setMarkerText format["#%1 %2", _zoneID, _locType] };
 
 _mrk = createMarker [ format["MKR_%1_MIN", _zoneID], _pos ];
 _mrk setMarkerShape "ELLIPSE";
@@ -158,8 +161,8 @@ for [{_i = 0}, {_i <= 360}, {_i = _i + 1}] do {
 missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], _QRFLocs ]; // Set QRF Locations
 
 // Create Building Locations
-_allBlds = nearestObjects [_pos, ["building"], _radius * _locSize, TRUE];
-_lrgBlds = (_allBlds select {count (_x buildingPos -1) >= 4});
+_allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), TRUE];
+_lrgBlds = (_allBlds select {count (_x buildingPos -1) >= 2});
 missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], _lrgBlds ]; // Set Large Buildings
 
 // *** Ambient - EXIT ***
@@ -177,42 +180,24 @@ if (_locType isEqualTo "Ambient") exitWith {
 									""];
 };
 
-// Genuine location, so add it to locations list.
+// Genuine location, so add it to possible locations list (to pick a random task location in CTI).
 if (isNil "ZMM_ZoneMarkers") then { ZMM_ZoneMarkers = [] };
 ZMM_ZoneMarkers pushBack format["MKR_%1_LOC", _zoneID];
 
-// The following takes a little time.
-[_pos, _radius, _locSize, _zoneID] spawn {
-	params ["_pos", "_radius", "_locSize", "_zoneID"];
-
-	//  Find Objectives - Positions for Insertion and Extraction Points.
-	private _landLocs = [];
-	for [{_i = 0}, {_i < 360}, {_i = _i + 1}] do {
-		_tempPos = [_pos, _radius * 2.5, _i] call BIS_fnc_relPos;
+// Find Objectives - Flat Ground
+private _groundLocs = [];
+for [{_i = 0}, {_i < 360}, {_i = _i + 1}] do {
+	for [{_j = 10}, {_j <= (_radius / 1.5)}, {_j = _j + 10}] do {
+		_tempPos = ([_pos, _j, _i] call BIS_fnc_relPos) isFlatEmpty [-1, -1, 0.2, 3, 0, FALSE];
 		
-		if (count (_tempPos isFlatEmpty [-1, -1, 0.4, 10, 0, false]) > 0) then { 
-			if ({_x distance2D _tempPos < 250} count _landLocs == 0) then {	
-				_landLocs pushBack _tempPos;
+		if (count _tempPos > 0) then {
+			if ({_x distance2D _tempPos < 250 && !surfaceIsWater _tempPos} count _groundLocs == 0) then {		
+				_groundLocs pushBack _tempPos;
 			};
 		};
 	};
-	missionNamespace setVariable [ format["ZMM_%1_LZLocations", _zoneID], _landLocs ]; // Set LZ Locations
-
-	// Find Objectives - Flat Ground
-	private _groundLocs = [];
-	for [{_i = 0}, {_i < 360}, {_i = _i + 1}] do {
-		for [{_j = 25}, {_j <= ((_radius * _locSize) * 0.9)}, {_j = _j + 25}] do {
-			_tempPos = ([_pos, _j, _i] call BIS_fnc_relPos) isFlatEmpty [-1, -1, 0.3, 1, 0, FALSE];
-			
-			if (count _tempPos > 0) then {
-				if ({_x distance2D _tempPos < 250} count _groundLocs == 0) then {		
-					_groundLocs pushBack _tempPos;
-				};
-			};
-		};
-	};
-	missionNamespace setVariable [ format["ZMM_%1_FlatLocations", _zoneID], _groundLocs ]; // Set QRF Locations
 };
+missionNamespace setVariable [ format["ZMM_%1_FlatLocations", _zoneID], _groundLocs ]; // Set Flat Locations
 
 if (ZZM_Mode isEqualTo 0) then {
 	// Non-CTI Mode - Fill Zone immediately.

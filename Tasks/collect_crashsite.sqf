@@ -15,7 +15,8 @@ _missionDesc = [
 	];	
 
 // Create Objective
-_wreck = (selectRandom ["Land_UWreck_Heli_Attack_02_F", "Land_HistoricalPlaneWreck_02_front_F", "Land_UWreck_MV22_F", "Land_Wreck_Plane_Transport_01_F"]) createVehicle _targetPos;
+_wreck = (selectRandom [ "Land_UWreck_Heli_Attack_02_F", "Land_Wreck_Heli_Attack_01_F", "Land_Wreck_Heli_Attack_02_F", "Land_Wreck_Plane_Transport_01_F", "Plane_Fighter_01_wreck_F",
+							"Plane_Fighter_03_wreck_F", "Plane_Fighter_02_wreck_F", "Plane_Fighter_04_wreck_F"]) createVehicle _targetPos;
 _wreck setVectorUp surfaceNormal position _wreck;
 
 _smoke = createVehicle ["test_EmptyObjectForSmoke",position _wreck, [], 0, "CAN_COLLIDE"];
@@ -53,6 +54,6 @@ _objTrigger setTriggerStatements [  (_crateActivation joinString " && "),
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _crateNo], ["Crash"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "box"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _crateNo], ["Crash"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "box"] call BIS_fnc_setTask;
 
 TRUE

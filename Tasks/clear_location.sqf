@@ -6,10 +6,8 @@ _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], 
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _enemyType = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Squad",_enemySide],[""]]); // CfgGroups entry.
 _radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
-
-_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
-_locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "this Location" };
-_locType = if (getPos _nearLoc distance2D _centre < 200) then { type _nearLoc } else { "Custom" };
+_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+_locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 _minUnits = switch (_locType) do {
 	case "Airport": { 6 };
@@ -55,6 +53,6 @@ _objTrigger setTriggerStatements [  format["count thisList <=  %1", _minUnits],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName], [_locName] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "attack"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName], [_locName] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "attack"] call BIS_fnc_setTask;
 
 TRUE
