@@ -120,7 +120,7 @@ _flagActivation = [];
 	] remoteExec ["BIS_fnc_holdActionAdd", 0];
 	
 	// Child task
-	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], TRUE, ["Find and capture the flag located somewhere within the marked area.", format["Flag #%1", _forEachIndex + 1], format["MKR_%1_ICON_%2", _zoneID, _forEachIndex]], objNull, "AUTOASSIGNED", 1, FALSE, TRUE, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
+	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], TRUE, ["Find and capture the flag located somewhere within the marked area.", format["Flag #%1", _forEachIndex + 1], format["MKR_%1_ICON_%2", _zoneID, _forEachIndex]], objNull, "CREATED", 1, FALSE, TRUE, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
 	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_childTrigger setTriggerStatements [  format["(missionNamespace getVariable [ 'ZMM_%1_FLAG_%2', FALSE ])", _zoneID, _forEachIndex],
 									format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; 'MKR_%1_FLAG_%2' setMarkerColor 'ColorGrey'; 'MKR_%1_ICON_%2' setMarkerColor 'ColorGrey';", _zoneID, _forEachIndex],

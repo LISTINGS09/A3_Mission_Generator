@@ -162,6 +162,7 @@ if ("RANDOM" in _params) then {
 		
 		// If no mines are nearby check agains the type.
 		if (isNull (nearestObject [_randPos, "MineGeneric"])) then {
+			if (_isAir) exitWith { _choosePos = FALSE };
 			if (_isBoat && surfaceIsWater _randPos) exitWith { _choosePos = FALSE };
 			if (!surfaceIsWater _randPos) exitWith { _choosePos = FALSE };
 		};
@@ -170,17 +171,19 @@ if ("RANDOM" in _params) then {
 		if (_counter > 25) then { _choosePos = FALSE };
 	};
 	
+	_randPos = [_randPos, 1, 50, 2, 0, 0, 0, [], [_unitPos,_unitPos]] call BIS_fnc_findSafePos;
+	
 	// Put vehicle to a random spot
-	if (!isNull _grpVehicle) then {
-		_tempPos = _randPos findEmptyPosition [0, 50, typeOf _grpVehicle];
-		if (count _tempPos > 0) then { _grpVehicle setPos _tempPos } else { _grpVehicle setPos _randPos };
+	if (!isNull _grpVehicle && !_isStatic) then {
+		// Get all assigned vehicles & move them to a safe location.
+		{ 
+			_tempPos = [_randPos, 1, 50, 3, 0, 0, 0, [], [_randPos,_randPos]] call BIS_fnc_findSafePos;
+			if (count _tempPos > 0) then { _x setPos _tempPos } else { _x setPos _randPos };
+		} forEach (((units _grp apply { assignedVehicle _x }) - [objNull]) arrayIntersect ((units _grp apply { assignedVehicle _x }) - [objNull]));
 	};
 	
 	// Move anyone over 100m away to the area.
-	_randPos = [_randPos, 1, 50, 2, 0, 0, 0, [], [_unitPos,_unitPos]] call BIS_fnc_findSafePos;
-	{
-		if (getPos _x distance2D _randPos > 100) then { _x setPos _randPos };
-	} forEach units _grp;
+	{ if (getPos _x distance2D _randPos > 50) then { _x setPos (_randPos findEmptyPosition [0, 50]) }} forEach units _grp;
 };
 
 // track unit
@@ -400,6 +403,8 @@ while {TRUE} do {
 		_wp setWaypointBehaviour (["AWARE", "SAFE"] select (missionNamespace getVariable [format["ZAI_%1_ArtyRequest", side _grp], []] isEqualTo []));
 		_wp setWaypointCompletionRadius (_closeEnough / 2);
 		_grp setCurrentWaypoint _wp;
+		
+		{ _x doFollow leader _grp } forEach units _grp;
 	};
 	
 	// Artillery Support

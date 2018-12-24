@@ -94,6 +94,7 @@ for [{_i = 25}, {_i <= (_radius / 1.5)}, {_i = _i + 25}] do {
 	
 	if (count _roads > 0) exitWith {
 		_objectives pushBack [[_zoneID, position (selectRandom _roads)], "destroy_vehicle.sqf"];
+		_objectives pushBack [[_zoneID, position (selectRandom _roads)], "destroy_convoy.sqf"];
 		_objectives pushBack [[_zoneID, position (selectRandom _roads)], "capture_vehicle.sqf"];
 		_objectives pushBack [[_zoneID, position (selectRandom _roads)], "rescue_ambush.sqf"];
 		_objectives pushBack [[_zoneID, position (selectRandom _roads)], "rescue_transport.sqf"];

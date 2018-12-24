@@ -1,4 +1,4 @@
-// Set-up mission variables.
+// Hunt down and either destroy a Utility or Heavily Armoured vehicle.
 params [ ["_zoneID", 0], "_targetPos"];
 
 _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];

@@ -162,8 +162,7 @@ missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], _QRFLocs 
 
 // Create Building Locations
 _allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), TRUE];
-_lrgBlds = (_allBlds select {count (_x buildingPos -1) >= 2});
-missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], _lrgBlds ]; // Set Large Buildings
+missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 2}) ]; // Set Large Buildings
 
 // *** Ambient - EXIT ***
 if (_locType isEqualTo "Ambient") exitWith {

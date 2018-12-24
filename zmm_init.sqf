@@ -25,7 +25,8 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		ZMM_WESTVeh_Medium = ["rhsusf_m113d_usarmy","rhsusf_m113d_usarmy_MK19"];
 		ZMM_WESTVeh_Heavy = ["RHS_M2A3","RHS_M6","rhsusf_m1a1aimd_usarmy"];
 		ZMM_WESTVeh_Air = ["RHS_UH60M2_d","RHS_UH60M_d","RHS_MELB_MH6M"];
-		ZMM_WESTVeh_CAS = ["RHS_MELB_AH6M","RHS_AH64DGrey","RHS_AH1Z"];
+		ZMM_WESTVeh_CasH = ["RHS_MELB_AH6M","RHS_AH64DGrey","RHS_AH1Z"];
+		ZMM_WESTVeh_CasP = [];
 	};
 	case 1: {
 		// WEST - US ARMY W
@@ -40,7 +41,8 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		ZMM_WESTVeh_Medium = ["rhsusf_m113_usarmy","rhsusf_m113_usarmy_MK19"];
 		ZMM_WESTVeh_Heavy = ["RHS_M2A3_wd","RHS_M6_wd","rhsusf_m1a1aimwd_usarmy"];
 		ZMM_WESTVeh_Air = ["RHS_UH60M2","RHS_UH60M","RHS_MELB_MH6M"];
-		ZMM_WESTVeh_CAS = ["RHS_MELB_AH6M","RHS_AH64D_wd"];
+		ZMM_WESTVeh_CasH = ["RHS_MELB_AH6M","RHS_AH64D_wd"];
+		ZMM_WESTVeh_CasP = [];
 	};
 	case 2: {
 		// WEST - CDF
@@ -55,7 +57,8 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		ZMM_WESTVeh_Medium = ["rhsgref_cdf_b_btr70","rhsgref_cdf_b_bmp2k","rhsgref_cdf_b_bmd1k","rhsgref_cdf_b_bmd2k"];
 		ZMM_WESTVeh_Heavy = ["rhsgref_cdf_b_zsu234","rhsgref_cdf_b_t72bb_tv"];
 		ZMM_WESTVeh_Air = ["rhsgref_cdf_b_reg_Mi8amt","rhsgref_cdf_b_reg_Mi17Sh"];
-		ZMM_WESTVeh_CAS = ["rhsgref_cdf_b_Mi35","rhsgref_cdf_b_su25"];
+		ZMM_WESTVeh_CasH = ["rhsgref_cdf_b_Mi35"];
+		ZMM_WESTVeh_CasP = ["rhsgref_cdf_b_su25"];
 	};
 	case 3: {
 		// WEST - HORIZON
@@ -70,7 +73,8 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		ZMM_WESTVeh_Medium = ["rhsgref_hidf_m113a3_m2","rhsgref_hidf_m113a3_mk19"];
 		ZMM_WESTVeh_Heavy = ["RHS_M2A3_wd","RHS_M6_wd","rhsusf_m1a1aimwd_usarmy"];
 		ZMM_WESTVeh_Air = ["RHS_UH60M2","RHS_UH60M","RHS_MELB_MH6M"];
-		ZMM_WESTVeh_CAS = ["RHS_MELB_AH6M","RHS_AH64D_wd"];
+		ZMM_WESTVeh_CasH = ["RHS_MELB_AH6M","RHS_AH64D_wd"];
+		ZMM_WESTVeh_CasP = [];
 	};
 	case 4: {
 		// WEST - NATO
@@ -85,7 +89,9 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		ZMM_WESTVeh_Medium = [["B_AFV_Wheeled_01_up_cannon_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5]] call BIS_fnc_initVehicle;"],["B_APC_Wheeled_01_cannon_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5,'showSLATHull',0.6,'showSLATTurret',0.3]] call BIS_fnc_initVehicle;"],["B_APC_Tracked_01_rcws_F","[_grpVeh,false,['showCamonetHull',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_WESTVeh_Heavy = [["B_APC_Tracked_01_AA_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5]] call BIS_fnc_initVehicle;"],["B_MBT_01_TUSK_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_WESTVeh_Air = ["B_Heli_Transport_01_F","B_Heli_Light_01_F","B_Heli_Transport_03_F"];
-		ZMM_WESTVeh_CAS = ["B_Heli_Light_01_dynamicLoadout_F","B_Heli_Attack_01_dynamicLoadout_F","B_Plane_CAS_01_dynamicLoadout_F","B_Plane_Fighter_01_F"];
+		ZMM_WESTVeh_CasH = ["B_Heli_Light_01_dynamicLoadout_F","B_Heli_Attack_01_dynamicLoadout_F"];
+		ZMM_WESTVeh_CasP = ["B_Plane_CAS_01_dynamicLoadout_F",["B_Plane_Fighter_01_F","[_grpVeh,['DarkGreyCamo',0.5]] call BIS_fnc_initVehicle;"]];
+		ZMM_WESTVeh_Convoy = [["B_MRAP_01_hmg_F",""],["B_MRAP_01_F",""],["B_AFV_Wheeled_01_up_cannon_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5]] call BIS_fnc_initVehicle;"]];
 	};
 	case 5: {
 		// WEST - NATO TANOA
@@ -100,7 +106,9 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		ZMM_WESTVeh_Medium = [["B_T_AFV_Wheeled_01_up_cannon_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5]] call BIS_fnc_initVehicle;"],["B_T_APC_Wheeled_01_cannon_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5,'showSLATHull',0.6,'showSLATTurret',0.3]] call BIS_fnc_initVehicle;"],["B_T_APC_Tracked_01_rcws_F","[_grpVeh,false,['showCamonetHull',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_WESTVeh_Heavy = [["B_T_APC_Tracked_01_AA_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5]] call BIS_fnc_initVehicle;"],["B_T_MBT_01_TUSK_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_WESTVeh_Air = ["B_Heli_Light_01_F","B_Heli_Transport_01_F","B_Heli_Transport_03_F"];
-		ZMM_WESTVeh_CAS = ["B_Heli_Light_01_dynamicLoadout_F","B_Heli_Attack_01_dynamicLoadout_F","B_Plane_CAS_01_dynamicLoadout_F","B_Plane_Fighter_01_F"];		
+		ZMM_WESTVeh_CasH = ["B_Heli_Light_01_dynamicLoadout_F","B_Heli_Attack_01_dynamicLoadout_F"];
+		ZMM_WESTVeh_CasP = ["B_Plane_CAS_01_dynamicLoadout_F",["B_Plane_Fighter_01_F","[_grpVeh,['DarkGreyCamo',0.5]] call BIS_fnc_initVehicle;"]];
+		ZMM_WESTVeh_Convoy = [["B_T_MRAP_01_hmg_F",""],["B_T_MRAP_01_F",""],["B_T_AFV_Wheeled_01_up_cannon_F","[_grpVeh,false,['showCamonetTurret',0.3,'showCamonetHull',0.5]] call BIS_fnc_initVehicle;"]];
 	};
 	default {
 		// WEST - FIA
@@ -115,7 +123,8 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		ZMM_WESTVeh_Medium = [["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_02',1],['showSLATHull',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_WESTVeh_Heavy = [["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_02',1],['showSLATHull',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_WESTVeh_Air = ["B_Heli_Light_01_F"];
-		ZMM_WESTVeh_CAS = ["B_Heli_Light_01_dynamicLoadout_F"];
+		ZMM_WESTVeh_CasH = ["B_Heli_Light_01_dynamicLoadout_F"];
+		ZMM_WESTVeh_CasP = [["I_Plane_Fighter_04_F","[_grpVeh,['CamoGrey',1]] call BIS_fnc_initVehicle;"]];
 	};
 };
 
@@ -134,7 +143,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Medium = ["Taki_bmd1_F","Taki_bmp1_F"];
 		ZMM_EASTVeh_Heavy = ["Taki_t72_F", "Taki_zsu_F"];
 		ZMM_EASTVeh_Air = ["RHS_Mi8mt_vvsc","RHS_Mi8AMT_vvsc"];
-		ZMM_EASTVeh_CAS = ["RHS_Mi24P_vvsc","RHS_Ka52_vvs"];
+		ZMM_EASTVeh_CasH = ["RHS_Mi24P_vvsc","RHS_Ka52_vvs"];
 	};
 	case 1: {
 		// EAST - RU MSV
@@ -149,7 +158,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Medium = ["rhs_btr80a_msv","rhs_btr70_msv","rhs_btr80_msv"];
 		ZMM_EASTVeh_Heavy = ["rhs_bmp1_msv","rhs_bmp2e_msv","rhs_bmp3_msv"];
 		ZMM_EASTVeh_Air = ["RHS_Mi8mt_vvsc","RHS_Mi8AMT_vvsc"];
-		ZMM_EASTVeh_CAS = ["RHS_Mi24P_vvsc","RHS_Ka52_vvsc"];
+		ZMM_EASTVeh_CasH = ["RHS_Mi24P_vvsc","RHS_Ka52_vvsc"];
 	};
 	case 2: {
 		// EAST - TAKI
@@ -164,7 +173,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Medium = ["Taki_bmd1_F","Taki_bmp1_F"];
 		ZMM_EASTVeh_Heavy = ["Taki_t72_F", "Taki_zsu_F"];
 		ZMM_EASTVeh_Air = ["Taki_mi8_armed_F"];
-		ZMM_EASTVeh_CAS = ["Taki_mi8_armed_F"];
+		ZMM_EASTVeh_CasH = ["Taki_mi8_armed_F"];
 	};
 	case 3: {
 		// EAST - CSAT
@@ -179,7 +188,9 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Medium = [["O_APC_Wheeled_02_rcws_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["O_APC_Tracked_02_cannon_F","[_grpVeh,false,['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Heavy = [["O_APC_Tracked_02_AA_F","[_grpVeh,false,['showSLATHull',0.5,'showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["O_MBT_02_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["O_MBT_04_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Air = ["O_Heli_Light_02_unarmed_F","O_Heli_Transport_04_bench_F"];
-		ZMM_EASTVeh_CAS = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F","O_Plane_CAS_02_dynamicLoadout_F"];
+		ZMM_EASTVeh_CasH = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F"];
+		ZMM_EASTVeh_CasP = ["O_Plane_CAS_02_dynamicLoadout_F","O_Plane_Fighter_02_F"];
+		ZMM_EASTVeh_Convoy = [["O_MRAP_02_hmg_F",""],["O_MRAP_02_F",""],["O_APC_Wheeled_02_rcws_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 	};
 	case 4: {
 		// EAST - CSAT TANOA
@@ -194,7 +205,9 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Medium = [["O_T_APC_Wheeled_02_rcws_ghex_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["O_T_APC_Tracked_02_cannon_ghex_F","[_grpVeh,false,['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Heavy = [["O_T_APC_Tracked_02_AA_ghex_F","[_grpVeh,false,['showSLATHull',0.5,'showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["O_T_MBT_02_cannon_ghex_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["O_T_MBT_04_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Air = ["O_Heli_Light_02_unarmed_F","O_Heli_Transport_04_bench_F"];
-		ZMM_EASTVeh_CAS = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F","O_Plane_CAS_02_dynamicLoadout_F"];
+		ZMM_EASTVeh_CasH = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F"];
+		ZMM_EASTVeh_CasP = ["O_Plane_CAS_02_dynamicLoadout_F",["O_Plane_Fighter_02_F","[_grpVeh,['CamoBlue',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Convoy = [["O_T_MRAP_02_hmg_ghex_F",""],["O_MRAP_02_ghex_F",""],["O_T_APC_Wheeled_02_rcws_ghex_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 	};
 	case 5: {
 		// EAST - SYNDIKAT
@@ -209,7 +222,9 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Medium = [["I_LT_01_cannon_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["I_LT_01_AT_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Heavy = [["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1,'Guerilla_03',0.5],['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Air = ["I_Heli_light_03_unarmed_F"];
-		ZMM_EASTVeh_CAS = [["I_Heli_light_03_dynamicLoadout_F","[_grpVeh,['Green',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_CasH = [["I_Heli_light_03_dynamicLoadout_F","[_grpVeh,['Green',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_CasP = [["I_Plane_Fighter_04_F","[_grpVeh,['CamoGrey',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Convoy = [["I_LT_01_cannon_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["I_C_Van_02_transport_F",""],["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1,'Guerilla_03',0.5],['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 	};
 	default {
 		// EAST - FIA
@@ -224,7 +239,9 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Medium = [["I_LT_01_cannon_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["I_LT_01_AT_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Heavy = [["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_02',1],['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Air = ["B_Heli_Light_01_F"];
-		ZMM_EASTVeh_CAS = ["B_Heli_Light_01_dynamicLoadout_F"];
+		ZMM_EASTVeh_CasH = ["B_Heli_Light_01_dynamicLoadout_F"];
+		ZMM_EASTVeh_CasP = [["I_Plane_Fighter_04_F","[_grpVeh,['CamoGrey',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Convoy = [["O_G_Offroad_01_armed_F",""],["O_G_Van_01_transport_F",""],["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_02',1],['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 	};
 };
 
@@ -243,7 +260,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Medium = ["Taki_bmd1_F","Taki_bmp1_F"];
 		ZMM_GUERVeh_Heavy = ["Taki_t72_F", "Taki_zsu_F"];
 		ZMM_GUERVeh_Air = ["RHS_Mi8mt_vvsc","RHS_Mi8AMT_vvsc"];
-		ZMM_GUERVeh_CAS = ["RHS_Mi24P_vvsc","RHS_Ka52_vvs"];
+		ZMM_GUERVeh_CasH = ["RHS_Mi24P_vvsc","RHS_Ka52_vvs"];
 	};
 	case 1: {
 		// EAST - RU MSV
@@ -258,7 +275,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Medium = ["rhs_btr80a_msv","rhs_btr70_msv","rhs_btr80_msv"];
 		ZMM_GUERVeh_Heavy = ["rhs_bmp1_msv","rhs_bmp2e_msv","rhs_bmp3_msv"];
 		ZMM_GUERVeh_Air = ["RHS_Mi8mt_vvsc","RHS_Mi8AMT_vvsc"];
-		ZMM_GUERVeh_CAS = ["RHS_Mi24P_vvsc","RHS_Ka52_vvsc"];
+		ZMM_GUERVeh_CasH = ["RHS_Mi24P_vvsc","RHS_Ka52_vvsc"];
 	};
 	case 2: {
 		// EAST - TAKI
@@ -273,7 +290,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Medium = ["Taki_bmd1_F","Taki_bmp1_F"];
 		ZMM_GUERVeh_Heavy = ["Taki_t72_F", "Taki_zsu_F"];
 		ZMM_GUERVeh_Air = ["Taki_mi8_armed_F"];
-		ZMM_GUERVeh_CAS = ["Taki_mi8_armed_F"];
+		ZMM_GUERVeh_CasH = ["Taki_mi8_armed_F"];
 	};
 	case 3: {
 		// EAST - CSAT
@@ -288,7 +305,9 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Medium = [["O_APC_Wheeled_02_rcws_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["O_APC_Tracked_02_cannon_F","[_grpVeh,false,['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Heavy = [["O_APC_Tracked_02_AA_F","[_grpVeh,false,['showSLATHull',0.5,'showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["O_MBT_02_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["O_MBT_04_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Air = ["O_Heli_Light_02_unarmed_F","O_Heli_Transport_04_bench_F"];
-		ZMM_GUERVeh_CAS = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F","O_Plane_CAS_02_dynamicLoadout_F"];
+		ZMM_GUERVeh_CasH = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F","O_Plane_CAS_02_dynamicLoadout_F"];
+		ZMM_GUERVVeh_CasP = ["O_Plane_CAS_02_dynamicLoadout_F","O_Plane_Fighter_02_F"];
+		ZMM_GUERVeh_Convoy = [["O_MRAP_02_hmg_F",""],["O_MRAP_02_F",""],["O_APC_Wheeled_02_rcws_v2_F",""]];
 	};
 	case 4: {
 		// EAST - CSAT TANOA
@@ -303,10 +322,12 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Medium = [["O_T_APC_Wheeled_02_rcws_ghex_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["O_T_APC_Tracked_02_cannon_ghex_F","[_grpVeh,false,['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Heavy = [["O_T_APC_Tracked_02_AA_ghex_F","[_grpVeh,false,['showSLATHull',0.5,'showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["O_T_MBT_02_cannon_ghex_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["O_T_MBT_04_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Air = ["O_Heli_Light_02_unarmed_F","O_Heli_Transport_04_bench_F"];
-		ZMM_GUERVeh_CAS = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F","O_Plane_CAS_02_dynamicLoadout_F"];
+		ZMM_GUERVeh_CasH = ["O_T_VTOL_02_infantry_dynamicLoadout_F","O_Heli_Light_02_dynamicLoadout_F","O_Heli_Attack_02_dynamicLoadout_F","O_Plane_CAS_02_dynamicLoadout_F"];
+		ZMM_GUERVVeh_CasP = ["O_Plane_CAS_02_dynamicLoadout_F",["O_Plane_Fighter_02_F","[_grpVeh,['CamoBlue',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_Convoy = [["O_T_MRAP_02_hmg_ghex_F",""],["O_MRAP_02_ghex_F",""],["O_T_APC_Wheeled_02_rcws_ghex_F",""]];
 	};
 	case 5: {
-		// EAST - FIA
+		// GUER - FIA
 		ZMM_GUERFlag = ["Flag_FIA_F", "\A3\Data_F\Flags\Flag_FIA_CO.paa"];
 		ZMM_GUERMan = ["O_G_Soldier_SL_F","O_G_Soldier_AR_F","O_G_Soldier_LAT_F","O_G_Soldier_F"];
 		ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "OPF_G_F" >> "Infantry" >> "O_G_InfTeam_Light"];
@@ -318,8 +339,27 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Medium = [["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1,'Guerilla_03',0.5],['showSLATHull',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Heavy = [["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1,'Guerilla_03',0.5],['showSLATHull',0.6]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Air = ["B_Heli_Light_01_F"];
-		ZMM_GUERVeh_CAS = ["B_Heli_Light_01_dynamicLoadout_F"];
+		ZMM_GUERVeh_CasH = ["B_Heli_Light_01_dynamicLoadout_F"];
+		ZMM_GUERVVeh_CasP = [["I_Plane_Fighter_04_F","[_grpVeh,['CamoGrey',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_Convoy = [["O_G_Offroad_01_armed_F",""],["O_G_Van_01_transport_F",""],["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1,'Guerilla_03',0.5],['showSLATHull',0.3]] call BIS_fnc_initVehicle;"]];
 	};	
+	case 6: {
+		// GUER - SYNDIKAT
+		ZMM_GUERFlag = ["Flag_Syndikat_F", "\A3\Data_F_Exp\Flags\flag_SYND_CO.paa"];
+		ZMM_GUERMan = ["I_C_Soldier_Para_7_F","I_C_Soldier_Para_4_F","I_C_Soldier_Para_1_F","I_C_Soldier_Para_2_F"];
+		ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "Indep" >> "IND_C_F" >> "Infantry" >> "ParaFireTeam"];
+		ZMM_GUERGrp_Team = [configFile >> "CfgGroups" >> "Indep" >> "IND_C_F" >> "Infantry" >> "ParaFireTeam"];
+		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "Indep" >> "IND_C_F" >> "Infantry" >> "ParaCombatGroup"];
+		ZMM_GUERVeh_Truck = ["I_C_Van_01_transport_F"];
+		ZMM_GUERVeh_Util = ["I_G_Offroad_01_repair_F","I_G_Van_01_fuel_F"];
+		ZMM_GUERVeh_Light = ["I_C_Offroad_02_LMG_F","I_C_Offroad_02_AT_F"];
+		ZMM_GUERVeh_Medium = [["I_LT_01_cannon_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["I_LT_01_AT_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_Heavy = [["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1,'Guerilla_03',0.5],['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_Air = ["I_Heli_light_03_unarmed_F"];
+		ZMM_GUERVeh_CasH = [["I_Heli_light_03_dynamicLoadout_F","[_grpVeh,['Green',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVVeh_CasP = [["I_Plane_Fighter_04_F","[_grpVeh,['CamoGrey',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_Convoy = [["I_LT_01_cannon_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["I_C_Van_02_transport_F",""],["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1,'Guerilla_03',0.5],['showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
+	};
 	default {
 		// AAF
 		ZMM_GUERFlag = ["Flag_AAF_F", "\A3\Data_F\Flags\Flag_AAF_CO.paa"];
@@ -333,7 +373,12 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Medium = [["I_LT_01_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["I_LT_01_AT_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["I_APC_Wheeled_03_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["I_APC_tracked_03_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showCamonetTurret',0.3,'showSLATHull',0.5,'showSLATTurret',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Heavy = [["I_MBT_03_cannon_F","[_grpVeh,false,['HideTurret',0.3,'HideHull',0.3,'showCamonetHull',0.5,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Air = ["I_Heli_Transport_02_F",["I_Heli_light_03_unarmed_F","[_grpVeh,['Indep',1]] call BIS_fnc_initVehicle;"]];
-		ZMM_GUERVeh_CAS = ["I_Heli_light_03_dynamicLoadout_F"];
+		ZMM_GUERVeh_CasH = ["I_Heli_light_03_dynamicLoadout_F"];
+		ZMM_WESTVeh_CasP = ["I_Plane_Fighter_03_dynamicLoadout_F","I_Plane_Fighter_04_F"];
+		ZMM_GUERVeh_Convoy = [["I_MRAP_03_hmg_F",""],["I_MRAP_03_F",""],["I_APC_Wheeled_03_cannon_F","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"]];
+		
+
+
 	};
 };
 

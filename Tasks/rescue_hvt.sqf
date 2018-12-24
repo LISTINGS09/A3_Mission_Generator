@@ -70,7 +70,7 @@ for "_i" from 0 to _civNum do {
 	};
 	
 	// Child task
-	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Rescue the captured %1 from enemy forces, ensuring they come to no harm.", _rescueType], format["Rescue %1 #%2", _rescueType, _i + 1], format["MKR_%1_OBJ", _zoneID]], objNull, "AUTOASSIGNED", 1, FALSE, TRUE, format["move%1", _i + 1]] call BIS_fnc_setTask;
+	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Rescue the captured %1 from enemy forces, ensuring they come to no harm.", _rescueType], format["Rescue %1 #%2", _rescueType, _i + 1], format["MKR_%1_OBJ", _zoneID]], objNull, "CREATED", 1, FALSE, TRUE, format["move%1", _i + 1]] call BIS_fnc_setTask;
 	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre],
 									format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState;", _zoneID, _i],

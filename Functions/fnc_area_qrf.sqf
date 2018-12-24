@@ -41,8 +41,9 @@ _truck = missionNamespace getVariable [format["ZMM_%1Veh_Truck",_side],[]];
 _light = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
 _medium = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
 _heavy = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
-_air = missionNamespace getVariable [format["ZMM_%1Veh_Air",_side],[]];
-_cas = missionNamespace getVariable [format["ZMM_%1Veh_CAS",_side],[]];
+_air = missionNamespace getVariable [format["ZMM_%1Veh_AirH",_side],[]];
+_casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side],[]];
+_casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side],[]];
 
 if (count _locations isEqualTo 0) exitWith {};
 
@@ -70,7 +71,7 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 		default {
 			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
 			[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom (_cas + _air)] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_casH + _air)] call zmm_fnc_spawnUnit;
 		};
 	};
 
