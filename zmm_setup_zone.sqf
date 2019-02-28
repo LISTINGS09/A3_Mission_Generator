@@ -1,7 +1,8 @@
 // Spawns a markers/missions over all locations in a world.
+// [thisTrigger, "Task", 50, "Hill 241", "Task", "Building"] spawn zmm_fnc_setupZone;
 if !isServer exitWith {};
 
-params [ ["_pos", [0,0,0]], ["_locType", "Custom"], ["_radius", 150], ["_locName", "Unnamed"], ["_orgType", "Custom"] ];
+params [ ["_pos", [0,0,0]], ["_locType", "Custom"], ["_radius", 150], ["_locName", "Unnamed"], ["_orgType", "Custom"], ["_forceTask", ""] ];
 
 _zmm_fnc_findSide = {
 	params [[ "_nearPos", []], ["_inDist", 0]];
@@ -16,7 +17,7 @@ _zmm_fnc_findSide = {
 	{	
 		_findIndex = _sideColors find toUpper (getMarkerColor _x);
 		if (_findIndex >= 0) then { _foundSides pushBack _x };
-	} forEach (allMapMarkers select { getMarkerPos _x distance2D _nearPos < _inDist });
+	} forEach (allMapMarkers select { getMarkerPos _x distance2D _nearPos < _inDist && toUpper (getMarkerColor _x) in ["COLORWEST", "COLOREAST", "COLORGUER"] });
 	
 	// Found markers so find the nearest
 	if (count _foundSides > 0) then {
@@ -42,6 +43,12 @@ _zmm_fnc_findSide = {
 	_foundSide
 };
 
+// Convert position if wrong type.
+switch (typeName _pos) do {
+	case "STRING": {_pos = getMarkerPos _pos};
+	case "OBJECT": {_pos = getPos _pos};
+};
+
 // Set default trigger radius
 _triggerRadius = (_radius * 6) max 1000;
 
@@ -50,7 +57,7 @@ _zoneID = (missionNamespace getVariable ["ZZM_zoneID",0]) + 1;	// Unique per ins
 missionNamespace setVariable ["ZZM_zoneID", _zoneID]; // Set Current Zone ID	
 missionNamespace setVariable [format["ZMM_%1_Location", _zoneID], _pos]; // Set Zone Centre
 missionNamespace setVariable [format["ZMM_%1_Name", _zoneID], _locName]; // Set Zone Name
-missionNamespace setVariable [format["ZMM_%1_Type", _zoneID], [_orgType, _locType] select (isNil "")]; // Set Zone Type (Original)
+missionNamespace setVariable [format["ZMM_%1_Type", _zoneID], [_orgType, _locType] select (isNil "_orgType")]; // Set Zone Type (Original)
 
 // Find a suitable enemy side.
 _side = [ _pos, _radius * 5] call _zmm_fnc_findSide;
@@ -103,6 +110,13 @@ switch (_locType) do {
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
 	};
 	case "Ambient": {
+		_iconSize = 0.4;
+		_locSize = 0.75;
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 0];
+	};
+	case "Task": {
 		_iconSize = 0.4;
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8];
@@ -164,7 +178,8 @@ missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], _QRFLocs 
 _allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), TRUE];
 missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 2}) ]; // Set Large Buildings
 
-// *** Ambient - EXIT ***
+// *** Ambient Zone - EXIT ***
+// This zone doesn't need extra locations as it's just a filler for garrison/patrols.
 if (_locType isEqualTo "Ambient") exitWith {
 	format["MKR_%1_LOC", _zoneID] setMarkerSize [ 0.5, 0.5];
 	format["MKR_%1_MIN", _zoneID] setMarkerAlpha 0;
@@ -177,6 +192,14 @@ if (_locType isEqualTo "Ambient") exitWith {
 	_setupTrg setTriggerStatements [ "this", 
 									format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
 									""];
+};
+
+// *** Task Zone - EXIT ***
+// This zone has been called to create a sub-task, it shouldn't really have QRF or patrols.
+if (_locType isEqualTo "Task") exitWith {
+	format["MKR_%1_LOC", _zoneID] setMarkerSize [ 0.5, 0.5];
+	format["MKR_%1_MIN", _zoneID] setMarkerAlpha 0;
+	[ _zoneID, _locType, _forceTask] spawn zmm_fnc_setupPopulate; // Extra param forces a task type to spawn regardless of game type
 };
 
 // Genuine location, so add it to possible locations list (to pick a random task location in CTI).
@@ -200,7 +223,7 @@ missionNamespace setVariable [ format["ZMM_%1_FlatLocations", _zoneID], _groundL
 
 if (ZZM_Mode isEqualTo 0) then {
 	// Non-CTI Mode - Fill Zone immediately.
-	[ _zoneID, _locType ] spawn zmm_fnc_setupPopulate;
+	[ _zoneID, _locType, _forceTask ] spawn zmm_fnc_setupPopulate;
 } else {
 	// CTI Mode - Create trigger when player nears Zone.
 	_setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];

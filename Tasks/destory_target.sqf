@@ -1,6 +1,8 @@
 // Set-up mission variables.
 params [ ["_zoneID", 0], "_targetObj" ];
 
+if (isNil "_targetObj") exitWith { false };
+
 _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 

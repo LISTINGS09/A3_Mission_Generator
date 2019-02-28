@@ -1,6 +1,6 @@
 //
 //  Urban Patrol Script Zeus Edition
-//  Version: 1.1
+//  Version: 1.2
 //  Author: 2600K & Kronzky (www.kronzky.info / kronzky@gmail.com)
 //  BIS Forum: http://forums.bistudio.com/showthread.php?147904-Urban-Patrol-Script&highlight=Urban+Patrol+Script
 //
@@ -109,8 +109,6 @@ _isMan = !_isAir && !_isBoat && !_isCar && !_isStatic && !_isArty;
 if (!isNull _grpVehicle && _isMan) then { ["WARNING", format["[%1] was an unknown vehicle type", typeOf _grpVehicle]] call _ZAI_LogMsg; };
 if (!isNull _grpVehicle) then { _grp selectLeader driver _grpVehicle };
 
-if (!isNull _grpVehicle) then { _grp selectLeader driver _grpVehicle };
-
 _upsType = ([(["","Man"] select _isMan), (["","Air"] select _isAir), (["","Ship"] select _isBoat), (["","Vehicle"] select _isCar), (["","Static"] select _isStatic), (["","Artillery"] select _isArty) ] - [""]) joinString ", ";
 ["DEBUG", format["[%1] was detected as %2", groupID _grp, _upsType]] call _ZAI_LogMsg;
 
@@ -175,6 +173,7 @@ if ("RANDOM" in _params) then {
 	
 	// Put vehicle to a random spot
 	if (!isNull _grpVehicle && !_isStatic) then {
+
 		// Get all assigned vehicles & move them to a safe location.
 		{ 
 			_tempPos = [_randPos, 1, 50, 3, 0, 0, 0, [], [_randPos,_randPos]] call BIS_fnc_findSafePos;
@@ -259,8 +258,8 @@ while {TRUE} do {
 			} forEach (_alliedUnitList select {(_x distance2D _foundEnemy < _shareDist || _isStatic) && leader _x isEqualTo _x});
 		};
 		
-		// Recently reacted, enemy going too fast or too far
-		if (_timeOnTarget > time || speed _foundEnemy > 100 || leader _grp distance2D _foundEnemy > _shareDist) exitWith {};
+		// Recently reacted, flying or too far
+		if (_timeOnTarget > time || !(isTouchingGround _foundEnemy) || leader _grp distance2D _foundEnemy > _shareDist) exitWith {};
 		
 		["DEBUG", format["[%1] Attacking (%2 %3m)", _grpIDx, name _foundEnemy, leader _grp distance2D _foundEnemy]] call _ZAI_LogMsg;
 		
@@ -324,7 +323,7 @@ while {TRUE} do {
 			_wp setWaypointCompletionRadius (_closeEnough / 2);
 			
 			if (_x isEqualTo _flankPos && !canFire (vehicle leader _grp)) then { _wp setWaypointType "GETOUT" };
-			if (_x isEqualTo _attackPos) then { _wp setWaypointType "SAD" };
+			if (_x isEqualTo _attackPos) then { _wp setWaypointType "SAD"; };
 			if (_forEachIndex == 0) then { _grp setCurrentWaypoint _wp };
 		} forEach _evadeWPs;
 
@@ -402,9 +401,10 @@ while {TRUE} do {
 		_wp setWaypointSpeed "LIMITED";
 		_wp setWaypointBehaviour (["AWARE", "SAFE"] select (missionNamespace getVariable [format["ZAI_%1_ArtyRequest", side _grp], []] isEqualTo []));
 		_wp setWaypointCompletionRadius (_closeEnough / 2);
+		_grp setCombatMode "YELLOW";
 		_grp setCurrentWaypoint _wp;
 		
-		{ _x doFollow leader _grp } forEach units _grp;
+		if _isMan then { { _x doFollow leader _grp } forEach units _grp; };
 	};
 	
 	// Artillery Support
@@ -436,7 +436,7 @@ while {TRUE} do {
 		missionNamespace setVariable [format["ZAI_%1_ArtyRequest", side _grp], []];
 		_timeOnTarget = time + _artyTime;
 	};
-
+	
 	// Check for any AI Issues!
 	if (!_isStatic && !_holdMove && !dynamicSimulationEnabled _grp && !dynamicSimulationEnabled _grpVehicle) then {
 		if ((_lastPos distance2D getPos leader _grp) == 0) then {

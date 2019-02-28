@@ -82,6 +82,8 @@ _endActivation = [];
 		_tempMan moveInAny _grpVeh;
 	};
 	
+	// TODO: FFV Seats not included? Open FIA trucks are empty!
+	
 	// If more than 1 cargo seat free, fill with a support group.
 	if ((_cargoS + _cargoF) > 1) then {
 		_cargoGrp = createGroup [_enemySide, true];
@@ -94,7 +96,7 @@ _endActivation = [];
 		// Add a beret to the transport group.
 		if (_forEachIndex == 1) then {
 			_hvt = selectRandom (units _cargoGrp);
-			_hvt addHeadgear "H_Beret_blk";
+			if (!isNil "_hvt") then { _hvt addHeadgear "H_Beret_blk" } else { systemChat "HVT Not Found!" };
 		};
 		
 		// Add to Zeus

@@ -151,7 +151,7 @@ if (_taskType == "CASVAC") then {
 			format["<t color='#00FF80'>Revive %1</t>", name _evacMan], 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_revive_ca.paa", 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_revive_ca.paa", 
-			"lifeState _target == 'INCAPACITATED' && _this distance _target < 3",   
+			"lifeState _target == 'INCAPACITATED' && _this distance _target < 3 && 'Medkit' in items _this",   
 			"lifeState _target == 'INCAPACITATED' && _caller distance _target < 3",   
 			{ _caller playAction "medic" },
 			{}, 
@@ -160,7 +160,7 @@ if (_taskType == "CASVAC") then {
 				[_target, "ALL"] remoteExec ["enableAI", _target];
 				[_target, _actionID] remoteExec ["BIS_fnc_holdActionRemove"];
 				sleep 2;
-				[_target] join group _caller;
+				[_target] joinSilent group _caller;
 			}, 
 			{_caller switchMove ""},
 			[], 

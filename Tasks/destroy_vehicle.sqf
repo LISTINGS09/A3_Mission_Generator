@@ -8,6 +8,8 @@ _vehClass = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Util",_
 _vehTank = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Heavy",_enemySide],[""]]);
 _isHeavy = FALSE;
 
+if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
+
 _missionDesc = [
 		"A <font color='#00FFFF'>%1</font> has been seen parked in this area, locate and destroy it.",
 		"Enemy forces have recently reinforced this area and brought in a <font color='#00FFFF'>%1</font>. It must be destroyed.",
@@ -16,8 +18,6 @@ _missionDesc = [
 		"A <font color='#00FFFF'>%1</font> was spotted entering this area recently, find where it has been parked and eliminate it.",
 		"Destroy the <font color='#00FFFF'>%1</font> stationed somewhere around this location."
 	];	
-
-if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
 
 // Chance for heavy armour
 if (random 100 > 50) then {

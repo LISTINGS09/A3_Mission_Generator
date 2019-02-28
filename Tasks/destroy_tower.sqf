@@ -1,7 +1,7 @@
 // Set-up mission variables.
 params [ ["_zoneID", 0], "_targetPos" ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 
 _missionDesc = [
