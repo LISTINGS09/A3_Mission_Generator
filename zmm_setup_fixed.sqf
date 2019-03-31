@@ -1,22 +1,7 @@
-// Waits for a custom location to be selected by a player - ZM_Mode == 0
+// Picks a fixed location but allows objective to be selected by a player - ZM_Mode == 2
 if !isServer exitWith {};
-
-// Remind the players if nothing has been selected.
-[] spawn {
-	waitUntil {time > 10};
-	if (isNil "ZMM_targetLocation") then {
-		["INFO", "The Commander must choose an Objective location! (Press M)"] call zmm_fnc_logMsg;
-	};
-};
-
-// Wait for Location Selection.
-waitUntil {!isNil "ZMM_targetLocation"};
-
-// Remove click action for all players.
-"" remoteExec ["onMapSingleClick"];
 		
-_centre = ZMM_targetLocation;
-_centre set [2,0];
+_centre = getPos nearestBuilding (locationPosition (selectRandom ((nearestLocations [[worldSize / 2, worldSize / 2, 0], ["NameCity","NameVillage"],15000]) - (nearestLocations [getMarkerPos format["respawn_%1",ZMM_playerSide], ["NameCity","NameVillage"],1000])))); // Find a Home
 
 _nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "This Location" };
@@ -31,15 +16,19 @@ _locRadius = 300 * (if (getPos _nearLoc distance2D _centre < 200) then {
 			default { 0.75 };
 		};
 	} else { 0.75 });
+	
+_centre = position _nearLoc;
+	
+_mkr = createMarker ["loc_mkr", _centre];
+_mkr setMarkerShape "ICON";
+_mkr setMarkerColor "ColorBlack";
+_mkr setMarkerType "mil_circle";
+
+waitUntil { (!isNil "ZMM_MissionChoice" || time > 1) };
 
 _forceMission = "";
 
-if (!isNil "ZMM_MissionChoice") then {
-	_forceMission = ZMM_MissionChoice;
-	missionNamespace setVariable ["ZMM_MissionChoice", "", true];
-};
+if (!isNil "ZMM_MissionChoice") then { _forceMission = ZMM_MissionChoice };
 
 [_centre, _locType, _locRadius, _locName, _locType, _forceMission] spawn zmm_fnc_setupZone;
-
-missionNamespace setVariable ["ZMM_targetLocation", nil, TRUE];
 

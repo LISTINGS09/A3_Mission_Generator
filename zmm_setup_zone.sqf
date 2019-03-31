@@ -50,7 +50,7 @@ switch (typeName _pos) do {
 };
 
 // Set default trigger radius
-_triggerRadius = (_radius * 6) max 1000;
+_triggerRadius = if ((_radius * 6) < 1000) then { 1000 } else { (_radius * 6) min 2000 };
 
 // Set the Zone ID - Used to reference the area in-mission.
 _zoneID = (missionNamespace getVariable ["ZZM_zoneID",0]) + 1;	// Unique per instance.	
@@ -63,7 +63,7 @@ missionNamespace setVariable [format["ZMM_%1_Type", _zoneID], [_orgType, _locTyp
 _side = [ _pos, _radius * 5] call _zmm_fnc_findSide;
 missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Set Side
 
-["DEBUG", format["Creating Zone %1 [%2] - %6 (%3) %4 TR:%5m", _zoneID, _side, _locType, _pos, _triggerRadius, _locName]] call zmm_fnc_logMsg;
+["DEBUG", format["Creating Zone %1 [%2] - %6 (%3) %4 TR:%5m [%7]", _zoneID, _side, _locType, _pos, _triggerRadius, _locName, _forceTask]] call zmm_fnc_logMsg;
 
 // Set default sizes of area based on type.
 _iconSize = 1;
@@ -157,7 +157,7 @@ _mrk setMarkerSizeLocal [ _triggerRadius, _triggerRadius];
 
 // Create QRF Points - Collect all roads ~1.5km around the location that are not in a safe location.
 _QRFLocs = [];
-_qrfDist = (_radius * 3) max 1500;
+_qrfDist = if ((_radius * 3) < 1000) then { 1000 } else { (_radius * 3) min 1500 };
 
 for [{_i = 0}, {_i <= 360}, {_i = _i + 1}] do {
 	_roads = (([_pos, _qrfDist, _i] call BIS_fnc_relPos) nearRoads 50) select {((boundingBoxReal _x) select 0) distance2D ((boundingBoxReal _x) select 1) >= 25};
@@ -221,10 +221,7 @@ for [{_i = 0}, {_i < 360}, {_i = _i + 1}] do {
 };
 missionNamespace setVariable [ format["ZMM_%1_FlatLocations", _zoneID], _groundLocs ]; // Set Flat Locations
 
-if (ZZM_Mode isEqualTo 0) then {
-	// Non-CTI Mode - Fill Zone immediately.
-	[ _zoneID, _locType, _forceTask ] spawn zmm_fnc_setupPopulate;
-} else {
+if (ZZM_Mode == 1) then {
 	// CTI Mode - Create trigger when player nears Zone.
 	_setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
 	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, FALSE, 150 ];
@@ -232,6 +229,9 @@ if (ZZM_Mode isEqualTo 0) then {
 	_setupTrg setTriggerStatements [ "this", 
 									format [ "[%1] spawn zmm_fnc_setupPopulate;", _zoneID ], 
 									""];
+} else {
+	// Non-CTI Mode - Fill Zone immediately.
+	[ _zoneID, _locType, _forceTask ] spawn zmm_fnc_setupPopulate;
 };
 
 _zoneID

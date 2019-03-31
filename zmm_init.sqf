@@ -5,7 +5,8 @@ ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
 // ZZM_Mode = 1 - CTI Intel Mode
-ZZM_Mode = 0;
+// ZZM_Mode = 2 - Fixed location, objective selection.
+ZZM_Mode = 2;
 
 "Group" setDynamicSimulationDistance 800;
 "Vehicle" setDynamicSimulationDistance 650;
@@ -381,7 +382,8 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 
 if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_ZMMMode", 1] };
 
-if (ZZM_Mode isEqualTo 0 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief.sqf", ZMM_FolderLocation] };
+if (ZZM_Mode isEqualTo 0 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief_custom.sqf", ZMM_FolderLocation] };
+if (ZZM_Mode isEqualTo 2 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief_fixed.sqf", ZMM_FolderLocation] };
 
 if isServer then {
 	EAST setFriend [RESISTANCE, 0];
@@ -397,7 +399,6 @@ if isServer then {
 	if (isNil("zmm_fnc_intelAdd")) then {zmm_fnc_intelAdd = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_intel_add.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_logMsg")) then {zmm_fnc_logMsg = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_logMsg.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_nameGen")) then {zmm_fnc_nameGen = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_nameGen.sqf", ZMM_FolderLocation]; };
-	if (isNil("zmm_fnc_setupCustom")) then {zmm_fnc_setupCustom = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_custom.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupPopulate")) then {zmm_fnc_setupPopulate = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_populate.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupTask")) then {zmm_fnc_setupTask = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_task.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupWorld")) then {zmm_fnc_setupWorld = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_world.sqf", ZMM_FolderLocation]; };
@@ -426,11 +427,14 @@ if isServer then {
 		};
 	} forEach (playableUnits + switchableUnits);
 	
+	if (isNil "ZMM_playerSide") then { ZMM_playerSide = WEST };
+	
 	ZMM_enemySides = [ WEST, EAST, INDEPENDENT ] - [ ZMM_playerSide ];
 	
 	// Populate Locations
 	[] spawn zmm_fnc_setupWorld;
 	
 	// Waits for publicVariable then creates zone.
-	if (ZZM_Mode isEqualTo 0) then { [] call zmm_fnc_setupCustom }; 
+	if (ZZM_Mode isEqualTo 0) exitWith { _nul = [] execVM format["%1\zmm_setup_custom.sqf", ZMM_FolderLocation]; }; 
+	if (ZZM_Mode isEqualTo 2) exitWith { _nul = [] execVM format["%1\zmm_setup_fixed.sqf", ZMM_FolderLocation]; }; 
 };

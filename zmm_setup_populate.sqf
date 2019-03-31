@@ -8,7 +8,7 @@ params [ "_zoneID", ["_locType", ""], ["_forceTask", ""] ];
 ["DEBUG", format["Zone%1 - Populating %2 %3", _zoneID, _locType, _forceTask]] call zmm_fnc_logMsg;
 
 // If we're running non-CTI and a location was chosen, create a task.
-if (!(_locType isEqualTo "Ambient") && (ZZM_Mode isEqualTo 0 || _forceTask != "")) then {
+if (!(_locType isEqualTo "Ambient") && (ZZM_Mode != 1 || _forceTask != "")) then {
 	// This function returns some settings to overwrite AI population.
 	// e.g. Defence missions have no AI to start.
 	//[_zoneID] execVM format["%1\tasks\hvt_rescue.sqf", ZMM_FolderLocation];

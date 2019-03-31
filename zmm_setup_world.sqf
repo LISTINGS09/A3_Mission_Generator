@@ -45,10 +45,10 @@ if !isServer exitWith {};
 				// Objective Zone
 				if _create then { 
 					// Are we in CTI Mode?
-					if (ZZM_Mode isEqualTo 0) then {
-						_zoneId = [_pos, "Ambient", _radius, _locName, _locType ] call zmm_fnc_setupZone;
-					} else {
+					if (ZZM_Mode == 1) then {
 						_zoneId = [_pos, _locType, _radius, _locName ] call zmm_fnc_setupZone;
+					} else {
+						_zoneId = [_pos, "Ambient", _radius, _locName, _locType ] call zmm_fnc_setupZone;
 					};
 				} else {
 					if (random 100 > 50) then {

@@ -83,12 +83,12 @@ if (_taskType == "Item Hunt") then {
 	];
 	
 	_missionDesc = selectRandom [
-		"A Ranger Team carrying %1 has fell silent having entered an enemy minefield near %3, locate and recover the <font color='#00FFFF'>%2</font> and evac any wounded back to HQ.<br/><br/>Target Container:<br/><img width='350' image='%3'/>",
-		"An allied unit as wiped out when it entered a minefield. They were transporting %1 from %3, it is vital this is recovered. Locate the fallen team and recover the <font color='#00FFFF'>%2</font><br/><br/>Target Container:<br/><img width='350' image='%3'/>.",
-		"A friendly team encountered a minefield while escaping with %1 nearby %3. The entire team was killed but enemy forces have not yet secured the <font color='#00FFFF'>%2</font>. Locate and retrieve it before the enemy can.<br/><br/>Target Container:<br/><img width='350' image='%3'/>",
-		"Zulu Unit went MIA while carrying %1 inside a <font color='#00FFFF'>%2</font>. It is believed they ran into an enemy minefield somewhere nearby %3. Locate and secure any survivors and the intelligence.<br/><br/>Target Container:<br/><img width='350' image='%3'/>",
-		"A Recon Team have been hit by a mine while carrying vital %1 within a <font color='#00FFFF'>%2</font>. The team are all KIA however it is vital the intelligence is recovered - Locate it somewhere around %3 and bring it back.<br/><br/>Target Container:<br/><img width='350' image='%3'/>",
-		"We have lost contact with a team moving though an enemy minefield, they were carrying %1 and it is vital this intel is returned to base. Locate the <font color='#00FFFF'>%2</font> the team was carrying near %3 and return it safely.<br/><br/>Target Container:<br/><img width='350' image='%3'/>"
+		"A Ranger Team carrying %1 has fell silent having entered an enemy minefield near %4, locate and recover the <font color='#00FFFF'>%2</font> and evac any wounded back to HQ.<br/><br/><font color='#00FF80'>Target:</font><br/><img width='350' image='%3'/>",
+		"An allied unit as wiped out when it entered a minefield. They were transporting %1 from %4, it is vital this is recovered. Locate the fallen team and recover the <font color='#00FFFF'>%2</font><br/><br/><font color='#00FF80'>Target:</font><br/><img width='350' image='%3'/>.",
+		"A friendly team encountered a minefield while escaping with %1 nearby %4. The entire team was killed but enemy forces have not yet secured the <font color='#00FFFF'>%2</font>. Locate and retrieve it before the enemy can.<br/><br/><font color='#00FF80'>Target:</font><br/><img width='350' image='%3'/>",
+		"Zulu Unit went MIA while carrying %1 inside a <font color='#00FFFF'>%2</font>. It is believed they ran into an enemy minefield somewhere nearby %4. Locate and secure any survivors and the intelligence.<br/><br/><font color='#00FF80'>Target:</font><br/><img width='350' image='%3'/>",
+		"A Recon Team have been hit by a mine while carrying vital %1 within a <font color='#00FFFF'>%2</font>. The team are all KIA however it is vital the intelligence is recovered - Locate it somewhere around %4 and bring it back.<br/><br/><font color='#00FF80'>Target:</font><br/><img width='350' image='%3'/>",
+		"We have lost contact with a team moving though an enemy minefield, they were carrying %1 and it is vital this intel is returned to base. Locate the <font color='#00FFFF'>%2</font> the team was carrying near %4 and return it safely.<br/><br/><font color='#00FF80'>Target:</font><br/><img width='350' image='%3'/>"
 	];
 	
 	_missionDesc = format[_missionDesc, _missionData, getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"), getText (configFile >> "CfgVehicles" >> _itemType >> "editorPreview"), _locName];

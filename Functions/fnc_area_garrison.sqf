@@ -120,7 +120,7 @@ for "_i" from 1 to (_enemyCount) do {
 	if (random 1 < 0.1) then { [_unit] call zmm_fnc_inteladd };
 };
 
-if (!(_bPos isEqualTo []) && (missionNamespace getVariable ["ZZM_Mode", 0]) > 0) then {
+if (!(_bPos isEqualTo []) && ZZM_Mode == 1) then {
 	[selectRandom _bPos] call zmm_fnc_intelAdd; // Add Intel Item
 };
 

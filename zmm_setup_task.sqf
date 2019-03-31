@@ -4,7 +4,7 @@ if !isServer exitWith {};
 params [ "_zoneID", ["_filterTask", ""] ];
 
 // Are we in CTI Mode?
-_isCTI = (missionNamespace getVariable ["ZZM_Mode", 0]) > 0;
+_isCTI = ZZM_Mode == 1;
 
 // Zone not defined - Pick a random one.
 if (isNil "_zoneID") then {
