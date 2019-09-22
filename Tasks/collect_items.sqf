@@ -43,7 +43,8 @@ if (count _positions < _itemMax * 3) then {
 (selectRandom [
 	["Aid",["Land_PaperBox_01_small_closed_brown_IDAP_F","Land_PaperBox_01_small_closed_white_med_F","Land_PaperBox_01_small_closed_white_IDAP_F","Land_PaperBox_01_small_closed_brown_food_F","Land_FoodSack_01_full_white_idap_F","Land_FoodSack_01_full_brown_idap_F","Land_PlasticCase_01_small_idap_F"]],
 	["Camping",["Land_WaterBottle_01_pack_F","Land_FoodContainer_01_White_F","Land_PlasticBucket_01_closed_F","Land_Sleeping_bag_folded_F","Land_CanisterPlastic_F","Land_Ground_sheet_folded_yellow_F","Land_Ground_sheet_folded_blue_F","Land_Sleeping_bag_blue_folded_F","Land_EmergencyBlanket_02_stack_F","Land_EmergencyBlanket_01_stack_F"]],
-	["Fuel",["Land_GasTank_01_blue_F","Land_GasTank_01_yellow_F","Land_GasTank_01_khaki_F","Land_CanisterFuel_F","Land_CanisterFuel_Red_F","Land_CanisterFuel_Blue_F","Land_CanisterFuel_White_F"]]
+	["Fuel",["Land_GasTank_01_blue_F","Land_GasTank_01_yellow_F","Land_GasTank_01_khaki_F","Land_CanisterFuel_F","Land_CanisterFuel_Red_F","Land_CanisterFuel_Blue_F","Land_CanisterFuel_White_F"]],
+	["CBRN",["CBRNCase_01_F","CBRNContainer_01_closed_olive_F","CBRNContainer_01_closed_yellow_F","Land_PlasticCase_01_small_CBRN_F","Land_PlasticCase_01_small_black_CBRN_F","Land_PlasticCase_01_small_olive_CBRN_F"]]
 ]) params ["_itemName","_itemArr"];
 
 

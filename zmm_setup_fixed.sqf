@@ -1,7 +1,8 @@
 // Picks a fixed location but allows objective to be selected by a player - ZM_Mode == 2
 if !isServer exitWith {};
-		
-_centre = getPos nearestBuilding (locationPosition (selectRandom ((nearestLocations [[worldSize / 2, worldSize / 2, 0], ["NameCity","NameVillage"],15000]) - (nearestLocations [getMarkerPos format["respawn_%1",ZMM_playerSide], ["NameCity","NameVillage"],1000])))); // Find a Home
+
+_locations = nearestLocations [[worldSize / 2, worldSize / 2, 0], ["NameCity","NameVillage"],15000];
+_centre = getPos nearestBuilding (locationPosition (selectRandom (_locations - (_locations select { _tempLoc = _x; (allMapMarkers select { (toUpper _x) find "SAFEZONE" >= 0 }) findIf { position _tempLoc inArea _x } >= 0 }))));
 
 _nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
 _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "This Location" };

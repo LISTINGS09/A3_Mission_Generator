@@ -1,5 +1,10 @@
 // Functions
+
+if !(leader player == player) exitWith {};
+
 zmm_fnc_canSelect = { missionNamespace getVariable ["ZMM_missionStarted",FALSE] };
+
+// TODO: handle safe zones?
 
 zmm_fnc_selectLocation = {
 	if (call zmm_fnc_canSelect) exitWith { systemChat "[ZMM] ERROR: Mission is already in progress."; };

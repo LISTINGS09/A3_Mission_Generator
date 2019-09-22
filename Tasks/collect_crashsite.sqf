@@ -15,7 +15,7 @@ _missionDesc = [
 
 // Create Objective
 _wreck = (selectRandom [ "Land_UWreck_Heli_Attack_02_F", "Land_Wreck_Heli_Attack_01_F", "Land_Wreck_Heli_Attack_02_F", "Land_Wreck_Plane_Transport_01_F", "Plane_Fighter_01_wreck_F",
-							"Plane_Fighter_03_wreck_F", "Plane_Fighter_02_wreck_F", "Plane_Fighter_04_wreck_F"]) createVehicle _targetPos;
+							"Plane_Fighter_03_wreck_F", "Plane_Fighter_02_wreck_F", "Plane_Fighter_04_wreck_F","Land_Mi8_wreck_F"]) createVehicle _targetPos;
 _wreck setVectorUp surfaceNormal position _wreck;
 
 _smoke = createVehicle ["test_EmptyObjectForSmoke",position _wreck, [], 0, "CAN_COLLIDE"];

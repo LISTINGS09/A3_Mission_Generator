@@ -22,7 +22,7 @@ if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVa
 _targetPos = _targetPos findEmptyPosition [1, 50, "C_Truck_02_covered_F"];
 	
 // Create Truck
-_truckType = selectRandom ["C_Truck_02_covered_F", "C_Truck_02_transport_F", "I_G_Van_01_transport_F";
+_truckType = selectRandom ["C_Truck_02_covered_F", "C_Truck_02_transport_F", "I_G_Van_01_transport_F"];
 _truck = _truckType createVehicle _targetPos;
 
 missionNamespace setVariable [format["ZMM_%1_VEH", _zoneID], _truck, true];

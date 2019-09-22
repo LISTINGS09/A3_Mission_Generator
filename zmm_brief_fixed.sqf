@@ -1,5 +1,7 @@
 // Functions
 
+if !(leader player == player) exitWith {};
+
 waitUntil {getMarkerType "loc_mkr" != "" };
 
 _centre = getMarkerPos "loc_mkr";

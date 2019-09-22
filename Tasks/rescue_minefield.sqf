@@ -39,13 +39,14 @@ for "_i" from 0 to (random 1 + 2) do {
 	_blood setPos ((getPos _blood) vectorAdd [0,0,0.02]);
 };
 
-_mineType = selectRandom ["APERSMine_Range_Ammo", "APERSBoundingMine_Range_Ammo"];
+_mineType = selectRandom ["APERSBoundingMine","APERSMine"];
 
 for "_i" from -25 to 25 step 5 do {
 	for "_j" from -25 to 25 step 5 do {
 		_minePos = _targetPos vectorAdd [_i, _j, 0];
 		if (random 1 > 0.35 && _targetPos distance2D _minePos > 2 && !surfaceIsWater _minePos) then {
-			_mine = createVehicle [_mineType, _minePos, [], 3, "NONE"];
+			//_mine = createVehicle [_mineType, _minePos, [], 3, "NONE"];
+			_mine = createMine [_mineType, _minePos, [], 3];
 			_enemySide revealMine _mine;
 		};
 	};
