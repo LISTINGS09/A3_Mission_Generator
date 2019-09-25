@@ -1,7 +1,7 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
@@ -22,7 +22,7 @@ _itemNo = switch (_locType) do {
 _missionDesc = [
 		"Secure the area around <font color='#0080FF'>%1</font color> then locate and mark the locations of <font color='#00FFFF'>%2 Container(s)</font color> in the area.",
 		"Investigate <font color='#0080FF'>%1</font color> by searching the surrounding area and locating <font color='#00FFFF'>%2 Container(s)</font color> somewhere in the area.",
-		"<font color='#0080FF'>%1</font color> is occupied by enemy forces, eliminate them and secure the area by claiming the <font color='#00FFFF'>%2 Container(s)</font color>.",
+		"<font color='#0080FF'>%1</font color> is occupied by enemy forces, eliminate them and secure the area while identifying the <font color='#00FFFF'>%2 Container(s)</font color>.",
 		"Hunt down the locations of <font color='#00FFFF'>%2 Container(s)</font color> somewhere in <font color='#0080FF'>%1</font color>.",
 		"Enemy forces have occupied <font color='#0080FF'>%1</font color>, eliminate them and find the <font color='#00FFFF'>%2 Container(s)</font color> in the area.",
 		"Locate the <font color='#00FFFF'>%2 Container(s)</font color> hidden somewhere in <font color='#0080FF'>%1</font color>."
@@ -85,7 +85,7 @@ _inBuilding = FALSE;
 	
 	// Add players action
 	[_item, 
-		"<t color='#00FF80'>Mark Location</t>", 
+		format["<t color='#00FF80'>Mark %1</t>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_Search_ca.paa",  
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_Search_ca.paa",  
 		"TRUE", 
@@ -126,7 +126,7 @@ _inBuilding = FALSE;
 	_mrk setMarkerSize [ 0.8, 0.8 ];
 	
 	// Child task
-	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Search for the object somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", [getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString, getText (configFile >> "CfgVehicles" >> _itemType >> "editorPreview")], format["Object #%1", _forEachIndex], format["MKR_%1_ICON_%2", _zoneID, _forEachIndex]], nil, "CREATED", 1, FALSE, TRUE, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
+	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Search for the object somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", [getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString, getText (configFile >> "CfgVehicles" >> _itemType >> "editorPreview")], format["Object #%1", _forEachIndex + 1], format["MKR_%1_ICON_%2", _zoneID, _forEachIndex]], nil, "CREATED", 1, FALSE, TRUE, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
 	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_childTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_ITEM_%2', FALSE])", _zoneID, _forEachIndex],
 									format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; 'MKR_%1_ITEM_%2' setMarkerColor 'ColorGrey'; 'MKR_%1_ICON_%2' setMarkerColor 'ColorGrey';", _zoneID, _forEachIndex],

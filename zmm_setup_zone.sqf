@@ -71,7 +71,7 @@ _locSize = 1;
 missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], TRUE];
 missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 12];
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 2];
+missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
 
 switch (_locType) do {
 	case "Airport": { 
@@ -79,35 +79,35 @@ switch (_locType) do {
 		_locSize = 1.25;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 20];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 5];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 8];
 	};
 	case "NameCityCapital": { 
 		_iconSize = 1.1;
 		_locSize = 1.25;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 20];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 6];
 	};
 	case "NameCity": { 
 		_iconSize = 1;
 		_locSize = 1;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 16];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 6];
 	};
 	case "NameVillage": { 
 		_iconSize = 0.8;
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 10];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 400];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
 	};
 	case "NameLocal": { 
 		_iconSize = 0.6;
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 500];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
 	};
 	case "Ambient": {
 		_iconSize = 0.4;

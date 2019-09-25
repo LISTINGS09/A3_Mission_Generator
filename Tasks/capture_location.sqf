@@ -1,7 +1,7 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
@@ -143,9 +143,9 @@ _flagActivation = [];
 	_mrk setMarkerColor format[ "color%1", _enemySide ];
 	_mrk setMarkerSize [ 0.8, 0.8 ];
 	
-	if (surfaceIsWater _flag) then {
+	if (surfaceIsWater _relPos) then {
 		_flag setPosASL [position _flag select 0, position _flag select 1, 0];
-		_flagStone = createSimpleObject [ "Land_W_sharpStone_02", [ 0, 0, 0 ] ];
+		_flagStone = createSimpleObject [ "Land_W_sharpStone_02", [0,0,0] ];
 		_flagStone setPosASL [ getMarkerPos _flagMarker select 0, (getMarkerPos _flagMarker select 1) - 5, -1 ];
 	} else {
 		// Spawn filler objects
@@ -158,7 +158,7 @@ _flagActivation = [];
 			_unitType = selectRandom _menArray;
 			_unit = _enemyGrp createUnit [_unitType, (_flag getPos [random 15, random 360]), [], 0, "NONE"];
 			[_unit] joinSilent _enemyGrp; 
-			doStop _unit;
+			_unit disableAI "PATH";
 			_unit setDir ((_flag getRelDir _unit) - 180);
 			_unit setFormDir ((_flag getRelDir _unit) - 180);
 			_unit setUnitPos "MIDDLE";

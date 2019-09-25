@@ -1,7 +1,7 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
@@ -42,25 +42,28 @@ if (count _buildings > 0) then {
 	_locArr = _locations;
 };
 
-// Exit if we have no locations.
-if (count _locArr == 0) exitWith { false };
+// Create locations if none exist
+if (_locArr isEqualTo []) then {
+	for "_i" from 0 to (_civMax * 2) do {
+		_locArr pushBack (_centre getPos [random 50, random 360]);
+	};
+};
 
-_endActivation = [];
-_civMarkers = [];
-_civCount = 0;
-_civTypes = ("configName _x isKindOf 'Man' && getText (_x >> ""editorSubcategory"") isEqualTo ""EdSubcat_Personnel_Bandits""" configClasses (configFile >> "CfgVehicles")) apply { configName _x };
 
-_foundAreas = (selectBestPlaces [_centre, 250,"(6*hills + 2*forest + 4*houses + 1.5*meadow + 2*trees) - (100*sea)", 100, 10]) apply { _x # 0 };
-
-_enemyGrp = createGroup [_enemySide, true];
+private _endActivation = [];
+private _civMarkers = [];
+private _civCount = 0;
+private _civTypes = ("configName _x isKindOf 'Man' && getText (_x >> ""editorSubcategory"") isEqualTo ""EdSubcat_Personnel_Bandits""" configClasses (configFile >> "CfgVehicles")) apply { configName _x };
+private _foundAreas = (selectBestPlaces [_centre, 250,"(6*hills + 2*forest + 4*houses + 1.5*meadow + 2*trees) - (100*sea)", 100, 10]) apply { _x # 0 };
+private _enemyGrp = createGroup [_enemySide, true];
 
 for "_i" from 1 to _civMax do {
 	if (count _locArr < 1) exitWith {};
 	
-	_tempPos = selectRandom _locArr;
+	private _tempPos = selectRandom _locArr;
 	_locArr deleteAt (_locArr find _tempPos);
 	
-	private _civUnit = _enemyGrp createUnit [selectRandom _civTypes, [0,0,0], [], 0, "NONE"];
+	private _civUnit = _enemyGrp createUnit [selectRandom _civTypes, [0,0,0], [], 150, "NONE"];
 	[_civUnit] joinSilent _enemyGrp;
 	_civUnit disableAI "PATH";
 	_civUnit setPos _tempPos;
@@ -132,7 +135,7 @@ for "_i" from 1 to (_civMax) do {
 // Spawn Suicide Bombers
 for "_i" from 1 to (_civMax / 2) do {
 	_bombGroup = createGroup [_enemySide, true];
-	private _bomber = _bombGroup createUnit [selectRandom _civTypes, [0,0,0], [], 0, "NONE"];
+	private _bomber = _bombGroup createUnit [selectRandom _civTypes, [0,0,0], [], 150, "NONE"];
 	[_bomber] joinSilent _bombGroup;
 	_bomber setPos ((selectRandom _foundAreas) findEmptyPosition [1, 25]);
 	_bomber setDir random 360;

@@ -3,8 +3,8 @@ if !isServer exitWith {};
 params [
 	["_zoneID", 0],
 	["_triggerOnly", FALSE],
-	["_delay", 600],
-	["_maxWave", 4],
+	["_delay", 300],
+	["_maxWave", 6],
 	["_locType", ""]
 ];
 
@@ -30,20 +30,20 @@ missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
 // TODO: Add custom QRFs per Location Type.
 sleep (_delay / 4);
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
-_side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
-_locations = missionNamespace getVariable [format["ZMM_%1_QRFLocations", _zoneID], []];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+private _side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
+private _locations = missionNamespace getVariable [format["ZMM_%1_QRFLocations", _zoneID], []];
 
-_sentry = missionNamespace getVariable [format["ZMM_%1Grp_Sentry",_side],[]];
-_team = missionNamespace getVariable [format["ZMM_%1Grp_Team",_side],[]];
-_squad = missionNamespace getVariable [format["ZMM_%1Grp_Squad",_side],[]];
-_truck = missionNamespace getVariable [format["ZMM_%1Veh_Truck",_side],[]];
-_light = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
-_medium = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
-_heavy = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
-_air = missionNamespace getVariable [format["ZMM_%1Veh_AirH",_side],[]];
-_casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side],[]];
-_casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side],[]];
+private _sentry = missionNamespace getVariable [format["ZMM_%1Grp_Sentry",_side],[]];
+private _team = missionNamespace getVariable [format["ZMM_%1Grp_Team",_side],[]];
+private _squad = missionNamespace getVariable [format["ZMM_%1Grp_Squad",_side],[]];
+private _truck = missionNamespace getVariable [format["ZMM_%1Veh_Truck",_side],[]];
+private _light = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
+private _medium = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
+private _heavy = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
+private _air = missionNamespace getVariable [format["ZMM_%1Veh_AirH",_side],[]];
+private _casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side],[]];
+private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side],[]];
 
 if (count _locations isEqualTo 0) exitWith {};
 
@@ -68,6 +68,10 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
 			[_centre, _locations, _side, selectRandom (_medium + _air)] call zmm_fnc_spawnUnit;
 		};
+		case 3: {
+			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
+			[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+		};
 		default {
 			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
 			[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
@@ -75,6 +79,6 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 		};
 	};
 
-	_tNextWave = time + _delay;	
+	private _tNextWave = time + _delay;	
 	waitUntil {sleep 1; time > _tNextWave};
 };

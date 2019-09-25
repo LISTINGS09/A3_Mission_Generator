@@ -1,10 +1,9 @@
 // Set-up mission variables.
-// Set-up mission variables.
-params [ ["_zoneID", 0] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
-_radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
+_radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 25; // Area of Zone.
 
 _missionDesc = [
 		"A cargo transport flying over the area is due to make a drop, search the area for nearby for one <font color='#00FFFF'>%1</font> and mark its location.",
@@ -16,35 +15,38 @@ _missionDesc = [
 	];	
 
 // Create Objective
-_dropPos = [[_centre, random 150, random 360] call BIS_fnc_relPos, 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+private _dropPos = [_centre getPos [random 100, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
 _dropType = selectRandom ["CargoNet_01_barrels_F","CargoNet_01_box_F","I_CargoNet_01_ammo_F","O_CargoNet_01_ammo_F","C_IDAP_CargoNet_01_supplies_F","B_CargoNet_01_ammo_F"];
 _dropName = [getText (configFile >> "CfgVehicles" >> _dropType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
 
-_dropObj = _dropType createVehicle [0,0,0];
+private _dropObj = _dropType createVehicle [50,50,0];
 _dropObj allowDamage false; 
 
 clearMagazineCargoGlobal _dropObj;
 clearWeaponCargoGlobal _dropObj; 
 clearItemCargoGlobal _dropObj;
-clearBackpackCargoGlobal _dropObj; 
+clearBackpackCargoGlobal _dropObj;
 
-_lightObj = "PortableHelipadLight_01_white_F" createVehicle [0,0,0]; 
+private _lightObj = "PortableHelipadLight_01_white_F" createVehicle [0,0,0];
 _lightObj attachTo [_dropObj,[0, 0, ((boundingBoxReal _dropObj) select 1) select 2]];
 
 // Add Action to upload coordinates.
 [_dropObj, 
-	 "<t color='#00FF80'>Upload Coordinates</t>", 
-	 "\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_connect_ca.paa",  
-	 "\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_connect_ca.paa",  
-	 "(_target getVariable ['var_canUse', TRUE])", 
-	 "(_target getVariable ['var_canUse', TRUE])", 
-	 {}, 
-	 {}, 
-	 { _target setVariable ["var_canUse", FALSE, TRUE]; [ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"]; }, 
-	 {}, 
-	 [], 
-	 1, 
-	 10 
+	"<t color='#00FF80'>Upload Drop Position</t>", 
+	"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_connect_ca.paa",  
+	"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_connect_ca.paa",  
+	"(_target getVariable ['var_canUse', TRUE])", 
+	"(_target getVariable ['var_canUse', TRUE])", 
+	{}, 
+	{}, 
+	{
+		_target setVariable ["var_canUse", false, true]; 
+		[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
+	}, 
+	{}, 
+	[], 
+	1, 
+	10 
 ] remoteExec ["bis_fnc_holdActionAdd", 0, _dropObj];
 
 missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _dropObj];
@@ -54,7 +56,7 @@ _dropTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _dropTrigger setTriggerArea [_radius, _radius, 0, FALSE];
 _dropTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
 _dropTrigger setTriggerStatements ["this", 
-								 format["ZMM_%1_OBJ setPos [%2, %3, 250]; [objNull, ZMM_%1_OBJ] call BIS_fnc_curatorobjectedited;", _zoneID, _dropPos select 0, _dropPos select 1],
+								 format["ZMM_%1_OBJ setPos [%2, %3, 250]; [objNull, ZMM_%1_OBJ] call BIS_fnc_curatorobjectedited; playSound3D ['A3\Sounds_F\environment\ambient\battlefield\battlefield_jet1.wss', objNull, false, AGLToASL [%2, %3, 0], 2, 1, 1000]; _nul = [] spawn { waitUntil { sleep 5; playSound3D ['a3\sounds_f\sfx\beep_target.wss', ZMM_%1_OBJ, false, getPosASL ZMM_%1_OBJ, 1, 0.5, 75]; !(ZMM_%1_OBJ getVariable ['var_canUse', true]); }; };", _zoneID, _dropPos select 0, _dropPos select 1],
 								 ""];
 
 

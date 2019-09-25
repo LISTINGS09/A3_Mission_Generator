@@ -1,8 +1,8 @@
 // Spawns a damaged vehicle with 
 // Set-up mission variables.
-params [ ["_zoneID", 0], "_targetPos"];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
@@ -25,7 +25,7 @@ _wreck = (selectRandom ["Land_Wreck_Ural_F", "Land_Wreck_UAZ_F", "Land_Wreck_HMM
 _wreck setVectorUp surfaceNormal position _wreck;
 
 _smoke = createVehicle ["test_EmptyObjectForFireBig", (position _wreck) vectorAdd [0,0,-3], [], 0, "CAN_COLLIDE"];
-_crater = createSimpleObject ["Crater", _targetPos];
+_crater = createSimpleObject ["Crater", AGLToASL _targetPos];
 _crater setPos ((getPos _crater) vectorAdd [0,0,0.02]);
 
 // Find a random point nearby for markers.
@@ -34,7 +34,7 @@ _relPos = [ _targetPos, random 50, random 360 ] call BIS_fnc_relPos;
 // Create Bodies
 _tempPlayer = (allPlayers select {alive _x}) select 0;
 
-_DeadMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 0, "NONE"];	
+_DeadMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
 _DeadMan forceAddUniform (uniform _tempPlayer);
 _DeadMan addVest (vest _tempPlayer);
 _DeadMan addHeadgear (headgear _tempPlayer);
@@ -60,11 +60,11 @@ for "_i" from 0 to (random 1 + 2) do {
 	_evacMan setDir random 360;
 	
 	// Add to Zeus
-	{ _x addCuratorEditableObjects [_evacMan, TRUE] } forEach allCurators;
+	{ _x addCuratorEditableObjects [[_evacMan], TRUE] } forEach allCurators;
 	
 	_evacMan spawn {
 		sleep 3;
-		_blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], getPos _this];
+		_blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], [0,0,0]];
 		_blood setPos getPos _this;
 		_blood setVectorUp surfaceNormal position _blood;
 		_blood setPos ((getPos _blood) vectorAdd [0,0,0.02]);
@@ -75,9 +75,7 @@ for "_i" from 0 to (random 1 + 2) do {
 	// Check if ACE is enabled
 	if (isClass(configFile >> "CfgPatches" >> "ace_main")) then {
 		[_evacMan, true] call ace_medical_fnc_setUnconscious;
-		[_evacMan, 0.4, "leg_r", "bullet"] call ace_medical_fnc_addDamageToUnit;
-		[_evacMan, 0.2, "leg_l", "bullet"] call ace_medical_fnc_addDamageToUnit;
-		[_evacMan, 0.4, "body", "bullet"] call ace_medical_fnc_addDamageToUnit;
+		[_evacMan, 0.4, selectRandom ["leg_r","leg_l","body"], "bullet"] call ace_medical_fnc_addDamageToUnit;
 		[_evacMan] call ACE_medical_fnc_handleDamage_advancedSetDamage;
 	} else {
 		_evacMan setUnconscious TRUE;

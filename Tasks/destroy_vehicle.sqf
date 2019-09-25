@@ -1,14 +1,14 @@
 // Hunt down and either destroy a Utility or Heavily Armoured vehicle.
-params [ ["_zoneID", 0], "_targetPos"];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _vehClass = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Util",_enemySide],[""]]);
 _vehTank = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Heavy",_enemySide],[""]]);
 _isHeavy = FALSE;
 
-if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
+if (_targetPos isEqualTo _centre || _targetPos isEqualTo [0,0,0]) then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
 
 _missionDesc = [
 		"A <font color='#00FFFF'>%1</font> has been seen parked in this area, locate and destroy it.",

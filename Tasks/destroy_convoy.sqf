@@ -1,17 +1,13 @@
 // Spawn a convoy of three vehicles and make them patrol around a location.
-params [ ["_zoneID", 0], "_targetPos"];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
 _manList = missionNamespace getVariable [format["ZMM_%1Man", _enemySide],["O_Solider_F"]];
 _carList = missionNamespace getVariable [format["ZMM_%1Veh_Convoy", _enemySide],[]];
-
-if (isNil "_targetPos") then { _targetPos = getPos (selectRandom (_centre nearRoads 200)); };
-
-_foundRoads = _targetPos nearRoads 50;
 
 _missionDesc = [
 		"A %3 %4 has just finished a meeting in %1 with an enemy Commander there. Destroy %4s convoy of <font color='#00FFFF'>%2 Vehicles</font> and ensure they don't escape.",
@@ -26,49 +22,62 @@ _conVerb = selectRandom ['feared', 'respected', 'notorious', 'senior', 'high-ran
 _conType = selectRandom ['Diplomat', 'Warlord', 'Terrorist', 'Official', 'Advisor', 'Leader', 'Kingpin', 'Drug Baron', 'Arms Dealer', 'Convict'];
 
 // No vehicles defined, so use basic ones - 2nd Vehicle will always carry the HVT.
-if (_carList isEqualTo []) then {
+if (count _carList == 0) then {
 	_carList = switch _enemySide do {
 		case west: {
 			[ 
-				["B_LSV_01_armed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"], 
-				["B_LSV_01_unarmed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"],
 				["B_LSV_01_armed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"]
+				,["B_LSV_01_unarmed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"]
+				,["B_LSV_01_armed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"]
 			]
 		};
 		case east: {
-			[ 
-				["O_LSV_02_armed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"], 
-				["O_LSV_02_unarmed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"],
+			[
 				["O_LSV_02_armed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"]
+				,["O_LSV_02_unarmed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"]
+				,["O_LSV_02_armed_F", "[_grpVeh, ['Black',1] ] call BIS_fnc_initVehicle;"]
 			]
 		};	
 		case independent: {
 			[ 
-				["I_G_Offroad_01_armed_F",""], 
-				["I_G_Offroad_01_F",""],
 				["I_G_Offroad_01_armed_F",""]
+				,["I_G_Offroad_01_F",""]
+				,["I_G_Offroad_01_armed_F",""]
 			]
 		};
 	};
 };
 
 // Create Group
-_enemyGrp = createGroup [_enemySide, true];
-_vehCount = 0;
-_endActivation = [];
+private _enemyGrp = createGroup [_enemySide, true];
+private _vehCount = 0;
+private _endActivation = [];
 
-{ 
-	_x params ["_vehType","_customInit"];
-	_tempRoad = selectRandom _foundRoads;
-	_foundRoads = _foundRoads - [_tempRoad];
-	_tempPos = (getPos _tempRoad) findEmptyPosition [0, 25, _vehType];
+{
+	_x params [["_vehType", ""], ["_customInit", ""]];
+	
+	if !(isClass (configFile >> "cfgVehicles" >> _vehType)) exitWith {
+	
+	};
+	
+	private _foundRoad = selectRandom (_targetPos nearRoads 150);
+	private _tempPos = [0,0,0];
+	
+	// No valid road
+	if !(isNil "_foundRoad") then {
+		_tempPos = (getPos _foundRoad) findEmptyPosition [1, 25, _vehType];
+	} else {
+		_tempPos = (_centre getPos [10 + random 40, random 360]) findEmptyPosition [1, 25, _vehType];
+	};
+	
 	_grpVeh = _vehType createVehicle _tempPos;
 	
+	// Set direction to nearby road
+	if !(isNil "_foundRoad") then { _grpVeh setDir ([_tempRoad, (roadsConnectedTo _tempRoad) # 0] call BIS_fnc_DirTo) };
+
+	// Run custom script if provided
 	if (_customInit != "") then { _nul = call compile _customInit };
-	
-	// Add to Zeus
-	{ _x addCuratorEditableObjects [[_grpVeh], true] } forEach allCurators;
-	
+		
 	missionNamespace setVariable [format["ZMM_%1_VEH_%2", _zoneID, _forEachIndex], _grpVeh];	
 	
 	_cargoS = count fullCrew [_grpVeh, "cargo", true];
@@ -77,7 +86,7 @@ _endActivation = [];
 
 	// Create crew.
 	for "_i" from 1 to _crew do {
-		_tempMan = _enemyGrp createUnit [selectRandom _manList, [0,0,0], [], 0, "NONE"];
+		_tempMan = _enemyGrp createUnit [selectRandom _manList, [0,0,0], [], 150, "NONE"];
 		[_tempMan] joinSilent _enemyGrp; 
 		_tempMan moveInAny _grpVeh;
 	};
@@ -88,7 +97,7 @@ _endActivation = [];
 	if ((_cargoS + _cargoF) > 1) then {
 		_cargoGrp = createGroup [_enemySide, true];
 		for "_i" from 1 to (_cargoS + _cargoF) do {
-			_tempMan = _cargoGrp createUnit [selectRandom _manList, [0,0,0], [], 0, "NONE"];
+			_tempMan = _cargoGrp createUnit [selectRandom _manList, [0,0,0], [], 150, "NONE"];
 			[_tempMan] joinSilent _enemyGrp; 
 			_tempMan moveInAny _grpVeh;
 		};
@@ -96,17 +105,19 @@ _endActivation = [];
 		// Add a beret to the transport group.
 		if (_forEachIndex == 1) then {
 			_hvt = selectRandom (units _cargoGrp);
-			if (!isNil "_hvt") then { _hvt addHeadgear "H_Beret_blk" } else { systemChat "HVT Not Found!" };
+			if (!isNil "_hvt") then { _hvt addHeadgear "H_Beret_blk" };
 		};
 		
 		// Add to Zeus
 		{ _x addCuratorEditableObjects [units _cargoGrp, true] } forEach allCurators;
 	};
-
-	_grpVeh setDir ([_tempRoad, (roadsConnectedTo _tempRoad) # 0] call BIS_fnc_DirTo);
-	_grpVeh setConvoySeparation 20;
-	
+		
 	if (alive _grpVeh) then {
+		// Add to Zeus
+		{ _x addCuratorEditableObjects [[_grpVeh], true] } forEach allCurators;
+		
+		_grpVeh setConvoySeparation 20;
+	
 		_endActivation pushBack format["!alive ZMM_%1_VEH_%2", _zoneID, _forEachIndex];
 	
 		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Locate and destroy the convoy vehicle.<br/><br/>Target Vehicle: <font color='#FFA500'>%1</font><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehType >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehType >> "editorPreview")], format["Vehicle #%1", _forEachIndex + 1], format["MKR_%1_LOC", _zoneID]], _grpVeh, "CREATED", 1, FALSE, TRUE, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;

@@ -1,4 +1,4 @@
-_adj = [
+private _adj = [
 	"Aback",
 	"Abject",
 	"Absorbed",
@@ -101,7 +101,7 @@ _adj = [
 	"Zesty"
 ];
 
-_noun = [
+private _noun = [
 	"Achievement",
 	"Actor",
 	"Aid",
@@ -204,7 +204,7 @@ _noun = [
 	"Yam"
 ];
 
-_pre = [
+private _pre = [
 	"Assault",
 	"Codename",
 	"Invasion",

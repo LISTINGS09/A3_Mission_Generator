@@ -1,9 +1,9 @@
 // Spawns a minefield and either adds a CASVAC mission or recover object mission.
 // Set-up mission variables.
 // [0, player getPos [50, random 360]] execVM "mine_field.sqf
-params [ ["_zoneID", 0], "_targetPos"];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
@@ -15,7 +15,7 @@ _missionDesc = "";
 	
 // Create Wreck
 _cutter = "Land_ClutterCutter_small_F" createVehicle _targetPos;
-_crater = createSimpleObject ["Crater", _targetPos];
+_crater = createSimpleObject ["Crater", AGLToASL _targetPos];
 _crater setVectorUp surfaceNormal position _crater;
 _crater setPos ((getPos _crater) vectorAdd [0,0,0.02]);
 
@@ -33,7 +33,7 @@ for "_i" from 0 to (random 1 + 2) do {
 	_man setDamage 1;
 	removeFromRemainsCollector [_man];
 	
-	_blood = createSimpleObject [ selectRandom ["BloodPool_01_Medium_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], _targetPos];
+	_blood = createSimpleObject [ selectRandom ["BloodPool_01_Medium_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], [0,0,0]];
 	_blood setPos (_man getPos [random 1, random 360]);
 	_blood setVectorUp surfaceNormal position _blood;
 	_blood setPos ((getPos _blood) vectorAdd [0,0,0.02]);
@@ -121,7 +121,7 @@ if (_taskType == "Item Hunt") then {
 };
 
 if (_taskType == "CASVAC") then {
-	_evacMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 0, "NONE"];	
+	_evacMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
 	_evacMan setCaptive true;
 	_evacMan forceAddUniform (uniform _tempPlayer);
 	_evacMan addVest (vest _tempPlayer);
@@ -129,7 +129,7 @@ if (_taskType == "CASVAC") then {
 	_evacMan setPos (_targetPos getPos [random 1, random 360]);
 	_evacMan setDir random 360;
 	
-	_blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], _targetPos];
+	_blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], [0,0,0]];
 	_blood setPos (_evacMan getPos [random 1, random 360]);
 	_blood setVectorUp surfaceNormal position _blood;
 	_blood setPos ((getPos _blood) vectorAdd [0,0,0.02]);

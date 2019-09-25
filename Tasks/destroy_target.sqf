@@ -1,16 +1,19 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], "_targetObj" ];
+params [ ["_zoneID", 0], ["_targetObj", objNull], ["_targetPos", [0,0,0]] ];
 
-if (isNil "_targetObj") exitWith { false };
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+if (isNull _targetObj || isNil "_targetObj") then {
+	_targetObj = selectRandom ["Land_TTowerSmall_1_F","Land_TTowerSmall_2_F"] createVehicle _targetPos;
+};
+
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 
 _missionDesc = [
 		"A <font color='#00FFFF'>%1</font> is located in this area, find and destroy it.",
 		"Enemy forces have recently reinforced this area and constructed a <font color='#00FFFF'>%1</font>. It must be destroyed.",
 		"Locate a <font color='#00FFFF'>%1</font> within the area and destroy it.",
-		"Locate and destroy <font color='#00FFFF'>%1</font> somewhere around this area.",
+		"Locate and destroy a <font color='#00FFFF'>%1</font> somewhere around this area.",
 		"A <font color='#00FFFF'>%1</font> was spotted in this area recently, find and eliminate it.",
 		"Destroy the <font color='#00FFFF'>%1</font> somewhere around this location."
 	];

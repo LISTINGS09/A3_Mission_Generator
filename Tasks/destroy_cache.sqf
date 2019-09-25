@@ -1,12 +1,12 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
 _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
-_radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
+_radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 25; // Area of Zone.
 _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 

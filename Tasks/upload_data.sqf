@@ -1,7 +1,7 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
@@ -16,12 +16,12 @@ _missionDesc = [
 		"A <font color='#00FFFF'>%1</font> has crashed somewhere nearby, locate it and upload %2 from it to your PDA."
 	];
 
-_bldPos = [];
+private _bldPos = [];
 { _bldPos append (_x buildingPos -1) } forEach _buildings;
 	
-_dataType = selectRandom ["B_UAV_02_dynamicLoadout_F","B_UAV_05_F","B_UGV_01_F","O_UAV_02_dynamicLoadout_F","Land_Wreck_Heli_Attack_01_F"];
-_dataPos = [];
-_dataObj = objNull;
+private _dataType = selectRandom ["B_UAV_02_dynamicLoadout_F","B_UAV_05_F","B_UGV_01_F","O_UAV_02_dynamicLoadout_F","Land_Wreck_Heli_Attack_01_F"];
+private _dataPos = [0,0,0];
+private _dataObj = objNull;
 
 if (random 100 > 50 && count _bldPos > 0) then {
 	_dataType = "Land_DataTerminal_01_F";
@@ -62,7 +62,10 @@ if (random 100 > 50 && count _bldPos > 0) then {
 	_dataObj setVariable ['var_canUse', TRUE, TRUE]; // Isn't a terminal.
 	_dataObj setDamage 0.25;
 	
-	_smokeObj = createVehicle ["test_EmptyObjectForSmoke",[0,0,0], [], 0, "CAN_COLLIDE"];
+	private _crater = createSimpleObject ["Crater", getPosASL _dataObj];
+	private _debirs = createSimpleObject ["Land_Garbage_square5_F", getPosASL _dataObj];
+	
+	private _smokeObj = createVehicle ["test_EmptyObjectForSmoke",[0,0,0], [], 0, "CAN_COLLIDE"];
 	_smokeObj attachTo [_dataObj, [0,0,0]];
 };
 

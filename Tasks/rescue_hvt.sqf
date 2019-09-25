@@ -1,7 +1,7 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_bld", objNull ]];
+params [ ["_zoneID", 0], ["_bld", objNull ], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
@@ -51,7 +51,7 @@ _rescueType = if (random 50 > 100) then { "Soldier" } else { "Civilian" };
 _tempPlayer = (allPlayers select {alive _x}) select 0;
 
 for "_i" from 0 to _civNum do {
-	_hvt = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 0, "NONE"];
+	_hvt = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];
 	
 	if (_rescueType isEqualTo "Soldiers") then {
 		_hvt forceAddUniform (uniform _tempPlayer);

@@ -1,5 +1,5 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], "_targetPos"];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
@@ -19,7 +19,7 @@ _wreck = (selectRandom [ "Land_UWreck_Heli_Attack_02_F", "Land_Wreck_Heli_Attack
 _wreck setVectorUp surfaceNormal position _wreck;
 
 _smoke = createVehicle ["test_EmptyObjectForSmoke",position _wreck, [], 0, "CAN_COLLIDE"];
-_crater = createSimpleObject ["CraterLong", _targetPos];
+_crater = createSimpleObject ["CraterLong", AGLToASL _targetPos];
 
 _crateActivation = [];
 _crateNo = 0;

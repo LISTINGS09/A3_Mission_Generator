@@ -1,7 +1,7 @@
 // Disable an enemy prisoner transport and unlock it so the cargo can escape.
-params [ ["_zoneID", 0], "_targetPos"];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
@@ -70,9 +70,8 @@ _prisGrp = createGroup [civilian, true];
 _prisGrp enableDynamicSimulation true;
 _prisGrp enableAttack false;
 
-for "_i" from 1 to _prisMax do {	
-	//_tempMan = createAgent ["C_man_w_worker_F", [0,0,0], [], 0, "NONE"];
-	_tempMan = _prisGrp createUnit ["C_man_w_worker_F", [0,0,0], [], 0, "NONE"];
+for "_i" from 1 to _prisMax do {
+	_tempMan = _prisGrp createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];
 	_tempMan DisableAI "ALL";
 	_tempMan setBehaviour "CARELESS";
 	_tempMan allowCrewInImmobile true;

@@ -2,10 +2,10 @@ if !isServer exitWith {};
 
 params [["_zoneID", 0], ["_enemyCount", -1], ["_bPos",[]]];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
-_side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-_buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
-_menArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
 
 if (_enemyCount < 0) then { _enemyCount = missionNamespace getVariable [format[ "ZMM_%1_Garrison", _zoneID ], 14] };
 
@@ -17,7 +17,7 @@ if (isNil "zmm_fnc_unitDirPos") then {
 		
 		if (isNull _unit) exitWith {};
 		
-		_unitEyePos = eyePos _unit;
+		private _unitEyePos = eyePos _unit;
 		
 		// Make unit crouch if they have sky above their heads.
 		if (count (lineIntersectsWith [_unitEyePos, (_unitEyePos vectorAdd [0, 0, 10])] select {_x isKindOf 'Building'}) < 1) then {
@@ -26,13 +26,13 @@ if (isNil "zmm_fnc_unitDirPos") then {
 			_unitEyePos = eyePos _unit; 
 		}; 
 		
-		_p1 = []; // Great pos, facing outside building.
-		_p2 = []; // Good pos but facing inside building.
-		_p3 = []; // OK pos but not best views.
-		_p4 = []; // Bad pos facing wall.
+		private _p1 = []; // Great pos, facing outside building.
+		private _p2 = []; // Good pos but facing inside building.
+		private _p3 = []; // OK pos but not best views.
+		private _p4 = []; // Bad pos facing wall.
 		
 		// Get Building Direction
-		_unitBld = nearestBuilding _unit;
+		private _unitBld = nearestBuilding _unit;
 		
 		for "_dir" from (getDir _unitBld) to ((getDir _unitBld) + 359) step 45 do { 
 			// Check 3m
@@ -84,7 +84,7 @@ if (count _bPos isEqualTo 0) then {
 
 ["DEBUG", format["Zone%1 - Creating Garrison: %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
 
-_grp = createGroup [_side, TRUE];
+private _grp = createGroup [_side, TRUE];
 
 for "_i" from 1 to (_enemyCount) do {
 	if (count _menArray isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
@@ -94,7 +94,7 @@ for "_i" from 1 to (_enemyCount) do {
 	if (count _bPos == 0) exitWith {
 		// Spawn stationary soldiers.
 		if (random 1 > 0.8) then {
-			_unit = _grp createUnit [_unitType, [0,0,0], [], 0, "NONE"];
+			_unit = _grp createUnit [_unitType, [0,0,0], [], 150, "NONE"];
 			[_unit] joinSilent _grp; 
 			_unit setPos (([_centre, random 150, random 360] call BIS_fnc_relPos) findEmptyPosition [0, 25, _unitType]);
 			_unit setFormDir ((_unit getRelDir _centre) - 180);
@@ -108,7 +108,7 @@ for "_i" from 1 to (_enemyCount) do {
 	_newPos = selectRandom _bPos;
 	_bPos = _bPos - [_newPos];
 
-	_unit = _grp createUnit [_unitType, [0,0,0], [], 0, "NONE"];
+	_unit = _grp createUnit [_unitType, [0,0,0], [], 150, "NONE"];
 	[_unit] joinSilent _grp; 
 	_unit setPosATL _newPos;
 	

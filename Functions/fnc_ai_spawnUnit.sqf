@@ -5,13 +5,13 @@ params [
 	"_unitClass"
 ];
 
-_reinfGrp = grpNull;
-_grpVeh = objNull;
-_vehType = "";
-_sleep = TRUE;
-_tooClose = FALSE;
-_dir = 0;
-_customInit = "";
+private _reinfGrp = grpNull;
+private _grpVeh = objNull;
+private _vehType = "";
+private _sleep = TRUE;
+private _tooClose = FALSE;
+private _dir = 0;
+private _customInit = "";
 
 // No positions to use
 if (count _posArray == 0) exitWith {};
@@ -24,10 +24,10 @@ if (count _posArray == 0) exitWith {};
 	};
 } forEach _posArray;
 
-_startingPos = selectRandom _posArray;
+private _startingPos = selectRandom _posArray;
 _startingPos set [2,0];
 _dir = _startingPos getDir _targetPos;
-_manArray = missionNamespace getVariable [format["ZMM_%1Man", _side], ["B_Soldier_F"]];
+private _manArray = missionNamespace getVariable [format["ZMM_%1Man", _side], ["B_Soldier_F"]];
 
 // If _unitClass is array, extract the custom init.
 if (_unitClass isEqualType []) then { _customInit = _unitClass # 1; _unitClass = _unitClass # 0 };
@@ -39,7 +39,7 @@ if (_unitClass isEqualType "") then {
 };
 
 // Don't spawn object if too close to any players.
-_maxDist = if _isAir then {1000} else {500};
+private _maxDist = if _isAir then {1000} else {500};
 {
 	if (alive _x && _x distance2D _startingPos < _maxDist) exitWith { _tooClose = true};
 } forEach (playableUnits + switchableUnits);
@@ -48,7 +48,7 @@ if _tooClose exitWith { [_targetPos, _posArray, _side, _unitClass] call zmm_fnc_
 
 if (_unitClass isEqualType "") then {
 	_vehType = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "vehicleClass");
-	_veh = createVehicle [_unitClass, _startingPos, [], 0, if _isAir then {"FLY"} else {"NONE"}];
+	private _veh = createVehicle [_unitClass, _startingPos, [], 0, if _isAir then {"FLY"} else {"NONE"}];
 
 	if _isAir then {
 		_sleep = FALSE;
@@ -167,8 +167,7 @@ if !_isAir then {
 		_x allowFleeing 0;
 	} forEach units _paraUnit;
 	
-	_landPos = [_targetPos, 300, random 360] call BIS_fnc_relPos;		
-	_unloadWP = _reinfGrp addWaypoint [_landPos, 100];
+	_unloadWP = _reinfGrp addWaypoint [_targetPos getPos [300, random 360], 100];
 	_unloadWP setWaypointStatements ["TRUE", "(vehicle this) land 'GET OUT'; {unassignVehicle _x; [_x] orderGetIn FALSE} forEach ((crew vehicle this) select {group _x != group this})"];
 	_newWP = _reinfGrp addWaypoint [waypointPosition _unloadWP, 0];
 	_newWP setWaypointStatements ["{group _x != group this && alive _x} count crew vehicle this == 0", ""];

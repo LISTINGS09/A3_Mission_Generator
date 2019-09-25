@@ -1,7 +1,7 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _enemyType = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
@@ -15,13 +15,8 @@ _missionDesc = [
 		"Find and kill a <font color='#00FFFF'>Veteran Unit</font>, patrolling somewhere around this region."
 	];	
 
-_locPos = [_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
-
-// No near position found, just use the centre.
-if (count _locPos <= 0) then { _locPos = _centre; };
-	
 // Create Objective
-_milGroup = [_locPos, _enemySide, _enemyType] call BIS_fnc_spawnGroup;
+_milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos), _enemySide, _enemyType] call BIS_fnc_spawnGroup;
 {_x addHeadGear "H_Beret_blk"; _x setSkill 0.5 + random 0.3; } forEach units _milGroup;
 [_milGroup, _centre, 50] call bis_fnc_taskPatrol;
 

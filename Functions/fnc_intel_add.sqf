@@ -4,11 +4,11 @@ if ((missionNamespace getVariable ["ZZM_Mode", 0]) isEqualTo 0) exitWith {}; // 
 
 params ["_value"]; // ARRAY/UNIT can be passed.
 
-_intelType = selectRandom ["Land_Suitcase_F","Land_PlasticCase_01_small_F","Land_PlasticCase_01_small_gray_F","Land_MetalCase_01_small_F"];
+private _intelType = selectRandom ["Land_Suitcase_F","Land_PlasticCase_01_small_F","Land_PlasticCase_01_small_gray_F","Land_MetalCase_01_small_F"];
 
 // Position Array - Create intel at the location.
 if (_value isEqualType []) exitWith {
-	_intel = createVehicle [_intelType, [0,0,0], [], 0, "NONE"];
+	_intel = createVehicle [_intelType, [0,0,0], [], 150, "NONE"];
 	_intel setPosATL _value;
 
 	[_intel, 

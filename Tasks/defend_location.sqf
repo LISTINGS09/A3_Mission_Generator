@@ -1,9 +1,9 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0]];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
-_radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0; // Area of Zone.
+_radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 25; // Area of Zone.
 _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
@@ -16,7 +16,10 @@ _missionDesc = [
 		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>, hold the area from attackers for a specified time before withdrawing."
 	];
 	
-if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) == 0) exitWith { false };
+if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) == 0) exitWith { 
+	["ERROR", format["Zone%1 - No valid QRF locations, cannot create objective!", _zoneID]] call zmm_fnc_logMsg;
+	false 
+};
 
 if (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0] == 0) then { missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300] };
 

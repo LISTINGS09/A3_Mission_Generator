@@ -1,16 +1,16 @@
 // Wait for Location Selection.
 params [ ["_zoneID", 0], ["_locType", ""], ["_markerOverride", ""] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
-_side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
+private _side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
 
-_sentry = missionNamespace getVariable format["ZMM_%1Grp_Sentry", _side];
-_team = missionNamespace getVariable format["ZMM_%1Grp_Team", _side];
-_squad = missionNamespace getVariable format["ZMM_%1Grp_Squad", _side];
-_light = missionNamespace getVariable format["ZMM_%1Veh_Light", _side];
-_medium = missionNamespace getVariable format["ZMM_%1Veh_Medium", _side];
-_heavy = missionNamespace getVariable format["ZMM_%1Veh_Heavy", _side];
-_cas = missionNamespace getVariable format["ZMM_%1Veh_CAS", _side];
+private _sentry = missionNamespace getVariable format["ZMM_%1Grp_Sentry", _side];
+private _team = missionNamespace getVariable format["ZMM_%1Grp_Team", _side];
+private _squad = missionNamespace getVariable format["ZMM_%1Grp_Squad", _side];
+private _light = missionNamespace getVariable format["ZMM_%1Veh_Light", _side];
+private _medium = missionNamespace getVariable format["ZMM_%1Veh_Medium", _side];
+private _heavy = missionNamespace getVariable format["ZMM_%1Veh_Heavy", _side];
+private _cas = missionNamespace getVariable format["ZMM_%1Veh_CAS", _side];
 
 if (_locType isEqualTo "") then { _locType = type (nearestLocation [_centre,""]) };
 
@@ -51,7 +51,7 @@ _fnc_spawnGroup = {
 
 				if (count _roads > 0) then { _centre = position (selectRandom _roads) };
 				
-				_veh = createVehicle [_type, if _isAir then { [0,0,0] } else { _centre }, [], 0, if _isAir then {"FLY"} else {"NONE"}];
+				_veh = createVehicle [_type, if _isAir then { [0,0,0] } else { _centre }, [], 150, if _isAir then {"FLY"} else {"NONE"}];
 				
 				if !(_customInit isEqualTo "") then { _grpVeh = _veh; call compile _customInit; };
 				if !_isAir then { _veh enableDynamicSimulation TRUE };
