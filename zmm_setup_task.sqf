@@ -66,7 +66,7 @@ if (count _allBlds > 0) then {
 				"Land_Research_house_V1_F", "Land_Research_HQ_F", "Land_dp_bigTank_F", "Land_dp_smallTank_F", "Land_ReservoirTank_V1_F", "Land_ReservoirTank_Airport_F", 
 				"Land_ReservoirTank_Rust_F", "Land_ReservoirTank_01_military_F", "Land_Radar_F", "Land_Radar_Small_F", "Land_TTowerBig_1_F", "Land_TTowerBig_2_F", "Land_Communication_F"
 			],
-			"destory_target.sqf"
+			"destroy_target.sqf"
 		],
 		// Clearing Objectives
 		[

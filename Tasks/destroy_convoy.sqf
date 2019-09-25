@@ -73,7 +73,7 @@ private _endActivation = [];
 	_grpVeh = _vehType createVehicle _tempPos;
 	
 	// Set direction to nearby road
-	if !(isNil "_foundRoad") then { _grpVeh setDir ([_tempRoad, (roadsConnectedTo _tempRoad) # 0] call BIS_fnc_DirTo) };
+	if !(isNil "_foundRoad") then { _grpVeh setDir ([_foundRoad, (roadsConnectedTo _foundRoad) # 0] call BIS_fnc_DirTo) };
 
 	// Run custom script if provided
 	if (_customInit != "") then { _nul = call compile _customInit };

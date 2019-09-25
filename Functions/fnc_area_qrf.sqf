@@ -42,8 +42,8 @@ private _light = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[
 private _medium = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
 private _heavy = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
 private _air = missionNamespace getVariable [format["ZMM_%1Veh_AirH",_side],[]];
-private _casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side],[]];
-private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side],[]];
+private _casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
+private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
 
 if (count _locations isEqualTo 0) exitWith {};
 
