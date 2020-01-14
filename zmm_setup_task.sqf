@@ -156,12 +156,11 @@ if (count _overWrite > 0) then {
 
 ["DEBUG", format["Zone%1 - Creating Objective %2 (%3) at %4", _zoneID, _type, _script, _locName]] call zmm_fnc_logMsg;
 
-_result = _args execVM format["%1\tasks\%2", ZMM_FolderLocation, _script];
+_result = _args call compile preprocessFileLineNumbers format["%1\tasks\%2", ZMM_FolderLocation, _script];
 
-/* execVM doesn't return values?
 if !_result then {
 	["ERROR", format["Failed to Create: %1", _script]] call zmm_fnc_logMsg;
-	[_zoneID] call zmm_fnc_setupTask;
-};*/
+	[_zoneID, _filterTask] call zmm_fnc_setupTask;
+};
 
 TRUE

@@ -28,6 +28,15 @@ _locRadius = 300 * (if (getPos _nearLoc distance2D _centre < 200) then {
 		};
 	} else { 0.75 });
 	
+// Disable any far-away zones
+{	
+	if (_x distance2D _centre > 2000) then {
+		//_marker = [allMapMarkers, _x] call BIS_fnc_nearestPosition;
+		//_marker setMarkerColor "ColorGrey";
+		_x enableSimulationGlobal false;
+	};
+} forEach allMissionObjects "EmptyDetector";
+	
 _centre = position _nearLoc;
 	
 _mkr = createMarker ["loc_mkr", _centre];
@@ -37,5 +46,5 @@ _mkr setMarkerType "mil_circle";
 
 waitUntil { (!isNil "ZMM_MissionChoice" || time > 1) };
 
-[_centre, _locType, _locRadius, _locName, _locType, missionNamespace getVariable ["ZMM_MissionChoice",""]] spawn zmm_fnc_setupZone;
+[_centre, _locType, _locRadius, _locName, _locType, missionNamespace getVariable "ZMM_MissionChoice"] spawn zmm_fnc_setupZone;
 

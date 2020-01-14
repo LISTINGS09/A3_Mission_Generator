@@ -1,3 +1,4 @@
+// V2.5
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
 
@@ -176,10 +177,9 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Medium = ["rhs_btr80a_msv","rhs_btr70_msv","rhs_btr80_msv"];
 		ZMM_EASTVeh_Heavy = ["rhs_bmp1_msv","rhs_bmp2e_msv","rhs_bmp3_msv"];
 		ZMM_EASTVeh_Air = ["RHS_Mi8mt_vvsc","RHS_Mi8AMT_vvsc"];
-		ZMM_EASTVeh_CAS = ["RHS_Mi24P_vvsc","RHS_Ka52_vvsc"];
-		//ZMM_EASTVeh_CasH = [];
-		//ZMM_EASTVeh_CasP = [];
-		//ZMM_EASTVeh_Convoy = [];
+		ZMM_EASTVeh_CasH = ["RHS_Mi24P_vvsc","RHS_Ka52_vvsc"];
+		ZMM_EASTVeh_CasP = ["RHS_Su25SM_vvsc"];
+		ZMM_EASTVeh_Convoy = [["rhs_tigr_sts_msv",""],["rhs_btr70_msv",""],["rhs_btr70_msv",""]];
 	};
 	case 2: {
 		// EAST - TAKI

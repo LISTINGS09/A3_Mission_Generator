@@ -61,6 +61,7 @@ if (random 100 > 50 && count _bldPos > 0) then {
 	_dataObj setVectorUp surfaceNormal position _dataObj;
 	_dataObj setVariable ['var_canUse', TRUE, TRUE]; // Isn't a terminal.
 	_dataObj setDamage 0.25;
+	_dataObj allowDamage false;
 	
 	private _crater = createSimpleObject ["Crater", getPosASL _dataObj];
 	private _debirs = createSimpleObject ["Land_Garbage_square5_F", getPosASL _dataObj];
