@@ -7,21 +7,21 @@ params [ ["_pos", [0,0,0]], ["_locType", "Custom"], ["_radius", 150], ["_locName
 _zmm_fnc_findSide = {
 	params [[ "_nearPos", []], ["_inDist", 0]];
 		
-	_inDist = _inDist max 2500;
-	_foundSide = CIVILIAN;
-	_sideColors = [];
+	private _inDist = _inDist max 2500;
+	private _foundSide = CIVILIAN;
+	private _sideColors = [];
 	{_sideColors pushBack toUpper format["Color%1", _x] } forEach ZMM_enemySides;
 		
 	// Check marker colours to match on.
-	_foundSides = [];
+	private _foundSides = [];
 	{	
-		_findIndex = _sideColors find toUpper (getMarkerColor _x);
+		private _findIndex = _sideColors find toUpper (getMarkerColor _x);
 		if (_findIndex >= 0) then { _foundSides pushBack _x };
 	} forEach (allMapMarkers select { getMarkerPos _x distance2D _nearPos < _inDist && toUpper (getMarkerColor _x) in ["COLORWEST", "COLOREAST", "COLORGUER"] });
 	
 	// Found markers so find the nearest
 	if (count _foundSides > 0) then {
-		_nearMarker = _foundSides select 0;
+		private _nearMarker = _foundSides select 0;
 		
 		{
 			if ((markerPos _x distance _pos) < (markerPos _nearMarker distance _pos)) then { _nearMarker = _x }; 
@@ -50,24 +50,24 @@ switch (typeName _pos) do {
 };
 
 // Set default trigger radius
-_triggerRadius = if ((_radius * 6) < 1000) then { 1000 } else { (_radius * 6) min 2000 };
+private _triggerRadius = if ((_radius * 6) < 1000) then { 1000 } else { (_radius * 6) min 2000 };
 
 // Set the Zone ID - Used to reference the area in-mission.
-_zoneID = (missionNamespace getVariable ["ZZM_zoneID",0]) + 1;	// Unique per instance.	
+private _zoneID = (missionNamespace getVariable ["ZZM_zoneID",0]) + 1;	// Unique per instance.	
 missionNamespace setVariable ["ZZM_zoneID", _zoneID]; // Set Current Zone ID	
 missionNamespace setVariable [format["ZMM_%1_Location", _zoneID], _pos]; // Set Zone Centre
 missionNamespace setVariable [format["ZMM_%1_Name", _zoneID], _locName]; // Set Zone Name
 missionNamespace setVariable [format["ZMM_%1_Type", _zoneID], [_orgType, _locType] select (isNil "_orgType")]; // Set Zone Type (Original)
 
 // Find a suitable enemy side.
-_side = [ _pos, _radius * 5] call _zmm_fnc_findSide;
+private _side = [ _pos, _radius * 5] call _zmm_fnc_findSide;
 missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Set Side
 
 ["DEBUG", format["Creating Zone %1 [%2] - %6 (%3) %4 TR:%5m [%7]", _zoneID, _side, _locType, _pos, _triggerRadius, _locName, _forceTask]] call zmm_fnc_logMsg;
 
 // Set default sizes of area based on type.
-_iconSize = 1;
-_locSize = 1;
+private _iconSize = 1;
+private _locSize = 1;
 missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], TRUE];
 missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 12];
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
@@ -155,29 +155,6 @@ _mrk setMarkerAlphaLocal 0.2;
 _mrk setMarkerColorLocal format[ "color%1", "Black" ];
 _mrk setMarkerSizeLocal [ _triggerRadius, _triggerRadius];
 
-// Create QRF Points - Collect all roads ~1.5km around the location that are not in a safe location.
-_QRFLocs = [];
-_qrfDist = if ((_radius * 3) < 1000) then { 1000 } else { (_radius * 3) min 1500 };
-
-for [{_i = 0}, {_i <= 360}, {_i = _i + 1}] do {
-	_roads = (([_pos, _qrfDist, _i] call BIS_fnc_relPos) nearRoads 50) select {((boundingBoxReal _x) select 0) distance2D ((boundingBoxReal _x) select 1) >= 25};
-		
-	if (count _roads > 0) then {
-		_road = _roads select 0;
-		if ({_x distance2D _road < 100} count _QRFLocs == 0) then {
-			_connected = roadsConnectedTo _road;
-			_nearestRoad = objNull;
-			{if ((_x distance _pos) < (_nearestRoad distance _pos)) then {_nearestRoad = _x}} forEach _connected;
-			_QRFLocs pushBackUnique position _nearestRoad;
-		};
-	};
-};
-missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], _QRFLocs ]; // Set QRF Locations
-
-// Create Building Locations
-_allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), TRUE];
-missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 2}) ]; // Set Large Buildings
-
 // *** Ambient Zone - EXIT ***
 // This zone doesn't need extra locations as it's just a filler for garrison/patrols.
 if (_locType isEqualTo "Ambient") exitWith {
@@ -186,7 +163,7 @@ if (_locType isEqualTo "Ambient") exitWith {
 	//format["MKR_%1_MAX", _zoneID] setMarkerAlphaLocal 0;
 	//format["MKR_%1_TRG", _zoneID] setMarkerAlphaLocal 0;
 
-	_setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
+	private _setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
 	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, FALSE, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", FALSE ];
 	_setupTrg setTriggerStatements [ "this", 
@@ -201,6 +178,36 @@ if (_locType isEqualTo "Task") exitWith {
 	format["MKR_%1_MIN", _zoneID] setMarkerAlpha 0;
 	[ _zoneID, _locType, _forceTask] spawn zmm_fnc_setupPopulate; // Extra param forces a task type to spawn regardless of game type
 };
+
+// Create QRF Points - Collect all roads ~1.5km around the location that are not in a safe location.
+private _QRFLocs = [];
+private _qrfDist = if ((_radius * 3) < 1000) then { 1500 } else { (_radius * 3) min 2000 };
+
+for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
+	private _roads = ((_pos getPos [_qrfDist, _i]) nearRoads 150) select {((boundingBoxReal _x) select 0) distance2D ((boundingBoxReal _x) select 1) >= 25};
+		
+	if (count _roads > 0) then {
+		_road = _roads select 0;
+		if ({_x distance2D _road < 100} count _QRFLocs == 0) then {
+			_connected = roadsConnectedTo _road;
+			_nearestRoad = objNull;
+			{if ((_x distance _pos) < (_nearestRoad distance _pos)) then {_nearestRoad = _x}} forEach _connected;
+			_QRFLocs pushBackUnique position _nearestRoad;
+		};
+	};
+};
+missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], _QRFLocs ]; // Set QRF Locations
+
+// DEBUG: Show Spawn Markers in local
+{
+	private _mrkr = createMarkerLocal [format ["QRF_%1_%2", _zoneID, _forEachIndex], _x];
+	(format ["QRF_%1_%2", _zoneID, _forEachIndex]) setMarkerTypeLocal "mil_dot";
+	(format ["QRF_%1_%2", _zoneID, _forEachIndex]) setMarkerTextLocal str _forEachIndex;
+} forEach _QRFLocs;
+
+// Create Building Locations
+private _allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), TRUE];
+missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 2}) ]; // Set Large Buildings
 
 // Genuine location, so add it to possible locations list (to pick a random task location in CTI).
 if (isNil "ZMM_ZoneMarkers") then { ZMM_ZoneMarkers = [] };
@@ -221,9 +228,11 @@ for [{_i = 0}, {_i < 360}, {_i = _i + 1}] do {
 };
 missionNamespace setVariable [ format["ZMM_%1_FlatLocations", _zoneID], _groundLocs ]; // Set Flat Locations
 
+["DEBUG", format["Completed Zone %1 [%2] - Q:%3 B:%4 F:%5", _zoneID, _side, count _QRFLocs, count _allBlds, count _groundLocs]] call zmm_fnc_logMsg;
+
 if (ZZM_Mode == 1) then {
 	// CTI Mode - Create trigger when player nears Zone.
-	_setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
+	private _setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
 	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, FALSE, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", FALSE ];
 	_setupTrg setTriggerStatements [ "this", 

@@ -1,4 +1,4 @@
-// V2.6
+// V2.7
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
 

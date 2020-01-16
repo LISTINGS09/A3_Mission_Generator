@@ -4,12 +4,12 @@ params [ ["_zoneID", 0], ["_locType", ""], ["_markerOverride", ""] ];
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
 private _side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
 
-private _sentry = missionNamespace getVariable format["ZMM_%1Grp_Sentry", _side];
-private _team = missionNamespace getVariable format["ZMM_%1Grp_Team", _side];
-private _squad = missionNamespace getVariable format["ZMM_%1Grp_Squad", _side];
-private _light = missionNamespace getVariable format["ZMM_%1Veh_Light", _side];
-private _medium = missionNamespace getVariable format["ZMM_%1Veh_Medium", _side];
-private _heavy = missionNamespace getVariable format["ZMM_%1Veh_Heavy", _side];
+private _sentry = missionNamespace getVariable [format["ZMM_%1Grp_Sentry", _side], []];
+private _team = missionNamespace getVariable [format["ZMM_%1Grp_Team", _side], []];
+private _squad = missionNamespace getVariable [format["ZMM_%1Grp_Squad", _side], []];
+private _light = missionNamespace getVariable [format["ZMM_%1Veh_Light", _side], []];
+private _medium = missionNamespace getVariable [format["ZMM_%1Veh_Medium", _side], []];
+private _heavy = missionNamespace getVariable [format["ZMM_%1Veh_Heavy", _side], []];
 private _casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
 private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
 

@@ -8,12 +8,12 @@ _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this L
 _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 _missionDesc = [
-		"Enemy forces are trying to take over <font color='#00FFFF'>%1</font>, defend the location at all costs.",
-		"A number of enemy groups are advancing towards <font color='#00FFFF'>%1</font>, hold the area until called to exfil.",
-		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>, hold off the enemy for a specified time.",
-		"Enemy forces have launched an attack on <font color='#00FFFF'>%1</font>, defend the area until called to extract.",
-		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>, prevent enemy forces from taking the town.",
-		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>, hold the area from attackers for a specified time before withdrawing."
+		"Enemy forces are trying to take over <font color='#00FFFF'>%1</font>. Clear out and then defend the location at all costs.",
+		"A number of enemy groups are advancing towards <font color='#00FFFF'>%1</font>. Eliminate any enemy already there, then hold the area until called to exfil.",
+		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>. Enemy forces may already be present, secure the area, then hold off the enemy for a specified time.",
+		"Enemy forces have launched an attack on <font color='#00FFFF'>%1</font>. Eliminate any contact already present in the area, then defend it until called to extract.",
+		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>. Clean out any forces already present, while prevent enemy reinforcements from taking the town.",
+		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>. Eliminate any enemy forces already present, then hold the area from attackers for a specified time before withdrawing."
 	];
 	
 if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) == 0) exitWith { 
@@ -44,16 +44,16 @@ _time = _waves * _timePerWave;
 _infTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _infTrigger setTriggerArea [_radius, _radius, 0, FALSE];
 _infTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
-_objTrigger setTriggerTimeout [120, 120, 120, FALSE];
+_objTrigger setTriggerTimeout [120, 120, 120, true];
 _infTrigger setTriggerStatements [  "this", 
-									format["['Command','Enemy forces inbound. Hold %1 for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];", _locName, _time / 60],
+									format["['Command','Additional enemy forces are inbound. Defend %1 for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];", _locName, _time / 60],
 									"" ];
 									
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _objTrigger setTriggerArea [_radius, _radius, 0, FALSE];
 _objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
-_objTrigger setTriggerTimeout [_time, _time, _time, FALSE];
+_objTrigger setTriggerTimeout [_time, _time, _time, true];
 _objTrigger setTriggerStatements [ 	"this", 
 									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
