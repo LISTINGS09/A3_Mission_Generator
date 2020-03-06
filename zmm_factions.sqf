@@ -387,6 +387,23 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_CasP = [["I_Plane_Fighter_04_F","[_grpVeh,['CamoGrey',1]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Convoy = [["O_G_Offroad_01_armed_F",""],["O_G_Van_01_transport_F",""],["I_APC_Wheeled_03_cannon_F","[_grpVeh,['Guerilla_01',1,'Guerilla_03',0.5],['showSLATHull',0.3]] call BIS_fnc_initVehicle;"]];
 	};
+	case 6: {
+		// GUER - LDF
+		ZMM_GUERFlag = ["Flag_EAF_F", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
+		ZMM_GUERMan = ["I_E_Soldier_TL_F","I_E_Soldier_LAT2_F","I_E_Soldier_AR_F","I_E_Soldier_F"];
+		ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "Indep" >> "IND_E_F" >> "Infantry" >> "I_E_InfSentry"];
+		ZMM_GUERGrp_Team = [configFile >> "CfgGroups" >> "Indep" >> "IND_E_F" >> "Infantry" >> "I_E_InfTeam"];
+		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "Indep" >> "IND_E_F" >> "Infantry" >> "I_E_InfSquad"];
+		ZMM_GUERVeh_Truck = [configFile >> "CfgGroups" >> "Indep" >> "IND_E_F" >> "Motorized" >> "I_E_MotInf_Reinforcements"];
+		ZMM_GUERVeh_Util = ["I_E_Truck_02_Box_F","I_E_Truck_02_fuel_F","I_E_Truck_02_Ammo_F"];
+		ZMM_GUERVeh_Light = ["B_T_MRAP_01_hmg_F","B_T_MRAP_01_gmg_F"];
+		ZMM_GUERVeh_Medium = [["I_LT_01_cannon_F","[_grpVeh,['Indep_Olive',1],['showCamonetHull',0.6,'showSLATHull',0.2]] call BIS_fnc_initVehicle;"],["I_E_APC_tracked_03_cannon_F","[_grpVeh,['EAF_01',1],['showCamonetHull',0.6,'showCamonetTurret',0.4]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_Heavy = [["O_MBT_04_cannon_F","[_grpVeh,['Jungle',1],['showCamonetHull',0.6,'showCamonetTurret',0.3]] call BIS_fnc_initVehicle;"],["I_E_APC_tracked_03_cannon_F","[_grpVeh,['EAF_01',1],['showCamonetHull',0.5,'showSLATHull',0.7,'showSLATTurret',0.5]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_Air = ["I_Heli_light_03_unarmed_F", ["B_Heli_Light_01_dynamicLoadout_F","_grpVeh setObjectTextureGlobal [0, selectRandom['\A3\air_f\heli_light_01\data\skins\heli_light_01_ext_graywatcher_co.paa','\A3\air_f\heli_light_01\data\heli_light_01_ext_ion_co.paa','\A3\air_f\heli_light_01\data\skins\heli_light_01_ext_wasp_co.paa','\A3\air_f\heli_light_01\data\skins\heli_light_01_ext_shadow_co.paa']];"]];
+		ZMM_GUERVeh_CasH = [["I_Heli_light_03_dynamicLoadout_F","[_grpVeh,['Green',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_CasP = [["I_Plane_Fighter_04_F","[_grpVeh,['CamoGrey',1]] call BIS_fnc_initVehicle; { _grpVeh setPylonLoadout [_forEachIndex + 1, _x] } forEach ['','','','','PylonMissile_Bomb_GBU12_x1','PylonMissile_Bomb_GBU12_x1'];"]];
+		ZMM_GUERVeh_Convoy = [["B_T_MRAP_01_hmg_F",""],["I_E_Van_02_transport_F",""],["I_E_APC_tracked_03_cannon_F","[_grpVeh,['EAF_01',1],['showSLATHull',0.3]] call BIS_fnc_initVehicle;"]];
+	};
 	*/
 	default {
 		// GUER - FIA

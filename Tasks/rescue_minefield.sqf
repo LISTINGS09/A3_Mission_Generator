@@ -44,7 +44,7 @@ _mineType = selectRandom ["APERSBoundingMine","APERSMine"];
 for "_i" from -25 to 25 step 5 do {
 	for "_j" from -25 to 25 step 5 do {
 		_minePos = _targetPos vectorAdd [_i, _j, 0];
-		if (random 1 > 0.35 && _targetPos distance2D _minePos > 2 && !surfaceIsWater _minePos) then {
+		if (random 1 > 0.65 && _targetPos distance2D _minePos > 2 && !surfaceIsWater _minePos && count(lineIntersectsObjs [_minePos, [_minePos#0, _minePos#1, 20]]) == 0) then {
 			//_mine = createVehicle [_mineType, _minePos, [], 3, "NONE"];
 			_mine = createMine [_mineType, _minePos, [], 3];
 			_enemySide revealMine _mine;

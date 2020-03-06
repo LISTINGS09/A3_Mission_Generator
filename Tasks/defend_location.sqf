@@ -46,14 +46,16 @@ _infTrigger setTriggerArea [_radius, _radius, 0, FALSE];
 _infTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
 _objTrigger setTriggerTimeout [120, 120, 120, true];
 _infTrigger setTriggerStatements [  "this", 
-									format["['Command','Additional enemy forces are inbound. Defend %1 for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];", _locName, _time / 60],
+									format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend %1 for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
+									[] spawn { sleep 240; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; } 
+									", _locName, _time / 60, _zoneID, _delay, _waves],
 									"" ];
 									
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _objTrigger setTriggerArea [_radius, _radius, 0, FALSE];
 _objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
-_objTrigger setTriggerTimeout [_time, _time, _time, true];
+_objTrigger setTriggerTimeout [(_time + 180), (_time + 240), (_time + 300), true];
 _objTrigger setTriggerStatements [ 	"this", 
 									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
