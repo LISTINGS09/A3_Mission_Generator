@@ -56,19 +56,17 @@ if (_positions isEqualTo []) then {
 	};
 };
 
-systemChat format["POS: %1", count _positions];
-
 // Generate the crates.
 for "_i" from 0 to (_itemMax * 2) do {
 	if (_positions isEqualTo []) exitWith {};
 
 	private _itemType = selectRandom _itemArr;
 	private _itemPos = selectRandom _positions;
-	_positions deleteAt (_positions find _itemPos);
+	if (count _positions > _itemMax) then { _positions deleteAt (_positions find _itemPos) };
 
 	if (count _itemPos > 0) then { 
 		// If not in a building find an empty position.
-		if (_itemPos#2 == 0) then { _itemPos = _itemPos findEmptyPosition [1, 25, _itemType] };
+		if (_itemPos#2 == 0) then { _itemPos = _itemPos findEmptyPosition [1, 25, "B_Soldier_F"] };
 		
 		_itemCount = _itemCount + 1;
 		_itemObj = _itemType createVehicle [0,0,0];
@@ -104,16 +102,13 @@ for "_i" from 0 to (_itemMax * 2) do {
 	};
 };
 
-// If we couldn't place all the objects, update minimum.
-if (_itemCount < _itemMax) then { _itemMax = _itemCount };
-
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", [0,0,0], FALSE];
-_objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_TSK_Counter',0]) >= %2", _zoneID, _itemMax], 
+_objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_TSK_Counter',0]) >= %2", _zoneID, _itemCount], 
 									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _itemMax, _itemName, _locName] + _itemTask, ["Item Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "box"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _itemCount, _itemName, _locName] + _itemTask, ["Item Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "box"] call BIS_fnc_setTask;
 
 TRUE

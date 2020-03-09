@@ -68,7 +68,7 @@ for "_i" from 0 to _cacheNo do {
 		
 		// If the crate was moved safely, create the task.
 		if (alive _ammoObj) then {
-			_mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], [_ammoPos, random 50, random 360] call BIS_fnc_relPos];
+			_mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _ammoObj getPos [random 50, random 360]];
 			_mrkr setMarkerShape "ELLIPSE";
 			_mrkr setMarkerBrush "SolidBorder";
 			_mrkr setMarkerSize [50,50];
@@ -101,6 +101,6 @@ _objTrigger setTriggerStatements [  (_crateActivation joinString " && "),
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _crateNo, _locName], ["Cache Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "box"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _crateNo, _locName], ["Cache Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "box"] call BIS_fnc_setTask;
 
 TRUE

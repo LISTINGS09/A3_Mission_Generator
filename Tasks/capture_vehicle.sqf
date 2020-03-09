@@ -71,6 +71,6 @@ _faiTrigger setTriggerStatements [ 	format["!alive ZMM_%1_TSK_Vehicle", _zoneID]
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName")] + format["<br/><br/>Type: <font color='#FFA500'>%1</font><br/>Registration: <font color='#FFA500'>%2</font><br/><img width='350' image='%3'/>",  getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getPlateNumber _veh, getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], ["Steal"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], [_veh, FALSE], "AUTOASSIGNED", 1, FALSE, TRUE, "truck"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName")] + format["<br/><br/>Type: <font color='#FFA500'>%1</font><br/>Registration: <font color='#FFA500'>%2</font><br/><img width='350' image='%3'/>",  getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getPlateNumber _veh, getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], ["Steal"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], [_veh, FALSE], "CREATED", 1, FALSE, TRUE, "truck"] call BIS_fnc_setTask;
 
 TRUE

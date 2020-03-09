@@ -48,6 +48,7 @@ for "_i" from -25 to 25 step 5 do {
 			//_mine = createVehicle [_mineType, _minePos, [], 3, "NONE"];
 			_mine = createMine [_mineType, _minePos, [], 3];
 			_enemySide revealMine _mine;
+			CIVILIAN revealMine _mine;
 		};
 	};
 };
@@ -195,7 +196,7 @@ _objTrigger setTriggerStatements [  _endTrigger,
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + _missionDesc, [_taskType] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "AUTOASSIGNED", 1, FALSE, TRUE, "mine"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + _missionDesc, [_taskType] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "mine"] call BIS_fnc_setTask;
 
 
 

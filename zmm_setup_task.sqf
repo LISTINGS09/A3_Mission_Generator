@@ -108,7 +108,11 @@ if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID]
 _objectives pushBack ["Clear", [_zoneID], "clear_location.sqf", [900]];
 _objectives pushBack ["Clear", [_zoneID], "kill_group.sqf"];
 _objectives pushBack ["Clear", [_zoneID], "clear_uprising.sqf"];
+_objectives pushBack ["Search", [_zoneID], "disarm_uxo.sqf"];
 _objectives pushBack ["Search", [_zoneID], "collect_items.sqf"];
+_objectives pushBack ["Search", [_zoneID], "collect_item.sqf"];
+_objectives pushBack ["Search", [_zoneID], "collect_weapon.sqf"];
+_objectives pushBack ["Search", [_zoneID], "disarm_bomb.sqf"];
 _objectives pushBack ["Destroy", [_zoneID], "destroy_cache.sqf"];
 _objectives pushBack ["Data", [_zoneID], "download_data.sqf"];
 _objectives pushBack ["Data", [_zoneID], "upload_data.sqf"];

@@ -1,4 +1,4 @@
-// V2.7
+// V2.8
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
 
@@ -7,7 +7,7 @@ ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
 // ZZM_Mode = 1 - CTI Intel Mode
 // ZZM_Mode = 2 - Fixed location, objective selection.
-ZZM_Mode = 2;
+ZZM_Mode = 1;
 
 "Group" setDynamicSimulationDistance 800;
 "Vehicle" setDynamicSimulationDistance 650;

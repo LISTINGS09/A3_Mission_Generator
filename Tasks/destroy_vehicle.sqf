@@ -69,6 +69,6 @@ _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName")] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], ["Destroy"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], [_veh, FALSE], "AUTOASSIGNED", 1, FALSE, TRUE, "destroy"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName")] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], ["Destroy"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], [_veh, FALSE], "CREATED", 1, FALSE, TRUE, "destroy"] call BIS_fnc_setTask;
 
 TRUE
