@@ -5,10 +5,10 @@ params [
 	["_triggerOnly", FALSE],
 	["_delay", 300],
 	["_maxWave", 6],
-	["_locType", ""]
+	["_qrfType", -1]
 ];
 
-// TODO: Implement _locType
+if (_qrfType < 0) then { _qrfType = floor random 5 };
 
 // If set only create the trigger and exit.
 if _triggerOnly exitWith {
@@ -22,13 +22,10 @@ if _triggerOnly exitWith {
 	_detectedTrg setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
 	_detectedTrg setTriggerTimeout [_timeOut, _timeOut, _timeOut, TRUE];
 	_detectedTrg setTriggerArea [_radius, _radius, 0, FALSE];
-	_detectedTrg setTriggerStatements ["this", format["[%1, FALSE, (missionNamespace getVariable ['ZMM_%1_QRFTime', 600]), (missionNamespace getVariable ['ZMM_%1_QRFWaves', 3])] spawn zmm_fnc_areaQRF;", _zoneID, _locType], ""];
+	_detectedTrg setTriggerStatements ["this", format["[%1, FALSE, (missionNamespace getVariable ['ZMM_%1_QRFTime', 600]), (missionNamespace getVariable ['ZMM_%1_QRFWaves', 3])] spawn zmm_fnc_areaQRF;", _zoneID, _qrfType], ""];
 };
 
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
-
-// TODO: Add custom QRFs per Location Type.
-sleep (_delay / 4);
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
 private _side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
@@ -47,35 +44,117 @@ private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side], (m
 
 if (count _locations isEqualTo 0) exitWith {};
 
-//if (_locType isEqualTo "") then { _locType = type (nearestLocation [_centre,""]) };
+[selectRandom ["HQ","UAV","Control","Overlord","Recon","Ghost"], format["%1 %3 QRF is %2.", selectRandom ["Warning,","Caution,","Be advised,","Be aware,"], selectRandom ["inbound","en-route","responding","closing in"], ["enemy","a large","a motorised","a mechanised","an armoured","an airborne"] select _qrfType]] remoteExec ["BIS_fnc_showSubtitle"];
+
+// TODO: Add custom QRFs per Location Type.
+sleep (_delay / 4);
 
 // MAIN
 // Spawn waves.
 for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
-	["DEBUG", format["QRF%1 Wave %2 Spawning", _zoneID, _wave]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Spawning QRF #%2", _zoneID, _wave]] call zmm_fnc_logMsg;
 	
 	if (({ _centre distance2D _x < 1000 } count (switchableUnits + playableUnits)) isEqualTo 0) exitWith {
-		["DEBUG", format["QRF%1 Aborted - No players nearby", _zoneID]] call zmm_fnc_logMsg;
+		["DEBUG", format["Zone%1 - Stopping QRF: No players nearby", _zoneID]] call zmm_fnc_logMsg;
 	};
-	
-	switch (_wave) do {
+	switch (_qrfType) do {
+		// Motorised
 		case 1: {
-			[_centre, _locations, _side, selectRandom (_light + _truck)] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom (_light + _air)] call zmm_fnc_spawnUnit;
+			switch (_wave) do {
+				case 1: {
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
+				};
+				case 2: {
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
+				};
+				default {
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
+				};
+			};
 		};
+		// Mechanised
 		case 2: {
-			[_centre, _locations, _side, selectRandom (_light + _truck)] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom (_medium + _air)] call zmm_fnc_spawnUnit;
+			switch (_wave) do {
+				case 1: {
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+				};
+				default {
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+				};
+			};
 		};
+		// Armoured
 		case 3: {
-			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+			switch (_wave) do {
+				case 1: {
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
+				};
+				case 2: {
+					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
+				};
+				default {
+					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
+				};
+			};
 		};
+		// Airborne
+		case 4: {
+			switch (_wave) do {
+				case 1: {
+					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
+				};
+				case 2: {
+					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _casH] call zmm_fnc_spawnUnit;
+				};
+				case 3: {
+					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
+				};
+				default {
+					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom (_casH + _casP)] call zmm_fnc_spawnUnit;
+				};
+			};
+		};	
 		default {
-			[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
-			[_centre, _locations, _side, selectRandom (_casH + _air)] call zmm_fnc_spawnUnit;
+			switch (_wave) do {
+				case 1: {
+					[_centre, _locations, _side, selectRandom (_light + _truck)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom (_light + _air)] call zmm_fnc_spawnUnit;
+				};
+				case 2: {
+					[_centre, _locations, _side, selectRandom (_light + _truck)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom (_medium + _air)] call zmm_fnc_spawnUnit;
+				};
+				case 3: {
+					[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+				};
+				default {
+					[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom (_casH + _air)] call zmm_fnc_spawnUnit;
+				};
+			};
 		};
 	};
 

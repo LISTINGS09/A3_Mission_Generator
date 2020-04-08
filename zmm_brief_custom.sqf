@@ -1,50 +1,59 @@
 // Functions
-
 if !(leader player == player) exitWith {};
 
-zmm_fnc_canSelect = { missionNamespace getVariable ["ZMM_missionStarted",FALSE] };
-
-// TODO: handle safe zones?
-
 zmm_fnc_selectLocation = {
-	if (call zmm_fnc_canSelect) exitWith { systemChat "[ZMM] ERROR: Mission is already in progress."; };
+	if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith { systemChat "[ZMM] ERROR: Mission is already in progress."; };
 	systemChat "Click on any Location, then click 'Confirm Selection' in map screen when done.";
-	onMapSingleClick 	"private _locArr = nearestLocations [_pos, ['NameLocal', 'NameVillage', 'NameCity', 'NameCityCapital', 'Airport'], 150];
+	onMapSingleClick 	"private _locArr = nearestLocations [_pos, ['NameLocal', 'NameVillage', 'NameCity', 'NameCityCapital', 'Airport', 'Hill'], 300, _pos];
+						private _size = 400;
+						private _posID = '';
+						systemChat format['Count: %1', count _locArr];
 						if (count _locArr > 0) then {
-								systemChat format['Target: %1', text (_locArr select 0)];
-								ZMM_targetLocation = position (_locArr select 0);
-								'loc_mkr' setMarkerPos ZMM_targetLocation;
+							private _loc = _locArr#0;
+							private _cfgLoc = ""getText (_x >> 'name') == text _loc && getText (_x >> 'type') == type _loc"" configClasses (configFile >> 'CfgWorlds' >> worldName >> 'Names');
+							_posID = format['%1 (%2)', text (_locArr#0), getText ((_cfgLoc#0) >> 'type')];
+							_size = (getNumber ((_cfgLoc#0) >> 'radiusA') max getNumber ((_cfgLoc#0) >> 'radiusB')) max _size;
+							ZMM_targetLocation = position (nearestBuilding (position _loc));
+							publicVariableServer 'ZMM_targetLocation';
+							'loc_mkr' setMarkerPos ZMM_targetLocation;
+							'loc_mkr' setMarkerSize [_size,_size];
 						} else {
 							if (surfaceIsWater _pos) then {
 								systemChat 'A flat location must be selected!';
+								ZMM_targetLocation = nil;
+								'loc_mkr' setMarkerPos [0,0];
 							} else {
 								ZMM_targetLocation = _pos;
-								'loc_mkr' setMarkerPos ZMM_targetLocation;
+								_posID = format ['%1 (Rural Area)', mapGridPosition _pos];
+								publicVariableServer 'ZMM_targetLocation';
+								'loc_mkr' setMarkerPos _pos;
+								'loc_mkr' setMarkerSize [_size,_size];
 							}
 						};
-						'loc_mkr' setMarkerAlpha 1;
-						format['[ZMM] Located selected by %1', name player] remoteExec ['SystemChat'];
+						format['[ZMM] %1: Location - %2', name player, _posID] remoteExec ['SystemChat'];
 						true";	
 };
 
 zmm_fnc_confirm = {
-	if (call zmm_fnc_canSelect) exitWith { systemChat "[ZMM] ERROR: Mission is already in progress."; };
+	if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith { systemChat "[ZMM] ERROR: Mission is already in progress."; };
 	if (!isNil "ZMM_targetLocation") then {
-		publicVariable "ZMM_targetLocation";
-		"loc_mkr" setMarkerType "mil_circle";
+		missionNamespace setVariable ["ZMM_targetPicked", true, true];
+		systemChat "[ZMM] LOCATION: Confirmed";
 	} else {
 		systemChat "[ZMM] ERROR: No location has been selected!";
 	};
 };
 
 // Don't do anything if the mission has been selected.
-if (call zmm_fnc_canSelect) exitWith {};
+if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith {};
 
 if (isNil "loc_mkr") then {
 	_mkr = createMarker ["loc_mkr",[0,0]];
-	_mkr setMarkerShape "ICON";
-	_mkr setMarkerColor format["Color%1",side group player];
-	_mkr setMarkerType "selector_selectedMission";
+	_mkr setMarkerShape "ELLIPSE";
+	_mkr setMarkerColor "ColorWhite";
+	_mkr setMarkerBrush 'Border';
+	_mkr setMarkerAlpha 1;
+	_mkr setMarkerSize [0,0];
 };
 
 // Announce players side if not logged.
@@ -52,27 +61,32 @@ if (isNil "ZMM_playerSide") then {
 	missionNamespace setVariable ["ZMM_playerSide", side group player, true];
 };
 
-_ZMM = format["
-	<font size='18' color='#FF7F00'>Commander Selection</font><br/>
-	Click 'Select Location' to choose where to begin your Assignment.<br/>
-	<execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute><br/>
-	<br/>
-	<br/>
-	Choosing any option below will attempt to force a type of mission (if the location allows it).<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '', true]; format['[ZMM] %1 switched to mission type: Random', name player] remoteExec ['SystemChat'];"">Random</execute> - Choose a random objective (DEFAULT).<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', 'Building', true]; format['[ZMM] %1 switched to mission type: Building', name player] remoteExec ['SystemChat'];"">Building</execute> - Destroy or capture an area specific building (Comms Tower etc)<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', 'Clear', true]; format['[ZMM] %1 switched to mission type: Clear', name player] remoteExec ['SystemChat'];"">Clear</execute> - Clear a building/location of enemies.<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', 'Convoy', true]; format['[ZMM] %1 switched to mission type: Convoy', name player] remoteExec ['SystemChat'];"">Convoy</execute> - Destroy a Convoy.<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', 'Data', true]; format['[ZMM] %1 switched to mission type: Data', name player] remoteExec ['SystemChat'];"">Data</execute> - Download or Upload a set of data.<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', 'Defend', true]; format['[ZMM] %1 switched to mission type: Defend', name player] remoteExec ['SystemChat'];"">Defend</execute> - Hold a location.<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', 'Destroy', true]; format['[ZMM] %1 switched to mission type: Destroy', name player] remoteExec ['SystemChat'];"">Destroy</execute> - Destroy a target.<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', 'Rescue', true]; format['[ZMM] %1 switched to mission type: Rescue', name player] remoteExec ['SystemChat'];"">Rescue</execute> - Capture a person or vehicle.<br/>
-	<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', 'Search', true]; format['[ZMM] %1 switched to mission type: Search', name player] remoteExec ['SystemChat'];"">Search</execute> - Locate an object or vehicle.<br/>
-	<br/>
-	<br/>
-	Once happy with your location, click confirm.<br/>
-	<execute expression=""[] call zmm_fnc_confirm; format['[ZMM] Location confirmed by %1!', name player] remoteExec ['SystemChat'];"">Confirm Selection</execute><br/>
-	<br/>
-",profileName];
+private _ZMMtext = "<font size='18' color='#FF7F00'>Commander Selection</font><br/>
+	<font size='16' color='#80FF00'>1. Select Location</font><br/>
+	<execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute> and choose where to begin your Assignment. Any place not on water may be selected.<br/><br/>
+	<font size='16' color='#80FF00'>2. Choose Mission</font><br/>
+	Choosing any option below will attempt to force a type of mission (if the objective cannot be created, an alternative will be chosen).
+	<br/><execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '', true]; format['[ZMM] %1 switched to mission type: Random', name player] remoteExec ['SystemChat'];"">Random</execute> - Choose a random objective <font color='#00FFFF'>DEFAULT</font>.<br/>";
+	
+	{
+		_x params ["_mIcon","_mType","_mDesc"];
+		
+		_ZMMtext = _ZMMtext + format["<img width='15' image='%4'/> <execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '%1', true]; '[ZMM] %2: Mission - %1'remoteExec ['SystemChat'];"">%1</execute> - %3.<br/>",
+			_mType,
+			name player,
+			_mDesc,
+			_mIcon
+		];
+	} forEach [
+		["\A3\ui_f\data\igui\cfg\simpleTasks\types\defend_ca.paa","Defence","Clear and hold a location from enemy forces"],
+		["\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa","Denial","Destroy or weaken the opposing sides ability to wage war"],
+		["\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa","Intel","Find, download or upload Intelligence"],
+		["\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa","Recovery","Find and obtain an object or vehicle"],
+		["\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa","Rescue","Assist an ally in need of protection or aid"],
+		["\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa","Secure","Clear a building or location of enemy forces"]
+	];
 
-player createDiaryRecord ["diary", ["Mission Selection",_ZMM]];
+_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>3. Confirm</font><br/>Once happy with your location <execute expression=""[] call zmm_fnc_confirm;"">Confirm Selection</execute><br/><br/>";
+	
+
+player createDiaryRecord ["diary", ["Mission Selection", _ZMMtext]];

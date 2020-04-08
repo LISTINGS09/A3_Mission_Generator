@@ -120,7 +120,7 @@ if (!isNull _grpVehicle) then { _grp selectLeader driver _grpVehicle; [leader _g
 
 _grpType = ([(["","Man"] select _isMan), (["","Air"] select _isAir), (["","Ship"] select _isBoat), (["","Vehicle"] select _isCar), (["","Armoured"] select _isTank), (["","Static"] select _isStatic), (["","Artillery"] select _isArty) ] - [""]);
 _grp setVariable ["ZAI_Type", _grpType apply { toUpper _x }];
-["DEBUG", format["[%1] was detected as %2", groupID _grp, _grpType  joinString ", "]] call _ZAI_fnc_LogMsg;
+//["DEBUG", format["[%1] was detected as %2", groupID _grp, _grpType  joinString ", "]] call _ZAI_fnc_LogMsg;
 
 if _isAir then { _closeEnough = 1000 }; // Tolerance high for choppers & planes
 //if _isStatic then { [_grp, "Task", "STATIC"] call _ZAI_fnc_setGroupVariable; }; // Statics won't be tasked.
@@ -192,12 +192,12 @@ if ("RANDOM" in _params) then {
 		if (_counter > 25) then { _choosePos = FALSE };
 	};
 	
-	_randPos = [_randPos, 1, 50, 2, 0, 0, 0, [], [_unitPos,_unitPos]] call BIS_fnc_findSafePos;
+	_randPos = [_randPos, 1, 50, 5, 0, 0, 0, [], [_unitPos,_unitPos]] call BIS_fnc_findSafePos;
 	
 	// Put vehicle to a random spot
 	if (!isNull _grpVehicle && !_isStatic) then {
 		_vehArray = (units _grp apply { assignedVehicle _x }) - [objNull];		
-		_randPos = [_randPos, 1, 250, round ((sizeOf (typeOf _grpVehicle)) / 2), 0, 0, 0, [], [_randPos,_randPos]] call BIS_fnc_findSafePos;
+		_randPos = [_randPos, 1, 250, 1 + round ((sizeOf (typeOf _grpVehicle)) / 2), 0, 0, 0, [], [_randPos,_randPos]] call BIS_fnc_findSafePos;
 		
 		// Get all assigned vehicles & move them to a safe location.
 		{ 
@@ -330,7 +330,7 @@ _currCycle = _cycle;
 
 while {TRUE} do {
 	if (isNil "_grp") exitWith { ["DEBUG", format["[%1] Exiting - Null Group", _grpIDx]] call _ZAI_fnc_LogMsg }; // Group was deleted?
-	if (units _grp select { alive _x } isEqualTo []) exitWith { ["DEBUG", format["[%1] Exiting - All Dead!", _grpIDx]] call _ZAI_fnc_LogMsg; }; // No-one is alive.
+	if (units _grp select { alive _x } isEqualTo []) exitWith { ["DEBUG", format["[%1] Exiting - All Dead at %2!", _grpIDx, getPos leader _grp]] call _ZAI_fnc_LogMsg; }; // No-one is alive.
 	if ({isPlayer _x} count units _grp > 0) exitWith { _grp selectLeader ((units _grp select { isPlayer _x })#0); }; // Player is in the group, make them lead and exit.
 
 	_wasHit = FALSE;
@@ -526,7 +526,7 @@ while {TRUE} do {
 				if (_x isEqualTo _attackPos) then { _wp setWaypointSpeed "FULL"; _wp setWaypointType "SAD"; };
 			} forEach _evadeWPs;
 			
-			["DEBUG", format["[%1] Task %2 - %3 WPs added.", _grpIDx, _taskType, count _evadeWPs]] call _ZAI_fnc_LogMsg;
+			//["DEBUG", format["[%1] Task %2 - %3 WPs added.", _grpIDx, _taskType, count _evadeWPs]] call _ZAI_fnc_LogMsg;
 		};
 
 		_lastTime = time + _alertTime; // Update delay timer.
@@ -573,7 +573,7 @@ while {TRUE} do {
 			
 			_newGrpPos set [2,0];
 			
-			["DEBUG", format["[%1] Found WP %2 %3m after %4 tries (Combat: %5)",_grpIDx, _newGrpPos, round (_unitPos distance2D _newGrpPos), _tries, (!isNull _foundEnemy || _combatArea )]] call _ZAI_fnc_LogMsg;
+			//["DEBUG", format["[%1] Found WP %2 %3m after %4 tries (Combat: %5)",_grpIDx, _newGrpPos, round (_unitPos distance2D _newGrpPos), _tries, (!isNull _foundEnemy || _combatArea )]] call _ZAI_fnc_LogMsg;
 
 			_wp = _grp addWaypoint [_newGrpPos, 25];
 			_wp setWaypointType (["MOVE","SAD"] select _isAir);
@@ -721,5 +721,3 @@ while {TRUE} do {
 	if (_currCycle < _cycle) then { _currCycle = _currCycle + 0.5};
 	sleep _currCycle;
 };
-
-["DEBUG", format["[%1] Loop Aborted!", _grpIDx]] call _ZAI_fnc_LogMsg;

@@ -49,6 +49,7 @@ if _tooClose exitWith { [_targetPos, _posArray, _side, _unitClass] call zmm_fnc_
 if (_unitClass isEqualType "") then {
 	_vehType = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "vehicleClass");
 	private _veh = createVehicle [_unitClass, _startingPos, [], 0, if _isAir then {"FLY"} else {"NONE"}];
+	_veh setVehicleLock "LOCKEDPLAYER"; 
 
 	if _isAir then {
 		_sleep = FALSE;
@@ -57,7 +58,8 @@ if (_unitClass isEqualType "") then {
 		_veh setDir _dir;
 	};
 	
-	if (_vehType == "car") then {
+	if (_vehType == "car" || (!canFire _veh && !_isAir)) then {
+		_vehType = "car";
 		_soldierArr = [];
 	
 		for [{_i = 1}, {_i <= count (fullCrew [_veh, "", true])}, {_i = _i + 1}] do {
@@ -80,7 +82,7 @@ if (_unitClass isEqualType "") then {
 		
 		_reinfGrp = group effectiveCommander _veh;
 		_grpVeh = vehicle leader _reinfGrp;
-	};
+	};	
 } else {
 	_reinfGrp = [_startingPos, _side, _unitClass] call BIS_fnc_spawnGroup;
 	_grpVeh = (position leader _reinfGrp) nearestObject "Car";
@@ -151,37 +153,54 @@ if !_isAir then {
 		};
 	};
 } else {
-	// Unit is a transport.
-	_reinfGrp setBehaviour "CARELESS";
-	_soldierArr = [selectRandom _manArray];
-	
-	for [{_i = 1}, {_i < (([_unitClass, true] call BIS_fnc_crewCount) - ([_unitClass, false] call BIS_fnc_crewCount))}, {_i = _i + 1}] do {
-		_soldierArr pushBack (selectRandom _manArray);
+	// No cargo seats so assume its CAS
+	if (count fullCrew [_grpVeh, "cargo", true] > 0) then {
+		_reinfGrp setBehaviour "CARELESS";
+		_soldierArr = [selectRandom _manArray];
+		
+		for [{_i = 1}, {_i < (([_unitClass, true] call BIS_fnc_crewCount) - ([_unitClass, false] call BIS_fnc_crewCount))}, {_i = _i + 1}] do {
+			_soldierArr pushBack (selectRandom _manArray);
+		};
+
+		_paraUnit = [[0,0,0], _side, _soldierArr] call BIS_fnc_spawnGroup;
+		{
+			_x assignAsCargo _grpVeh;
+			[_x] orderGetIn TRUE;
+			_x moveInCargo _grpVeh;
+			_x allowFleeing 0;
+		} forEach units _paraUnit;
+		
+		_landPos = [_targetPos, 300, random 360] call BIS_fnc_relPos;		
+		_unloadWP = _reinfGrp addWaypoint [_landPos, 100];
+		_unloadWP setWaypointStatements ["TRUE", "(vehicle this) land 'GET OUT'; {unassignVehicle _x; [_x] orderGetIn FALSE} forEach ((crew vehicle this) select {group _x != group this})"];
+		_newWP = _reinfGrp addWaypoint [waypointPosition _unloadWP, 0];
+		_newWP setWaypointStatements ["{group _x != group this && alive _x} count crew vehicle this == 0", ""];
 	};
 
-	_paraUnit = [[0,0,0], _side, _soldierArr] call BIS_fnc_spawnGroup;
-	{
-		_x assignAsCargo _grpVeh;
-		[_x] orderGetIn TRUE;
-		_x moveInCargo _grpVeh;
-		_x allowFleeing 0;
-	} forEach units _paraUnit;
-	
-	_unloadWP = _reinfGrp addWaypoint [_targetPos getPos [300, random 360], 100];
-	_unloadWP setWaypointStatements ["TRUE", "(vehicle this) land 'GET OUT'; {unassignVehicle _x; [_x] orderGetIn FALSE} forEach ((crew vehicle this) select {group _x != group this})"];
-	_newWP = _reinfGrp addWaypoint [waypointPosition _unloadWP, 0];
-	_newWP setWaypointStatements ["{group _x != group this && alive _x} count crew vehicle this == 0", ""];
-	
 	_weapCount = 0;
-	{
-		_weapCount = _weapCount + count (vehicle player weaponsTurret _x);
-	} forEach ([[-1]] + (allTurrets vehicle player)); 
+	{ _weapCount = _weapCount + count _x } forEach (([[-1]] + (allTurrets _grpVeh)) apply { (_grpVeh weaponsTurret _x) - [
+		"rhsusf_weap_CMDispenser_ANALE39",
+		"rhsusf_weap_CMDispenser_ANALE40",
+		"rhsusf_weap_CMDispenser_ANALE52",
+		"rhsusf_weap_CMDispenser_M130",
+		"rhs_weap_CMDispenser_ASO2",
+		"rhs_weap_CMDispenser_BVP3026",
+		"rhs_weap_CMDispenser_UV26",
+		"rhs_weap_MASTERSAFE",
+		"rhsusf_weap_LWIRCM",
+		"Laserdesignator_pilotCamera",
+		"rhs_weap_fcs_ah64"]
+	});
 	
 	// If has turrets hang around AO, otherwise despawn.
 	if (_weapCount > 1) then {
 		_newWP = _reinfGrp addWaypoint [_targetPos, 0];
-		_newWP setWaypointType "LOITER";
+		_newWP setWaypointType "SAD";
+		_newWP setWaypointCompletionRadius 300;
 		_newWP setWaypointBehaviour "AWARE";
+		_newWP = _reinfGrp addWaypoint [_targetPos, 1];
+		_newWP setWaypointType "LOITER";
+		_newWP setWaypointCompletionRadius 500;
 	} else {
 		_newWP = _reinfGrp addWaypoint [_startingPos, 0];
 		_null = [_reinfGrp, _startingPos] spawn {

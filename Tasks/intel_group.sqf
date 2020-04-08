@@ -6,17 +6,26 @@ private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _z
 private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 private _enemyType = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 private _missionDesc = [
-		"A <font color='#00FFFF'>%2</font> has been spotted at %1, find and kill them.",
-		"A <font color='#00FFFF'>%2</font> has been spotted moving around %1, hunt them down.",
-		"Track and eliminate a <font color='#00FFFF'>%2</font> unit somewhere near %1.",
-		"One highly-trained group of <font color='#00FFFF'>%2</font> is located somewhere nearby, find them.",
-		"A <font color='#00FFFF'>%2</font> of enemy soldiers have para-dropped into %1, locate and eliminate them.",
-		"Find and kill a <font color='#00FFFF'>%2</font>, patrolling somewhere around %1."
-	];	
+		"An <font color='#00FFFF'>Elite Group</font> has been spotted at this location, find and kill them.",
+		"A <font color='#00FFFF'>Specialist Unit</font> has been spotted moving around this area, hunt them down.",
+		"Track and eliminate a <font color='#00FFFF'>Special Forces</font> unit somewhere nearby.",
+		"One highly-trained group of <font color='#00FFFF'>Operators</font> is located somewhere nearby, find them.",
+		"A <font color='#00FFFF'>Crack Squad</font> of enemy soldiers have para-dropped into this area, locate and eliminate them.",
+		"Find and kill a <font color='#00FFFF'>Veteran Unit</font>, patrolling somewhere around this region."
+	];
 	
-private _grpName = format["%1 %2", selectRandom ["Elite","Specialist","Special","Veteran"], selectRandom ["Group","Unit","Forces","Squad","Operators"] ];
+private _maxCount = switch (_locType) do {
+		case "Airport": { 4 };
+		case "NameCityCapital": { 4 };
+		case "NameCity": { 3 };
+		case "NameVillage": { 3 };
+		case "NameLocal": { 2 };
+		default { 2 };
+	};
+	
 
 // Create Objective
 private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos), _enemySide, _enemyType] call BIS_fnc_spawnGroup;
@@ -37,6 +46,6 @@ _objTrigger setTriggerStatements [ 	format["({alive _x} count units ZMM_%1_GRP) 
 									"" ];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, _grpName], ["Hunter"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "kill"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc], ["Hunter"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "kill"] call BIS_fnc_setTask;
 
 TRUE

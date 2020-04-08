@@ -90,7 +90,9 @@ _fnc_spawnGroup = {
 	};
 };
 
-["DEBUG", format["Zone%1 (%2) - Creating Patrols", _zoneID, _locType]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Creating Patrols (%2)", _zoneID, _locType]] call zmm_fnc_logMsg;
+
+private _str = selectRandom ["Heavy", "Normal", "Light"];
 
 switch (_locType) do {
 	case "Airport": { 
@@ -124,15 +126,28 @@ switch (_locType) do {
 		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], 2 + random 2] call _fnc_spawnGroup;	
 		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;
 	};
-	default { 
-		if (random 100 > 50) then { 
-			[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], random 1] call _fnc_spawnGroup; 
+	default { 		
+		switch (_str) do {
+			case "Heavy": { 
+				[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], 1] call _fnc_spawnGroup;
+				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], random 1] call _fnc_spawnGroup; 
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+				[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+			};
+			case "Light": { 
+				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], random 1] call _fnc_spawnGroup; 
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], 3 + random 1] call _fnc_spawnGroup;
+			};
+			default { 
+				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], 1 + random 1] call _fnc_spawnGroup; 
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+				[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+			};
 		};
-		[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;
 	};
 };
 
-missionNamespace setVariable [format[ "ZMM_%1_PatrolsEnabled", _zoneID], FALSE];
+missionNamespace setVariable [format[ "ZMM_%1_PatrolsEnabled", _zoneID], false];
+missionNamespace setVariable [format[ "ZMM_%1_PatrolsStrength", _zoneID], _str];
 
 TRUE
