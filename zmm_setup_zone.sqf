@@ -195,7 +195,7 @@ if (_locType isEqualTo "Task") exitWith {
 
 // Create Building Locations
 private _allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), TRUE];
-missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 2}) ]; // Set Large Buildings
+missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 4}) ]; // Set Large Buildings
 
 // Genuine location, so add it to possible locations list (to pick a random task location in CTI).
 if (isNil "ZMM_ZoneMarkers") then { ZMM_ZoneMarkers = [] };

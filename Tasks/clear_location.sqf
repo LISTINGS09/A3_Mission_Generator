@@ -5,7 +5,7 @@ private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneI
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 private _enemyType = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Squad",_enemySide],["O_Soldier_F"]]); // CfgGroups entry.
-private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 25; // Area of Zone.
+private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 50; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
@@ -19,12 +19,12 @@ private _minUnits = switch (_locType) do {
 };
 
 private _missionDesc = [
-		"Enemy forces have occupied an area near <font color='#00FFFF'>%1</font>, eliminate them.",
-		"A number of enemy groups have been spotted nearby <font color='#00FFFF'>%1</font>, locate and eliminate all contacts.",
-		"Eliminate all enemy forces in the area nearby <font color='#00FFFF'>%1</font>.",
-		"Enemy forces have recently entered <font color='#00FFFF'>%1</font>, destroy them before they can reinforce it.",
-		"The enemy appears to have occupied <font color='#00FFFF'>%1</font> overnight, eliminate all forces there.",
-		"Enemy forces are trying to capture <font color='#00FFFF'>%1</font>, move in and eliminate all resistance."
+		"Enemy forces have occupied an area near <font color='#00FFFF'>%1</font>, eliminate 90% of their forces.",
+		"A number of enemy groups have been spotted nearby <font color='#00FFFF'>%1</font>, locate and eliminate 90% of all contacts.",
+		"Eliminate all enemy forces in the area nearby <font color='#00FFFF'>%1</font>. Ensure at least 90% of the enemy forces are killed.",
+		"Enemy forces have recently entered <font color='#00FFFF'>%1</font>, destroy 90% of their forces before they can reinforce it.",
+		"The enemy appears to have occupied <font color='#00FFFF'>%1</font> overnight, eliminate 90% of all forces there.",
+		"Enemy forces are trying to capture <font color='#00FFFF'>%1</font>, move in and eliminate 90% of all resistance."
 	];		
 
 private _locPos = [_centre, 1, _radius, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;

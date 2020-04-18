@@ -1,15 +1,15 @@
 // Spawn a convoy of three vehicles and make them patrol around a location.
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-_enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-_playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
-_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
+private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
-_manList = missionNamespace getVariable [format["ZMM_%1Man", _enemySide],["O_Solider_F"]];
-_carList = missionNamespace getVariable [format["ZMM_%1Veh_Convoy", _enemySide],[]];
+private _manList = missionNamespace getVariable [format["ZMM_%1Man", _enemySide],["O_Solider_F"]];
+private _carList = missionNamespace getVariable [format["ZMM_%1Veh_Convoy", _enemySide],[]];
 
-_missionDesc = [
+private _missionDesc = [
 		"A %3 %4 has just finished a meeting in %1 with an enemy Commander there. Destroy %4s convoy of <font color='#00FFFF'>%2 Vehicles</font> and ensure they don't escape.",
 		"Destroy a group of <font color='#00FFFF'>%2 Vehicles</font> understood to be owned by a %3 %4 living somewhere nearby %1.",
 		"A %3 %4 is passing through the enemy-controlled area of %1. Locate the %4s <font color='#00FFFF'>%2 Vehicles</font> and destroy them.",
@@ -18,8 +18,14 @@ _missionDesc = [
 		"The %3 %4 of %1 has just completed a deal with rebel forces in the area. Find the %4s <font color='#00FFFF'>%2 Vehicles</font> and ensure both the %4 and all vehicles are destroyed."
 	];	
 
-_conVerb = selectRandom ['feared', 'respected', 'notorious', 'senior', 'high-ranking', 'decorated', 'wealthy', 'rogue', 'dangerous', 'long-wanted', 'reclusive'];
-_conType = selectRandom ['Diplomat', 'Warlord', 'Terrorist', 'Official', 'Advisor', 'Leader', 'Kingpin', 'Drug Baron', 'Arms Dealer', 'Convict'];
+private _conVerb = selectRandom ['feared', 'respected', 'notorious', 'senior', 'high-ranking', 'decorated', 'wealthy', 'rogue', 'dangerous', 'long-wanted', 'reclusive'];
+private _conType = selectRandom ['Diplomat', 'Warlord', 'Terrorist', 'Official', 'Advisor', 'Leader', 'Kingpin', 'Drug Baron', 'Arms Dealer', 'Convict'];
+
+private _obj = [
+	["",""],
+	["",""],
+	["",""]
+];
 
 // No vehicles defined, so use basic ones - 2nd Vehicle will always carry the HVT.
 if (count _carList == 0) then {

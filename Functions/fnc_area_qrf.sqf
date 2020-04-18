@@ -8,7 +8,17 @@ params [
 	["_qrfType", -1]
 ];
 
-if (_qrfType < 0) then { _qrfType = floor random 5 };
+
+_qrfTypes = [
+	"Reserve",
+	"Motorized Infantry",
+	"Mechanised",
+	"Armoured",
+	"Airborne",
+	"Infantry"
+];
+
+if (_qrfType < 0) then { _qrfType = floor random count _qrfTypes };
 
 // If set only create the trigger and exit.
 if _triggerOnly exitWith {
@@ -44,7 +54,9 @@ private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side], (m
 
 if (count _locations isEqualTo 0) exitWith {};
 
-[selectRandom ["HQ","UAV","Control","Overlord","Recon","Ghost"], format["%1 %3 QRF is %2.", selectRandom ["Warning,","Caution,","Be advised,","Be aware,"], selectRandom ["inbound","en-route","responding","closing in"], ["enemy","a large","a motorised","a mechanised","an armoured","an airborne"] select _qrfType]] remoteExec ["BIS_fnc_showSubtitle"];
+if ((missionNamespace getVariable ["ZZM_Mode",1]) != 1) then {
+	[selectRandom ["HQ","UAV","Recon"], format["%1 enemy %2 forces are %3.", selectRandom ["Warning,","Caution,","Be advised,","Be aware,"], _qrfTypes select _qrfType, selectRandom ["inbound","en-route","responding","closing in"]]] remoteExec ["BIS_fnc_showSubtitle"];
+};
 
 // TODO: Add custom QRFs per Location Type.
 sleep (_delay / 4);
@@ -65,16 +77,17 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
 				};
-				case 2: {
+				case 2;
+				case 3;
+				case 4: {
 					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
-					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
 				};
 				default {
 					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
-					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
-					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
 				};
 			};
@@ -83,6 +96,14 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 		case 2: {
 			switch (_wave) do {
 				case 1: {
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+				};
+				case 2: {
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+				};
+				case 3;
+				case 4: {
 					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
@@ -91,7 +112,7 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
-					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 				};
 			};
 		};
@@ -99,15 +120,18 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 		case 3: {
 			switch (_wave) do {
 				case 1: {
-					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 				};
 				case 2: {
-					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
+				};
+				case 3;
+				case 4: {
+					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 				};
 				default {
-					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 				};
@@ -116,36 +140,67 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 		// Airborne
 		case 4: {
 			switch (_wave) do {
-				case 1: {
-					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
-				};
+				case 1;
 				case 2: {
+					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
+					[_centre, _side] call zmm_fnc_spawnPara;
+				};
+				case 3: {
+					[_centre, _side] call zmm_fnc_spawnPara;
 					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _casH] call zmm_fnc_spawnUnit;
 				};
-				case 3: {
+				case 4: {
+					[_centre, _side] call zmm_fnc_spawnPara;
+					[_centre, _side] call zmm_fnc_spawnPara;
 					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
 				};
 				default {
-					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
-					[_centre, _locations, _side, selectRandom _air] call zmm_fnc_spawnUnit;
+					[_centre, _side] call zmm_fnc_spawnPara;
+					[_centre, _side] call zmm_fnc_spawnPara;
 					[_centre, _locations, _side, selectRandom (_casH + _casP)] call zmm_fnc_spawnUnit;
 				};
 			};
 		};	
+		// Infantry
+		case 5: {
+			switch (_wave) do {
+				case 1: {
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+				};
+				case 2;
+				case 3: {
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
+				};
+				default {
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
+				};
+			};
+		};	
+		// Reserve Forces
 		default {
 			switch (_wave) do {
 				case 1: {
 					[_centre, _locations, _side, selectRandom (_light + _truck)] call zmm_fnc_spawnUnit;
-					[_centre, _locations, _side, selectRandom (_light + _air)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _light] call zmm_fnc_spawnUnit;
 				};
 				case 2: {
 					[_centre, _locations, _side, selectRandom (_light + _truck)] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
-					[_centre, _locations, _side, selectRandom (_medium + _air)] call zmm_fnc_spawnUnit;
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
+					[_centre, _side] call zmm_fnc_spawnPara;
 				};
-				case 3: {
+				case 3;
+				case 4: {
 					[_centre, _locations, _side, selectRandom (_light + _medium)] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom (_medium + _heavy)] call zmm_fnc_spawnUnit;
 				};
@@ -158,6 +213,6 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 		};
 	};
 
-	private _tNextWave = time + _delay;	
+	private _tNextWave = time + _delay + (random (_delay / 2));	
 	waitUntil {sleep 1; time > _tNextWave};
 };

@@ -78,7 +78,7 @@ for "_i" from 1 to _civMax do {
 		
 	if (alive _civUnit) then {
 		// Create marker if not in one already.
-		if ((_civMarkers findIf { _civUnit inArea _x }) < 0) then {		
+		//if ((_civMarkers findIf { _civUnit inArea _x }) < 0) then {		
 			_mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _civUnit getPos [random 25, random 360]];
 			_mrkr setMarkerShape "ELLIPSE";
 			_mrkr setMarkerBrush "SolidBorder";
@@ -86,7 +86,7 @@ for "_i" from 1 to _civMax do {
 			_mrkr setMarkerAlpha 0.4;
 			_mrkr setMarkerColor format["Color%1",_enemySide];
 			_civMarkers pushBack format["MKR_%1_OBJ_%2", _zoneID, _i];
-		};
+		//};
 	
 		sleep 0.5; // Allow time for name to generate.
 		missionNamespace setVariable [format["ZMM_%1_HVT_%2", _zoneID, _i], _civUnit];	

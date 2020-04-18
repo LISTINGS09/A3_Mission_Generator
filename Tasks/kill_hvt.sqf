@@ -19,7 +19,7 @@ _missionDesc = [
 if (isNil "_bld") then { _bld = objNull };
 	
 // Use a zone building if none passed.
-if (count _buildings > 0 && {isNull _bld}) then { _bld = selectRandom _buildings };
+if (count _buildings > 0 && {isNull _bld}) then { _bld = selectRandom (_buildings select { count (_x buildingPos -1) > 4 }) };
 
 // Get any building if we have none
 if (isNull _bld) then { _bld = nearestBuilding _centre };
@@ -34,9 +34,48 @@ if (_bld distance _centre > 100) then { _bldPos = [] };
 private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos), _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
 {
 	if (leader _x == _x) then { 
-		_x addHeadGear "H_Beret_blk";
+		_x addHeadGear selectRandom ["H_Beret_blk","H_Beret_red","H_Beret_grn"];
 		_x setVariable ["var_zoneID", _zoneID, true];
 		removeFromRemainsCollector [_x];
+		
+		_x addEventHandler ["Killed", {
+			params ["_unit", "_killer"];
+			private _zoneID = _unit getVariable ["var_zoneID", 0];
+			
+			private _mrkr = createMarker [format["MKR_%1_OBJ", _zoneID], getPos _unit];
+			_mrkr setMarkerShape "ICON";
+			_mrkr setMarkerType "mil_unknown";
+			_mrkr setMarkerAlpha 0.4;
+			_mrkr setMarkerColor format["Color%1", side group _unit];
+		}];
+				
+		// Create Completion Action
+		[_x, 
+			format["<t color='#00FF80'>Verify identify of %1</t>", name _x], 
+			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_forceRespawn_ca.paa", 
+			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_forceRespawn_ca.paa", 
+			"_this distance _target < 3 && !alive _target", 
+			"_caller distance _target < 3 && !alive _target", 
+			{}, 
+			{}, 
+			{
+				[_target, _actionId] remoteExec ["BIS_fnc_holdActionRemove"];
+				_caller playAction "PutDown";
+				sleep 1;
+				private _zoneID = _target getVariable ["var_zoneID", 0];
+				format["MKR_%1_OBJ", _zoneID] setMarkerAlpha 0;
+				[name _caller, format["Target %1 as %2.", selectRandom ["verified", "confirmed", "identified"], selectRandom ["eliminated","deceased","dead","killed"]]] remoteExec ["BIS_fnc_showSubtitle"];
+				addToRemainsCollector [_target];
+				
+				missionNamespace setVariable ['ZMM_DONE', true, true];
+				[format["ZMM_%1_TSK", _zoneID], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
+				{ _x setMarkerColor "ColorWest" } forEach [format['MKR_%1_LOC', _zoneID], format['MKR_%1_MIN', _zoneID]];
+			}, 
+			{}, 
+			[], 
+			2, 
+			10 
+		] remoteExec ["bis_fnc_holdActionAdd", 0, _x];
 	};
 	
 	_x disableAI "PATH";
@@ -58,39 +97,9 @@ private _alias = ["Butcher", "Diablo", "Doctor", "Reaper", "Scorpion", "Hyena", 
 private _headText = if (isClass (configFile >> "CfgWeapons" >> headgear (leader _milGroup))) then {
 		format["<br/><br/>You will need to verify the identity of the target when eliminated. The target is known to be wearing a <font color='#00FFFF'>%1</font>.<br/><br/><img image='%2' width='60'/>", getText (configFile >> "CfgWeapons" >> headgear (leader _milGroup) >> "displayName"), getText (configFile >> "CfgWeapons" >> headgear (leader _milGroup) >> "picture")];
 	} else { "" };
-	
-// Create Completion Action
-[leader _milGroup, 
-	format["<t color='#00FF80'>Verify identify of %1</t>", name leader _milGroup], 
-	"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_forceRespawn_ca.paa", 
-	"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_forceRespawn_ca.paa", 
-	"_this distance _target < 3 && !alive _target", 
-	"_caller distance _target < 3 && !alive _target", 
-	{}, 
-	{}, 
-	{
-		[_target, _actionId] remoteExec ["BIS_fnc_holdActionRemove"];
-		_caller playAction "PutDown";
-		sleep 1;
-		private _zoneID = _target getVariable ["var_zoneID", 0];
-		format["MKR_%1_OBJ_%2", _zoneID] setMarkerAlpha 0;
-		[name _caller, format["Target %1 as eliminated.", selectRandom ["verified", "confirmed", "identified"]]] remoteExec ["BIS_fnc_showSubtitle"];
-		[format["ZMM_%1_TSK", _zoneID], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
-		missionNamespace setVariable ['ZMM_DONE', true, true];
-		{ _x setMarkerColor "ColorWest" } forEach [format['MKR_%1_LOC', _zoneID], format['MKR_%1_MIN', _zoneID]];
-		[_target, { sleep 120; deleteVehicle _this }] remoteExec ["BIS_fnc_spawn", _target];
-	}, 
-	{}, 
-	[], 
-	2, 
-	10 
-] remoteExec ["bis_fnc_holdActionAdd", 0, leader _milGroup];
 
 // Add to Zeus
 { _x addCuratorEditableObjects [units _milGroup, true] } forEach allCurators;
-
-// Create Completion Trigger
-missionNamespace setVariable [format["ZMM_%1_HVT", _zoneID], leader _milGroup];
 
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + _headText, _locName, name leader _milGroup, selectRandom _alias], ["Killer"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "target"] call BIS_fnc_setTask;

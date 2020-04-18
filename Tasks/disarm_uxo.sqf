@@ -35,6 +35,8 @@ if (count _positions < _bombMax) then {
 
 private _bombCount = 0;
 private _bombActivation = [];
+private _bombAreas = [];
+private _radius = 30;
 private _uxoSide = ceil random 3;
 
 // Create locations if none exist
@@ -50,12 +52,18 @@ for "_i" from 0 to _bombMax do {
 
 	private _bombType = format["BombCluster_0%1_UXO%2_F", _uxoSide, ceil random 4];
 	private _bombPos = selectRandom _positions;
-	if (count _positions > _bombMax) then { _positions deleteAt (_positions find _bombPos) };
+	private _inBuild = true;
+	
+	_positions deleteAt (_positions find _bombPos);
 
 	if (count _bombPos > 0) then { 
 		// If not in a building find an empty position.
-		if (_bombPos#2 == 0) then { _bombPos = _bombPos findEmptyPosition [1, 25, "B_Soldier_F"] };
-		
+		if (_bombPos#2 == 0) then {
+			_bombPos = _bombPos findEmptyPosition [1, 25, "B_Soldier_F"];
+			_inBuild = false;
+			_radius = 20;
+		};
+			
 		_bombCount = _bombCount + 1;
 		private _bombObj = createMine [_bombType, _bombPos, [], 3];
 		_enemySide revealMine _bombObj;
@@ -66,12 +74,31 @@ for "_i" from 0 to _bombMax do {
 		
 		// If the crate was moved safely, create the task.
 		if (alive _bombObj) then {
-			private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _bombObj getPos [random 50, random 360]];
+			private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _bombObj getPos [random _radius, random 360]];
 			_mrkr setMarkerShape "ELLIPSE";
 			_mrkr setMarkerBrush "SolidBorder";
-			_mrkr setMarkerSize [50,50];
+			_mrkr setMarkerSize [_radius,_radius];
 			_mrkr setMarkerAlpha 0.4;
 			_mrkr setMarkerColor format["Color%1",_enemySide];
+			
+			private _sign = selectRandom ["RoadCone_F","Land_RoadCone_01_F","Land_Sign_Mines_F","Land_Sign_MinesTall_F","Land_Sign_MinesTall_English_F"];
+		
+			if !_inBuild then {
+				for "_i" from 1 to 360 step 15 do {
+					private _relPos = AGLToASL ((getMarkerPos _mrkr) getPos [_radius + 1,_i]);
+					private _inArea = false;
+					
+					{ if (_relPos inArea _x) exitWith { _inArea = true } } forEach _bombAreas;
+					
+					if (!(lineIntersects [_relPos, _relPos vectorAdd [0,0,15]]) && !_inArea)  then {
+						_obj = createSimpleObject [_sign, _relPos];
+						_obj setDir (_obj getDir (getMarkerPos _mrkr));
+					};
+				};
+			};
+			
+			// Add to areas to ignore
+			_bombAreas pushBack _mrkr;
 			
 			missionNamespace setVariable [format["ZMM_%1_OBJ_%2", _zoneID, _i], _bombObj, true];
 			
