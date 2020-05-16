@@ -69,6 +69,7 @@ missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Se
 // Set default sizes of area based on type.
 private _iconSize = 1;
 private _locSize = 1;
+private _locMax = 8;
 missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], TRUE];
 missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 12];
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
@@ -79,46 +80,51 @@ switch (_locType) do {
 		_iconSize = 1.2;
 		_locSize = 1.25;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 15 + random 10];
-		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 4 + floor (random 4)];
+		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 5)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 3)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 8];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 6)];
 	};
 	case "NameCityCapital": { 
 		_iconSize = 1.1;
 		_locSize = 1.25;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 15 + random 10];
-		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 3 + floor (random 3)];
+		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 5)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 3)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 6];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 6)];
 	};
 	case "NameCity": { 
 		_iconSize = 1;
 		_locSize = 1;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 15 + random 10];
-		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 3 + floor (random 2)];
+		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 4)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 6];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 4)];
 	};
 	case "NameVillage": { 
 		_iconSize = 0.8;
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 10 + random 10];
-		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 2 + floor (random 2)];
+		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 1.5)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 400];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 2)];
 	};
 	case "NameLocal": { 
 		_iconSize = 0.6;
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8 + random 6];
-		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 1 + floor (random 2)];
+		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 1.5)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 500];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 1)];
 	};
 	case "Ambient": {
 		_iconSize = 0.4;
@@ -127,6 +133,7 @@ switch (_locType) do {
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 1.5)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 0];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], 0];
 	};
 	case "Task": {
 		_iconSize = 0.4;
@@ -136,8 +143,19 @@ switch (_locType) do {
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 6];
+		if (random 1 > 0.5) then { missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 3)]; };
 	};
 };
+
+if (_side == INDEPENDENT) then { missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], 0] }; // IEDs for GUER only.
+
+["DEBUG", format["Zone%1 (%2 - %3) - Settings - GAR: %4 RBL: %5 SUP: %6 QRF: %7 IED: %8", _zoneID, _locType, _side,
+	missionNamespace getVariable [format[ "ZMM_%1_Garrison", _zoneID ], 0],
+	missionNamespace getVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 0],
+	missionNamespace getVariable [format[ "ZMM_%1_Supports", _zoneID ], 0],
+	missionNamespace getVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 0],
+	missionNamespace getVariable [format[ "ZMM_%1_IEDs", _zoneID ], 0]]
+] call zmm_fnc_logMsg;
 
 // Create Markers
 _mrk = createMarker [ format["MKR_%1_LOC", _zoneID], _pos ];
@@ -208,13 +226,17 @@ private _qrfDist = if ((_radius * 3) < 1000) then { 1500 } else { (_radius * 3) 
 
 for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
 	private _roads = ((_pos getPos [_qrfDist, _i]) nearRoads 150) select {count (roadsConnectedTo _x) > 0};
-		
-	if (count _roads > 0) then {
-		_road = _roads select 0;
-		if ({_x distance2D _road < 250} count _QRFLocs == 0) then {
-			_QRFLocs pushBack position _road;
+	private _tempPos = [];	
+	
+	_tempPos = if (count _roads > 0) then { getPos (_roads#0) } else { (_pos getPos [_qrfDist, _i]) isFlatEmpty [15, -1, -1, -1] };
+	
+	if !(_tempPos isEqualTo []) then {
+		if ({_x distance2D _tempPos < 350} count _QRFLocs == 0) then {
+			_QRFLocs pushBack _tempPos;
 		};
 	};
+	
+	if (count _QRFLocs > _locMax) exitWith {};
 };
 missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], _QRFLocs ]; // Set QRF Locations
 
@@ -236,13 +258,15 @@ for [{_i = 0}, {_i < 360}, {_i = _i + 1}] do {
 		private _tempPos = _pos getPos [_j, _i];
 		
 		if (count (_tempPos nearRoads 50) == 0 && 
-			count (nearestObjects [_tempPos, ["House", "Building"], 50]) == 0 && 
+			count (nearestObjects [_tempPos, ["House", "Building"], 25]) == 0 && 
 			{{_x distance2D _tempPos < 250} count _groundLocs == 0}) 
 		then {
-			_tempPos = _tempPos isFlatEmpty [5, -1, 0.1, 3, 0];
+			_tempPos = _tempPos isFlatEmpty [5, -1, 0.2, 3];
 			if !(_tempPos isEqualTo []) then { _groundLocs pushBack _tempPos };
 		};
 	};
+	
+	if (count _groundLocs > _locMax) exitWith {};
 };
 missionNamespace setVariable [ format["ZMM_%1_FlatLocations", _zoneID], _groundLocs]; // Set Flat Locations
 
@@ -263,7 +287,7 @@ for [{_i = 0}, {_i < 360}, {_i = _i + 5}] do {
 	for [{_j = _radius * 0.75}, {_j <= (_radius * 2)}, {_j = _j + 25}] do {
 		private _tempPos = _pos getPos [_j, _i];
 					
-		if ({_x distance2D _tempPos < 400} count _supportLocs == 0 && !(_tempPos isFlatEmpty [25, -1, 0.25, 5] isEqualTo [])) then {			
+		if ({_x distance2D _tempPos < 400} count _supportLocs == 0 && !(_tempPos isFlatEmpty [10, -1, 0.25, 5] isEqualTo [])) then {			
 			if (count (_tempPos nearRoads 50) == 0 &&
 				count (nearestObjects [_tempPos, ["House", "Building"], 50]) == 0)
 			then {
@@ -271,6 +295,8 @@ for [{_i = 0}, {_i < 360}, {_i = _i + 5}] do {
 			};
 		};
 	};
+	
+	if (count _supportLocs > _locMax) exitWith {};
 };
 
 missionNamespace setVariable [ format["ZMM_%1_SupportLocations", _zoneID], _supportLocs]; // Set Flat Locations
@@ -297,6 +323,8 @@ for [{_i = 0}, {_i < 360}, {_i = _i + 10}] do {
 			_blockLocs pushBack _road;
 		};
 	};
+	
+	if (count _blockLocs > (_locMax / 2)) exitWith {};
 };
 missionNamespace setVariable [ format["ZMM_%1_BlockLocations", _zoneID], _blockLocs]; // Set Flat Locations
 
@@ -311,7 +339,7 @@ missionNamespace setVariable [ format["ZMM_%1_BlockLocations", _zoneID], _blockL
 
 
 
-["DEBUG", format["Zone%1 - Completed [%2] QRF:%3 BLD:%4 FLT:%5", _zoneID, _side, count _QRFLocs, count _allBlds, count _groundLocs]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Completed [%2] - Locations: QRF:%3 BLD:%4 FLT:%5", _zoneID, _side, count _QRFLocs, count _allBlds, count _groundLocs]] call zmm_fnc_logMsg;
 
 if (ZZM_Mode == 1) then {
 	// CTI Mode - Create trigger when player nears Zone.

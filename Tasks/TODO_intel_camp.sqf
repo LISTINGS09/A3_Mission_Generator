@@ -1,3 +1,4 @@
+// Speak to local civilians to identify the location of a camp.
 // Set-up mission variables.
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
@@ -54,7 +55,7 @@ if (random 100 > 50 && count _bldPos > 0) then {
 
 _dataHeading = selecTRandom [
 		format["%1 Data", selectRandom ["Weapon", "Radio", "Flight", "Mapping", "Survey", "NBC", "Target", "Account"]],
-		format["%1 Locations", selectRandom ["Intel", "Camp", "POW", "Minefield", "HVT", "Storage", "Bunker", "GOAT", "Testing"]],
+		format["%1 Locations", selectRandom ["Intel", "Camp", "POW", "Minefield", "HVT", "Storage", "Bunker", "Munition", "Testing"]],
 		format["a list of %1", selectRandom ["Prisoners", "Informants", "Stockpiles", "Assets", "Codes", "Target", "Recipes"]]
 	];
 

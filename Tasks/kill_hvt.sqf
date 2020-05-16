@@ -63,13 +63,13 @@ private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] 
 				_caller playAction "PutDown";
 				sleep 1;
 				private _zoneID = _target getVariable ["var_zoneID", 0];
-				format["MKR_%1_OBJ", _zoneID] setMarkerAlpha 0;
+				deleteMarker format["MKR_%1_OBJ", _zoneID];
 				[name _caller, format["Target %1 as %2.", selectRandom ["verified", "confirmed", "identified"], selectRandom ["eliminated","deceased","dead","killed"]]] remoteExec ["BIS_fnc_showSubtitle"];
 				addToRemainsCollector [_target];
 				
 				missionNamespace setVariable ['ZMM_DONE', true, true];
 				[format["ZMM_%1_TSK", _zoneID], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
-				{ _x setMarkerColor "ColorWest" } forEach [format['MKR_%1_LOC', _zoneID], format['MKR_%1_MIN', _zoneID]];
+				{ _x setMarkerColor "ColorGrey" } forEach [format['MKR_%1_LOC', _zoneID], format['MKR_%1_MIN', _zoneID]];
 			}, 
 			{}, 
 			[], 

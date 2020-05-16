@@ -18,6 +18,7 @@ private _doGarrison = missionNamespace getVariable [ format[ "ZMM_%1_Garrison", 
 private _doRoadblock = missionNamespace getVariable [ format[ "ZMM_%1_Roadblocks", _zoneID ], floor random 2] > 0;
 private _doSupport = missionNamespace getVariable [ format[ "ZMM_%1_Supports", _zoneID ], 0] > 0;
 private _doQRF = count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) > 0;
+private _doIED = missionNamespace getVariable [ format["ZMM_%1_IEDs", _zoneID], 0] > 0;
 
 ["DEBUG", format["Zone%1 - Populating %2 %3 [%4%5%6%7]", _zoneID, _locType, _forceTask, ["","+Patrols"] select _doPatrols, ["","+Garrison"] select _doGarrison, ["","+Roadblock"] select _doRoadblock, ["","+Support"] select _doSupport, ["","+QRF"] select _doQRF]] call zmm_fnc_logMsg;
 
@@ -27,6 +28,7 @@ if _doGarrison then { [_zoneID] spawn zmm_fnc_areaGarrison };
 if _doRoadblock then { [_zoneID] spawn zmm_fnc_areaRoadblock };
 if _doSupport then { [_zoneID] spawn zmm_fnc_areaSupport };
 if _doQRF then { [_zoneID, true] spawn zmm_fnc_areaQRF };
+if _doIED then { [_zoneID] spawn zmm_fnc_areaIED };
 
 
 

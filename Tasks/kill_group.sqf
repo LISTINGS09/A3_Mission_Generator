@@ -3,7 +3,6 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 private _enemyType = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
@@ -56,7 +55,7 @@ private _headGear = selectRandom ["H_Beret_blk","H_Beret_red","H_Beret_grn"];
 			sleep 1;
 			private _zoneID = _target getVariable ["var_zoneID", 0];
 			private _unitID = _target getVariable ["var_unitID", 0];
-			format["MKR_%1_LOC_%2", _zoneID, _unitID] setMarkerAlpha 0;
+			deleteMarker format["MKR_%1_LOC_%2", _zoneID, _unitID];
 			[name _caller, format["Target %1 as %2.", selectRandom ["verified", "confirmed", "identified"], selectRandom ["Eliminated","Deceased","Dead","Killed"]]] remoteExec ["BIS_fnc_showSubtitle"];
 			addToRemainsCollector [_target];
 			
@@ -87,7 +86,7 @@ private _headText = if (isClass (configFile >> "CfgWeapons" >> headgear (leader 
 
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
 _objTrigger setTriggerStatements [ 	(_endActivation joinString " && "),
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 
 // Create Task

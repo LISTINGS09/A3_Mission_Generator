@@ -34,7 +34,7 @@ if (count _hmgArr == 0) then { _hmgArr = ["B_GMG_01_high_F","B_HMG_01_high_F"] }
 if (count _locations == 0) then {
 	// Find Road Block Locations
 	for [{_i = 0}, {_i < 360}, {_i = _i + 10}] do {
-		private _roads = ((_centre getPos [(_radius * (1 + random 0.5)) max 300, _i]) nearRoads 100) select {count roadsConnectedTo _x > 0 && (nearestBuilding _x) distance _x > 75 && !((getPos _x) isFlatEmpty [-1, -1, 0.25, 6] isEqualTo [])};
+		private _roads = ((_centre getPos [(_radius * (1 + random 0.5)) max 300, _i]) nearRoads 100) select {count roadsConnectedTo _x > 0 && (nearestBuilding _x) distance _x > 75 && !((getPos _x) isFlatEmpty [-1, -1, 0.25, 2] isEqualTo [])};
 			
 		if (count _roads > 0) then {
 			private _road = _roads#0;
@@ -45,57 +45,55 @@ if (count _locations == 0) then {
 	};
 };
 
-private _buildingList = [
-	[
-		["V", selectRandom _vehArr, [-10.125,-2,0.2], 0, false],
-		["S","Land_CncBarrier_stripes_F", [-7.5,6.5,0], 0],
-		["S","Land_CncBarrier_F", [-11.5,6.5,0], 165],
-		["S","Land_CncBarrierMedium_F", [-14.5,1,0], 270],
-		["S","Land_CncBarrierMedium4_F", [-6.5,-0.5,0], 90],
-		["S","Land_BagFence_Round_F", [-13,3.25,0], 150],
-		["S","Land_BagFence_Long_F", [-7.5,3.5,0], 0],
-		["S","Land_BagFence_Long_F", [-10.25,3.5,0], 0],
-		["S","Land_CncBarrierMedium_F", [11.75,-1.5,0], 0],
-		["S","Land_CncBarrierMedium_F", [13.75,-2.5,0], 30],
-		["S","Land_CncBarrier_stripes_F", [8.25,5.5,0], 0],
-		["S","Land_CncBarrier_F", [12.25,4.5,0], 30],
-		["V", selectRandom _hmgArr, [8.5,-0.25,0.2], 0, false],
-		["S","Land_BagBunker_Small_F", [8.25,-0.5,-0.1], 180, false]
-	],
-	[
-		["S","RoadBarrier_F", [-8,10,0], 0],
-		["S","RoadBarrier_F", [-14,10,0], 0],
-		["V", selectRandom _vehArr, [-10,0,0.2], 0, false],
-		["S","Land_BagFence_Round_F", [-12.75,5.75,0], 135],
-		["S","Land_BagFence_Round_F", [-8,5.75,0], 225],
-		["S","Land_BagFence_End_F", [-7.25,4.5,0], 60],
-		["S","Land_BagFence_Long_F", [-10.25,6.5,0], 0],
-		["S","Land_BagFence_Long_F", [-13.5,3.75,0], 90],
-		["V", selectRandom _hmgArr, [10.5,1.25,0.2], 0, false],
-		["S","Land_BagFence_Round_F", [9.25,2,0], 135],
-		["S","Land_BagFence_Round_F", [11.25,2,0], 225]
-	],
-	[
-		["S","Land_BagBunker_Tower_F", [-11,1,-0.1], 180, false],
-		["S","Land_CncBarrier_stripes_F", [-8,7,0], 0],
-		["S","Land_CncBarrier_F", [-11,7,0], 0],
-		["S","Land_CncBarrier_F", [-14.5,6.25,0], 315],
-		["S","RoadBarrier_F", [-9,10,0], 0],
-		["S","RoadBarrier_small_F", [-12,10,0], 330],
-		["V", selectRandom _hmgArr, [-10.25,3,2.8], 0, false],
-		["S","Land_CncBarrier_stripes_F", [16,-0.75,0], 90],
-		["V", selectRandom _vehArr, [11.25,0.5,0.2], 0, false],
-		["S","Land_CncBarrier_stripes_F", [9,7,0], 0],
-		["S","Land_CncBarrier_F", [16,3,0], 90],
-		["S","Land_CncBarrier_F", [15,6,0], 45],
-		["S","Land_CncBarrier_F", [12,7,0], 0],
-		["S","RoadBarrier_F", [10,10,0], 0],
-		["S","RoadBarrier_small_F", [14,10,0], 15]
-	]
-];
-
-["DEBUG", format["Zone%1 - Creating Roadblocks: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_logMsg;
-
+private _roadBlocks = [
+		[
+			["V", selectRandom _vehArr, [-10.125,-2,0.2], 0, false],
+			["S","Land_CncBarrier_stripes_F", [-7.5,6.5,0], 0],
+			["S","Land_CncBarrier_F", [-11.5,6.5,0], 165],
+			["S","Land_CncBarrierMedium_F", [-14.5,1,0], 270],
+			["S","Land_CncBarrierMedium4_F", [-6.5,-0.5,0], 90],
+			["S","Land_BagFence_Round_F", [-13,3.25,0], 150],
+			["S","Land_BagFence_Long_F", [-7.5,3.5,0], 0],
+			["S","Land_BagFence_Long_F", [-10.25,3.5,0], 0],
+			["S","Land_CncBarrierMedium_F", [11.75,-1.5,0], 0],
+			["S","Land_CncBarrierMedium_F", [13.75,-2.5,0], 30],
+			["S","Land_CncBarrier_stripes_F", [8.25,5.5,0], 0],
+			["S","Land_CncBarrier_F", [12.25,4.5,0], 30],
+			["V", selectRandom _hmgArr, [8.5,-0.25,0.2], 0, false],
+			["S","Land_BagBunker_Small_F", [8.25,-0.5,-0.1], 180]
+		],
+		[
+			["S","RoadBarrier_F", [-8,10,0], 0],
+			["S","RoadBarrier_F", [-14,10,0], 0],
+			["V", selectRandom _vehArr, [-10,0,0.2], 0, false],
+			["S","Land_BagFence_Round_F", [-12.75,5.75,0], 135],
+			["S","Land_BagFence_Round_F", [-8,5.75,0], 225],
+			["S","Land_BagFence_End_F", [-7.25,4.5,0], 60],
+			["S","Land_BagFence_Long_F", [-10.25,6.5,0], 0],
+			["S","Land_BagFence_Long_F", [-13.5,3.75,0], 90],
+			["V", selectRandom _hmgArr, [10.5,1.25,0.2], 0, false],
+			["S","Land_BagFence_Round_F", [9.25,2,0], 135],
+			["S","Land_BagFence_Round_F", [11.25,2,0], 225]
+		],
+		[
+			["S","Land_BagBunker_Tower_F", [-11,1,-0.1], 180, false],
+			["S","Land_CncBarrier_stripes_F", [-8,7,0], 0],
+			["S","Land_CncBarrier_F", [-11,7,0], 0],
+			["S","Land_CncBarrier_F", [-14.5,6.25,0], 315],
+			["S","RoadBarrier_F", [-9,10,0], 0],
+			["S","RoadBarrier_small_F", [-12,10,0], 330],
+			["V", selectRandom _hmgArr, [-10.25,3,2.8], 0, false],
+			["S","Land_CncBarrier_stripes_F", [16,-0.75,0], 90],
+			["V", selectRandom _vehArr, [11.25,0.5,0.2], 0, false],
+			["S","Land_CncBarrier_stripes_F", [9,7,0], 0],
+			["S","Land_CncBarrier_F", [16,3,0], 90],
+			["S","Land_CncBarrier_F", [15,6,0], 45],
+			["S","Land_CncBarrier_F", [12,7,0], 0],
+			["S","RoadBarrier_F", [10,10,0], 0],
+			["S","RoadBarrier_small_F", [14,10,0], 15]
+		]
+	];
+	
 for "_i" from 1 to _count do {
 	if (count _locations == 0) exitWith {};
 	
@@ -113,20 +111,68 @@ for "_i" from 1 to _count do {
 	_blockMkr setMarkerTextLocal format["block_%1", _i];*/
 	
 	// Easy way of orienting the objects?
-	private _key = "Land_HelipadEmpty_F" createVehicleLocal (getPosATL _road);
+	private _key = "Land_HelipadEmpty_F" createVehicleLocal (getPos _road);
 	_key setDir ((_road getDir _farRoad) + 180);
 	
 	// Clear Area
 	{ [_x, true] remoteExec ["hideObject", 0, true] } forEach (nearestTerrainObjects [_road, [], 25]);
 	
-	// Build Roadblock	
+	// Build Roadblock
 	{
-		_x params ["_type", ["_class",""], ["_rel",[0,0,0]], ["_dir", 0], ["_flat", true]];
+		_x params ["_type", "_class", "_rel", ["_dir", 0],["_flat", true]];
+		
 		private _worldPos = _key modeltoWorld _rel;	
-		private _obj = [_zoneID, _side, _type, _class, [_worldPos#0, _worldPos#1, _rel#2], getDir _key + _dir, _flat] call zmm_fnc_spawnObject;		
-	} forEach selectRandom _buildingList;
+		private _worldDir = getDir _key + _dir;
+		private _obj = ObjNull;
+		
+		_worldPos set [2, _rel#2]; // Set to ground
+		
+		switch (_type) do {
+			case "V": {
+				private _customInit = "";
+				// If _class is array, extract the custom init.
+				if (_class isEqualType []) then { _customInit = _class#1; _class = _class#0 };
+				
+				_obj = _class createVehicle [0,0,0];
+				_obj setDir _worldDir;
+				_obj setPosATL _worldPos;
+				
+				if (canMove _obj) then { _obj setVehicleLock "LOCKEDPLAYER" };
+				
+				private _crewArr = [];
+				for "_j" from 1 to (count ((fullCrew [_obj, "", true]) - fullCrew [_obj, "cargo", true] - fullCrew [_obj, "turret", true])) do {
+					_crewArr pushBack (selectRandom _menArr);
+				};
 	
-	uiSleep 1;
+				private _tempGrp = [_obj getPos [15, random 360], _side, _crewArr] call BIS_fnc_spawnGroup;
+				
+				{ _x moveInAny _obj } forEach units _tempGrp;
+		
+				// Run custom init for vehicle (set camos etc).
+				private _grpVeh = _obj;
+				if !(_customInit isEqualTo "") then { call compile _customInit; };
+				
+				private _clear = createVehicle ["Land_ClutterCutter_large_F", _worldPos, [], 0, "CAN_COLLIDE"];
+				
+				_tempGrp deleteGroupWhenEmpty true;
+				_tempGrp enableDynamicSimulation true;
+			};
+			case "O": {
+				_obj = _class createVehicle [0,0,0];
+				_obj setDir _worldDir;
+				_obj setPosATL _worldPos;
+			};
+			default {
+				_obj = createSimpleObject [_class, [0,0,0]];
+				_obj setDir _worldDir;
+				_obj setPosATL _worldPos;
+			};
+		};
+		
+		if _flat then { _obj setVectorUp surfaceNormal getPos _obj };
+	} forEach selectRandom _roadBlocks;
+	
+	sleep 1;
 	
 	// Create a local patrolling group
 	private _grpArr = [];

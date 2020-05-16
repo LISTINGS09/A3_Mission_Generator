@@ -48,7 +48,7 @@ _lrgBlds = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], (
 if (count _allBlds > 0) then {
 	if (count _lrgBlds > 0) then {
 		_objectives pushBack ["Denial", [_zoneID, selectRandom _lrgBlds],"kill_hvt.sqf"];
-		_objectives pushBack ["Rescue", [_zoneID, selectRandom _lrgBlds],"rescue_hvt.sqf"];
+		_objectives pushBack ["Rescue", [_zoneID, selectRandom _lrgBlds],"rescue_prisoner.sqf"];
 	};
 	
 	// Special Building Objective Types
@@ -97,6 +97,7 @@ for [{_i = 25}, {_i <= (_radius / 1.5)}, {_i = _i + 25}] do {
 	if (count _roads > 0) exitWith {
 		_objectives pushBack ["Denial", [_zoneID, position (selectRandom _roads)], "destroy_vehicle.sqf"];
 		_objectives pushBack ["Denial", [_zoneID, position (selectRandom _roads)], "destroy_convoy.sqf"];
+		_objectives pushBack ["Secure", [_zoneID, position (selectRandom _roads)], "disarm_ied.sqf"];
 		_objectives pushBack ["Recovery", [_zoneID, position (selectRandom _roads)], "capture_vehicle.sqf"];
 		_objectives pushBack ["Rescue", [_zoneID, position (selectRandom _roads)], "rescue_ambush.sqf"];
 		_objectives pushBack ["Rescue", [_zoneID, position (selectRandom _roads)], "rescue_transport.sqf"];
@@ -171,7 +172,7 @@ if !_result then {
 	["ERROR", format["Zone%1 - Failed to create: %1", _zoneID, _script]] call zmm_fnc_logMsg;
 	[_zoneID, _filterTask] call zmm_fnc_setupTask;
 } else {
-	["DEBUG", format["Zone%1 - Created Objective %2 (Wanted: %5 Got: %2) at %4", _zoneID, _type, _script, _locName, _filterTask]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Created Objective %2 [%3] - (Wanted: %5 Got: %2 ) at %4", _zoneID, _type, _script, _locName, _filterTask]] call zmm_fnc_logMsg;
 	if (_type != _filterTask && _filterTask != "") then {
 		["INFO", format["Zone%1 - No suitable location for the Mission, %2 was selected instead!", _zoneID, _type]] call zmm_fnc_logMsg;
 	};

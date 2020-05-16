@@ -29,7 +29,7 @@ _fnc_spawnGroup = {
 	};
 
 	for [{_i = 0}, {_i < _count}, {_i = _i + 1}] do {
-		_group = objNull;
+		_group = grpNull;
 		if (count _types isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 		_type = selectRandom _types;
 		_customInit = "";
@@ -39,9 +39,7 @@ _fnc_spawnGroup = {
 			_customInit = _type#1;
 			_type = _type#0;
 		};
-		
-		["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType "") then { _type } else { configName _type }, _side, _marker]] call zmm_fnc_logMsg;
-		
+			
 		if (typeName _type == typeName "") then {
 			if (isClass (configFile >> "CfgVehicles" >> _type)) then {
 				_isAir = FALSE;
@@ -61,12 +59,13 @@ _fnc_spawnGroup = {
 				
 				// Switch units side to Zone side.
 				if (side driver _veh != _side) then {
-					_sideGrp = createGroup [_side, TRUE];
-					(crew _veh) joinSilent _sideGrp;
+					_group = createGroup [_side, TRUE];
+					(crew _veh) joinSilent _group;
 				};
 				
 				{ _x addCuratorEditableObjects [ crew _veh, TRUE ] } forEach allCurators;
 				
+				["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType "") then { _type } else { configName _type }, _side, getPos _veh]] call zmm_fnc_logMsg;
 				[driver _veh, _marker, "SHOWMARKER"] spawn zmm_fnc_aiUPS;
 			} else {
 				["ERROR", format["Invalid vehicle class: %1", _type]] call zmm_fnc_logMsg;
@@ -82,11 +81,12 @@ _fnc_spawnGroup = {
 			
 			{ _x addCuratorEditableObjects [ units _group, TRUE ] } forEach allCurators;
 			
+			["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType "") then { _type } else { configName _type }, _side, getPos leader _group]] call zmm_fnc_logMsg;
 			[leader _group, _marker, "SHOWMARKER", "RANDOM"] spawn zmm_fnc_aiUPS;
 			
 			[leader _group] call zmm_fnc_inteladd; // Add Intel Drop
 		};		
-		sleep 1;
+		uiSleep 1;
 	};
 };
 

@@ -10,7 +10,7 @@ private _manList = missionNamespace getVariable [format["ZMM_%1Man", _enemySide]
 private _carList = missionNamespace getVariable [format["ZMM_%1Veh_Convoy", _enemySide],[]];
 
 private _missionDesc = [
-		"A %3 %4 has just finished a meeting in %1 with an enemy Commander there. Destroy %4s convoy of <font color='#00FFFF'>%2 Vehicles</font> and ensure they don't escape.",
+		"A %3 %4 has just finished a meeting in %1 with an enemy Commander there. Destroy %4s convoy of <font color='#00FFFF'>%2 Vehicles</font>.",
 		"Destroy a group of <font color='#00FFFF'>%2 Vehicles</font> understood to be owned by a %3 %4 living somewhere nearby %1.",
 		"A %3 %4 is passing through the enemy-controlled area of %1. Locate the %4s <font color='#00FFFF'>%2 Vehicles</font> and destroy them.",
 		"Neutralise a %3 %4 by destroying their vehicles and escort; <font color='#00FFFF'>%2 Vehicles</font> in total. The %4 will be travelling somewhere around %1.",
@@ -20,12 +20,13 @@ private _missionDesc = [
 
 private _conVerb = selectRandom ['feared', 'respected', 'notorious', 'senior', 'high-ranking', 'decorated', 'wealthy', 'rogue', 'dangerous', 'long-wanted', 'reclusive'];
 private _conType = selectRandom ['Diplomat', 'Warlord', 'Terrorist', 'Official', 'Advisor', 'Leader', 'Kingpin', 'Drug Baron', 'Arms Dealer', 'Convict'];
-
-private _obj = [
-	["",""],
-	["",""],
-	["",""]
+private _objArr = selectRandom [
+	[selectRandom ["Land_MetalCase_01_small_F","Land_MetalCase_01_small_F","Land_Suitcase_F"], format["%1 %2", selectRandom ["Chemical","Nuclear","Radioactive","Stolen"], selectRandom ["Detonator","Explosive","Substance","Agent","Munition","Weapon","Bomb","Plans"]]],
+	["Land_Money_F", format["%1 %2", selectRandom ["Forged","Stolen","Counterfeit"], selectRandom ["Ancient Coin","stack of Banknotes","selection of Bills","stack of Cash"]]]
 ];
+
+_objArr params ["_itemType","_itemDesc"];
+private _itemText = format["<br/><br/>The %1 is known to be travelling with a %2 concealed inside a <font color='#00FFFF'>%3</font>. When either the %1 or the vehicle they are travelling in are destroyed, this item will be dropped nearby and must be collected by our forces.<br/><br/>Mission Item: <font color='#FFA500'>%3</font><br/><img width='350' image='%4'/>", _conType, _itemDesc, getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"), getText (configFile >> "CfgVehicles" >> _itemType >> "editorPreview")];;
 
 // No vehicles defined, so use basic ones - 2nd Vehicle will always carry the HVT.
 if (count _carList == 0) then {
@@ -58,6 +59,7 @@ if (count _carList == 0) then {
 private _enemyGrp = createGroup [_enemySide, true];
 private _vehCount = 0;
 private _endActivation = [];
+private _objHVT = ObjNull;
 
 {
 	_x params [["_vehType", ""], ["_customInit", ""]];
@@ -108,10 +110,13 @@ private _endActivation = [];
 			_tempMan moveInAny _grpVeh;
 		};
 		
-		// Add a beret to the transport group.
+		// Add a beret to the middle transport group.
 		if (_forEachIndex == 1) then {
-			_hvt = selectRandom (units _cargoGrp);
-			if (!isNil "_hvt") then { _hvt addHeadgear "H_Beret_blk" };
+			_objHVT = selectRandom (if (count units _cargoGrp > 0) then { units _cargoGrp } else { crew _grpVeh });
+			_objHVT addHeadgear "H_Beret_blk";
+			_objHVT setVariable ["var_zoneID", _zoneID, true];
+			_objHVT setVariable ["var_itemType", _itemType, true];
+			_objHVT setVariable ["var_itemDesc", _itemDesc, true];
 		};
 		
 		// Add to Zeus
@@ -126,15 +131,57 @@ private _endActivation = [];
 	
 		_endActivation pushBack format["!alive ZMM_%1_VEH_%2", _zoneID, _forEachIndex];
 	
-		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Locate and destroy the convoy vehicle.<br/><br/>Target Vehicle: <font color='#FFA500'>%1</font><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehType >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehType >> "editorPreview")], format["Vehicle #%1", _forEachIndex + 1], format["MKR_%1_LOC", _zoneID]], _grpVeh, "CREATED", 1, FALSE, TRUE, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
+		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate and destroy the convoy vehicle.<br/><br/>Target Vehicle: <font color='#FFA500'>%1</font><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehType >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehType >> "editorPreview")], format["Vehicle #%1", _forEachIndex + 1], format["MKR_%1_LOC", _zoneID]], _grpVeh, "CREATED", 1, false, true, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
 		_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 		_childTrigger setTriggerStatements [  format["!alive ZMM_%1_VEH_%2", _zoneID, _forEachIndex],
-										format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState;", _zoneID, _forEachIndex],
+										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _forEachIndex],
 										"" ];
 										
 		_vehCount = _vehCount + 1;
 	};
 } forEach _carList;
+
+// Add HVT Sub-Mission
+if (!isNull _objHVT) then {	
+	_objHVT addEventHandler ["Killed", {
+		params ["_unit", "_killer"];
+		private _zoneID = _unit getVariable ["var_zoneID", 0];
+		private _itemType = _unit getVariable ["var_itemType", objNull];
+		private _itemDesc = _unit getVariable ["var_itemDesc", ""];
+		
+		private _itemObj = createVehicle [_itemType, position _unit, [], 1, "NONE"];
+		_itemObj setVariable ["var_zoneID", _zoneID, true];
+		
+		private _itemTask = [[format["ZMM_%1_OBJ_TSK", _zoneID], format['ZMM_%1_TSK', _zoneID]], true, [format["Collect the %3.<br/><br/>Target Item: <font color='#FFA500'>%1</font><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"), getText (configFile >> "CfgVehicles" >> _itemType >> "editorPreview"), _itemDesc], format["Take %1", _itemDesc], format["MKR_%1_LOC", _zoneID]], _itemObj, "ASSIGNED", 1, false, true, "take"] call BIS_fnc_setTask;
+
+		[_itemObj, 
+			format["<t color='#00FF80'>Take %1</t>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], 
+			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa", 
+			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa", 
+			"_this distance _target < 3", 
+			"_caller distance _target < 3", 
+			{}, 
+			{}, 
+			{
+				private _zoneID = _target getVariable ["var_zoneID", 0];
+				_caller playAction "PutDown"; 
+				[format["ZMM_%1_OBJ_TSK", _zoneID], 'Succeeded', true] spawn BIS_fnc_taskSetState;
+				sleep 1;
+				deleteVehicle _target;
+				missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], true, true];
+			}, 
+			{}, 
+			[], 
+			2, 
+			10 
+		] remoteExec ["bis_fnc_holdActionAdd", 0, _itemObj];
+	}];
+
+	// Add final trigger
+	_endActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ', false])", _zoneID ];
+} else {
+	_itemText = "";
+};
 
 // [_enemyGrp, getPos selectRandom _foundRoads, 200] call bis_fnc_taskPatrol;
 [leader _enemyGrp, format["MKR_%1_MAX", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
@@ -143,12 +190,12 @@ private _endActivation = [];
 { _x addCuratorEditableObjects [units _enemyGrp, true] } forEach allCurators;
 
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
+_objTrigger = createTrigger ["EmptyDetector", _centre, false];
 _objTrigger setTriggerStatements [ 	(_endActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 									
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, _vehCount, _conVerb, _conType], ["Convoy"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "car"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, _vehCount, _conVerb, _conType] + _itemText, ["Convoy"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "car"] call BIS_fnc_setTask;
 
-TRUE
+true

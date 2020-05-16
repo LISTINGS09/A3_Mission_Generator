@@ -1,13 +1,13 @@
-// v 1.0
-// Spawns a damaged vehicle with men that need rescuing.
+// Rescue pilots from a crashed plane.
 // Set-up mission variables.
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+_enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+_playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
+_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
-private _missionDesc = [
+_missionDesc = [
 		"An allied team attempted to infiltrate %1 but were ambushed when attempting to escape. <font color='#00FFFF'>%2 Soldiers</font> have been left wounded in critical condition, secure the area and evacuate the casualties.",
 		"Friendly units have been ambushed near %1, <font color='#00FFFF'>%2 Soldiers</font> are wounded and require immediate rescue. Locate and extract them.",
 		"Find and rescue <font color='#00FFFF'>%2 Soldiers</font> wounded when their vehicle hit and IED somewhere within %1.",
@@ -18,40 +18,40 @@ private _missionDesc = [
 
 if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
 
-private _targetPos = _targetPos findEmptyPosition [1, 50, "Land_Wreck_Ural_F"];
+_targetPos = _targetPos findEmptyPosition [1, 50, "Land_Wreck_Ural_F"];
 	
 // Create Wreck
-private _wreck = (selectRandom ["Land_Wreck_Ural_F", "Land_Wreck_UAZ_F", "Land_Wreck_HMMWV_F"]) createVehicle _targetPos;
+_wreck = (selectRandom ["Land_Wreck_Ural_F", "Land_Wreck_UAZ_F", "Land_Wreck_HMMWV_F"]) createVehicle _targetPos;
 _wreck setVectorUp surfaceNormal position _wreck;
 
-private _smoke = createVehicle ["test_EmptyObjectForFireBig", (position _wreck) vectorAdd [0,0,-3], [], 0, "CAN_COLLIDE"];
-private _crater = createSimpleObject ["Crater", AGLToASL _targetPos];
+_smoke = createVehicle ["test_EmptyObjectForFireBig", (position _wreck) vectorAdd [0,0,-3], [], 0, "CAN_COLLIDE"];
+_crater = createSimpleObject ["Crater", AGLToASL _targetPos];
 _crater setPos ((getPos _crater) vectorAdd [0,0,0.02]);
 
 // Find a random point nearby for markers.
-private _relPos = [ _targetPos, random 50, random 360 ] call BIS_fnc_relPos;
+_relPos = [ _targetPos, random 50, random 360 ] call BIS_fnc_relPos;
 
 // Create Bodies
-private _tempPlayer = selectRandom (allPlayers select {alive _x});
+_tempPlayer = (allPlayers select {alive _x}) select 0;
 
-private _deadBody = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
-_deadBody forceAddUniform (uniform _tempPlayer);
-_deadBody addVest (vest _tempPlayer);
-_deadBody addHeadgear (headgear _tempPlayer);
-_deadBody disableAI "ALL";
-_deadBody setDir random 360;
-_deadBody setPos ((_wreck getPos [random 1, random 360]) vectorAdd [0,0,5]);
-_deadBody setDamage 1;
-removeFromRemainsCollector [_deadBody];
+_DeadMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
+_DeadMan forceAddUniform (uniform _tempPlayer);
+_DeadMan addVest (vest _tempPlayer);
+_DeadMan addHeadgear (headgear _tempPlayer);
+_DeadMan disableAI "ALL";
+_DeadMan setDir random 360;
+_DeadMan setPos ((_wreck getPos [random 1, random 360]) vectorAdd [0,0,5]);
+_DeadMan setDamage 1;
+removeFromRemainsCollector [_DeadMan];
 
-private _hvtActivation = [];
-private _hvtNum = 0;
+_hvtActivation = [];
+_hvtNum = 0;
 
 for "_i" from 0 to (random 1 + 2) do {
 	_hvtNum = _hvtNum + 1;
 		
-	private _tempPos = (_targetPos getPos [2 + random 2, random 360]) findEmptyPosition [0, 5, "C_man_w_worker_F"];
-	private _evacMan = (createGroup civilian) createUnit ["C_man_w_worker_F", _tempPos, [], 0, "NONE"];	
+	_tempPos = (_targetPos getPos [2 + random 2, random 360]) findEmptyPosition [0, 5, "C_man_w_worker_F"];
+	_evacMan = (createGroup civilian) createUnit ["C_man_w_worker_F", _tempPos, [], 0, "NONE"];	
 	_evacMan setCaptive true;
 	_evacMan forceAddUniform (uniform _tempPlayer);
 	_evacMan addVest (vest _tempPlayer);
@@ -64,7 +64,7 @@ for "_i" from 0 to (random 1 + 2) do {
 	
 	_evacMan spawn {
 		sleep 3;
-		private _blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], [0,0,0]];
+		_blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], [0,0,0]];
 		_blood setPos getPos _this;
 		_blood setVectorUp surfaceNormal position _blood;
 		_blood setPos ((getPos _blood) vectorAdd [0,0,0.02]);
@@ -75,7 +75,7 @@ for "_i" from 0 to (random 1 + 2) do {
 	// Check if ACE is enabled
 	if (isClass(configFile >> "CfgPatches" >> "ace_main")) then {
 		[_evacMan, true] call ace_medical_fnc_setUnconscious;
-		//[_evacMan, 0.1, selectRandom ["leg_r","leg_l","body"], "bullet"] call ace_medical_fnc_addDamageToUnit;
+		//[_evacMan, 0.4, selectRandom ["leg_r","leg_l","body"], "bullet"] call ace_medical_fnc_addDamageToUnit;
 	} else {
 		_evacMan setUnconscious TRUE;
 		[_evacMan, 
@@ -87,9 +87,9 @@ for "_i" from 0 to (random 1 + 2) do {
 			{ _caller playAction "medic" },
 			{}, 
 			{
-				[_target, _actionID] remoteExec ["BIS_fnc_holdActionRemove"];
 				[_target, false] remoteExec ["setUnconscious", _target]; 
 				[_target, "ALL"] remoteExec ["enableAI", _target];
+				[_target, _actionID] remoteExec ["BIS_fnc_holdActionRemove"];
 				sleep 2;
 				[_target] join group _caller;
 			}, 
@@ -101,16 +101,16 @@ for "_i" from 0 to (random 1 + 2) do {
 	};
 
 	// Child task
-	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Locate and stabilize <font color='#00FFFF'>%1</font>, then extract them from the area.", name _evacMan], format["Rescue Soldier #%1", _i + 1], format["MKR_%1_OBJ", _zoneID]], objNull, "CREATED", 1, FALSE, TRUE, format["move%1", _i + 1]] call BIS_fnc_setTask;
-	private _childTrigger = createTrigger ["EmptyDetector", _centre, false];
+	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Locate and stabilize <font color='#00FFFF'>%1</font>, then extract them from the area.", name _evacMan], format["Rescue Soldier #%1", _i + 1], format["MKR_%1_OBJ", _zoneID]], objNull, "CREATED", 1, FALSE, TRUE, format["move%1", _i + 1]] call BIS_fnc_setTask;
+	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre],
 									format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState;", _zoneID, _i],
 									"" ];
 	
 	// Failure trigger when HVT is dead.
-	private _hvtTrigger = createTrigger ["EmptyDetector", _centre, false];
+	_hvtTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_hvtTrigger setTriggerStatements [ 	format["!alive ZMM_%1_HVT_%2", _zoneID, _i], 
-									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; ['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _i],
+									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; ['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%3' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _i, "Grey"],
 									"" ];
 									
 	// Build success trigger when HVT is alive and far from objective.
@@ -118,11 +118,11 @@ for "_i" from 0 to (random 1 + 2) do {
 };
 
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
+_objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _objTrigger setTriggerStatements [ 	(_hvtActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
 									"" ];
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, round _hvtNum], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "heal"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, round _hvtNum], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "heal"] call BIS_fnc_setTask;
 
 TRUE

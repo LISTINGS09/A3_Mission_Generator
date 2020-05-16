@@ -38,7 +38,7 @@ if (count _positions < _aniMax) then {
 // Create locations if none exist
 if (_positions isEqualTo []) then {
 	for "_i" from 0 to (_aniMax) do {
-		_positions pushBack (_centre getPos [random 50, random 360]);
+		_positions pushBack (_centre getPos [25 + random 50, random 360]);
 	};
 };
 

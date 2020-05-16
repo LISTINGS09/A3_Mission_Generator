@@ -189,24 +189,23 @@ if ("RANDOM" in _params) then {
 		};
 		
 		// Just exit if we've been searching too long.
-		if (_counter > 25) then { _choosePos = FALSE };
+		if (_counter > 50) then { _choosePos = FALSE };
 	};
-	
-	_randPos = [_randPos, 1, 50, 5, 0, 0, 0, [], [_unitPos,_unitPos]] call BIS_fnc_findSafePos;
 	
 	// Put vehicle to a random spot
 	if (!isNull _grpVehicle && !_isStatic) then {
 		_vehArray = (units _grp apply { assignedVehicle _x }) - [objNull];		
-		_randPos = [_randPos, 1, 250, 1 + round ((sizeOf (typeOf _grpVehicle)) / 2), 0, 0, 0, [], [_randPos,_randPos]] call BIS_fnc_findSafePos;
+		_randPos = [_randPos, 1, 150, 1 + round ((sizeOf (typeOf _grpVehicle)) / 2), 0, 0, 0, [], [_randPos,_randPos]] call BIS_fnc_findSafePos;
 		
 		// Get all assigned vehicles & move them to a safe location.
 		{ 
 			_roads = _randPos nearRoads 250;
 			
 			if (count _roads > 0 && (_isCar || _isTank)) then {
-				_x setVehiclePosition [getPos (selectRandom _roads), [], 25, "NONE"]; 
+				_randPos = getPos (selectRandom _roads);
+				_x setVehiclePosition [_randPos, [], 0]; 
 			} else {
-				_x setVehiclePosition [_randPos, [], 50, "NONE"]; 
+				_x setVehiclePosition [_randPos, [], 25]; 
 			};
 			
 			_randPos = getPos _x;
@@ -218,7 +217,7 @@ if ("RANDOM" in _params) then {
 	// Move anyone over 25m away to the area.
 	{ 
 		if (_x distance2D _randPos > 25 && vehicle _x == _x) then { 
-			_x setVehiclePosition [_randPos, [], 5, "NONE"]; 
+			_x setVehiclePosition [_randPos, [], 5]; 
 			//_x setPos ([_randPos, 1, 50, 1, 1, 0, 0, [], [_randPos,_randPos]] call BIS_fnc_findSafePos) 
 		};
 	} forEach units _grp;

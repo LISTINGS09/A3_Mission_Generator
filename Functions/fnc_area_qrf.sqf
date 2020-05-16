@@ -1,4 +1,5 @@
 if !isServer exitWith {};
+// [99, false, 300, 6, -1] spawn ZMM_fnc_areaQRF;
 
 params [
 	["_zoneID", 0],
@@ -7,7 +8,6 @@ params [
 	["_maxWave", 6],
 	["_qrfType", -1]
 ];
-
 
 _qrfTypes = [
 	"Reserve",
@@ -19,6 +19,7 @@ _qrfTypes = [
 ];
 
 if (_qrfType < 0) then { _qrfType = floor random count _qrfTypes };
+if (_qrfType >= count _qrfTypes) then { _qrfType = 0 };
 
 // If set only create the trigger and exit.
 if _triggerOnly exitWith {
@@ -48,14 +49,15 @@ private _truck = missionNamespace getVariable [format["ZMM_%1Veh_Truck",_side],[
 private _light = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
 private _medium = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
 private _heavy = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
-private _air = missionNamespace getVariable [format["ZMM_%1Veh_AirH",_side],[]];
+private _air = missionNamespace getVariable [format["ZMM_%1Veh_Air",_side],[]];
 private _casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
 private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
 
 if (count _locations isEqualTo 0) exitWith {};
 
-if ((missionNamespace getVariable ["ZZM_Mode",1]) != 1) then {
+if ((missionNamespace getVariable ["ZZM_Mode",1]) != 1 && isNil "ZMM_Announced") then {
 	[selectRandom ["HQ","UAV","Recon"], format["%1 enemy %2 forces are %3.", selectRandom ["Warning,","Caution,","Be advised,","Be aware,"], _qrfTypes select _qrfType, selectRandom ["inbound","en-route","responding","closing in"]]] remoteExec ["BIS_fnc_showSubtitle"];
+	ZMM_Announced = true;
 };
 
 // TODO: Add custom QRFs per Location Type.
@@ -169,9 +171,12 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 				case 1: {
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 				};
 				case 2;
 				case 3: {
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
@@ -180,7 +185,7 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 				default {
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
 				};

@@ -9,15 +9,12 @@ private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID],
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 private _missionDesc = [
-		"Locate and speak to <font color='#00FFFF'>%1 Undercover Informants</font> with information on %2 within %3.",
-		"Search around %3 for <font color='#00FFFF'>%1 Contacts</font> regarding %2.",
-		"Allied forces wish to identify %2 near %3, speak to <font color='#00FFFF'>%1 Civilians</font> and obtain their intel.",
-		"Undercover civilians within %3, are investigating %2. Locate <font color='#00FFFF'>%1 Civilians</font> and speak to them to discover their findings.",
-		"Locate <font color='#00FFFF'>%1 Informants</font> around %3, that have information on %2.",
-		"Around %3, find <font color='#00FFFF'>%1 Contacts</font> that have information on %2."
+		"Intel has identified <font color='#00FFFF'>%1x Radio Packs</font> being stored at %2, find them and extract them.",
+		"%2 is known to have enemy forces trying to smuggle <font color='#00FFFF'>%1x Radio Packs</font> out the area, find where they are keeping them and take the items.",
+		"Smugglers have hidden <font color='#00FFFF'>%1x Portable Radio Packs</font> within %2. Find the packs and take them from the area.",
+		"Somewhere in %2 are <font color='#00FFFF'>%1x Radio Packs</font>. Find and take the packs before enemy forces can move them out of the area.",
+		"Locate <font color='#00FFFF'>%1x Radio Packs</font> in %2 and remove the items from the area."
 	];
-	
-private _civInfo = selectRandom ["nearby Munitions Caches", "possible Chemical Weapons", "an enemy HQ", "enemy movements", "an underground bunker", "a planned ambush"];
 
 private _itemMax = switch (_locType) do {
 	case "Airport": { 4 };
@@ -83,8 +80,6 @@ for "_i" from 0 to (_itemMax) do {
 		_objTrigger setTriggerStatements [  format["!('%3' in (backpackCargo ZMM_%1_OBJ_%2))", _zoneID, _i, _itemType], 
 			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; 'MKR_%1_OBJ_%2' setMarkerAlpha 0; missionNamespace setVariable ['ZMM_%1_TSK_Counter', (missionNamespace getVariable ['ZMM_%1_TSK_Counter', 0]) + 1, true]; [] spawn { sleep 120; deleteVehicle ZMM_%1_OBJ_%2; }", _zoneID, _i],
 			"" ];
-			
-		// (parseText format["<t size='1.5' color='#72E500'>Collected:</t><br/><t size='1.25'>%2</t><br/><br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\search_ca.paa'/><br/><br/>Found By: <t color='#0080FF'>%1</t><br/>", name _unit, getText (configFile >> "CfgWeapons" >> _item >> "displayName")]) remoteExec ["hintSilent"];
 	};
 };
 
@@ -95,6 +90,6 @@ _objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_
 									"" ];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + format["<br/><br/>Backpack: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"), getText (configFile >> "CfgVehicles" >> _itemType >> "picture")], _itemCount, _civInfo, _locName], ["Talk"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "radio"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + format["<br/><br/>Backpack: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"), getText (configFile >> "CfgVehicles" >> _itemType >> "picture")], _itemCount, _locName], ["Find"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "radio"] call BIS_fnc_setTask;
 
 TRUE

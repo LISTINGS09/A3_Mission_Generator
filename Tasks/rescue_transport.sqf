@@ -1,12 +1,12 @@
+// v1.0
 // Disable an enemy prisoner transport and unlock it so the cargo can escape.
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-_enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-_playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
-_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
-_missionDesc = [
+private _missionDesc = [
 		"A group of %3 have been captured by enemy forces near %1 and are being transported to a prison camp. Locate the unarmed transport, disable the vehicle and free the <font color='#00FFFF'>%2 %3</font>.",
 		"An unarmed transport carrying <font color='#00FFFF'>%2 %3</font> captured by enemy forces will be passing through %1 shortly. Ambush the vehicle, disable it and free the %3 from the vehicle.",
 		"A transport carrying captive %1 has been located near %1. Disable the vehicle and free the <font color='#00FFFF'>%2 %3</font> aboard.",
@@ -15,15 +15,15 @@ _missionDesc = [
 		"A number of %3 have been rounded up by enemy forces somewhere in %1. Locate the truck transporting them and free <font color='#00FFFF'>%2 %3</font>."
 	];	
 
-_prisonerType = selectRandom ['Civilians', 'POWs', 'Prisoners', 'Dissidents', 'Rebels', 'Soldiers', 'Scientists', 'Workers'];
+private _prisonerType = selectRandom ['Civilians', 'POWs', 'Prisoners', 'Dissidents', 'Rebels', 'Soldiers', 'Scientists', 'Workers'];
 	
 if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
 
 _targetPos = _targetPos findEmptyPosition [1, 50, "C_Truck_02_covered_F"];
 	
 // Create Truck
-_truckType = selectRandom ["C_Truck_02_covered_F", "C_Truck_02_transport_F", "I_G_Van_01_transport_F"];
-_truck = _truckType createVehicle _targetPos;
+private _truckType = selectRandom ["C_Truck_02_covered_F", "C_Truck_02_transport_F", "I_G_Van_01_transport_F"];
+private _truck = _truckType createVehicle _targetPos;
 
 missionNamespace setVariable [format["ZMM_%1_VEH", _zoneID], _truck, true];
 
@@ -34,11 +34,11 @@ switch _truckType do {
 };
 
 // Create Driver
-_enemyGrp = createGroup [_enemySide, true];
-_driver = _enemyGrp createUnit [selectRandom (missionNamespace getVariable format["ZMM_%1Man", _enemySide]), [0,0,0], [], 0, "NONE"];
+private _enemyGrp = createGroup [_enemySide, true];
+private _driver = _enemyGrp createUnit [selectRandom (missionNamespace getVariable format["ZMM_%1Man", _enemySide]), [0,0,0], [], 0, "NONE"];
 [_driver] joinSilent _enemyGrp; 
 _driver moveInDriver _truck;
-[group _driver, getPos _driver, 200] call bis_fnc_taskPatrol;
+[group _driver, getPos _driver, 50] call bis_fnc_taskPatrol;
 
 _truck lockDriver true;
 _truck lock true;
@@ -53,10 +53,19 @@ _truck setVariable ["var_zoneID", _zoneID, true];
 	{},  
 	{},  
 	{
-		_varName = format["ZMM_%1_UNLOCK", (_target getVariable ["var_zoneID", 0])];
-		missionNamespace setVariable [_varName, true, true];
-		[_target, {{ _x enableAI "ALL"; unassignVehicle _x; _x setSpeedMode "FULL"; _x spawn { sleep (120 + random 120); deleteVehicle _this; } } forEach (crew _this)}] remoteExec ["bis_fnc_spawn", _target]; 
 		[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
+		private _zoneID = _target getVariable ["var_zoneID", 0];
+		missionNamespace setVariable [format["ZMM_%1_UNLOCK", _zoneID], true, true];
+		[_target, {
+			{
+				unassignVehicle _x;
+				moveOut _x;
+				_x setSpeedMode "FULL";
+				_x setDestination [_x getPos [500, random 360], "LEADER PLANNED", true];
+				_x spawn { sleep (120 + random 120); deleteVehicle _this; };
+				sleep 1 + random 2;
+			} forEach ((crew _this) select { alive _x })}
+		] remoteExec ["bis_fnc_spawn", _target];
 	},   
 	{},   
 	[],   
@@ -65,21 +74,16 @@ _truck setVariable ["var_zoneID", _zoneID, true];
 
 
 // Get carrying capacity
-_prisMax = getNumber (configFile >> "CfgVehicles" >> _truckType >> "transportSoldier");
-_prisGrp = createGroup [civilian, true];
-_prisGrp enableDynamicSimulation true;
-_prisGrp enableAttack false;
+private _prisMax = getNumber (configFile >> "CfgVehicles" >> _truckType >> "transportSoldier");
 
 for "_i" from 1 to _prisMax do {
-	_tempMan = _prisGrp createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];
-	_tempMan DisableAI "ALL";
-	_tempMan setBehaviour "CARELESS";
-	_tempMan allowCrewInImmobile true;
+	private _tempMan = createAgent ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];
+	_tempMan setVariable ["BIS_fnc_animalBehaviour_disable", true];
 	_tempMan assignAsCargo _truck;
 	_tempMan moveInCargo _truck;
 	
 	// Select Uniform
-	_newU = ""; _newH = ""; _newG = ""; _newV = "";
+	[] params [["_newU",""],["_newH",""],["_newG",""],["_newV",""]];
 	
 	switch (_prisonerType) do {
 		case "Soldiers": { 
@@ -114,20 +118,19 @@ for "_i" from 1 to _prisMax do {
 	if (_newH != "") then { _tempMan addHeadgear _newH } else { removeHeadgear _tempMan };
 	if (_newG != "") then { _tempMan addGoggles _newG } else { removeGoggles _tempMan };
 	if (_newV != "") then { _tempMan addVest _newV } else { removeVest _tempMan };
-	//missionNamespace setVariable [format["ZMM_%1_HVT_%2", _zoneID, _i], _tempMan];
 };
 
 // Create Failure Trigger
 _failTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
-_failTrigger setTriggerStatements [ 	format["!alive ZMM_%1_VEH", _zoneID], 
-									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, "Grey"],
+_failTrigger setTriggerStatements [ 	format["!alive ZMM_%1_VEH && locked ZMM_%1_VEH > 0", _zoneID], 
+									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _objTrigger setTriggerStatements [ 	format["ZMM_%1_UNLOCK", _zoneID], 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 									
 // Create Task

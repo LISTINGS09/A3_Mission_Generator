@@ -2,8 +2,12 @@ params [
 	"_targetPos",
 	"_posArray",
 	"_side",
-	"_unitClass"
+	["_unitClass", ""]
 ];
+
+if (_unitClass isEqualTo "") exitWith { ["ERROR", format["SpawnUnit - Empty Unit Passed: %1 (%2)", _unitClass, _side]] call zmm_fnc_logMsg };
+
+["DEBUG", format["SpawnUnit - Passed %1: %2 [%3]", _targetPos, _unitClass, _side]] call zmm_fnc_logMsg;
 
 private _reinfGrp = grpNull;
 private _grpVeh = objNull;
@@ -48,51 +52,58 @@ if _tooClose exitWith { [_targetPos, _posArray, _side, _unitClass] call zmm_fnc_
 
 if (_unitClass isEqualType "") then {
 	_vehType = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "vehicleClass");
-	private _veh = createVehicle [_unitClass, _startingPos, [], 0, if _isAir then {"FLY"} else {"NONE"}];
-	_veh setVehicleLock "LOCKEDPLAYER"; 
+	_grpVeh = createVehicle [_unitClass, _startingPos, [], 0, if _isAir then {"FLY"} else {"NONE"}];
+	_grpVeh setVehicleLock "LOCKEDPLAYER"; 
 
 	if _isAir then {
 		_sleep = FALSE;
-		_veh setDir (_veh getDir _targetPos);
+		_grpVeh setDir (_grpVeh getDir _targetPos);
 	} else {
-		_veh setDir _dir;
+		_grpVeh setDir _dir;
 	};
 	
-	if (_vehType == "car" || (!canFire _veh && !_isAir)) then {
+	if (_vehType == "car" || (!canFire _grpVeh && !_isAir)) then {
 		_vehType = "car";
 		_soldierArr = [];
 	
-		for [{_i = 1}, {_i <= count (fullCrew [_veh, "", true])}, {_i = _i + 1}] do {
+		for [{_i = 1}, {_i < count (fullCrew [_grpVeh, "", true])}, {_i = _i + 1}] do {
 			_soldierArr pushBack (selectRandom _manArray);
 		};
 	
-		_reinfGrp = [_veh getPos [15, random 360], _side, _soldierArr] call BIS_fnc_spawnGroup;
-		_grpVeh = _veh;
+		_reinfGrp = [_grpVeh getPos [15, random 360], _side, _soldierArr] call BIS_fnc_spawnGroup;
 		_reinfGrp addVehicle _grpVeh;
-		_wp = _reinfGrp addWaypoint [position _veh, 0];
+		_wp = _reinfGrp addWaypoint [position _grpVeh, 0];
 		_wp setWaypointType "GETIN NEAREST";
+		
+		uiSleep 0.5;
+		
+		{ _x moveInAny _grpVeh } forEach (units _reinfGrp select { vehicle _x == _x });
 	} else {
-		createVehicleCrew _veh;
+		createVehicleCrew _grpVeh;
 		
 		// Convert crew if using another faction vehicle.
 		if (([getNumber (configFile >> "CfgVehicles" >> _unitClass >> "Side")] call BIS_fnc_sideType) != _side) then {
 			_reinfGrp = createGroup [_side, true];
-			(crew _veh) join _reinfGrp;
+			(crew _grpVeh) join _reinfGrp;
 		};
 		
-		_reinfGrp = group effectiveCommander _veh;
-		_grpVeh = vehicle leader _reinfGrp;
+		_reinfGrp = group effectiveCommander _grpVeh;
 	};	
 } else {
 	_reinfGrp = [_startingPos, _side, _unitClass] call BIS_fnc_spawnGroup;
-	_grpVeh = (position leader _reinfGrp) nearestObject "Car";
 	
-	if (leader _reinfGrp distance2D _grpVeh < 75) then {
+	_vehArray = (units _reinfGrp apply { assignedVehicle _x }) - [objNull];
+	
+	if (count (_vehArray arrayIntersect _vehArray) > 0) then {
+		_grpVeh = (_vehArray arrayIntersect _vehArray)#0;
 		_vehType = "car";
-		{unassignVehicle _x; [_x] orderGetIn FALSE} forEach units _reinfGrp;
-		_reinfGrp addVehicle _grpVeh;	
+		
 		_wp = _reinfGrp addWaypoint [position _grpVeh, 0];
 		_wp setWaypointType "GETIN NEAREST";
+		
+		uiSleep 0.5;
+		
+		{ _x moveInAny _grpVeh } forEach (units _reinfGrp select { vehicle _x == _x });
 	};
 };
 
@@ -110,7 +121,7 @@ if !_isAir then {
 		_null = [_reinfGrp, _startingPos, _grpVeh, _targetPos] spawn {
 			params ["_selGrp", "_startPos", "_selVeh", "_destPos"];
 
-			_leader = leader _selGrp;
+			private _leader = leader _selGrp;
 						
 			waitUntil{sleep 15; if (_leader distance2D _destPos < 400 || !alive _leader || !canMove _selVeh) exitWith {true}; false; };
 			
@@ -153,22 +164,24 @@ if !_isAir then {
 		};
 	};
 } else {
+	private _paraGrp = grpNull;
+	
 	// No cargo seats so assume its CAS
 	if (count fullCrew [_grpVeh, "cargo", true] > 0) then {
 		_reinfGrp setBehaviour "CARELESS";
-		_soldierArr = [selectRandom _manArray];
+		_soldierArr = [];
 		
 		for [{_i = 1}, {_i < (([_unitClass, true] call BIS_fnc_crewCount) - ([_unitClass, false] call BIS_fnc_crewCount))}, {_i = _i + 1}] do {
 			_soldierArr pushBack (selectRandom _manArray);
 		};
 
-		_paraUnit = [[0,0,0], _side, _soldierArr] call BIS_fnc_spawnGroup;
+		_paraGrp = [[0,0,0], _side, _soldierArr] call BIS_fnc_spawnGroup;
 		{
 			_x assignAsCargo _grpVeh;
 			[_x] orderGetIn TRUE;
 			_x moveInCargo _grpVeh;
 			_x allowFleeing 0;
-		} forEach units _paraUnit;
+		} forEach units _paraGrp;
 		
 		_landPos = [_targetPos, 300, random 360] call BIS_fnc_relPos;		
 		_unloadWP = _reinfGrp addWaypoint [_landPos, 100];
@@ -194,6 +207,7 @@ if !_isAir then {
 	
 	// If has turrets hang around AO, otherwise despawn.
 	if (_weapCount > 1) then {
+		// TODO: Could be better? Make heli leave after a few SAD wps?
 		_newWP = _reinfGrp addWaypoint [_targetPos, 0];
 		_newWP setWaypointType "SAD";
 		_newWP setWaypointCompletionRadius 300;
@@ -201,6 +215,16 @@ if !_isAir then {
 		_newWP = _reinfGrp addWaypoint [_targetPos, 1];
 		_newWP setWaypointType "LOITER";
 		_newWP setWaypointCompletionRadius 500;
+		
+		_null = [_reinfGrp, _startingPos, _targetPos] spawn {
+				params ["_rGrp","_sPos","_tPos"];
+								
+				private _time = time + 600;
+				while {	alive (vehicle leader _rGrp) && time < _time } do {
+					sleep 10; 
+					{ _rGrp reveal [_x, 4] } forEach ((_targetPos nearEntities 600) select {side _x != side _rGrp && vehicle _x == _x && stance _x == "STAND" });
+				};
+			};
 	} else {
 		_newWP = _reinfGrp addWaypoint [_startingPos, 0];
 		_null = [_reinfGrp, _startingPos] spawn {
@@ -214,14 +238,21 @@ if !_isAir then {
 			deleteVehicle _heli;
 		};
 	};
-	for [{_i = 0}, {_i < 3}, {_i = _i + 1}] do {
-		_newWP = _paraUnit addWaypoint [_targetPos, 100];
-		_newWP setWaypointType "SAD";
+	
+	if (count units _paraGrp > 0) then { 
+		_paraGrp deleteGroupWhenEmpty true;
+	
+		for [{_i = 0}, {_i < 3}, {_i = _i + 1}] do {
+			_newWP = _paraGrp addWaypoint [_targetPos, 100];
+			_newWP setWaypointType "SAD";
+		};
+		_newWP = _paraGrp addWaypoint [_targetPos, 100];
+		_newWP setWaypointType "GUARD";
+		_reinfGrp = _paraGrp;
 	};
-	_newWP = _paraUnit addWaypoint [_targetPos, 100];
-	_newWP setWaypointType "GUARD";
-	_reinfGrp = _paraUnit;
 };
+
+if (!isNull _reinfGrp) then { _reinfGrp deleteGroupWhenEmpty true };
 
 { _x addCuratorEditableObjects [(units _reinfGrp) + [_grpVeh], TRUE] } forEach allCurators;
 

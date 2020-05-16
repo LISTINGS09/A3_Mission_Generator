@@ -37,14 +37,14 @@ if (count _positions < _talkMax) then {
 	{ _positions pushBack _x } forEach _locations;
 };
 
-private _civCount = 0;
-
 // Create locations if none exist
 if (_positions isEqualTo []) then {
 	for "_i" from 0 to (_talkMax) do {
-		_positions pushBack (_centre getPos [random 50, random 360]);
+		_positions pushBack (_centre getPos [25 + random 50, random 360]);
 	};
 };
+
+private _civCount = 0;
 
 // Generate the crates.
 for "_i" from 0 to (_talkMax) do {
@@ -52,7 +52,7 @@ for "_i" from 0 to (_talkMax) do {
 
 	private _civType = selectRandom ["C_man_polo_1_F_afro","C_man_polo_3_F_afro","C_man_polo_6_F_afro","C_man_polo_2_F_euro","C_man_polo_4_F_euro","C_man_polo_5_F_asia"];
 	private _civPos = selectRandom _positions;
-	if (count _positions > _talkMax) then { _positions deleteAt (_positions find _civPos) };
+	_positions deleteAt (_positions find _civPos);
 
 	if (count _civPos > 0) then { 
 		// If not in a building find an empty position.
@@ -88,9 +88,11 @@ for "_i" from 0 to (_talkMax) do {
 				{}, 
 				{}, 
 				{
-					private _varName = format["ZMM_%1_TSK_Counter", (_target getVariable ["var_zoneID", 0])];
+					private _zoneID = _target getVariable ["var_zoneID", 0];
+					private _itemID = _target getVariable ["var_itemID", 0];
+					private _varName = format["ZMM_%1_TSK_Counter", _zoneID];
 					missionNamespace setVariable [_varName, (missionNamespace getVariable [_varName, 0]) + 1, true];
-					format["MKR_%1_OBJ_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])] setMarkerAlpha 0;
+					deleteMarker format["MKR_%1_OBJ_%2", _zoneID, _itemID];
 					[_target, _actionId] remoteExec ["BIS_fnc_holdActionRemove"];
 									
 					[name _target, 
@@ -103,7 +105,7 @@ for "_i" from 0 to (_talkMax) do {
 					sleep 3;
 					[_target, [_target getPos [500, random 360], "LEADER PLANNED", true]] remoteExec ["setDestination", _target];
 					[_target, { sleep 120; deleteVehicle _this }] remoteExec ["BIS_fnc_spawn", _target];
-					[format["ZMM_%1_SUB_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
+					[format["ZMM_%1_SUB_%2", _zoneID, _itemID], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
 				}, 
 				{}, 
 				[], 
