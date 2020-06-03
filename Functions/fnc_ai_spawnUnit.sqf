@@ -1,3 +1,6 @@
+// [] spawn 
+// [getPos selectRandom allPlayers select { alive _x }, [[0,0,0]], EAST, selectRandom ZMM_GUERVeh_CasP] call zmm_fnc_spawnUnit;
+// [getPos (selectRandom (allPlayers select { alive _x })), [((selectRandom (allPlayers select { alive _x })) getPos [4000, random 360])], EAST, selectRandom ZMM_GUERVeh_CasP] call zmm_fnc_spawnUnit;
 params [
 	"_targetPos",
 	"_posArray",
@@ -39,7 +42,7 @@ if (_unitClass isEqualType []) then { _customInit = _unitClass # 1; _unitClass =
 // Check if _unitClass is an air vehicle.
 _isAir = FALSE;
 if (_unitClass isEqualType "") then {
-	if ("Air" in ([(configFile >> "CfgVehicles" >> _unitClass), TRUE] call BIS_fnc_returnParents)) then { _isAir = TRUE };
+	if ("Air" in ([(configFile >> "CfgVehicles" >> _unitClass), TRUE] call BIS_fnc_returnParents)) then { _isAir = TRUE; _startingPos set [2, 500]; };
 };
 
 // Don't spawn object if too close to any players.
@@ -61,6 +64,8 @@ if (_unitClass isEqualType "") then {
 	} else {
 		_grpVeh setDir _dir;
 	};
+	
+	_startingPos set [2,0]; // Reset Starting Pos
 	
 	if (_vehType == "car" || (!canFire _grpVeh && !_isAir)) then {
 		_vehType = "car";
@@ -217,14 +222,14 @@ if !_isAir then {
 		_newWP setWaypointCompletionRadius 500;
 		
 		_null = [_reinfGrp, _startingPos, _targetPos] spawn {
-				params ["_rGrp","_sPos","_tPos"];
-								
-				private _time = time + 600;
-				while {	alive (vehicle leader _rGrp) && time < _time } do {
-					sleep 10; 
-					{ _rGrp reveal [_x, 4] } forEach ((_targetPos nearEntities 600) select {side _x != side _rGrp && vehicle _x == _x && stance _x == "STAND" });
-				};
+			params ["_rGrp","_sPos","_tPos"];
+							
+			private _time = time + 600;
+			while {	alive (vehicle leader _rGrp) && time < _time } do {
+				sleep 30;
+				{ if (_rGrp knowsAbout _x < 4) then { _rGrp reveal [_x, 4] } } forEach ((_tPos nearEntities 600) select {side _x != side _rGrp && vehicle _x == _x && stance _x == "STAND" });
 			};
+		};
 	} else {
 		_newWP = _reinfGrp addWaypoint [_startingPos, 0];
 		_null = [_reinfGrp, _startingPos] spawn {

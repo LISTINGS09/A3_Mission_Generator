@@ -170,7 +170,7 @@ for "_i" from 1 to (_civMax / 2) do {
 									format["[group ZMM_%1_IED_%2, group (selectRandom thisList)] spawn BIS_fnc_stalk;
 									[ZMM_%1_IED_%2] spawn {
 										params ['_unit'];
-										waitUntil { sleep 1; playSound3D ['A3\sounds_f\sfx\beep_target.wss', _unit, false, getPosASL _unit, 1, 0.5, 75]; (!alive _unit || allPlayers findIf { alive _x && _unit distance _x < 5 } >= 0) };
+										waitUntil { sleep 1; playSound3D ['A3\sounds_f\sfx\beep_target.wss', _unit, false, getPosASL _unit, 1, 0.5, 100]; (!alive _unit || allPlayers findIf { alive _x && _unit distance _x < 5 } >= 0) };
 										_exp = 'HelicopterExploSmall' createVehicle (getPos _unit); _exp attachTo [_unit,[-0.02,-0.07,0.042],'rightHand'];
 									};", _zoneID, _i],
 									"" ];

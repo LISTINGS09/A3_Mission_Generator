@@ -1,11 +1,11 @@
 if !isServer exitWith {};
-// [99, false, 300, 6, -1] spawn ZMM_fnc_areaQRF;
+// [99, false, 300, 10, -1] spawn ZMM_fnc_areaQRF;
 
 params [
 	["_zoneID", 0],
 	["_triggerOnly", FALSE],
 	["_delay", 300],
-	["_maxWave", 6],
+	["_maxWave", 10],
 	["_qrfType", -1]
 ];
 
@@ -122,9 +122,11 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 		case 3: {
 			switch (_wave) do {
 				case 1: {
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 				};
 				case 2: {
+					[_centre, _locations, _side, selectRandom _medium] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _heavy] call zmm_fnc_spawnUnit;
 				};
 				case 3;
@@ -172,11 +174,9 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 				};
 				case 2;
 				case 3: {
-					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
@@ -185,7 +185,6 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 				default {
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
 					[_centre, [(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
 					[_centre, _locations, _side, selectRandom _truck] call zmm_fnc_spawnUnit;
 				};

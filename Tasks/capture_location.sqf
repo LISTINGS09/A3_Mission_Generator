@@ -1,4 +1,5 @@
 // Set-up mission variables.
+// TODO Spawn some bunkers?
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];

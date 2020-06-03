@@ -70,12 +70,28 @@ private _taskType = selectRandom ["CASVAC","Item Hunt"];
 private _endTrigger = "";
 
 if (_taskType == "Item Hunt") then {
-	_itemType = selectRandom ["Land_Suitcase_F","Land_MetalCase_01_small_F","Land_PlasticCase_01_small_F","Land_PlasticCase_01_small_gray_F"];
+	private _itemType = selectRandom ["Land_Suitcase_F","Land_MetalCase_01_small_F","Land_PlasticCase_01_small_F","Land_PlasticCase_01_small_gray_F"];
 	
-	_itemObj = _itemType createVehicle (_targetPos getPos [1 + random 2, random 360]);
+	private _itemObj = _itemType createVehicle (_targetPos getPos [1 + random 2, random 360]);
 	_itemObj setDir random 360;
-		
-	_missionData = selecTRandom [
+	
+	
+	private _tempPlayer = (allPlayers select {alive _x}) select 0;
+	private _DeadMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
+	_DeadMan forceAddUniform (uniform _tempPlayer);
+	_DeadMan addVest (vest _tempPlayer);
+	_DeadMan addHeadgear (headgear _tempPlayer);
+	_DeadMan setDir random 360;
+	_DeadMan setPos ((_itemObj getPos [random 1, random 360]) vectorAdd [0,0,5]);
+	_DeadMan setDamage 1;
+	removeFromRemainsCollector [_DeadMan];
+	
+	private _blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], [0,0,0]];
+	_blood setPos (_DeadMan getPos [random 1, random 360]);
+	_blood setVectorUp surfaceNormal position _blood;
+	_blood setPos ((getPos _blood) vectorAdd [0,0,0.02]);
+			
+	private _missionData = selecTRandom [
 		format["%1 Data", selectRandom ["Weapon", "Radio", "Flight", "Mapping", "Survey", "NBC", "Target", "Account"]],
 		format["%1 Locations", selectRandom ["Intel", "Camp", "POW", "Minefield", "HVT", "Storage", "Bunker", "Cache", "Testing"]],
 		format["a list of %1", selectRandom ["Prisoners", "Informants", "Stockpiles", "Assets", "Codes", "Target", "Recipes"]]

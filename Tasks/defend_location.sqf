@@ -8,12 +8,12 @@ private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID],
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 private _missionDesc = [
-		"Enemy forces are trying to take over <font color='#00FFFF'>%1</font>. Clear out and then defend the location at all costs for <font color='#00FFFF'>%2 Minutes</font>.",
-		"A number of enemy groups are advancing towards <font color='#00FFFF'>%1</font>. Eliminate any enemy already there, then hold the area for <font color='#00FFFF'>%2 Minutes</font> until called to exfil.",
-		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>. Enemy forces may already be present, secure the area, then hold off the enemy for <font color='#00FFFF'>%2 Minutes</font>.",
-		"Enemy forces have launched an attack on <font color='#00FFFF'>%1</font>. Eliminate any contact already present in the area, then defend it for <font color='#00FFFF'>%2 Minutes</font> until called to extract.",
-		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>. Clean out any forces already present, while preventing enemy reinforcements from taking the town. Hold it for <font color='#00FFFF'>%2 Minutes</font>.",
-		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>. Eliminate any enemy forces already present, then hold the area from attackers for <font color='#00FFFF'>%2 Minutes</font> before withdrawing."
+		"Enemy forces are trying to take over <font color='#00FFFF'>%1</font>. Clear out and then defend the centre of %1 at all costs for <font color='#00FFFF'>%2 Minutes</font>.",
+		"A number of enemy groups are advancing towards <font color='#00FFFF'>%1</font>. Eliminate any enemy already there, then hold the centre for <font color='#00FFFF'>%2 Minutes</font> until called to exfil.",
+		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>. Enemy forces may already be present, secure the area, then hold off the centre of %1 from enemy forces for <font color='#00FFFF'>%2 Minutes</font>.",
+		"Enemy forces have launched an attack on <font color='#00FFFF'>%1</font>. Eliminate any contact already present in %1 at the centre of the area, then defend it for <font color='#00FFFF'>%2 Minutes</font> until called to extract.",
+		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>. Clean out any forces already present at the centre of %1, while preventing enemy reinforcements from taking the town. Hold it for <font color='#00FFFF'>%2 Minutes</font>.",
+		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>. Eliminate any enemy forces already present, then hold the centre area of %1 from attackers for <font color='#00FFFF'>%2 Minutes</font> before withdrawing."
 	];
 	
 if !(_radius isEqualType 0) then { _radius = 25 };
@@ -57,10 +57,11 @@ _infTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
 _infTrigger setTriggerTimeout [120, 120, 120, true];
 _infTrigger setTriggerStatements [  "this", 
 									format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend %1 for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
-									[] spawn { sleep 240; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; } 
+									[] spawn { sleep 140; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
+									[] spawn { sleep 150; [ %3, false, %4, %5, 5 ] spawn zmm_fnc_areaQRF; }
 									", _locName, _time / 60, _zoneID, _delay, _waves],
 									"" ];
-									
+
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _objTrigger setTriggerArea [_radius, _radius, 0, FALSE];
