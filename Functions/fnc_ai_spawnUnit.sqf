@@ -2,26 +2,27 @@
 // [getPos selectRandom allPlayers select { alive _x }, [[0,0,0]], EAST, selectRandom ZMM_GUERVeh_CasP] call zmm_fnc_spawnUnit;
 // [getPos (selectRandom (allPlayers select { alive _x })), [((selectRandom (allPlayers select { alive _x })) getPos [4000, random 360])], EAST, selectRandom ZMM_GUERVeh_CasP] call zmm_fnc_spawnUnit;
 params [
-	"_targetPos",
-	"_posArray",
+	["_targetPos", []],
+	["_posArray", []],
 	"_side",
-	["_unitClass", ""]
+	["_unitClass", ""],
+	["_tries", 1]
 ];
 
 if (_unitClass isEqualTo "") exitWith { ["ERROR", format["SpawnUnit - Empty Unit Passed: %1 (%2)", _unitClass, _side]] call zmm_fnc_logMsg };
+if (_tries > 10) exitWith {};
 
-["DEBUG", format["SpawnUnit - Passed %1: %2 [%3]", _targetPos, _unitClass, _side]] call zmm_fnc_logMsg;
+["DEBUG", format["SpawnUnit - Passed %1: %2 [%3] Try:%4", _targetPos, _unitClass, _side, _tries]] call zmm_fnc_logMsg;
 
 private _reinfGrp = grpNull;
 private _grpVeh = objNull;
 private _vehType = "";
 private _sleep = TRUE;
-private _tooClose = FALSE;
 private _dir = 0;
 private _customInit = "";
 
 // No positions to use
-if (count _posArray == 0) exitWith {};
+if (count _posArray == 0 || count _targetPos == 0) exitWith {};
 
 // Fix any positions are not in array format
 {
@@ -46,12 +47,10 @@ if (_unitClass isEqualType "") then {
 };
 
 // Don't spawn object if too close to any players.
-private _maxDist = if _isAir then {1000} else {500};
-{
-	if (alive _x && _x distance2D _startingPos < _maxDist) exitWith { _tooClose = true};
-} forEach (playableUnits + switchableUnits);
-
-if _tooClose exitWith { [_targetPos, _posArray, _side, _unitClass] call zmm_fnc_spawnUnit };
+if ({ vehicle _x == _x && alive _x && _x distance2D _startingPos < (if _isAir then {1000} else {500})} count allPlayers > 0) exitWith { 
+	sleep 30;
+	[_targetPos, _posArray, _side, _unitClass, _tries + 1] call zmm_fnc_spawnUnit;
+};
 
 if (_unitClass isEqualType "") then {
 	_vehType = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "vehicleClass");
@@ -61,6 +60,7 @@ if (_unitClass isEqualType "") then {
 	if _isAir then {
 		_sleep = FALSE;
 		_grpVeh setDir (_grpVeh getDir _targetPos);
+		_grpVeh setVelocity [100 * (sin (_grpVeh getDir _targetPos)), 100 * (cos (_grpVeh getDir _targetPos)), 0];
 	} else {
 		_grpVeh setDir _dir;
 	};
@@ -227,7 +227,7 @@ if !_isAir then {
 			private _time = time + 600;
 			while {	alive (vehicle leader _rGrp) && time < _time } do {
 				sleep 30;
-				{ if (_rGrp knowsAbout _x < 4) then { _rGrp reveal [_x, 4] } } forEach ((_tPos nearEntities 600) select {side _x != side _rGrp && vehicle _x == _x && stance _x == "STAND" });
+				{ if (_rGrp knowsAbout _x < 4) then { _rGrp reveal [_x, 4] } } forEach (allPlayers select {_x distance2D leader _rGrp < 800 && side _x != side _rGrp && vehicle _x == _x && stance _x == "STAND" });
 			};
 		};
 	} else {

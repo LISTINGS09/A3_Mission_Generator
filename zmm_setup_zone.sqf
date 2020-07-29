@@ -70,66 +70,69 @@ missionNamespace setVariable [format["ZMM_%1_EnemySide", _zoneID], _side]; // Se
 private _iconSize = 1;
 private _locSize = 1;
 private _locMax = 8;
+private _multiplier = missionNamespace getVariable ["ZZM_Diff", 1];
+private _qrfTime = [420, 300, 180] select (missionNamespace getVariable ["ZZM_Diff", 1]);
+
 missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], TRUE];
-missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 12];
+missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], round (12 * _multiplier)];
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
-missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 3];
+missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], round (3 * _multiplier)];
 
 switch (_locType) do {
 	case "Airport": { 
 		_iconSize = 1.2;
 		_locSize = 1.25;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 15 + random 10];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (15 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 5)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 3)];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 8];
-		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 6)];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], round (8 * _multiplier)];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 3)];
 	};
 	case "NameCityCapital": { 
 		_iconSize = 1.1;
 		_locSize = 1.25;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 15 + random 10];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (15 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 5)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 3)];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 6];
-		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 6)];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], round (6 * _multiplier)];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 3)];
 	};
 	case "NameCity": { 
 		_iconSize = 1;
 		_locSize = 1;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 15 + random 10];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (15 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 4)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 2)];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 6];
-		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 4)];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], (6 * _multiplier)];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 2)];
 	};
 	case "NameVillage": { 
 		_iconSize = 0.8;
 		_locSize = 0.75;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 10 + random 10];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (10 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 1.5)];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 400];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
-		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 2)];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime + 100];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], (4 * _multiplier)];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 1)];
 	};
 	case "NameLocal": { 
 		_iconSize = 0.6;
 		_locSize = 0.75;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8 + random 6];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (8 * _multiplier) + random 6];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 1.5)];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 500];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 4];
-		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 1)];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime + 200];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], (4 * _multiplier)];
+		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], 0];
 	};
 	case "Ambient": {
 		_iconSize = 0.4;
 		_locSize = 0.75;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 6 + random 6];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (6 * _multiplier) + random 6];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 1.5)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 0];
@@ -138,16 +141,16 @@ switch (_locType) do {
 	case "Task": {
 		_iconSize = 0.4;
 		_locSize = 0.75;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 8 + random 8];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (8 * _multiplier) + random 8];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 2 + floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 2)];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300];
-		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 6];
-		if (random 1 > 0.5) then { missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 3)]; };
+		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime];
+		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], (6 * _multiplier)];
+		if (random 1 > 0.5) then { missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 1)]; };
 	};
 };
 
-if (_side == INDEPENDENT) then { missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], 0] }; // IEDs for GUER only.
+if (_side != INDEPENDENT) then { missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], 0] }; // IEDs for GUER only.
 
 ["DEBUG", format["Zone%1 (%2 - %3) - Settings - GAR: %4 RBL: %5 SUP: %6 QRF: %7 IED: %8", _zoneID, _locType, _side,
 	missionNamespace getVariable [format[ "ZMM_%1_Garrison", _zoneID ], 0],

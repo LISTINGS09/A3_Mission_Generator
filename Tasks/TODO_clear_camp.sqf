@@ -88,8 +88,7 @@ for "_i" from 1 to _civMax do {
 			_mrkr setMarkerColor format["Color%1",_enemySide];
 			_civMarkers pushBack format["MKR_%1_OBJ_%2", _zoneID, _i];
 		//};
-	
-		sleep 0.5; // Allow time for name to generate.
+		
 		missionNamespace setVariable [format["ZMM_%1_HVT_%2", _zoneID, _i], _civUnit];	
 		
 		_endActivation pushBack format["!alive ZMM_%1_HVT_%2", _zoneID, _i];

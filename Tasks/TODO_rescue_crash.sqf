@@ -32,17 +32,15 @@ _crater setPos ((getPos _crater) vectorAdd [0,0,0.02]);
 _relPos = [ _targetPos, random 50, random 360 ] call BIS_fnc_relPos;
 
 // Create Bodies
-_tempPlayer = (allPlayers select {alive _x}) select 0;
-
-_DeadMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
-_DeadMan forceAddUniform (uniform _tempPlayer);
-_DeadMan addVest (vest _tempPlayer);
-_DeadMan addHeadgear (headgear _tempPlayer);
-_DeadMan disableAI "ALL";
-_DeadMan setDir random 360;
-_DeadMan setPos ((_wreck getPos [random 1, random 360]) vectorAdd [0,0,5]);
-_DeadMan setDamage 1;
-removeFromRemainsCollector [_DeadMan];
+_deadMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
+_deadMan forceAddUniform (uniform selectRandom allPlayers);
+_deadMan addVest (vest selectRandom allPlayers);
+_deadMan addHeadgear (headgear selectRandom allPlayers);
+_deadMan disableAI "ALL";
+_deadMan setDir random 360;
+_deadMan setPos ((_wreck getPos [random 1, random 360]) vectorAdd [0,0,5]);
+_deadMan setDamage 1;
+removeFromRemainsCollector [_deadMan];
 
 _hvtActivation = [];
 _hvtNum = 0;
@@ -53,9 +51,9 @@ for "_i" from 0 to (random 1 + 2) do {
 	_tempPos = (_targetPos getPos [2 + random 2, random 360]) findEmptyPosition [0, 5, "C_man_w_worker_F"];
 	_evacMan = (createGroup civilian) createUnit ["C_man_w_worker_F", _tempPos, [], 0, "NONE"];	
 	_evacMan setCaptive true;
-	_evacMan forceAddUniform (uniform _tempPlayer);
-	_evacMan addVest (vest _tempPlayer);
-	_evacMan addHeadgear (headgear _tempPlayer);
+	_evacMan forceAddUniform (uniform selectRandom allPlayers);
+	_evacMan addVest (vest selectRandom allPlayers);
+	_evacMan addHeadgear (headgear selectRandom allPlayers);
 	_evacMan disableAI "ALL";
 	_evacMan setDir random 360;
 	

@@ -18,13 +18,11 @@ _crater setVectorUp surfaceNormal position _crater;
 _crater setPos ((getPos _crater) vectorAdd [0,0,0.02]);
 
 // Create Bodies
-private _tempPlayer = (allPlayers select {alive _x}) select 0;
-
 for "_i" from 0 to (random 1 + 2) do {
 	private _man = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 0, "NONE"];	
-	_man forceAddUniform (uniform _tempPlayer);
-	_man addVest (vest _tempPlayer);
-	_man addHeadgear (headgear _tempPlayer);
+	_man forceAddUniform (uniform selectRandom allPlayers);
+	_man addVest (vest selectRandom allPlayers);
+	_man addHeadgear (headgear selectRandom allPlayers);
 	_man disableAI "ALL";
 	_man setPos ((_targetPos getPos [1.5 + random 3, random 360]) vectorAdd [0,0,1]);
 	_man setDir random 360;
@@ -75,19 +73,17 @@ if (_taskType == "Item Hunt") then {
 	private _itemObj = _itemType createVehicle (_targetPos getPos [1 + random 2, random 360]);
 	_itemObj setDir random 360;
 	
-	
-	private _tempPlayer = (allPlayers select {alive _x}) select 0;
-	private _DeadMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
-	_DeadMan forceAddUniform (uniform _tempPlayer);
-	_DeadMan addVest (vest _tempPlayer);
-	_DeadMan addHeadgear (headgear _tempPlayer);
-	_DeadMan setDir random 360;
-	_DeadMan setPos ((_itemObj getPos [random 1, random 360]) vectorAdd [0,0,5]);
-	_DeadMan setDamage 1;
-	removeFromRemainsCollector [_DeadMan];
+	private _deadMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];
+	_deadMan forceAddUniform (uniform selectRandom allPlayers);
+	_deadMan addVest (vest selectRandom allPlayers);
+	_deadMan addHeadgear (headgear selectRandom allPlayers);
+	_deadMan setDir random 360;
+	_deadMan setPos ((_itemObj getPos [random 1, random 360]) vectorAdd [0,0,5]);
+	_deadMan setDamage 1;
+	removeFromRemainsCollector [_deadMan];
 	
 	private _blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], [0,0,0]];
-	_blood setPos (_DeadMan getPos [random 1, random 360]);
+	_blood setPos (_deadMan getPos [random 1, random 360]);
 	_blood setVectorUp surfaceNormal position _blood;
 	_blood setPos ((getPos _blood) vectorAdd [0,0,0.02]);
 			
@@ -137,9 +133,9 @@ if (_taskType == "Item Hunt") then {
 if (_taskType == "CASVAC") then {
 	private _evacMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
 	_evacMan setCaptive true;
-	_evacMan forceAddUniform (uniform _tempPlayer);
-	_evacMan addVest (vest _tempPlayer);
-	_evacMan addHeadgear (headgear _tempPlayer);
+	_evacMan forceAddUniform (uniform selectRandom allPlayers);
+	_evacMan addVest (vest selectRandom allPlayers);
+	_evacMan addHeadgear (headgear selectRandom allPlayers);
 	_evacMan setPos (_targetPos getPos [random 1, random 360]);
 	_evacMan setDir random 360;
 	

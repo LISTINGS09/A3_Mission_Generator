@@ -4,11 +4,11 @@ if !(leader player == player) exitWith {};
 
 waitUntil {getMarkerType "loc_mkr" != "" };
 
-_centre = getMarkerPos "loc_mkr";
-_nearLoc = (nearestLocations [getMarkerPos "loc_mkr", ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 1000, _centre])#0;
-_locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "This Location" };
+private _centre = getMarkerPos "loc_mkr";
+private _nearLoc = (nearestLocations [getMarkerPos "loc_mkr", ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 1000, _centre])#0;
+private _locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "This Location" };
 
-_ZMM = format["
+private _ZMMtext = format["
 	<font size='18' color='#FF7F00'>Commander Selection</font><br/>
 	Mission Location: <marker name='loc_mkr'>%2</marker><br/>
 	<br/>
@@ -25,4 +25,6 @@ _ZMM = format["
 	<br/>
 ",profileName,_locName];
 
-player createDiaryRecord ["diary", ["Mission Selection",_ZMM]];
+_ZMMtext = _ZMMtext + format["<br/>ZMM v%1<br/><br/>", missionNamespace getVariable["ZMM_Version",0]];
+
+player createDiaryRecord ["diary", ["Mission Selection",_ZMMtext]];

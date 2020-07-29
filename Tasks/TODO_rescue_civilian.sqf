@@ -83,9 +83,9 @@ for "_i" from 0 to _hvtMax do {
 			_mrkr setMarkerColor "ColorCivilian";
 
 	if (_rescueType == "Soldier") then {
-		_hvtObj forceAddUniform (uniform selectRandom (allPlayers select {alive _x}));
-		_hvtObj addVest (vest selectRandom (allPlayers select {alive _x}));
-		_hvtObj addHeadgear (headgear selectRandom (allPlayers select {alive _x}));
+		_hvtObj forceAddUniform (uniform selectRandom allPlayers);
+		_hvtObj addVest (vest selectRandom allPlayers);
+		_hvtObj addHeadgear (headgear selectRandom allPlayers);
 	};				
 	
 	missionNamespace setVariable [format["ZMM_%1_HVT_%2", _zoneID, _i], _hvtObj];

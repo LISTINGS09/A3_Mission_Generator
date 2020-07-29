@@ -93,37 +93,38 @@ _fnc_spawnGroup = {
 ["DEBUG", format["Zone%1 - Creating Patrols (%2)", _zoneID, _locType]] call zmm_fnc_logMsg;
 
 private _str = selectRandom ["Heavy", "Normal", "Light"];
+private _multiplier = missionNamespace getVariable ["ZZM_Diff", 1];
 
 switch (_locType) do {
 	case "Airport": { 
 		[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], 1 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _medium + _heavy, format["MKR_%1_MAX", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+		[_zoneID, _centre, _medium + _heavy, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 1] call _fnc_spawnGroup;
 		[_zoneID, _centre, _heavy + _cas, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], 3 + random 2] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (3 * _multiplier) + random 2] call _fnc_spawnGroup;	
 		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;	
 		[_zoneID, _centre, _squad, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;
 	};
 	case "NameCityCapital": { 
-		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 1] call _fnc_spawnGroup;
 		[_zoneID, _centre, _medium + _heavy, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], 3 + random 2] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (3 * _multiplier) + random 2] call _fnc_spawnGroup;	
 		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
 		[_zoneID, _centre, _squad, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;	
 	};
 	case "NameCity": { 
-		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 1] call _fnc_spawnGroup;
 		[_zoneID, _centre, _medium + _heavy, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], 2 + random 2] call _fnc_spawnGroup;
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 2] call _fnc_spawnGroup;
 		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;
 	};
 	case "NameVillage": { 
-		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], 1 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], 2 + random 2] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], (1 * _multiplier) + random 1] call _fnc_spawnGroup;
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 2] call _fnc_spawnGroup;	
 		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;
 	};
 	case "NameLocal": { 
-		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], 1 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], 2 + random 2] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], (1 * _multiplier) + random 1] call _fnc_spawnGroup;
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 2] call _fnc_spawnGroup;	
 		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;
 	};
 	default { 		
@@ -131,16 +132,16 @@ switch (_locType) do {
 			case "Heavy": { 
 				[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], 1] call _fnc_spawnGroup;
 				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], random 1] call _fnc_spawnGroup; 
-				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], (2 * _multiplier) + random 1] call _fnc_spawnGroup;
 				[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
 			};
 			case "Light": { 
 				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], random 1] call _fnc_spawnGroup; 
-				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], 3 + random 1] call _fnc_spawnGroup;
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], (3 * _multiplier) + random 1] call _fnc_spawnGroup;
 			};
 			default { 
 				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], 1 + random 1] call _fnc_spawnGroup; 
-				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], (2 * _multiplier) + random 1] call _fnc_spawnGroup;
 				[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
 			};
 		};

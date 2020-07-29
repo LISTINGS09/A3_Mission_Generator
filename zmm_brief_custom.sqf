@@ -48,7 +48,7 @@ zmm_fnc_confirm = {
 if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith {};
 
 if (isNil "loc_mkr") then {
-	_mkr = createMarker ["loc_mkr",[0,0]];
+	private _mkr = createMarker ["loc_mkr",[0,0]];
 	_mkr setMarkerShape "ELLIPSE";
 	_mkr setMarkerColor "ColorWhite";
 	_mkr setMarkerBrush 'Border';
@@ -87,6 +87,7 @@ private _ZMMtext = "<font size='18' color='#FF7F00'>Commander Selection</font><b
 	];
 
 _ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>3. Confirm</font><br/>Once happy with your location <execute expression=""[] call zmm_fnc_confirm;"">Confirm Selection</execute><br/><br/>";
+_ZMMtext = _ZMMtext + format["<br/>ZMM v%1<br/><br/>", missionNamespace getVariable["ZMM_Version",0]];
 	
 
 player createDiaryRecord ["diary", ["Mission Selection", _ZMMtext]];

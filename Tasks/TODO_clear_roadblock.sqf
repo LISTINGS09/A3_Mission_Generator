@@ -172,8 +172,6 @@ for "_i" from 1 to _count do {
 		if _flat then { _obj setVectorUp surfaceNormal getPos _obj };
 	} forEach selectRandom _roadBlocks;
 	
-	sleep 1;
-	
 	// Create a local patrolling group
 	private _grpArr = [];
 			

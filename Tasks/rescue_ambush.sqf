@@ -32,12 +32,10 @@ _crater setPos ((getPos _crater) vectorAdd [0,0,0.02]);
 private _relPos = [ _targetPos, random 50, random 360 ] call BIS_fnc_relPos;
 
 // Create Bodies
-private _tempPlayer = selectRandom (allPlayers select {alive _x});
-
 private _deadBody = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
-_deadBody forceAddUniform (uniform _tempPlayer);
-_deadBody addVest (vest _tempPlayer);
-_deadBody addHeadgear (headgear _tempPlayer);
+_deadBody forceAddUniform (uniform selectRandom allPlayers);
+_deadBody addVest (vest selectRandom allPlayers);
+_deadBody addHeadgear (headgear selectRandom allPlayers);
 _deadBody disableAI "ALL";
 _deadBody setDir random 360;
 _deadBody setPos ((_wreck getPos [random 1, random 360]) vectorAdd [0,0,5]);
@@ -53,11 +51,12 @@ for "_i" from 0 to (random 1 + 2) do {
 	private _tempPos = (_targetPos getPos [2 + random 2, random 360]) findEmptyPosition [0, 5, "C_man_w_worker_F"];
 	private _evacMan = (createGroup civilian) createUnit ["C_man_w_worker_F", _tempPos, [], 0, "NONE"];	
 	_evacMan setCaptive true;
-	_evacMan forceAddUniform (uniform _tempPlayer);
-	_evacMan addVest (vest _tempPlayer);
-	_evacMan addHeadgear (headgear _tempPlayer);
+	_evacMan forceAddUniform (uniform selectRandom allPlayers);
+	_evacMan addVest (vest selectRandom allPlayers);
+	_evacMan addHeadgear (headgear selectRandom allPlayers);
 	_evacMan disableAI "ALL";
 	_evacMan setDir random 360;
+	removeFromRemainsCollector [_evacMan];
 	
 	// Add to Zeus
 	{ _x addCuratorEditableObjects [[_evacMan], TRUE] } forEach allCurators;

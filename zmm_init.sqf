@@ -1,20 +1,30 @@
-// V3.3
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-
+ZMM_Version = 3.4;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
 // ZZM_Mode = 1 - CTI Intel Mode
 // ZZM_Mode = 2 - Fixed location, objective selection.
-ZZM_Mode = 0;
+// ZZM_Mode = 0;
+// ZZM_Diff = 0.5 - Which Part Is The Trigger
+// ZZM_Diff = 0.7 - Walk In The Park
+// ZZM_Diff = 1 - Lean Mean Killing Machine
+// ZZM_Diff = 1.5 - Reaper Man
+// ZZM_Diff = 2 - Freight Train O' Death
+ZZM_Diff = 1; // Enemy strength multiplier
+ZZM_IED = 1; // 0 - Disabled  1 - Enabled
+ZZM_QRF = 1; // 0 - Disabled  1 - Enabled
 
 "Group" setDynamicSimulationDistance 800;
-"Vehicle" setDynamicSimulationDistance 650;
+"Vehicle" setDynamicSimulationDistance 1000;
 
 #include "zmm_factions.sqf";
 
-if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_ZMMMode", 1] };
+if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_ZMMMode", 0] };
+if (isNil "ZZM_Diff") then { ZZM_Diff = missionNamespace getVariable ["f_param_ZMMDiff", 1] };
+if (isNil "ZZM_IED") then { ZZM_IED = missionNamespace getVariable ["f_param_ZMMIED", 1] };
+if (isNil "ZZM_QRF") then { ZZM_QRF = missionNamespace getVariable ["f_param_ZMMQRF", 1] };
 
 if (ZZM_Mode isEqualTo 0 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief_custom.sqf", ZMM_FolderLocation] };
 if (ZZM_Mode isEqualTo 2 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief_fixed.sqf", ZMM_FolderLocation] };
