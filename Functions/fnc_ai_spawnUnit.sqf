@@ -47,7 +47,7 @@ if (_unitClass isEqualType "") then {
 };
 
 // Don't spawn object if too close to any players.
-if ({ vehicle _x == _x && alive _x && _x distance2D _startingPos < (if _isAir then {1000} else {500})} count allPlayers > 0) exitWith { 
+if ({ alive _x && _x distance2D _startingPos < (if _isAir then {1000} else {500})} count allPlayers > 0) exitWith { 
 	sleep 30;
 	[_targetPos, _posArray, _side, _unitClass, _tries + 1] call zmm_fnc_spawnUnit;
 };

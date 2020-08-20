@@ -43,6 +43,7 @@ _deadBody setDamage 1;
 removeFromRemainsCollector [_deadBody];
 
 private _hvtActivation = [];
+private _hvtFailure = [];
 private _hvtNum = 0;
 
 for "_i" from 0 to (random 1 + 2) do {
@@ -57,6 +58,11 @@ for "_i" from 0 to (random 1 + 2) do {
 	_evacMan disableAI "ALL";
 	_evacMan setDir random 360;
 	removeFromRemainsCollector [_evacMan];
+	
+	_evacMan addEventHandler ["killed",{
+		private _killer = if (isNull (_this#2)) then { (_this#0) getVariable ["ace_medical_lastDamageSource", (_this#1)] } else { (_this#2) };
+		if (isPlayer _killer) then { format["%1 (%2) killed %3",name _killer,groupId group _killer,name (_this select 0)] remoteExec ["systemChat",0] };
+	}];
 	
 	// Add to Zeus
 	{ _x addCuratorEditableObjects [[_evacMan], TRUE] } forEach allCurators;
@@ -109,17 +115,18 @@ for "_i" from 0 to (random 1 + 2) do {
 	// Failure trigger when HVT is dead.
 	private _hvtTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_hvtTrigger setTriggerStatements [ 	format["!alive ZMM_%1_HVT_%2", _zoneID, _i], 
-									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; ['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _i],
+									format["['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState;", _zoneID, _i],
 									"" ];
 									
 	// Build success trigger when HVT is alive and far from objective.
-	_hvtActivation pushBack format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre];
+	_hvtActivation pushBack format["((alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400) || !alive ZMM_%1_HVT_%2)", _zoneID, _i, _centre];
+	_hvtFailure pushBack format["(!alive ZMM_%1_HVT_%2)", _zoneID, _i];
 };
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _objTrigger setTriggerStatements [ 	(_hvtActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+									format["if (%2) then { ['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; } else { ['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; }; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, (_hvtFailure joinString " || ")],
 									"" ];
 // Create Task
 private _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, round _hvtNum], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "heal"] call BIS_fnc_setTask;

@@ -46,6 +46,7 @@ private _findName = format["%1 %2", _prefix, getText (configFile >> "CfgWeapons"
 for "_i" from 0 to _cacheNo do {
 	private _contType = selectRandom ["Box_FIA_Support_F"];
 	private _contPos = [];
+	private _isOutside = false;
 
 	if (random 100 > 50 && {count _bldPos > 0}) then {
 		_contPos = selectRandom _bldPos;
@@ -60,6 +61,7 @@ for "_i" from 0 to _cacheNo do {
 		};
 		
 		_contPos = _contPos findEmptyPosition [1, 25, _contType];
+		_isOutside = true;
 	};
 		
 	if (count _contPos > 0) then { 
@@ -98,6 +100,8 @@ for "_i" from 0 to _cacheNo do {
 			clearBackpackCargoGlobal _contObj;
 			
 			_contObj addItemCargoGlobal [_findObj, 1];
+			
+			if (_isOutside) then { _contObj setVectorUp surfaceNormal position _contObj };
 			
 			[_contObj, ["ContainerClosed", { 
 				params ["_cont", "_unit"]; 

@@ -74,6 +74,11 @@ for "_i" from 0 to _hvtMax do {
 	_hvtObj setVariable ["var_itemID", _i, true];
 	
 	removeFromRemainsCollector [_hvtObj];
+	
+	_hvtObj addEventHandler ["killed",{
+		private _killer = if (isNull (_this#2)) then { (_this#0) getVariable ["ace_medical_lastDamageSource", (_this#1)] } else { (_this#2) };
+		if (isPlayer _killer) then { format["%1 (%2) killed %3",name _killer,groupId group _killer,name (_this select 0)] remoteExec ["systemChat",0] };
+	}];
 
 	private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _hvtObj getPos [random 50, random 360]];
 			_mrkr setMarkerShape "ELLIPSE";
@@ -102,11 +107,12 @@ for "_i" from 0 to _hvtMax do {
 	// Failure trigger when HVT is dead.
 	private _hvtTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_hvtTrigger setTriggerStatements [ 	format["!alive ZMM_%1_HVT_%2", _zoneID, _i], 
-									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; ['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _i],
+									format["['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 									"" ];
 									
 	// Build success trigger when HVT is alive and far from objective.
-	_hvtActivation pushBack format["((alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400) || !(alive ZMM_%1_HVT_%2))", _zoneID, _i, _centre];
+	_hvtActivation pushBack format["((alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400) || !alive ZMM_%1_HVT_%2)", _zoneID, _i, _centre];
+	_hvtFailure pushBack format["(!alive ZMM_%1_HVT_%2)", _zoneID, _i];
 	
 	if (!isNil "ace_captives_setHandcuffed") then {
 		[_hvtObj, TRUE] call ace_captives_setHandcuffed;
@@ -168,7 +174,7 @@ for "_i" from 0 to _hvtMax do {
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
 _objTrigger setTriggerStatements [ 	(_hvtActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+									format["if (%2) then { ['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; } else { ['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; }; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, (_hvtFailure joinString " || ")],
 									"" ];
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, count units _hvtGroup, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "help"] call BIS_fnc_setTask;

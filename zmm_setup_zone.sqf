@@ -75,7 +75,7 @@ private _qrfTime = [420, 300, 180] select (missionNamespace getVariable ["ZZM_Di
 
 missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], TRUE];
 missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], round (12 * _multiplier)];
-missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 600];
+missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 400];
 missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], round (3 * _multiplier)];
 
 switch (_locType) do {

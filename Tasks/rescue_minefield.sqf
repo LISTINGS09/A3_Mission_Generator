@@ -138,6 +138,12 @@ if (_taskType == "CASVAC") then {
 	_evacMan addHeadgear (headgear selectRandom allPlayers);
 	_evacMan setPos (_targetPos getPos [random 1, random 360]);
 	_evacMan setDir random 360;
+	removeFromRemainsCollector [_evacMan];
+	
+	_evacMan addEventHandler ["killed",{
+		private _killer = if (isNull (_this#2)) then { (_this#0) getVariable ["ace_medical_lastDamageSource", (_this#1)] } else { (_this#2) };
+		if (isPlayer _killer) then { format["%1 (%2) killed %3",name _killer,groupId group _killer,name (_this select 0)] remoteExec ["systemChat",0] };
+	}];
 	
 	private _blood = createSimpleObject [ selectRandom ["BloodPool_01_Large_New_F","BloodPool_01_Medium_New_F","BloodSplatter_01_Large_New_F","BloodSplatter_01_Medium_New_F","BloodSplatter_01_Small_New_F"], [0,0,0]];
 	_blood setPos (_evacMan getPos [random 1, random 360]);

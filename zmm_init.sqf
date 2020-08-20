@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 3.4;
+ZMM_Version = 3.7;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
@@ -71,7 +71,7 @@ if isServer then {
 			_safeMrk setMarkerBrush "FDiagonal";
 			_safeMrk setMarkerAlpha 0.3;
 			_safeMrk setMarkerColor format["color%1", side _x];
-			_safeMrk setMarkerSize [ 1000, 1000];
+			_safeMrk setMarkerSize [ 2000, 2000];
 			["DEBUG", format["Safe Zone '%1' created at %2", _safeMrk, getPos _x]] call zmm_fnc_logMsg;
 		};
 		

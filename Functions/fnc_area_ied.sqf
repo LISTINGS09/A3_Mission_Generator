@@ -1,4 +1,5 @@
 // Spawns random debris and IEDs around a location (300m).
+// [69, nil, 4] spawn zmm_fnc_areaIED;
 if !isServer exitWith {};
 
 params [
@@ -15,7 +16,9 @@ private _mineLocs = [];
 {
 	private _road = _x;
 	if ({ _road distance2D _x < 100 } count _mineLocs == 0) then {
-		_mineLocs pushBack (_road getPos [(boundingBoxReal _road#0#0) * 0.5, ((_road getDir ((roadsConnectedTo _road)#0)) + 90) + selectRandom [0,180]]); // Left or right of road.
+		if (count roadsConnectedTo _road > 0) then {
+			_mineLocs pushBack (_road getPos [(boundingBoxReal _road#0#0) * 0.5, ((_road getDir ((roadsConnectedTo _road)#0)) + 90) + selectRandom [0,180]]); // Left or right of road.
+		};
 	};
 } forEach (_centre nearRoads _radius);
 
