@@ -1,5 +1,5 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_bld", objNull], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]], ["_bld", objNull] ];
 
 _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
@@ -16,10 +16,10 @@ _missionDesc = [
 		"A high-ranking Officer until only identified as <font color='#00FFFF'>La %3</font>, has recently been uncovered as %2.<br/><br/>%2 has been confirmed to be somewhere in the area near %1, ensure they are eliminated."
 	];
 
-if (isNil "_bld") then { _bld = objNull };
+if !(_bld isEqualType objNull) then { _bld = objNull };
 	
 // Use a zone building if none passed.
-if (count _buildings > 0 && {isNull _bld}) then { _bld = selectRandom (_buildings select { count (_x buildingPos -1) > 4 }) };
+if (count _buildings > 0 && {isNull _bld}) then { _bld = selectRandom (_buildings select { count (_x buildingPos -1) >= 4 && _x distance _centre <= 100 }) };
 
 // Get any building if we have none
 if (isNull _bld) then { _bld = nearestBuilding _centre };
@@ -34,7 +34,9 @@ if (_bld distance _centre > 100) then { _bldPos = [] };
 private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos), _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
 {
 	if (leader _x == _x) then { 
-		_x addHeadGear selectRandom ["H_Beret_blk","H_Beret_red","H_Beret_grn"];
+		_x addHeadGear selectRandom ["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen_F","H_Beret_EAF_01_F"];
+		_x addGoggles "G_Aviator";
+		_x unlinkItem (hmd _x);
 		_x setVariable ["var_zoneID", _zoneID, true];
 		removeFromRemainsCollector [_x];
 		
@@ -64,12 +66,12 @@ private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] 
 				sleep 1;
 				private _zoneID = _target getVariable ["var_zoneID", 0];
 				deleteMarker format["MKR_%1_OBJ", _zoneID];
-				[name _caller, format["Target %1 as %2.", selectRandom ["verified", "confirmed", "identified"], selectRandom ["eliminated","deceased","dead","killed"]]] remoteExec ["BIS_fnc_showSubtitle"];
+				[name _caller, format["Target %1 is %2.", selectRandom ["verified", "confirmed", "identified"], selectRandom ["eliminated","deceased","dead","killed"]]] remoteExec ["BIS_fnc_showSubtitle"];
 				addToRemainsCollector [_target];
 				
 				missionNamespace setVariable ['ZMM_DONE', true, true];
 				[format["ZMM_%1_TSK", _zoneID], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
-				{ _x setMarkerColor "ColorGrey" } forEach [format['MKR_%1_LOC', _zoneID], format['MKR_%1_MIN', _zoneID]];
+				{ _x setMarkerColor "ColorWest" } forEach [format['MKR_%1_LOC', _zoneID], format['MKR_%1_MIN', _zoneID]];
 			}, 
 			{}, 
 			[], 
@@ -78,17 +80,17 @@ private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] 
 		] remoteExec ["bis_fnc_holdActionAdd", 0, _x];
 	};
 	
-	_x disableAI "PATH";
 	_x setSkill 0.5 + random 0.3;
+	_x disableAI "PATH";
 	
 	if (count _bldPos > 0) then {
 		_tempPos = selectRandom _bldPos;
 		_bldPos deleteAt (_bldPos find _tempPos);
 		_x setPosATL _tempPos;
 	} else {
-		_x setPosATL ((getPos leader _x) findEmptyPosition [3, 25, "B_Soldier_F"]);
+		_x setVehiclePosition [(leader _x) getPos [random 5, random 360], [], 0, "NONE"];
 		_x setDir random 360;
-		_x setUnitPosWeak "MIDDLE";
+		_x setUnitPos "MIDDLE";
 	};
 } forEach units _milGroup;
 
@@ -102,6 +104,6 @@ private _headText = if (isClass (configFile >> "CfgWeapons" >> headgear (leader 
 { _x addCuratorEditableObjects [units _milGroup, true] } forEach allCurators;
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + _headText, _locName, name leader _milGroup, selectRandom _alias], ["Killer"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "target"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + _headText, _locName, name leader _milGroup, selectRandom _alias], ["Killer"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
 
-TRUE
+true

@@ -1,10 +1,9 @@
 // v1.0
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_bld", objNull ], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]], ["_bld", objNull ] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
@@ -19,7 +18,14 @@ private _missionDesc = [
 		"A group of <font color='#00FFFF'>%2 %3s</font> are confirmed to be in the area near %1, ensure they are brought back to safety."
 	];
 
-private _hvtMax = round (2 + random 2);
+private _hvtMax = switch (_locType) do {
+	case "Airport": { 6 };
+	case "NameCityCapital": { 5 };
+	case "NameCity": { 4 };
+	case "NameVillage": { 3 };
+	case "NameLocal": { 3 };
+	default { 3 };
+};
 
 // Find a random building position.
 private _positions = [];
@@ -73,11 +79,9 @@ for "_i" from 0 to _hvtMax do {
 	_hvtObj setVariable ["var_zoneID", _zoneID, true];
 	_hvtObj setVariable ["var_itemID", _i, true];
 	
-	removeFromRemainsCollector [_hvtObj];
-	
 	_hvtObj addEventHandler ["killed",{
 		private _killer = if (isNull (_this#2)) then { (_this#0) getVariable ["ace_medical_lastDamageSource", (_this#1)] } else { (_this#2) };
-		if (isPlayer _killer) then { format["%1 (%2) killed %3",name _killer,groupId group _killer,name (_this select 0)] remoteExec ["systemChat",0] };
+		if (isPlayer _killer) then { format["%1 (%2) killed %3", name _killer, groupId group _killer, name (_this#0)] remoteExec ["systemChat",0] };
 	}];
 
 	private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _hvtObj getPos [random 50, random 360]];
@@ -88,9 +92,13 @@ for "_i" from 0 to _hvtMax do {
 			_mrkr setMarkerColor "ColorCivilian";
 
 	if (_rescueType == "Soldier") then {
-		_hvtObj forceAddUniform (uniform selectRandom allPlayers);
-		_hvtObj addVest (vest selectRandom allPlayers);
-		_hvtObj addHeadgear (headgear selectRandom allPlayers);
+		_hvtObj spawn {
+			sleep 5;
+			_this forceAddUniform (uniform selectRandom allPlayers);
+			_this addVest (vest selectRandom allPlayers);
+			_this addHeadgear (headgear selectRandom allPlayers);
+			removeFromRemainsCollector [_this];
+		};
 	};				
 	
 	missionNamespace setVariable [format["ZMM_%1_HVT_%2", _zoneID, _i], _hvtObj];
@@ -98,16 +106,16 @@ for "_i" from 0 to _hvtMax do {
 	waitUntil { !(name _hvtObj isEqualTo "") }; // Allow name to assign.
 	
 	// Child task
-	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Rescue %2, a captured %1 from enemy forces, ensuring they come to no harm.<br/><br/>Target: <font color='#00FFFF'>%2</font><br/><br/><img width='350' image='%3'/>", _rescueType, name _hvtObj, getText (configFile >> "CfgVehicles" >> _hvtClass >> "editorPreview")], format["Rescue %1", name _hvtObj], format["MKR_%1_OBJ", _zoneID]], objNull, "CREATED", 1, FALSE, TRUE, format["move%1", _i + 1]] call BIS_fnc_setTask;
+	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Rescue %2, a captured %1 from enemy forces, ensuring they come to no harm.<br/><br/>Target: <font color='#00FFFF'>%2</font><br/><br/><img width='350' image='%3'/>", _rescueType, name _hvtObj, getText (configFile >> "CfgVehicles" >> _hvtClass >> "editorPreview")], format["Rescue %1", name _hvtObj], format["MKR_%1_OBJ", _zoneID]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i + 1]] call BIS_fnc_setTask;
 	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre],
-									format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState;", _zoneID, _i],
+									format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],
 									"" ];
 	
 	// Failure trigger when HVT is dead.
 	private _hvtTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_hvtTrigger setTriggerStatements [ 	format["!alive ZMM_%1_HVT_%2", _zoneID, _i], 
-									format["['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
+									format["['ZMM_%1_SUB_%2', 'Failed', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 									"" ];
 									
 	// Build success trigger when HVT is alive and far from objective.
@@ -115,7 +123,7 @@ for "_i" from 0 to _hvtMax do {
 	_hvtFailure pushBack format["(!alive ZMM_%1_HVT_%2)", _zoneID, _i];
 	
 	if (!isNil "ace_captives_setHandcuffed") then {
-		[_hvtObj, TRUE] call ace_captives_setHandcuffed;
+		[_hvtObj, true] call ace_captives_setHandcuffed;
 	} else {
 		// Select random pose for HVT.
 		[_hvtObj, selectRandom ["AmovPercMstpSnonWnonDnon_Ease", "Acts_JetsMarshallingStop_loop", "Acts_JetsShooterIdle"]] remoteExec ["switchMove"]; 
@@ -150,9 +158,7 @@ for "_i" from 0 to _hvtMax do {
 	// Create enemy guards if valid group
 	if !(_enemyTeam isEqualTo "") then {
 		// Create enemy Team
-		private _milGroup = [[0,0,0], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
-		
-		{ _x setUnitPosWeak "MIDDLE" } forEach units _milGroup;
+		private _milGroup = [_hvtPos getPos [random 2, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
 		
 		private _bldArr = if (_inBuilding) then { (nearestBuilding _hvtObj) buildingPos -1 } else { [] };
 		_bldArr deleteAt (_bldArr find _hvtPos);
@@ -162,21 +168,23 @@ for "_i" from 0 to _hvtMax do {
 				private _tempPos = selectRandom _bldArr;
 				_bldArr deleteAt (_bldArr find _tempPos);
 				_x setPosATL _tempPos;
+				_x disableAI "PATH";
 			} else {
-				_x setPos (_hvtObj getPos [random 10, random 360]);
+				_x setVehiclePosition [_hvtObj getPos [random 10, random 360], [], 0, "NONE"];
+				_x setUnitPos "MIDDLE";
 			};
 		} forEach units _milGroup;
 
-		{ _x addCuratorEditableObjects [[_hvtObj] + units _milGroup, TRUE] } forEach allCurators;
+		{ _x addCuratorEditableObjects [[_hvtObj] + units _milGroup, true] } forEach allCurators;
 	};
 };
 
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
+_objTrigger = createTrigger ["EmptyDetector", _centre, false];
 _objTrigger setTriggerStatements [ 	(_hvtActivation joinString " && "), 
-									format["if (%2) then { ['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; } else { ['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; }; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, (_hvtFailure joinString " || ")],
+									format["if (%2) then { ['ZMM_%1_TSK', 'Failed', true] spawn BIS_fnc_taskSetState; } else { ['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; }; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, (_hvtFailure joinString " || ")],
 									"" ];
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, count units _hvtGroup, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "help"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, count units _hvtGroup, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "help"] call BIS_fnc_setTask;
 
-TRUE
+true

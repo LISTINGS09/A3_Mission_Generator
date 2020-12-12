@@ -7,7 +7,9 @@ zmm_fnc_selectLocation = {
 	onMapSingleClick 	"private _locArr = nearestLocations [_pos, ['NameLocal', 'NameVillage', 'NameCity', 'NameCityCapital', 'Airport', 'Hill'], 300, _pos];
 						private _size = 400;
 						private _posID = '';
-						systemChat format['Count: %1', count _locArr];
+						
+						if (_pos inArea 'SAFEZONE_PRE0') exitWith { systemChat 'Objective cannot be within safe-zone!'; 'loc_mkr' setMarkerPos [0,0];};
+						
 						if (count _locArr > 0) then {
 							private _loc = _locArr#0;
 							private _cfgLoc = ""getText (_x >> 'name') == text _loc && getText (_x >> 'type') == type _loc"" configClasses (configFile >> 'CfgWorlds' >> worldName >> 'Names');
@@ -61,31 +63,34 @@ if (isNil "ZMM_playerSide") then {
 	missionNamespace setVariable ["ZMM_playerSide", side group player, true];
 };
 
+ZMM_tasks sort true;
+
 private _ZMMtext = "<font size='18' color='#FF7F00'>Commander Selection</font><br/>
-	<font size='16' color='#80FF00'>1. Select Location</font><br/>
-	<execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute> and choose where to begin your Assignment. Any place not on water may be selected.<br/><br/>
-	<font size='16' color='#80FF00'>2. Choose Mission</font><br/>
+	<font size='16' color='#80FF00'>1. Choose Mission</font><br/>
 	Choosing any option below will attempt to force a type of mission (if the objective cannot be created, an alternative will be chosen).
 	<br/><execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '', true]; format['[ZMM] %1 switched to mission type: Random', name player] remoteExec ['SystemChat'];"">Random</execute> - Choose a random objective <font color='#00FFFF'>DEFAULT</font>.<br/>";
 	
-	{
-		_x params ["_mIcon","_mType","_mDesc"];
-		
-		_ZMMtext = _ZMMtext + format["<img width='15' image='%4'/> <execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '%1', true]; '[ZMM] %2: Mission - %1'remoteExec ['SystemChat'];"">%1</execute> - %3.<br/>",
-			_mType,
+private _lastType = "";
+{
+	_x params ["_mType", "_mName", "_mDesc", "_mIcon"];
+	
+	if (_lastType != _mType) then {
+		_ZMMtext = _ZMMtext + format["<br/><img width='15' image='%3'/> <execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '%2', true]; '[ZMM] %1: Mission - %2 (Random)'remoteExec ['SystemChat'];"">%2</execute><br/>",
 			name player,
-			_mDesc,
+			_mType,
 			_mIcon
 		];
-	} forEach [
-		["\A3\ui_f\data\igui\cfg\simpleTasks\types\defend_ca.paa","Defence","Clear and hold a location from enemy forces"],
-		["\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa","Denial","Destroy or weaken the opposing sides ability to wage war"],
-		["\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa","Intel","Find, download or upload Intelligence"],
-		["\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa","Recovery","Find and obtain an object or vehicle"],
-		["\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa","Rescue","Assist an ally in need of protection or aid"],
-		["\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa","Secure","Clear a building or location of enemy forces"]
+		_lastType = _mType;
+	};
+	
+	_ZMMtext = _ZMMtext + format["<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '%2', true]; '[ZMM] %1: Mission - %2'remoteExec ['SystemChat'];"">%2</execute> - %3.<br/>",
+		name player,
+		_mName,
+		_mDesc
 	];
+} forEach ZMM_tasks;
 
+_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>2. Select Location</font><br/><execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute> and choose where to begin your Assignment. Any place not on water may be selected.";
 _ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>3. Confirm</font><br/>Once happy with your location <execute expression=""[] call zmm_fnc_confirm;"">Confirm Selection</execute><br/><br/>";
 _ZMMtext = _ZMMtext + format["<br/>ZMM v%1<br/><br/>", missionNamespace getVariable["ZMM_Version",0]];
 	

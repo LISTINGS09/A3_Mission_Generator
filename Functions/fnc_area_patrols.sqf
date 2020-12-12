@@ -42,8 +42,8 @@ _fnc_spawnGroup = {
 			
 		if (typeName _type == typeName "") then {
 			if (isClass (configFile >> "CfgVehicles" >> _type)) then {
-				_isAir = FALSE;
-				if ("Air" in ([(configFile >> "CfgVehicles" >> _type), TRUE] call BIS_fnc_returnParents)) then { _isAir = TRUE };
+				_isAir = false;
+				if ("Air" in ([(configFile >> "CfgVehicles" >> _type), true] call BIS_fnc_returnParents)) then { _isAir = true };
 								
 				// Spawn vehicle on a road.
 				_roads = (getMarkerPos _marker nearRoads (getMarkerSize _marker select 0)) select { count (roadsConnectedTo _x) > 0};
@@ -53,17 +53,17 @@ _fnc_spawnGroup = {
 				_veh = createVehicle [_type, if _isAir then { [0,0,0] } else { _centre }, [], 150, if _isAir then {"FLY"} else {"NONE"}];
 				
 				if !(_customInit isEqualTo "") then { _grpVeh = _veh; call compile _customInit; };
-				if !_isAir then { _veh enableDynamicSimulation TRUE };
+				if !_isAir then { _veh enableDynamicSimulation true };
 				
 				createVehicleCrew _veh;
 				
 				// Switch units side to Zone side.
 				if (side driver _veh != _side) then {
-					_group = createGroup [_side, TRUE];
+					_group = createGroup [_side, true];
 					(crew _veh) joinSilent _group;
 				};
 				
-				{ _x addCuratorEditableObjects [ crew _veh, TRUE ] } forEach allCurators;
+				{ _x addCuratorEditableObjects [ crew _veh, true ] } forEach allCurators;
 				
 				["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType "") then { _type } else { configName _type }, _side, getPos _veh]] call zmm_fnc_logMsg;
 				[driver _veh, _marker, "SHOWMARKER"] spawn zmm_fnc_aiUPS;
@@ -72,14 +72,14 @@ _fnc_spawnGroup = {
 			};
 		} else {
 			_group = [[0,0,0], _side, _type] call BIS_fnc_spawnGroup;
-			_group spawn { sleep 30; _this enableDynamicSimulation TRUE };
+			_group spawn { sleep 30; _this enableDynamicSimulation true };
 				
 			if !(_customInit isEqualTo "") then {
 				_grpVeh = selectRandom (units _group select { vehicle _x != _x });
 				call compile _customInit;
 			};
 			
-			{ _x addCuratorEditableObjects [ units _group, TRUE ] } forEach allCurators;
+			{ _x addCuratorEditableObjects [ units _group, true ] } forEach allCurators;
 			
 			["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType "") then { _type } else { configName _type }, _side, getPos leader _group]] call zmm_fnc_logMsg;
 			[leader _group, _marker, "SHOWMARKER", "RANDOM"] spawn zmm_fnc_aiUPS;
@@ -151,4 +151,4 @@ switch (_locType) do {
 missionNamespace setVariable [format[ "ZMM_%1_PatrolsEnabled", _zoneID], false];
 missionNamespace setVariable [format[ "ZMM_%1_PatrolsStrength", _zoneID], _str];
 
-TRUE
+true

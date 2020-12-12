@@ -111,7 +111,7 @@ _isAir = _grpVehicle isKindOf "air";
 _isBoat = _grpVehicle isKindOf "ship";
 _isCar = _grpVehicle isKindOf "car";
 _isTank = _grpVehicle isKindOf "tank" || _grpVehicle isKindOf "armored";
-_isArty = if (!isNull _grpVehicle) then { "Artillery" in getArray (configFile >> "CfgVehicles" >> typeOf _grpVehicle >> "availableForSupportTypes") } else { FALSE }; 
+_isArty = if (!isNull _grpVehicle) then { "Artillery" in getArray (configFile >> "CfgVehicles" >> typeOf _grpVehicle >> "availableForSupportTypes") } else { false }; 
 _isStatic = _grpVehicle isKindOf "staticWeapon" || _grpVehicle isKindOf "static";
 _isMan = !_isAir && !_isBoat && !_isCar && !_isTank && !_isStatic && !_isArty;
 
@@ -126,9 +126,9 @@ if _isAir then { _closeEnough = 1000 }; // Tolerance high for choppers & planes
 //if _isStatic then { [_grp, "Task", "STATIC"] call _ZAI_fnc_setGroupVariable; }; // Statics won't be tasked.
 
 // check to see whether group is neutral (for attack and avoidance manoeuvres)
-_isSoldier = FALSE;
+_isSoldier = false;
 {
-	if (side _grp getFriend _x < 0.6) exitWith { _isSoldier = TRUE };
+	if (side _grp getFriend _x < 0.6) exitWith { _isSoldier = true };
 } forEach [EAST, WEST, INDEPENDENT, CIVILIAN];
 
 _alliedUnitList = [];
@@ -144,7 +144,7 @@ _alliedUnitList = _alliedUnitList - (switchableUnits + playableUnits) - (units _
 _noFollow = ("NOFOLLOW" in _params);
 _noShare = ("NOSHARE" in _params);
 _holdMove = ("NOMOVE" in _params || "NOWP" in _params);
-if ("NOAI" in _params) then {_isSoldier = FALSE } else {
+if ("NOAI" in _params) then {_isSoldier = false } else {
 	{
 		_ai = _x;
 		_ai setSkill 1;
@@ -175,7 +175,7 @@ if ("RANDOM" in _params) then {
 	// Find a random position (try a max of 20 positions)
 	_randPos = _unitPos;
 
-	_choosePos = TRUE;
+	_choosePos = true;
 	_counter = 0;
 	while {_choosePos} do {
 		_counter = _counter + 1;
@@ -183,13 +183,13 @@ if ("RANDOM" in _params) then {
 		
 		// If no mines are nearby check agains the type.
 		if (isNull (nearestObject [_randPos, "MineGeneric"])) then {
-			if (_isAir) exitWith { _choosePos = FALSE };
-			if (_isBoat && surfaceIsWater _randPos) exitWith { _choosePos = FALSE };
-			if (!surfaceIsWater _randPos) exitWith { _choosePos = FALSE };
+			if (_isAir) exitWith { _choosePos = false };
+			if (_isBoat && surfaceIsWater _randPos) exitWith { _choosePos = false };
+			if (!surfaceIsWater _randPos) exitWith { _choosePos = false };
 		};
 		
 		// Just exit if we've been searching too long.
-		if (_counter > 50) then { _choosePos = FALSE };
+		if (_counter > 50) then { _choosePos = false };
 	};
 	
 	// Put vehicle to a random spot
@@ -227,7 +227,7 @@ if ("RANDOM" in _params) then {
 _trackGrp = ("TRACK" in _params || ZAI_Debug);
 if (_trackGrp) then {
 	_grp addGroupIcon ["o_inf"];
-	_grp setgroupIconParams [[side _grp, false] call BIS_fnc_sideColor,_grpIDx,0.8,TRUE];
+	_grp setgroupIconParams [[side _grp, false] call BIS_fnc_sideColor,_grpIDx,0.8,true];
 	
 	if !ZAI_Debug exitWith {};
 	
@@ -321,18 +321,18 @@ _lastCount = 0;
 _lastTime = 0;
 _lastPos = _unitPos;
 
-_grp deleteGroupWhenEmpty TRUE; // Don't keep the group when empty.
+_grp deleteGroupWhenEmpty true; // Don't keep the group when empty.
 
 // ************************************************ MAIN LOOP ************************************************
 
 _currCycle = _cycle;
 
-while {TRUE} do {
+while {true} do {
 	if (isNil "_grp") exitWith { ["DEBUG", format["[%1] Exiting - Null Group", _grpIDx]] call _ZAI_fnc_LogMsg }; // Group was deleted?
 	if (units _grp select { alive _x } isEqualTo []) exitWith { ["DEBUG", format["[%1] Exiting - All Dead at %2!", _grpIDx, getPos leader _grp]] call _ZAI_fnc_LogMsg; }; // No-one is alive.
 	if ({isPlayer _x} count units _grp > 0) exitWith { _grp selectLeader ((units _grp select { isPlayer _x })#0); }; // Player is in the group, make them lead and exit.
 
-	_wasHit = FALSE;
+	_wasHit = false;
 	
 	_grpLeader = leader _grp;
 	
@@ -345,7 +345,7 @@ while {TRUE} do {
 			if (_newDamage > _lastDamage) then {
 				["DEBUG", format["[%1] Taken Damage (%2/%3)", _grpIDx, _newDamage, _lastDamage]] call _ZAI_fnc_LogMsg;
 				_lastDamage = _newDamage;
-				_wasHit = TRUE;
+				_wasHit = true;
 				_currCycle = 1;
 			};
 		};
@@ -415,7 +415,7 @@ while {TRUE} do {
 		if (_isStatic || !_isSoldier) exitWith {};
 		
 		// If waiting for contact, allow the group to move.
-		_holdMove = FALSE;
+		_holdMove = false;
 				
 		// If distance is shorter then safe distance, use that instead.
 		_moveDist = _safeDist min (_grpLeader distance _foundEnemy);

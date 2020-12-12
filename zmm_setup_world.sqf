@@ -16,8 +16,8 @@ private _counter = 0;
 		
 		_pos set [2,0];
 			
-		_create = TRUE;
-		_bypass = FALSE;
+		_create = true;
+		_bypass = false;
 		
 		// Distance Checks
 		{
@@ -27,11 +27,11 @@ private _counter = 0;
 			
 			// Make sure we're far enough away.
 			if (_mkrStr find "_MAX" > 0) then {
-				if ((_pos distance2D _mkrPos) <= (_radius * 2) + (_mkrSiz * 1.5)) then { _create = FALSE };
+				if ((_pos distance2D _mkrPos) <= (_radius * 2) + (_mkrSiz * 1.5)) then { _create = false };
 			};
 			// Never create within another area or safe zone.
 			if (_mkrStr find "_MIN" > 0 || _mkrStr find "SAFEZONE" >= 0) then {
-				if (_pos inArea _x) then { _bypass = TRUE };
+				if (_pos inArea _x) then { _bypass = true };
 			};
 			
 			// Don't let the area be too big.

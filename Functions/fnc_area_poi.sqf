@@ -1,3 +1,4 @@
+// Generate something at these special POIs?
 if !isServer exitWith {};
 
 params [

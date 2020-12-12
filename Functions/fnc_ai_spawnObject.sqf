@@ -24,10 +24,12 @@ switch (_type) do {
 		if (_class isEqualType []) then { _customInit = _class#1; _class = _class#0 };
 		
 		_obj = _class createVehicle [0,0,0];
+		_obj setVehiclePosition [_worldPos, [], 0, "NONE"];
 		_obj setDir _worldDir;
-		_obj setPosATL _worldPos;
 		
-		if (canMove _obj) then { _obj setVehicleLock "LOCKEDPLAYER" };
+		if (_obj isKindOf "StaticWeapon") then { _obj setPosATL _worldPos };
+		
+		if (canMove _obj && canFire _obj) then { _obj setVehicleLock "LOCKEDPLAYER" };
 		
 		private _crewArr = [];
 		for "_j" from 1 to (count ((fullCrew [_obj, "", true]) - fullCrew [_obj, "cargo", true] - fullCrew [_obj, "turret", true])) do { _crewArr pushBack (selectRandom _manArr) };
@@ -54,11 +56,12 @@ switch (_type) do {
 		_obj = _class createVehicle [0,0,0];
 		_obj setDir _worldDir;
 		_obj setPosATL _worldPos;
+		if !((_obj buildingPos -1) isEqualTo []) then { [_zoneID, 3, (_obj buildingPos -1)] spawn zmm_fnc_areaGarrison };
 	};
 	default {
-		_obj = createSimpleObject [_class, [0,0,0]];
+		_obj = createSimpleObject [_class, ATLToASL _worldPos];
 		_obj setDir _worldDir;
-		_obj setPosATL _worldPos;
+		//_obj setPosATL _worldPos;
 	};
 };
 

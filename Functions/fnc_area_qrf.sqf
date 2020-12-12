@@ -1,8 +1,8 @@
 if !isServer exitWith {};
-// [99, false, 30, nil, 7,2] spawn ZMM_fnc_areaQRF;
+// [99, false, 30, nil, 7] spawn ZMM_fnc_areaQRF;
 params [
 	["_zoneID", 0],
-	["_triggerOnly", FALSE],
+	["_triggerOnly", false],
 	["_delay", 300],
 	["_maxWave", 10],
 	["_qrfType", -1],
@@ -29,11 +29,11 @@ if _triggerOnly exitWith {
 	_radius = (getMarkerSize format["MKR_%1_MAX", _zoneID]) select 0;
 	_timeOut = (missionNamespace getVariable ['ZMM_%1_QRFTime', 600]) / 2;
 
-	_detectedTrg = createTrigger ["EmptyDetector", _centre, FALSE];
-	_detectedTrg setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
-	_detectedTrg setTriggerTimeout [_timeOut, _timeOut, _timeOut, TRUE];
-	_detectedTrg setTriggerArea [_radius, _radius, 0, FALSE];
-	_detectedTrg setTriggerStatements ["this", format["[%1, FALSE, (missionNamespace getVariable ['ZMM_%1_QRFTime', %2]), (missionNamespace getVariable ['ZMM_%1_QRFWaves', %3]), %4, %5] spawn zmm_fnc_areaQRF;", _zoneID, _delay, _maxWave, _qrfType, _diff], ""];
+	_detectedTrg = createTrigger ["EmptyDetector", _centre, false];
+	_detectedTrg setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+	_detectedTrg setTriggerTimeout [_timeOut, _timeOut, _timeOut, true];
+	_detectedTrg setTriggerArea [_radius, _radius, 0, false];
+	_detectedTrg setTriggerStatements ["this", format["[%1, false, (missionNamespace getVariable ['ZMM_%1_QRFTime', %2]), (missionNamespace getVariable ['ZMM_%1_QRFWaves', %3]), %4, %5] spawn zmm_fnc_areaQRF;", _zoneID, _delay, _maxWave, _qrfType, _diff], ""];
 };
 
 // Set Delay if incorrect.

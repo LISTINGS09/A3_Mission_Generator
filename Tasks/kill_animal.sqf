@@ -2,7 +2,6 @@
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
 private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
@@ -69,10 +68,10 @@ for "_i" from 0 to (_aniMax + 2) do {
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [  format["{ !alive _x } count [%1] >= %2", (_aniActivation joinString ","), _aniMax], 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 	"" ];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + "<br/><br/>Target creatures will include; Sheep, Goats and Chickens.", _aniMax, _aniPrefix, _locName], ["Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, true, "target"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + "<br/><br/>Target creatures will include; Sheep, Goats and Chickens.", _aniMax, _aniPrefix, _locName], ["Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
 
 true

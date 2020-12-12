@@ -2,7 +2,6 @@
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-_playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 
 _missionDesc = [
 		"Destroy a <font color='#00FFFF'>%1</font> recently constructed by enemy forces.",
@@ -14,6 +13,8 @@ _missionDesc = [
 	];
 
 _objClass = selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F","Land_Communication_F"];
+
+if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; };
 
 // Check a tower isn't already nearby.
 _nearTowers = (_centre nearObjects ["building", 300]) select {typeOf _x in ["Land_TTowerBig_1_F", "Land_TTowerBig_2_F", "Land_Communication_F"]};
@@ -40,10 +41,10 @@ missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _obj];
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
 _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID], 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _objClass >> "displayName")] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> _objClass >> "editorPreview")], ["Tower"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "destroy"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _objClass >> "displayName")] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> _objClass >> "editorPreview")], ["Tower"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "destroy"] call BIS_fnc_setTask;
 
-TRUE
+true

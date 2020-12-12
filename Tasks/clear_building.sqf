@@ -1,49 +1,84 @@
+// Clear a building of enemy forces.
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_targetBld", objNull], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_targetPos", [0,0,0]]];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-_enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-_playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 _missionDesc = [
-		"A <font color='#00FFFF'>%1</font> is located in this area, find and clear it.",
-		"Enemy forces have recently reinforced this area and occupied a <font color='#00FFFF'>%1</font>. It must be secured.",
-		"Locate a <font color='#00FFFF'>%1</font> within the area and clear it.",
-		"Locate and clear a <font color='#00FFFF'>%1</font> somewhere around this area.",
-		"A <font color='#00FFFF'>%1</font> was occupied by enemy forces, find and clear it.",
-		"Clear out the enemy <font color='#00FFFF'>%1</font> in this location."
+		"A number of enemy strongholds have been located within %1. Clear out the <font color='#00FFFF'>%2%3</font> identified in this area.",
+		"Enemy forces have recently reinforced %1 and occupied <font color='#00FFFF'>%2%3</font>. Eliminate all contacts found within.",
+		"Locate <font color='#00FFFF'>%2%3</font> within the %1 and clear them of all enemy forces.",
+		"Locate and clear <font color='#00FFFF'>%2%3</font> somewhere around %1.",
+		"<font color='#00FFFF'>%2%3</font> located within %1 have been occupied by enemy forces, recapture all marked areas.",
+		"Clear out the enemy found within <font color='#00FFFF'>%2%3</font> in %1."
 	];
+
+_buildCount = switch (_locType) do {
+	case "Airport": { 4 };
+	case "NameCityCapital": { 4 };
+	case "NameCity": { 4 };
+	case "NameVillage": { 3 };
+	case "NameLocal": { 3 };
+	default { 2 };
+};
+
+private _targetArr = [];
+private _tempBlds = nearestObjects [_centre, ["building"], 150, true];
+private _bldHuge = _tempBlds select { count (_x buildingPos -1) >= 12 }; // Get Huge Buildings
+private _bldLarge = _tempBlds select { count (_x buildingPos -1) >= 8 }; // Get Large Buildings
+private _bldSmall = _tempBlds select { count (_x buildingPos -1) >= 3 }; // Get Normal Buildings
+private _foundBlds = if (count _bldHuge >= _buildCount) then { _bldHuge } else { if (count _bldLarge >= _buildCount) then { _bldLarge } else { _bldSmall }; };
+
+// Sill nothing? Use nearest building.
+if (count _foundBlds == 0) then { 
+	_targetArr pushBack (nearestBuilding _centre);
+} else {
+	for "_i" from 0 to _buildCount do {
+		if (count _foundBlds < 1) exitWith {};
+		
+		private _bld = selectRandom _foundBlds;
+		_foundBlds = _foundBlds - [_bld];
+		_targetArr pushBack _bld;
+	};
+};
+
+private _endActivation = [];
+
+{
+	missionNamespace setVariable [format["ZMM_%1_OBJ_%2", _zoneID, _forEachIndex], _x];
+	_endActivation pushBack format["triggerActivated ZMM_%1_TR_%2", _zoneID, _forEachIndex];
 	
-if (isNull _targetBld) then { _targetBld = nearestBuilding _centre };
+	// Mark out the target.
+	private _mrkr = _x call BIS_fnc_boundingBoxMarker;
+	_mrkr setMarkerColor format["Color%1", _enemySide];
 
-_vehName = [getText (configFile >> "CfgVehicles" >> (typeOf _targetBld) >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
+	private _max = ((getMarkerSize _mrkr)#0) max ((getMarkerSize _mrkr)#1);
 
-systemChat format["A%1: %2",_zoneID, _centre];
+	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate and clear the building.<br/><br/>Target Building: <font color='#FFA500'>%1</font><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> typeOf _x >> "displayName"), getText (configFile >> "CfgVehicles" >> typeOf _x >> "editorPreview")], getText (configFile >> "CfgVehicles" >> typeOf _x >> "displayName"), format["MKR_%1_LOC", _zoneID]], _x, "CREATED", 1, false, true, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
+	private _childTrigger = createTrigger ["EmptyDetector", position _x, false];
+	_childTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", false];
+	_childTrigger setTriggerArea [_max, _max, 0, true];
+	_childTrigger setTriggerTimeout [10, 10, 10, true];
+	_childTrigger setTriggerStatements [  "count thisList <= 2", 
+										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker '%3';", _zoneID, _forEachIndex, _mrkr],
+										"" ];
+										
+	missionNamespace setVariable [format["ZMM_%1_TR_%2", _zoneID, _forEachIndex], _childTrigger, true];
 
-// Fill with some units.
-[_zoneID, 8, (_targetBld buildingPos -1)] call zmm_fnc_areaGarrison;
-
-systemChat format["B%1: %2",_zoneID, _centre];
-
-// Mark out the target.
-_mrkr = _targetBld call BIS_fnc_boundingBoxMarker;
-_mrkr setMarkerColor format["Color%1", _enemySide];
-
-_max = ((getMarkerSize _mrkr) select 0) max ((getMarkerSize _mrkr) select 1);
-
+	[_zoneID, ((count (_x buildingPos -1)) / 2) max (4 + random 4), _x buildingPos -1] call zmm_fnc_areaGarrison; // Fill with some units.
+} forEach _targetArr;
 
 
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", position _targetBld, FALSE];
-_objTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", FALSE];
-_objTrigger setTriggerArea [_max, _max, 0, TRUE];
-_objTrigger setTriggerStatements [  "count thisList <= 2", 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
-									"" ];
-
-
+_objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerStatements [  (_endActivation joinString " && "), 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+	"" ];
 									
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _vehName] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> (typeOf _targetBld) >> "editorPreview")], ["Clean Up"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "target"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, count _targetArr, if (count _targetArr > 1) then { " Buildings" } else { " Building" }], ["Clear"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
 
-TRUE
+true

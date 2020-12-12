@@ -1,3 +1,4 @@
+// [] call zmm_fnc_areaRoadblock;
 if !isServer exitWith {};
 
 params [
@@ -145,13 +146,13 @@ for "_i" from 1 to _count do {
 		_mrkr setMarkerType "mil_unknown";
 		_mrkr setMarkerColor format["Color%1",_side];
 
-		private _cpTrigger = createTrigger ["EmptyDetector", getPos _road, FALSE];
-		_cpTrigger setTriggerActivation [format["%1",_side], "NOT PRESENT", FALSE];
+		private _cpTrigger = createTrigger ["EmptyDetector", getPos _road, false];
+		_cpTrigger setTriggerActivation [format["%1",_side], "NOT PRESENT", false];
 		_cpTrigger setTriggerArea [25, 25, 0, false];
 		_cpTrigger setTriggerStatements [  "this", format["'MKR_%1_CP_%2' setMarkerColor 'ColorGrey'", _zoneID, _i], "" ];
 		
-		private _hdTrigger = createTrigger ["EmptyDetector", getPos _road, FALSE];
-		_hdTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
+		private _hdTrigger = createTrigger ["EmptyDetector", getPos _road, false];
+		_hdTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_hdTrigger setTriggerArea [150, 150, 0, false, 25];
 		_hdTrigger setTriggerStatements [  "this", format["'MKR_%1_CP_%2' setMarkerType 'o_installation'", _zoneID, _i], "" ];
 	} else {
@@ -163,3 +164,5 @@ for "_i" from 1 to _count do {
 	
 	deleteVehicle _key;
 };
+
+missionNamespace setVariable [ format[ "ZMM_%1_BlockLocations", _zoneID ], _locations];

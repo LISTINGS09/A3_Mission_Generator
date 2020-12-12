@@ -3,7 +3,6 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-_playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
 _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
 _menArray = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
@@ -64,32 +63,32 @@ for [{ _i = 1 }, { _i <= _itemNo && _i <= count _locations }, { _i = _i + 1 }] d
 	};
 };
 
-_enemyGrp = createGroup [_enemySide, TRUE];
+_enemyGrp = createGroup [_enemySide, true];
 _itemText = [];
 _itemActivation = [];
 _itemType = "";
-_inBuilding = FALSE;
+_inBuilding = false;
 
 {	
 	_itemType = selectRandom ["C_IDAP_supplyCrate_F", "Box_FIA_Ammo_F", "Land_MetalCase_01_large_F", "Land_PlasticCase_01_large_F", "Land_PlasticCase_01_large_gray_F"];
 	
 	if (_x distance2D nearestBuilding _x < 5) then {
-		_inBuilding = TRUE;
+		_inBuilding = true;
 		_itemType = selectRandom["Land_MetalCase_01_medium_F", "Land_PlasticCase_01_medium_F", "Land_PlasticCase_01_medium_gray_F", "Land_PlasticCase_01_small_F", "Land_PlasticCase_01_small_gray_F", "Land_MetalCase_01_small_F"];
 	};
 	
 	_item = createVehicle [ _itemType, _x, [], 0, "NONE" ];
-	_item allowDamage FALSE;
-	_item setVariable [ "var_Number", _forEachIndex, TRUE ];
-	_item setVariable [ "var_zoneID", _zoneID, TRUE ];
+	_item allowDamage false;
+	_item setVariable [ "var_Number", _forEachIndex, true ];
+	_item setVariable [ "var_zoneID", _zoneID, true ];
 	
 	// Add players action
 	[_item, 
 		format["<t color='#00FF80'>Mark %1</t>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_Search_ca.paa",  
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_Search_ca.paa",  
-		"TRUE", 
-		"TRUE", 
+		"true", 
+		"true", 
 		{}, 
 		{}, 
 		{ 	
@@ -97,7 +96,7 @@ _inBuilding = FALSE;
 			_zoneID = ( _target getVariable [ "var_zoneID", 0 ] );
 			format[ "MKR_%1_ITEM_%2", _zoneID, _itemNo ] setMarkerColor format["Color%1",side player];
 			format[ "MKR_%1_ICON_%2", _zoneID, _itemNo ] setMarkerColor format["Color%1",side player];
-			missionNamespace setVariable [ format[ "ZMM_%1_ITEM%2", _zoneID, _itemNo ], TRUE];
+			missionNamespace setVariable [ format[ "ZMM_%1_ITEM%2", _zoneID, _itemNo ], true];
 			[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
 			(parseText format["<t size='1.5' color='#72E500'>Item Located:</t><br/><t size='1.25'>%1</t><br/><br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\search_ca.paa'/><br/><br/>Found By: <t color='#0080FF'>%2</t><br/>", getText (configFile >> "CfgVehicles" >> typeOf _target >> "displayName"), name _caller]) remoteExec ["hintSilent"]; 
 		}, 
@@ -126,18 +125,18 @@ _inBuilding = FALSE;
 	_mrk setMarkerSize [ 0.8, 0.8 ];
 	
 	// Child task
-	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Search for the object somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", [getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString, getText (configFile >> "CfgVehicles" >> _itemType >> "editorPreview")], format["Object #%1", _forEachIndex + 1], format["MKR_%1_ICON_%2", _zoneID, _forEachIndex]], nil, "CREATED", 1, FALSE, TRUE, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
+	_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], true, [format["Search for the object somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", [getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString, getText (configFile >> "CfgVehicles" >> _itemType >> "editorPreview")], format["Object #%1", _forEachIndex + 1], format["MKR_%1_ICON_%2", _zoneID, _forEachIndex]], nil, "CREATED", 1, false, true, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
 	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
-	_childTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_ITEM_%2', FALSE])", _zoneID, _forEachIndex],
-									format["['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; 'MKR_%1_ITEM_%2' setMarkerColor 'ColorGrey'; 'MKR_%1_ICON_%2' setMarkerColor 'ColorGrey';", _zoneID, _forEachIndex],
+	_childTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_ITEM_%2', false])", _zoneID, _forEachIndex],
+									format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_ITEM_%2'; deleteMarker 'MKR_%1_ICON_%2';", _zoneID, _forEachIndex],
 									"" ];
 	
 	// Build trigger completion.
-	_itemActivation pushBack format["(missionNamespace getVariable [ 'ZMM_%1_ITEM_%2', FALSE ])", _zoneID, _forEachIndex];
+	_itemActivation pushBack format["(missionNamespace getVariable [ 'ZMM_%1_ITEM_%2', false ])", _zoneID, _forEachIndex];
 	
 	if (underwater _item) then {
 		_item setPosASL [position _item select 0, position _item select 1, 0];
-		_item enableSimulationGlobal FALSE;
+		_item enableSimulationGlobal false;
 	} else {
 		// Spawn filler objects
 		if !_inBuilding then {
@@ -160,15 +159,15 @@ _inBuilding = FALSE;
 } forEach _itemLocs; 
 
 // Wait before setting DS to allow positions to set.
-_enemyGrp spawn { sleep 5; _this enableDynamicSimulation TRUE };
+_enemyGrp spawn { sleep 5; _this enableDynamicSimulation true };
 
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
+_objTrigger = createTrigger ["EmptyDetector", _centre, false];
 _objTrigger setTriggerStatements [  (_itemActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, count _itemActivation], ["Search"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "search"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, count _itemActivation], ["Search"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "search"] call BIS_fnc_setTask;
 
-TRUE
+true

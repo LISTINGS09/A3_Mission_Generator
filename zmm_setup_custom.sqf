@@ -15,22 +15,20 @@ waitUntil {!isNil "ZMM_targetPicked"};
 // Remove click action for all players.
 "" remoteExec ["onMapSingleClick"];
 		
-_centre = ZMM_targetLocation;
+private _centre = ZMM_targetLocation;
 _centre set [2,0];
 
-_nearLoc = (nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre])#0;
-_locName = if (getPos _nearLoc distance2D _centre < 200) then { text _nearLoc } else { "This Location" };
-_locType = if (getPos _nearLoc distance2D _centre < 200) then { type _nearLoc } else { "Custom" };
-_locRadius = 300 * (if (getPos _nearLoc distance2D _centre < 200) then { 
-		switch (_locType) do {
-			case "Airport": { 1.5 };
-			case "NameCityCapital": { 1.25 };
-			case "NameCity": { 1 };
-			case "NameVillage": { 0.75 };
-			case "NameLocal": { 0.75 };
-			default { 0.75 };
-		};
-	} else { 0.75 });
+private _nearLocs = nearestLocations [_centre, ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"], 10000, _centre];
+private _locName = "This Location";
+private _locType = "Custom";
+private _locRadius = 300 * 0.75;
+
+if (count _nearLocs > 0) then {
+	private _location = _nearLocs#0;
+	_locName = if (getPos _location distance2D _centre < 200) then { text _location };
+	_locType = if (getPos _location distance2D _centre < 200) then { type _location };
+	_locRadius = 300 * (switch (_locType) do { case "Airport": { 1.5 }; case "NameCityCapital": { 1.25 }; case "NameCity": { 1 }; case "NameVillage": { 0.75 }; case "NameLocal": { 0.75 }; default { 0.75 }; });
+};
 	
 // Disable any far-away zones
 {	

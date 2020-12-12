@@ -3,7 +3,6 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
 private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
@@ -35,7 +34,7 @@ private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 // Find safe locations if none exist or we don't have enough.
 if (_locations isEqualTo [] || count _locations < _maxCount) then {
 	for "_i" from 0 to (_maxCount) do {
-		private _tempPos = [_centre getPos [50 + random 150, random 360], 1, (((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 25), 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+		private _tempPos = [_centre getPos [50 + random 150, random 360], 1, (((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100), 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
 		_locations pushBack _tempPos;
 	};
 };
@@ -102,7 +101,7 @@ for "_i" from 0 to _maxCount do {
 				sleep 1;
 				private _varName = format["ZMM_%1_TSK_Counter", (_target getVariable ["var_zoneID", 0])];
 				missionNamespace setVariable [_varName, (missionNamespace getVariable [_varName, 0]) - 1, true];
-				format["MKR_%1_OBJ_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])] setMarkerAlpha 0;
+				deleteMarker format["MKR_%1_OBJ_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])];
 				[name _caller, if (missionNamespace getVariable [_varName, 0] >= 1) then { "There is nothing of value in here." } else { "We have got what we came for, mission complete." }] remoteExec ["BIS_fnc_showSubtitle"];
 				[format["ZMM_%1_SUB_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
 				[_target, { sleep 120; deleteVehicle _this }] remoteExec ["BIS_fnc_spawn", _target];
@@ -120,12 +119,12 @@ for "_i" from 0 to _maxCount do {
 missionNamespace setVariable [format['ZMM_%1_TSK_Counter', _zoneID], _garCount, true];
 
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", [0,0,0], FALSE];
+private _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_TSK_Counter',0]) < 1", _zoneID, _garCount], 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _garCount, _garInfo, _locName], ["Intel"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "intel"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _garCount, _garInfo, _locName], ["Intel"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "intel"] call BIS_fnc_setTask;
 
-TRUE
+true

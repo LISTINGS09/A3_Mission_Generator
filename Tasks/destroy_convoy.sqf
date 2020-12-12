@@ -3,7 +3,6 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
 private _manList = missionNamespace getVariable [format["ZMM_%1Man", _enemySide],["O_Solider_F"]];
@@ -117,6 +116,7 @@ private _objHVT = ObjNull;
 			_objHVT setVariable ["var_zoneID", _zoneID, true];
 			_objHVT setVariable ["var_itemType", _itemType, true];
 			_objHVT setVariable ["var_itemDesc", _itemDesc, true];
+			_objHVT unlinkItem (hmd _objHVT);
 		};
 		
 		// Add to Zeus
@@ -192,7 +192,7 @@ if (!isNull _objHVT) then {
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, false];
 _objTrigger setTriggerStatements [ 	(_endActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 									
 // Create Task

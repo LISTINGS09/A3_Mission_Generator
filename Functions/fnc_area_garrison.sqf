@@ -7,7 +7,10 @@ private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID
 private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
 private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
 
-if (_enemyCount < 0) then { _enemyCount = missionNamespace getVariable [format[ "ZMM_%1_Garrison", _zoneID ], 14] };
+if (_enemyCount < 0) then { 
+	_enemyCount = missionNamespace getVariable [format[ "ZMM_%1_Garrison", _zoneID ], 14];
+	missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 0];
+};
 
 if (_enemyCount < 1) exitWith {};
 
@@ -84,12 +87,12 @@ if (count _bPos isEqualTo 0) then {
 
 ["DEBUG", format["Zone%1 - Creating Garrison: %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
 
-private _grp = createGroup [_side, TRUE];
+private _grp = createGroup [_side, true];
 
 for "_i" from 1 to (_enemyCount) do {
 	if (count _menArray isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 	 _unitType = selectRandom _menArray;
-	 _inHouse = TRUE;
+	 _inHouse = true;
 	 
 	if (count _bPos == 0) exitWith {
 		// Spawn stationary soldiers.
@@ -101,7 +104,7 @@ for "_i" from 1 to (_enemyCount) do {
 			_unit setDir ((_unit getRelDir _centre) - 180);
 			_unit setUnitPos "MIDDLE";
 			_unit setBehaviour "SAFE";
-			_inHouse = FALSE;
+			_inHouse = false;
 		};
 	};
 	
@@ -124,12 +127,10 @@ if (!(_bPos isEqualTo []) && ZZM_Mode == 1) then {
 	[selectRandom _bPos] call zmm_fnc_intelAdd; // Add Intel Item
 };
 
-_grp setVariable ["VCM_DISABLE", TRUE];
-_grp enableDynamicSimulation TRUE;
+_grp setVariable ["VCM_DISABLE", true];
+_grp enableDynamicSimulation true;
 
 //Add to Zeus
 {
-	_x addCuratorEditableObjects [units _grp, TRUE];
+	_x addCuratorEditableObjects [units _grp, true];
 } forEach allCurators;
-
-missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], 0];

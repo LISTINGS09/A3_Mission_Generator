@@ -760,13 +760,13 @@ for "_i" from 1 to _count do {
 		_mrkr setMarkerType "mil_unknown";
 		_mrkr setMarkerColor format["Color%1",_side];
 
-		private _cpTrigger = createTrigger ["EmptyDetector", _pos, FALSE];
-		_cpTrigger setTriggerActivation [format["%1",_side], "NOT PRESENT", FALSE];
+		private _cpTrigger = createTrigger ["EmptyDetector", _pos, false];
+		_cpTrigger setTriggerActivation [format["%1",_side], "NOT PRESENT", false];
 		_cpTrigger setTriggerArea [25, 25, 0, false];
 		_cpTrigger setTriggerStatements [  "this", format["'MKR_%1_SP_%2' setMarkerColor 'ColorGrey'", _zoneID, _i], "" ];
 		
-		private _hdTrigger = createTrigger ["EmptyDetector", _pos, FALSE];
-		_hdTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", FALSE];
+		private _hdTrigger = createTrigger ["EmptyDetector", _pos, false];
+		_hdTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_hdTrigger setTriggerArea [150, 150, 0, false, 25];
 		_hdTrigger setTriggerStatements [  "this", format["'MKR_%1_SP_%2' setMarkerType '%3'", _zoneID, _i, _icon], "" ];
 	} else {

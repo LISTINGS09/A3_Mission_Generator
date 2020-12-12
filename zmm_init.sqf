@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 3.7;
+ZMM_Version = 4.1;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
@@ -12,9 +12,9 @@ ZMM_Debug = !isMultiplayer;
 // ZZM_Diff = 1 - Lean Mean Killing Machine
 // ZZM_Diff = 1.5 - Reaper Man
 // ZZM_Diff = 2 - Freight Train O' Death
-ZZM_Diff = 1; // Enemy strength multiplier
-ZZM_IED = 1; // 0 - Disabled  1 - Enabled
-ZZM_QRF = 1; // 0 - Disabled  1 - Enabled
+// ZZM_Diff = 1; // Enemy strength multiplier
+// ZZM_IED = 1; // 0 - Disabled  1 - Enabled
+// ZZM_QRF = 1; // 0 - Disabled  1 - Enabled
 
 "Group" setDynamicSimulationDistance 800;
 "Vehicle" setDynamicSimulationDistance 1000;
@@ -28,6 +28,75 @@ if (isNil "ZZM_QRF") then { ZZM_QRF = missionNamespace getVariable ["f_param_ZMM
 
 if (ZZM_Mode isEqualTo 0 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief_custom.sqf", ZMM_FolderLocation] };
 if (ZZM_Mode isEqualTo 2 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief_fixed.sqf", ZMM_FolderLocation] };
+
+// Register Tasks
+ZMM_tasks = [
+	// ["Category", "Task Name", "Task Desc", "Icon", "Location Type", "Script", "Overwrite Params"];
+	// Anywhere
+	["Defence", "Defend Location", "Clear and hold a location from enemy forces", "\A3\ui_f\data\igui\cfg\simpleTasks\types\defend_ca.paa", "Anywhere", "defend_location.sqf", [300, false, false, false]]
+	,["Defence", "Defend Site", "Capture and hold an enemy side from responding forces", "\A3\ui_f\data\igui\cfg\simpleTasks\types\defend_ca.paa", "Anywhere", "defend_site.sqf", [300, false, false, false]]
+	,["Defence", "Defend Vehicle", "Hold a location and assist with repairing a civilian vehicle", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "defend_vehicle.sqf", [300, false, false, false]]
+	,["Denial", "Destroy Cache", "Take out a number of enemy weapons caches", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Anywhere", "destroy_cache.sqf"]
+	,["Denial", "Destroy Target", "One or more specific buildings must be destroyed", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Anywhere", "destroy_target.sqf"]
+	,["Denial", "Eliminate Group", "Track down and eliminate a group of infantry", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Anywhere", "kill_group.sqf"]
+	,["Intel", "Intel Transfer", "Transfer data from a Terminal or UAV", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Anywhere", "intel_transfer.sqf"]
+	,["Intel", "Intel Search", "Track down intelligence left behind by an operative", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Anywhere", "intel_garbage.sqf"]
+	,["Intel", "Intel Meeting", "Obtain key intel by talking to local informants", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Anywhere", "intel_talk.sqf"]
+	,["Recovery", "Collect Backpack", "Find and collect one or more special backpacks", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_backpack.sqf"]
+	,["Recovery", "Collect Container", "Obtain the special items located inside containers", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_container.sqf"]
+	,["Recovery", "Collect Items", "Hunt down specific items found around a location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_items.sqf"]
+	,["Recovery", "Collect Drop", "Secure a drop due to land shortly within the area", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_paradrop.sqf"]
+	,["Recovery", "Collect Weapon", "Obtain one or more weapons located in the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_weapon.sqf"]
+	,["Secure", "Capture Location", "Capture the location by securing flags within the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "capture_location.sqf"]
+	,["Secure", "Capture Object", "Mark the locations of key objects in the area", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "capture_object.sqf"]
+	,["Secure", "Clear Location", "Eliminate all enemy forces from the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "clear_location.sqf", [900]]
+	,["Secure", "Clear Building", "Secure one or more buildings of significant value", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "clear_building.sqf"]
+	,["Secure", "Clear Uprising", "Track down HVTs that are directing attacks in the area", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "clear_uprising.sqf"]
+	,["Secure", "Kill Animals", "A number of animals must be eliminated", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "kill_animal.sqf"]
+	,["Secure", "Combat Patrol", "Move through a number of sectors around a location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "patrol_area.sqf"]
+	
+	// Buildings
+	,["Denial", "Kill HVT", "Ensure a high value target is eliminated", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Building", "kill_hvt.sqf"]
+	,["Rescue", "Prisoner Rescue", "Save a number of prisoners captured by enemy forces", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Building", "rescue_prisoner.sqf"]
+
+	// Flat Areas
+	,["Denial", "Destroy Site", "A target of opportunity will be present at a nearby site", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Location", "destroy_site.sqf"]
+	,["Denial", "Crash Site", "Destroy a crashed wreck and any of its lost cargo", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Location", "destroy_crashsite.sqf"]
+	,["Denial", "Destroy Tower", "Disrupt enemy communications by destroying a tower", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Location", "destroy_tower.sqf"]
+	,["Recovery", "Collect Crash Site", "Locate a crashed wreck and recover its lost cargo", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Location", "collect_crashsite.sqf"]
+	,["Rescue", "Minefield Rescue", "Recover an object or person from an enemy minefield", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Location", "rescue_minefield.sqf"]
+	,["Intel", "Intel Site", "Obtain a key item or document from an enemy site", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Location", "intel_site.sqf"]
+
+	// Roads
+	,["Denial", "Destroy Convoy", "Eliminate an enemy convoy of three vehicles", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Road", "destroy_convoy.sqf"]
+	,["Denial", "Destroy Vehicle", "Locate and destroy a mechanised or armoured vehicle", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Road", "destroy_vehicle.sqf"]
+	,["Recovery", "Capture Vehicle", "Locate and capture a motorised enemy asset", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Road", "capture_vehicle.sqf"]
+	,["Rescue", "Ambush Rescue", "Secure a number of personnel from an enemy ambush", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Road", "rescue_ambush.sqf"]
+	,["Rescue", "Transport Rescue", "Free a number of personnel from an enemy transport", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Road", "rescue_transport.sqf"]
+	,["Disarm", "IED Clearing", "Secure and disarm a number of IEDs within the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\mine_ca.paa", "Road", "disarm_ied.sqf"]
+	
+	,["Disarm", "Bomb Squad", "Diffuse charges that have been rigged to go off in the area", "\A3\ui_f\data\igui\cfg\simpleTasks\types\mine_ca.paa", "Anywhere", "disarm_bomb.sqf"]
+	,["Disarm", "UXO Search", "Secure and remove a number of UXOs from the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\mine_ca.paa", "Anywhere", "disarm_uxo.sqf"]
+];
+
+
+// ,["Rescue", "Evacuate Civilians", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_civilians.sqf"]
+// ,["Recovery", "Recover Supplies", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "collect_supplies.sqf"]
+// ,["Secure", "Capture Site", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "capture_site.sqf"]
+// ,["Intel", "Locate Intel", "Talk to the locals to locate an intelligence document", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "intel_find.sqf"]
+// ,["Recovery", "Repatriate Bodies", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "collect_bodies.sqf"]
+// ,["Denial", "Eliminate Sniper", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Anywhere", "destroy_sniper.sqf"]
+// ,["Secure", "Capture Suspect", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "capture_suspect.sqf"]
+// ,["Denial", "Destroy Mortar", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Anywhere", "destroy_mortar.sqf"]
+// ,["Rescue", "Rescue Pilot", "Destroy the crashed vehicle then locate and rescue the crew", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_pilot.sqf"]
+// ,["Rescue", "Rescue Hostage", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_hostage.sqf"]
+
+
+// INSTALL A SPY MICROPHONE
+// neutralise 3 OFFICERS
+
+// FREE A HOSTAGE
+// PATROL AN AREA
 
 if isServer then {
 	EAST setFriend [RESISTANCE, 0];
@@ -54,15 +123,15 @@ if isServer then {
 	if (isNil("zmm_fnc_spawnPara")) then {zmm_fnc_spawnPara = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnPara.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_spawnUnit")) then {zmm_fnc_spawnUnit = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnUnit.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_spawnObject")) then {zmm_fnc_spawnObject = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnObject.sqf", ZMM_FolderLocation]; };
-	
+		
 	// Create a safe zone around all players.
 	{
-		_makeSZ = TRUE;
+		_makeSZ = true;
 		_unit = _x;
 		
 		// Don't create a safe zone if the unit is already inside one!
 		{
-			if ((getPos _unit) inArea _x && {(toUpper _x) find "SAFEZONE" >= 0}) exitWith { _makeSZ = FALSE };
+			if ((getPos _unit) inArea _x && {(toUpper _x) find "SAFEZONE" >= 0}) exitWith { _makeSZ = false };
 		} forEach allMapMarkers;
 	
 		if _makeSZ then {

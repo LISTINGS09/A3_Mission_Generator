@@ -40,7 +40,7 @@ private _bombActivation = []; // Also counter
 // Create locations if none exist
 if (count _bombLocs < _bombMax) then {
 	for "_i" from 0 to (_bombMax) do {
-		_bombLocs pushBack (_centre getPos [25 + random 50, random 360]);
+		_bombLocs pushBack (_centre getPos [50 + random 50, random 360]);
 	};
 };
 
@@ -63,10 +63,10 @@ for "_i" from 0 to _bombMax do {
 	_tempObj setDir random 360;
 	//private _tempObj = createVehicle [selectRandom ["Land_Garbage_square3_F","Land_Garbage_square5_F","Land_Garbage_line_F"], getPosATL _mineObj, [], 0, 'CAN_COLLIDE'];
 	
-	private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _mineObj getPos [20 + random 20, random 360]];
+	private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _mineObj getPos [random 25, random 360]];
 	_mrkr setMarkerShape "ELLIPSE";
 	_mrkr setMarkerBrush "SolidBorder";
-	_mrkr setMarkerSize [50,50];
+	_mrkr setMarkerSize [25,25];
 	_mrkr setMarkerAlpha 0.4;
 	_mrkr setMarkerColor format["Color%1",_enemySide];
 	
@@ -83,14 +83,16 @@ for "_i" from 0 to _bombMax do {
 		_zoneID, _i], "" ];
 	
 	// Child task
-	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], TRUE, [format["Locate the IED somewhere within the marked area.<br/><br/>Target Explosive: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _bombType >> "displayName"), getText (configFile >> "CfgVehicles" >> _bombType >> "editorPreview")], format["IED #%1", _i + 1], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, FALSE, TRUE, format["move%1", _i + 1]] call BIS_fnc_setTask;
+	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the IED somewhere within the marked area.<br/><br/>Target Explosive: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _bombType >> "displayName"), getText (configFile >> "CfgVehicles" >> _bombType >> "editorPreview")], format["IED #%1", _i + 1], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i + 1]] call BIS_fnc_setTask;
 	private _childTrigger = createTrigger ["EmptyDetector", getPos _mineObj, false];
 	_childTrigger setTriggerTimeout [1, 1, 1, true];
 	_childTrigger setTriggerStatements [  format["!alive ZMM_%1_OBJ_%2", _zoneID, _i],
-			format["if (getMarkerColor 'MKR_%1_OBJ_%2' == '') then { ['ZMM_%1_SUB_%2', 'Failed', TRUE] spawn BIS_fnc_taskSetState; } else { ['ZMM_%1_SUB_%2', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2'; };", _zoneID, _i],
+			format["if (getMarkerColor 'MKR_%1_OBJ_%2' == '') then { ['ZMM_%1_SUB_%2', 'Failed', true] spawn BIS_fnc_taskSetState; } else { ['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2'; };", _zoneID, _i],
 		"" ];
 	
 	_bombActivation pushBack format["!alive ZMM_%1_OBJ_%2", _zoneID, _i];
+	
+	{ _x addCuratorEditableObjects [[_mineObj], true] } forEach allCurators;
 };
 
 // Spawn fake IEDs
@@ -120,16 +122,17 @@ for "_i" from 0 to 8 do {
 				deleteVehicle ZMM_%1_OBJ_%2; }",
 			_zoneID, _i], "" ];
 			
+		{ _x addCuratorEditableObjects [[_mineObj], true] } forEach allCurators;
 	};
 };
 
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", [0,0,0], FALSE];
+_objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [  (_bombActivation joinString " && "), 
-	format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, _playerSide],
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 	"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, count _bombActivation, _locName], ["Disarm"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "mine"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, count _bombActivation, _locName], ["Disarm"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;
 
-TRUE
+true

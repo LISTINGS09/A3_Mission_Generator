@@ -73,7 +73,7 @@ private _locMax = 8;
 private _multiplier = missionNamespace getVariable ["ZZM_Diff", 1];
 private _qrfTime = [420, 300, 180] select (missionNamespace getVariable ["ZZM_Diff", 1]);
 
-missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], TRUE];
+missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], true];
 missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], round (12 * _multiplier)];
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 400];
 missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], round (3 * _multiplier)];
@@ -198,9 +198,9 @@ if (_locType isEqualTo "Ambient") exitWith {
 	//format["MKR_%1_MAX", _zoneID] setMarkerAlphaLocal 0;
 	//format["MKR_%1_TRG", _zoneID] setMarkerAlphaLocal 0;
 
-	private _setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
-	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, FALSE, 150 ];
-	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", FALSE ];
+	private _setupTrg = createTrigger [ "EmptyDetector", _pos, false ];
+	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, false, 150 ];
+	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", false ];
 	_setupTrg setTriggerStatements [ "this", 
 									format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
 									""];
@@ -215,7 +215,7 @@ if (_locType isEqualTo "Task") exitWith {
 };
 
 // Create Building Locations
-private _allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), TRUE];
+private _allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), true];
 missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 4}) ]; // Set Large Buildings
 
 // Genuine location, so add it to possible locations list (to pick a random task location in CTI).
@@ -346,9 +346,9 @@ missionNamespace setVariable [ format["ZMM_%1_BlockLocations", _zoneID], _blockL
 
 if (ZZM_Mode == 1) then {
 	// CTI Mode - Create trigger when player nears Zone.
-	private _setupTrg = createTrigger [ "EmptyDetector", _pos, FALSE ];
-	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, FALSE, 150 ];
-	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", FALSE ];
+	private _setupTrg = createTrigger [ "EmptyDetector", _pos, false ];
+	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, false, 150 ];
+	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", false ];
 	_setupTrg setTriggerStatements [ "this", 
 									format [ "[%1] spawn zmm_fnc_setupPopulate;", _zoneID ], 
 									""];

@@ -121,19 +121,19 @@ for "_i" from 1 to _prisMax do {
 };
 
 // Create Failure Trigger
-_failTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
+_failTrigger = createTrigger ["EmptyDetector", _centre, false];
 _failTrigger setTriggerStatements [ 	format["!alive ZMM_%1_VEH && locked ZMM_%1_VEH > 0", _zoneID], 
-									format["['ZMM_%1_TSK', 'Failed', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+									format["['ZMM_%1_TSK', 'Failed', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 
 
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", _centre, FALSE];
+_objTrigger = createTrigger ["EmptyDetector", _centre, false];
 _objTrigger setTriggerStatements [ 	format["ZMM_%1_UNLOCK", _zoneID], 
-									format["['ZMM_%1_TSK', 'Succeeded', TRUE] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', TRUE, TRUE]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 									
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], TRUE, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, _prisMax, _prisonerType] + format["<br/><br/>Model: <font color='#FFA500'>%1</font><br/>Registration: <font color='#FFA500'>%2</font><br/><img width='350' image='%3'/>", getText (configFile >> "CfgVehicles" >> _truckType >> "displayName"), getPlateNumber _truck, getText (configFile >> "CfgVehicles" >> _truckType >> "editorPreview")], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, FALSE, TRUE, "truck"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, _prisMax, _prisonerType] + format["<br/><br/>Model: <font color='#FFA500'>%1</font><br/>Registration: <font color='#FFA500'>%2</font><br/><img width='350' image='%3'/>", getText (configFile >> "CfgVehicles" >> _truckType >> "displayName"), getPlateNumber _truck, getText (configFile >> "CfgVehicles" >> _truckType >> "editorPreview")], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "truck"] call BIS_fnc_setTask;
 
-TRUE
+true

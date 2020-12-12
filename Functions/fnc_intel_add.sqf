@@ -24,7 +24,7 @@ if (_value isEqualType []) exitWith {
 			sleep 1;
 			deleteVehicle _target;
 			sleep 2;
-			if (missionNamespace getVariable ["ZMM_DONE", TRUE]) then {
+			if (missionNamespace getVariable ["ZMM_DONE", true]) then {
 				format["Intel Collected by %1 - Check Map", name player] remoteExec ["systemChat"];
 				[] remoteExec ["zmm_fnc_setupTask", 2];
 			}; 
@@ -41,7 +41,7 @@ if (_value isEqualType []) exitWith {
 if (_value isKindOf "Man") exitWith {
 	_value addEventHandler["Killed", {
 		params["_killed", "_killer"]; 
-		if ((missionNamespace getVariable ["ZMM_DONE", TRUE]) && (random 1 < (missionNamespace getVariable ["ZMM_IntelChance", 0.2]))) then { 
+		if ((missionNamespace getVariable ["ZMM_DONE", true]) && (random 1 < (missionNamespace getVariable ["ZMM_IntelChance", 0.2]))) then { 
 			_intel = _intelType createVehicle (_killed getPos [ random 3, random 360 ]);
 
 			[_intel, 
@@ -57,7 +57,7 @@ if (_value isKindOf "Man") exitWith {
 					sleep 1;
 					deleteVehicle _target;
 					sleep 2;
-					if (missionNamespace getVariable ["ZMM_DONE", TRUE]) then {
+					if (missionNamespace getVariable ["ZMM_DONE", true]) then {
 						format["Intel Collected by %1 - Check Map", name player] remoteExec ["systemChat"];
 						[] remoteExec ["zmm_fnc_setupTask", 2];
 					}; 
