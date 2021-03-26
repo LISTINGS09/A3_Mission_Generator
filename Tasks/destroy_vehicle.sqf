@@ -7,8 +7,6 @@ _vehClass = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Util",_
 _vehTank = selectRandom (missionNamespace getVariable[format["ZMM_%1Veh_Heavy",_enemySide],[""]]);
 _isHeavy = false;
 
-if (_targetPos isEqualTo _centre || _targetPos isEqualTo [0,0,0]) then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
-
 _missionDesc = [
 		"A <font color='#00FFFF'>%1</font> has been seen parked in this area, locate and destroy it.",
 		"Enemy forces have recently reinforced this area and brought in a <font color='#00FFFF'>%1</font>. It must be destroyed.",
@@ -39,25 +37,36 @@ if !(isClass (configFile >> "CfgVehicles" >> _vehClass)) exitWith {
 	false
 };
 
-_emptyPos = _targetPos findEmptyPosition [1, 50, _vehClass];
+if (_targetPos isEqualTo _centre || _targetPos isEqualTo [0,0,0]) then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
+if (isNil "_targetPos") then { _targetPos = _centre };
+
+_emptyPos = _targetPos findEmptyPosition [1, 100, _vehClass];
+if (count _emptyPos == 0) then { _emptyPos = _targetPos };
 	
-_veh = createVehicle [_vehClass, _emptyPos, [], 0, "NONE"];
+private _veh = createVehicle [_vehClass, _emptyPos, [], 0, "NONE"];
+_veh allowDamage false;
+_veh setPos (getPos _veh vectorAdd [0, 0, 3]);
+_veh setVectorUp surfaceNormal position _veh;
+_veh spawn {
+	{ _x hideObjectGlobal true } forEach (nearestTerrainObjects [getPos _this, ["TREE", "SMALL TREE", "BUSH", "BUILDING", "HOUSE", "FOREST BORDER", "FOREST TRIANGLE", "FOREST SQUARE", "CHURCH", "CHAPEL", "CROSS", "BUNKER", "FORTRESS", "FOUNTAIN", "VIEW-TOWER", "LIGHTHOUSE", "QUAY", "FUELSTATION", "HOSPITAL", "FENCE", "WALL", "HIDE", "BUSSTOP", "FOREST", "TRANSMITTER", "STACK", "RUIN", "TOURISM", "WATERTOWER", "ROCK", "ROCKS", "POWERSOLAR", "POWERWAVE", "POWERWIND", "SHIPWRECK"], 5]);
+	sleep 5;
+	_this lock true;
+	_this allowDamage true;
+};
 
 // Crew vehicle
 if _isHeavy then {
 	createVehicleCrew _veh;
 	_nul = [driver _veh, format["MKR_%1_MIN", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
-} else {
-	_veh lock true;
 };
 
 // Orient to road
 if (isOnRoad _veh) then { _veh setDir getDir (roadAt _veh); };
 
 // Add to Zeus
-{
-	_x addCuratorEditableObjects [[_veh], true];
-} forEach allCurators;
+{ _x addCuratorEditableObjects [[_veh], true] } forEach allCurators;
+
+removeFromRemainsCollector [_veh];
 
 // Create Completion Trigger
 missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _veh];

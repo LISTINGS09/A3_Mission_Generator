@@ -34,11 +34,15 @@ private _targetTypes = ["Land_Research_house_V1_F", "Land_Research_HQ_F", "Land_
 private _tempArr = (_centre nearObjects ["Building", 200]) select { typeOf _x in _targetTypes };
 
 if (count _tempArr == 0) then { 
+	if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
 	private _targetObj = createVehicle [selectRandom _targetTypes, _targetPos, [], 50, "NONE"];
+	_targetObj setVectorUp [0,0,1];
 	_targetPos = getPos _targetObj;
 	_targetArr pushBack _targetObj;
+	
+	// Add to Zeus
+	{ _x addCuratorEditableObjects [[_targetObj], true] } forEach allCurators;
 } else {
-
 	_targetArr = selectRandom _targetArr;
 	
 	for "_i" from 0 to _count do {

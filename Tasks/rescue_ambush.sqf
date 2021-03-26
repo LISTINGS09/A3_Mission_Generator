@@ -16,9 +16,10 @@ private _missionDesc = [
 		"Enemy forces within %1 attacked a convoy escorting a captured %3. <font color='#00FFFF'>%2 Soldiers</font> are believed MIA, likely requiring immediate evacuation. Locate the Soldiers and rescue them."
 	];	
 
-if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
+if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
+if (isNil "_targetPos") then { _targetPos = _centre };
 
-private _targetPos = _targetPos findEmptyPosition [1, 50, "Land_Wreck_Ural_F"];
+private _targetPos = _targetPos findEmptyPosition [1, 100, "Land_Wreck_Ural_F"];
 	
 // Create Wreck
 private _wreck = objNull;
@@ -33,10 +34,8 @@ if (count _wreckList > 0) then {
 	_wreck setDir random 360;
 	_wreck lock true;
 	_wreck setVehicleAmmo 0;
-	_wreck enableSimulationGlobal false;
 	_wreck allowDamage false;
-	_wreck setDamage [1,false];
-	_wreck setPos (getPos _wreck vectorAdd [0,0,-0.2]);
+	_wreck setDamage [0.8,false];
 	
 	removeFromRemainsCollector [_wreck];
 	
@@ -59,7 +58,7 @@ private _hvtActivation = [];
 private _hvtFailure = [];
 private _hvtNum = 0;
 
-for "_i" from 0 to (random 1 + 2) do {
+for "_i" from 1 to (random 1 + 2) do {
 	_hvtNum = _hvtNum + 1;
 		
 	private _evacMan = _hvtGroup createUnit ["C_man_w_worker_F", _targetPos getPos [2 + random 2, random 360], [], 3, "NONE"];	
@@ -98,8 +97,8 @@ for "_i" from 0 to (random 1 + 2) do {
 			format["<t color='#00FF80'>Revive %1</t>", name _evacMan], 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_revive_ca.paa", 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_revive_ca.paa", 
-			"lifeState _target == 'INCAPACITATED' && _this distance _target < 3",   
-			"lifeState _target == 'INCAPACITATED' && _caller distance _target < 3",   
+			"lifeState _target == 'INCAPACITATED' && _this distance2d _target < 3",   
+			"lifeState _target == 'INCAPACITATED' && _caller distance2d _target < 3",   
 			{ _caller playAction "medic" },
 			{}, 
 			{
@@ -117,7 +116,7 @@ for "_i" from 0 to (random 1 + 2) do {
 	};
 
 	// Child task
-	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate and stabilize <font color='#00FFFF'>%1</font>, then extract them from the area.", name _evacMan], format["Rescue Soldier #%1", _i + 1], format["MKR_%1_OBJ", _zoneID]], objNull, "CREATED", 1, false, true, format["move%1", _i + 1]] call BIS_fnc_setTask;
+	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate and stabilize <font color='#00FFFF'>%1</font>, then extract them from the area.", name _evacMan], format["Rescue Soldier #%1", _i], format["MKR_%1_OBJ", _zoneID]], objNull, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 	private _childTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre],
 									format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],

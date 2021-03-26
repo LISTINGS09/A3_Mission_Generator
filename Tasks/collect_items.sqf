@@ -80,8 +80,8 @@ for "_i" from 0 to (_itemMax * 2) do {
 				format["<t color='#00FF80'>Take %1</t>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], 
 				"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_Search_ca.paa", 
 				"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_Search_ca.paa", 
-				"_this distance _target < 3", 
-				"_caller distance _target < 3", 
+				"_this distance2d _target < 3", 
+				"_caller distance2d _target < 3", 
 				{}, 
 				{}, 
 				{

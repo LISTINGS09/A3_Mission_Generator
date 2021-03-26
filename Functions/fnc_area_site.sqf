@@ -1,13 +1,15 @@
-// [0, player getPos [100, random 360]] call zmm_fnc_areaSite;
+// [0, player getPos [100, random 360], false, true] call zmm_fnc_areaSite;
+// Returns position created at
 if !isServer exitWith {};
 
 params [
 	["_zoneID", 0],
 	["_centre", (missionNamespace getVariable [ format[ "ZMM_%1_Location", _this#0], [0,0,0]])],
-	["_showMarker", true]
+	["_showMarker", true],
+	["_forcePos", false]
 ];
 
-if (_centre isEqualTo [0,0,0]) then { _centre = [_centre, 50 + random 50, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
+if (_centre isEqualTo [0,0,0]) then { _centre = [_centre, 0, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
 
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locations = missionNamespace getVariable [ format[ "ZMM_%1_SiteLocations", _zoneID ], []];  // Takes too long to populate - Left blank
@@ -24,14 +26,14 @@ private _hmgArr = missionNamespace getVariable [format["ZMM_%1Veh_Static",_side]
 
 if (_count == 0) then { _count = 1 };
 
-["DEBUG", format["Zone%1 - Creating Site: %2", _zoneID, _count]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Creating Site: Count %2 at %3%4", _zoneID, _count, _centre, [""," [FORCED]"] select _forcePos]] call zmm_fnc_logMsg;
 
 private _vehArr = [];
 if (count _vehL > 1) then { _vehArr append _vehL; _vehArr append _vehL; }; // Common
 if (count _vehM > 1) then { _vehArr append _vehM; }; // Medium
 if (count _hmgArr == 0) then { _hmgArr = ["B_GMG_01_high_F","B_HMG_01_high_F"] };
 
-if (count _locations == 0) then {
+if (!_forcePos && count _locations == 0) then {
 	// Find Support Locations
 	for [{_i = 0}, {_i < 360}, {_i = _i + 5}] do {
 		for [{_j = _radius * 0.25}, {_j <= (_radius * 1.5)}, {_j = _j + 25}] do {
@@ -56,7 +58,10 @@ if (count _locations == 0) then {
 		
 		if (count _locations > _count) exitWith {};
 	};
+} else {
+	if _forcePos then { _locations = [_centre] };
 };
+
 // Special Locations:
 // "Land_Sacks_heap_F"
 // ["Land_CampingTable_small_F","Land_CampingTable_small_white_F","Land_CampingTable_white_F","Land_WoodenTable_large_F","Land_WoodenTable_small_F","Land_TableBig_01_F","OfficeTable_01_new_F","OfficeTable_01_old_F"]
@@ -1061,7 +1066,7 @@ private _buildingList = [
 ["DEBUG", format["Zone%1 - Creating Sites: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_logMsg;
 
 for "_i" from 1 to _count do {	
-	if (count _locations == 0) exitWith { false };
+	if (count _locations == 0) exitWith { _centre = [] };
 	
 	private _pos = selectRandom _locations;
 	_locations deleteAt (_locations find _pos);
@@ -1070,13 +1075,13 @@ for "_i" from 1 to _count do {
 	_key setDir random 360;
 		
 	// Clear Area
-	{ [_x, true] remoteExec ["hideObject", 0, true] } forEach (nearestTerrainObjects [_pos, [], 25]);
+	{ [_x, true] remoteExec ["hideObject", 0, true] } forEach (nearestTerrainObjects [_pos, ["TREE", "SMALL TREE", "BUSH", "BUILDING", "HOUSE", "FOREST BORDER", "FOREST TRIANGLE", "FOREST SQUARE", "CHURCH", "CHAPEL", "CROSS", "BUNKER", "FORTRESS", "FOUNTAIN", "VIEW-TOWER", "LIGHTHOUSE", "QUAY", "FUELSTATION", "HOSPITAL", "FENCE", "WALL", "HIDE", "BUSSTOP", "FOREST", "TRANSMITTER", "STACK", "RUIN", "TOURISM", "WATERTOWER", "ROCK", "ROCKS", "POWERSOLAR", "POWERWAVE", "POWERWIND", "SHIPWRECK"], 25]);
 	
 	// Build Support	
 	_bID = floor random count _buildingList;
 	(_buildingList#_bID) params ["_icon", "_buildingObjects"];
 	
-	["DEBUG", format["Zone%1 - Creating Site: %2 (%3)", _zoneID, _bID, _icon]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Spawning Site: ID%2 (%3) at %4", _zoneID, _bID, _icon, _pos]] call zmm_fnc_logMsg;
 
 	{
 		_x params ["_type", ["_class",""], ["_rel",[0,0,0]], ["_dir", 0], ["_flat", true]];
@@ -1117,4 +1122,5 @@ for "_i" from 1 to _count do {
 	};
 };
 
-true
+_centre set [2,0];
+_centre

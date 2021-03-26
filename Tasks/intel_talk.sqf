@@ -46,7 +46,7 @@ if (_positions isEqualTo []) then {
 private _civCount = 0;
 
 // Generate the crates.
-for "_i" from 0 to (_talkMax) do {
+for "_i" from 1 to (_talkMax) do {
 	if (_positions isEqualTo []) exitWith {};
 
 	private _civType = selectRandom ["C_man_polo_1_F_afro","C_man_polo_3_F_afro","C_man_polo_6_F_afro","C_man_polo_2_F_euro","C_man_polo_4_F_euro","C_man_polo_5_F_asia"];
@@ -76,14 +76,14 @@ for "_i" from 0 to (_talkMax) do {
 			_civObj setVariable ["var_zoneID", _zoneID, true];
 			_civObj setVariable ["var_itemID", _i, true];
 			
-			_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Speak to the civilian somewhere within the marked area.<br/><br/>Contact: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", name _civObj, getText (configFile >> "CfgVehicles" >> _civType >> "editorPreview")], format["Person #%1", _i + 1], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["talk%1", _i + 1]] call BIS_fnc_setTask;
+			_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Speak to the civilian somewhere within the marked area.<br/><br/>Contact: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", name _civObj, getText (configFile >> "CfgVehicles" >> _civType >> "editorPreview")], format["Person #%1", _i], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["talk%1", _i]] call BIS_fnc_setTask;
 
 			[_civObj, 
 				format["<t color='#00FF80'>Speak to %1</t>", name _civObj], 
 				"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_requestleadership_ca.paa", 
 				"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_requestleadership_ca.paa", 
-				"_this distance _target < 3", 
-				"_caller distance _target < 3", 
+				"_this distance2d _target < 3", 
+				"_caller distance2d _target < 3", 
 				{}, 
 				{}, 
 				{

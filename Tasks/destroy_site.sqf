@@ -3,6 +3,8 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _menArray = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
 private _missionDesc = [
 		"Destroy a <font color='#00FFFF'>%2</font> recently established by enemy forces somewhere within %1.",
 		"The enemy has established a <font color='#00FFFF'>%2</font>, it must be destroyed. Search around %1 to locate it.",
@@ -12,19 +14,36 @@ private _missionDesc = [
 		"A UAV flying over %1 has spotted enemy movements that indicate a <font color='#00FFFF'>%2</font> is present in the area. Move into %1, locate the site and destroy it swiftly."
 	];
 
-if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; };
-	
-private _targetType = selectRandom ["Land_TTowerSmall_1_F","Land_TTowerSmall_2_F"];
- 
-[_zoneID, _targetPos, false] call zmm_fnc_areaSite;
- 
-private _foundArr = _targetPos nearObjects ["Land_Sacks_heap_F", 50];
+if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
+	 
+_targetPos = [_zoneID, _targetPos, false, true] call zmm_fnc_areaSite;
+
+if (_targetPos isEqualTo []) then { _targetPos = _centre };
+
+private _foundArr = nearestObjects [_targetPos, ["Land_Sacks_heap_F"], 150, true];
 
 if (count _foundArr > 0) then {
 	_targetPos = getPos (_foundArr#0);
 	deleteVehicle (_foundArr#0);
+} else {
+	// Site failed to create, spawn some filler
+	for "_i" from 0 to 2 do {
+		private _sObj = createSimpleObject [selectRandom ["Land_WoodenCrate_01_F", "Land_WoodenCrate_01_stack_x3_F", "Land_WoodenCrate_01_stack_x5_F", "Land_TentA_F", "Land_Pallets_stack_F", "Land_PaperBox_01_open_empty_F", "Land_CratesWooden_F", "Land_Sacks_heap_F"], AGLToASL (_targetPos getPos [2 + random 5, random 360])]; 
+		_sObj setDir random 360;
+	};
+
+	private _enemyGrp = createGroup [_enemySide, true];
+	for "_i" from 0 to 1 + random 3 do {
+		private _unit = _enemyGrp createUnit [selectRandom _menArray, (_targetPos getPos [random 15, random 360]), [], 0, "NONE"];
+		[_unit] joinSilent _enemyGrp; 
+		_unit disableAI "PATH";
+		_unit setDir random 360;
+		_unit setUnitPos "MIDDLE";
+		_unit setBehaviour "SAFE";
+	};
 };
 
+private _targetType = selectRandom ["Land_TTowerSmall_1_F","Land_TTowerSmall_2_F"];
 private _obj = createVehicle [_targetType, _targetPos, [], 0, "NONE"];
 _obj setVectorUp [0,0,1];
 

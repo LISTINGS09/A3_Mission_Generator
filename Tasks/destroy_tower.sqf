@@ -14,7 +14,9 @@ _missionDesc = [
 
 _objClass = selectRandom ["Land_TTowerBig_1_F","Land_TTowerBig_2_F","Land_Communication_F"];
 
-if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; };
+if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
+if (isNil "_targetPos") then { _targetPos = _centre };
+_targetPos set [2,0];
 
 // Check a tower isn't already nearby.
 _nearTowers = (_centre nearObjects ["building", 300]) select {typeOf _x in ["Land_TTowerBig_1_F", "Land_TTowerBig_2_F", "Land_Communication_F"]};

@@ -46,8 +46,8 @@ private _headGear = selectRandom ["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen
 		format["<t color='#00FF80'>Verify identify of %1</t>", name _x], 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_forceRespawn_ca.paa", 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_forceRespawn_ca.paa", 
-		"_this distance _target < 4 && !alive _target", 
-		"_caller distance _target < 4 && !alive _target", 
+		"_this distance2d _target < 4 && !alive _target", 
+		"_caller distance2d _target < 4 && !alive _target", 
 		{}, 
 		{}, 
 		{
@@ -81,9 +81,7 @@ private _headText = if (isClass (configFile >> "CfgWeapons" >> headgear (leader 
 	} else { "" };
 
 // Add to Zeus
-{
-	_x addCuratorEditableObjects [units _milGroup, true];
-} forEach allCurators;
+{ _x addCuratorEditableObjects [units _milGroup, true] } forEach allCurators;
 
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
 _objTrigger setTriggerStatements [ 	(_endActivation joinString " && "),

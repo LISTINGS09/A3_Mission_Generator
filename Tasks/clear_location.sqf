@@ -37,9 +37,7 @@ private _milGroup = [_locPos, _enemySide, _enemyType] call BIS_fnc_spawnGroup;
 [_milGroup, _centre, 10] call bis_fnc_taskPatrol;
 
 // Add to Zeus
-{
-	_x addCuratorEditableObjects [units _milGroup, true];
-} forEach allCurators;
+{ _x addCuratorEditableObjects [units _milGroup, true] } forEach allCurators;
 
 // Create Completion Trigger
 missionNamespace setVariable [format["ZMM_%1_TSK_Group", _zoneID], _milGroup];

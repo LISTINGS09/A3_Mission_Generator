@@ -8,15 +8,15 @@ private _intelType = selectRandom ["Land_Suitcase_F","Land_PlasticCase_01_small_
 
 // Position Array - Create intel at the location.
 if (_value isEqualType []) exitWith {
-	_intel = createVehicle [_intelType, [0,0,0], [], 150, "NONE"];
+	_intel = createVehicle [_intelType, [0,0,0], [], 0, "NONE"];
 	_intel setPosATL _value;
 
 	[_intel, 
 		"<t color='#00FF80'>Gather Intel</t>", 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
-		"_this distance _target < 3", 
-		"_caller distance _target < 3", 
+		"_this distance2d _target < 3", 
+		"_caller distance2d _target < 3", 
 		{}, 
 		{}, 
 		{
@@ -34,7 +34,7 @@ if (_value isEqualType []) exitWith {
 		[], 
 		3, 
 		10
-	] remoteExec ["bis_fnc_holdActionAdd"];
+	] remoteExec ["bis_fnc_holdActionAdd", 0, _intel];
 };
 
 // Unit passed so add EH
@@ -48,8 +48,8 @@ if (_value isKindOf "Man") exitWith {
 				"<t color='#00FF80'>Gather Intel</t>", 
 				"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
 				"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
-				"_this distance _target < 3", 
-				"_caller distance _target < 3", 
+				"_this distance2d _target < 3", 
+				"_caller distance2d _target < 3", 
 				{}, 
 				{}, 
 				{

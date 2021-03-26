@@ -49,6 +49,8 @@ switch (typeName _pos) do {
 	case "OBJECT": {_pos = getPos _pos};
 };
 
+_pos set [2,0];
+
 // Set default trigger radius
 private _triggerRadius = if ((_radius * 6) < 1000) then { 1000 } else { (_radius * 6) min 2000 };
 
@@ -235,6 +237,7 @@ for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
 	
 	if !(_tempPos isEqualTo []) then {
 		if ({_x distance2D _tempPos < 350} count _QRFLocs == 0) then {
+			{ _x hideObjectGlobal true } forEach (nearestTerrainObjects [_tempPos, ["TREE", "SMALL TREE", "BUSH", "BUILDING", "HOUSE", "FOREST BORDER", "FOREST TRIANGLE", "FOREST SQUARE", "CHURCH", "CHAPEL", "CROSS", "BUNKER", "FORTRESS", "FOUNTAIN", "VIEW-TOWER", "LIGHTHOUSE", "QUAY", "FUELSTATION", "HOSPITAL", "FENCE", "WALL", "HIDE", "BUSSTOP", "FOREST", "TRANSMITTER", "STACK", "RUIN", "TOURISM", "WATERTOWER", "ROCK", "ROCKS", "POWERSOLAR", "POWERWAVE", "POWERWIND", "SHIPWRECK"], 5]);
 			_QRFLocs pushBack _tempPos;
 		};
 	};

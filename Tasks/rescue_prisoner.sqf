@@ -55,7 +55,7 @@ selectRandom [
 	["Soldier", 	["I_G_Survivor_F"]]
 ] params ["_rescueType","_rescueClass"];
 
-for "_i" from 0 to _hvtMax do {
+for "_i" from 1 to _hvtMax do {
 	if (_positions isEqualTo []) exitWith {};
 	
 	private _hvtClass = selectRandom _rescueClass;
@@ -106,7 +106,7 @@ for "_i" from 0 to _hvtMax do {
 	waitUntil { !(name _hvtObj isEqualTo "") }; // Allow name to assign.
 	
 	// Child task
-	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Rescue %2, a captured %1 from enemy forces, ensuring they come to no harm.<br/><br/>Target: <font color='#00FFFF'>%2</font><br/><br/><img width='350' image='%3'/>", _rescueType, name _hvtObj, getText (configFile >> "CfgVehicles" >> _hvtClass >> "editorPreview")], format["Rescue %1", name _hvtObj], format["MKR_%1_OBJ", _zoneID]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i + 1]] call BIS_fnc_setTask;
+	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Rescue %2, a captured %1 from enemy forces, ensuring they come to no harm.<br/><br/>Target: <font color='#00FFFF'>%2</font><br/><br/><img width='350' image='%3'/>", _rescueType, name _hvtObj, getText (configFile >> "CfgVehicles" >> _hvtClass >> "editorPreview")], format["Rescue %1", name _hvtObj], format["MKR_%1_OBJ", _zoneID]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre],
 									format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],
@@ -133,8 +133,8 @@ for "_i" from 0 to _hvtMax do {
 			format["<t color='#00FF80'>Untie %1</t>", name _hvtObj], 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_unbind_ca.paa",  
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_unbind_ca.paa",  
-			"_this distance _target < 3",   
-			"_caller distance _target < 3",   
+			"_this distance2d _target < 3",   
+			"_caller distance2d _target < 3",   
 			{}, 
 			{},
 			{ 

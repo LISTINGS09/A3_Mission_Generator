@@ -46,7 +46,7 @@ if (random 100 > 50 && count _bldPos > 0) then {
 	_dataObj setVehicleAmmo 0;
 	_dataObj enableSimulationGlobal false;
 	_dataObj allowDamage false;
-	_dataObj setDamage [1,false];
+	_dataObj setDamage [0.6,false];
 	removeFromRemainsCollector [_dataObj];
 	
 	if (_dataType in ["B_UGV_01_F"]) then {
@@ -60,8 +60,8 @@ if (random 100 > 50 && count _bldPos > 0) then {
 		_dataPos set [2,0];
 		
 		private _crater = createSimpleObject ["CraterLong", ATLToASL _dataPos];
-		_crater setVectorUp surfaceNormal position _crater;
 		_crater setDir getDir _dataObj;
+		_crater setVectorUp surfaceNormal position _crater;
 	};
 	
 	//private _smokeObj = createVehicle ["test_EmptyObjectForSmoke", _dataPos, [], 0, "CAN_COLLIDE"];
@@ -80,8 +80,8 @@ _dataObj setVariable ["var_zoneID", _zoneID, true];
 	"<t color='#00FF80'>Start Transmission</t>", 
 	"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_hack_ca.paa",  
 	"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_connect_ca.paa", 
-	"!(_target getVariable ['var_dataSent', false]) && !(_target getVariable ['var_isSending', false]) && _this distance _target < 3", 
-	"!(_target getVariable ['var_dataSent', false]) && !(_target getVariable ['var_isSending', false]) && _caller distance _target < 3", 
+	"!(_target getVariable ['var_dataSent', false]) && !(_target getVariable ['var_isSending', false]) && _this distance2d _target < 3", 
+	"!(_target getVariable ['var_dataSent', false]) && !(_target getVariable ['var_isSending', false]) && _caller distance2d _target < 3", 
 	{}, 
 	{ parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Initiating</t><br/><br/><t size='1.5' color='#FFFF00'>Synchronising</t><br/><t color='#FFFF00'></t><br/><br/><t size='1.75' color='#CCCCCC'>%2&#37;</t><br/><br/>", _dataName, (round ((_this select 4) * 4.16))] remoteExec ["hintSilent"]}, 
 	{ 
@@ -115,7 +115,7 @@ _dataObj setVariable ["var_zoneID", _zoneID, true];
 	30, 
 	10,
 	false
-] remoteExec ["bis_fnc_holdActionAdd"];
+] remoteExec ["bis_fnc_holdActionAdd", 0, _dataObj];
 
 missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _dataObj];
 

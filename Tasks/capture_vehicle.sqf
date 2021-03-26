@@ -21,27 +21,37 @@ if !(isClass (configFile >> "CfgVehicles" >> _vehClass)) exitWith {
 	false
 };
 
-if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
+if (_targetPos isEqualTo _centre || _targetPos isEqualTo [0,0,0]) then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
+if (isNil "_targetPos") then { _targetPos = _centre };
 
-_emptyPos = _targetPos findEmptyPosition [1, 50, _vehClass];
-	
-_veh = _vehClass createVehicle _emptyPos;
+_emptyPos = _targetPos findEmptyPosition [1, 100, _vehClass];
+if (_emptyPos isEqualTo []) then { _emptyPos = _targetPos };
+
+_veh = createVehicle [_vehClass, _emptyPos, [], 0, "NONE"];
+_veh allowDamage false;
 
 missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _veh];
 
 // Orient to road
 if (isOnRoad _veh) then { _veh setDir getDir (roadAt _veh); };
 
-_veh setFuel random 0.4;
-_veh setVehicleAmmo random 0.6;
-_veh lock true;
+_veh setPos (getPos _veh vectorAdd [0, 0, 3]);
+_veh setVectorUp surfaceNormal position _veh;
+_veh spawn {
+	{ _x hideObjectGlobal true } forEach (nearestTerrainObjects [getPos _this, ["TREE", "SMALL TREE", "BUSH", "BUILDING", "HOUSE", "FOREST BORDER", "FOREST TRIANGLE", "FOREST SQUARE", "CHURCH", "CHAPEL", "CROSS", "BUNKER", "FORTRESS", "FOUNTAIN", "VIEW-TOWER", "LIGHTHOUSE", "QUAY", "FUELSTATION", "HOSPITAL", "FENCE", "WALL", "HIDE", "BUSSTOP", "FOREST", "TRANSMITTER", "STACK", "RUIN", "TOURISM", "WATERTOWER", "ROCK", "ROCKS", "POWERSOLAR", "POWERWAVE", "POWERWIND", "SHIPWRECK"], 5]);
+	sleep 5;
+	_this lock true;
+	_this allowDamage true;
+	_this setFuel random 0.4;
+	_this setVehicleAmmo random 0.6;
+};
 
 [_veh,  
 format["<t color='#72E500'>Unlock %1</t>", _vehName],  
 "\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa",  
 "\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa",  
-"_this distance _target < 4 && locked _target >= 1",  
-"_caller distance _target < 4 && locked _target >= 1",  
+"_this distance2d _target < 4 && locked _target >= 1",  
+"_caller distance2d _target < 4 && locked _target >= 1",  
 {},  
 {},  
 { [_target, false] remoteExec ["lock",_target]; [ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"]; },   
@@ -51,9 +61,7 @@ format["<t color='#72E500'>Unlock %1</t>", _vehName],
 10] remoteExec ["bis_fnc_holdActionAdd", 0, _veh];
 
 // Add to Zeus
-{
-	_x addCuratorEditableObjects [[_veh], true];
-} forEach allCurators;
+{ _x addCuratorEditableObjects [[_veh], true] } forEach allCurators;
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, false];

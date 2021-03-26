@@ -52,6 +52,9 @@ private _smoke = createVehicle ["test_EmptyObjectForSmoke",position _wreck, [], 
 private _crater = createSimpleObject ["CraterLong", AGLToASL position _wreck];
 _crater setVectorUp surfaceNormal position _wreck;
 
+// Add to Zeus
+{ _x addCuratorEditableObjects [[_wreck], true] } forEach allCurators;
+
 // Generate the crates.
 for "_i" from 1 to _crateNo do {
 	private _ammoType = selectRandom ["Box_Syndicate_Ammo_F","Box_Syndicate_WpsLaunch_F"];

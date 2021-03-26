@@ -25,9 +25,11 @@ private _locRadius = 300 * 0.75;
 
 if (count _nearLocs > 0) then {
 	private _location = _nearLocs#0;
-	_locName = if (getPos _location distance2D _centre < 200) then { text _location };
-	_locType = if (getPos _location distance2D _centre < 200) then { type _location };
-	_locRadius = 300 * (switch (_locType) do { case "Airport": { 1.5 }; case "NameCityCapital": { 1.25 }; case "NameCity": { 1 }; case "NameVillage": { 0.75 }; case "NameLocal": { 0.75 }; default { 0.75 }; });
+	 if (getPos _location distance2D _centre < 200) then {
+		_locName = text _location;
+		_locType = type _location;
+		_locRadius = 300 * (switch (_locType) do { case "Airport": { 1.5 }; case "NameCityCapital": { 1.25 }; case "NameCity": { 1 }; case "NameVillage": { 0.75 }; case "NameLocal": { 0.75 }; default { 0.75 }; });
+	};
 };
 	
 // Disable any far-away zones

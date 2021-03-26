@@ -25,7 +25,7 @@ if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID]
 		private _roads = ((_centre getPos [_qrfDist, _i]) nearRoads 150) select {count (roadsConnectedTo _x) > 0};
 		private _tempPos = [];	
 		
-		_tempPos = if (count _roads > 0) then { getPos _roads#0 } else { (_centre getPos [_qrfDist, _i]) isFlatEmpty  [15, -1, -1, -1, -1, false] };
+		_tempPos = if (count _roads > 0) then { getPos (_roads#0) } else { (_centre getPos [_qrfDist, _i]) isFlatEmpty  [15, -1, -1, -1, -1, false] };
 		
 		if !(_tempPos isEqualTo []) then {
 			if ({_x distance2D _tempPos < 350} count _QRFLocs == 0) then {
@@ -55,29 +55,36 @@ selectRandom [
 	["C_Van_01_transport_F", [[0,-1,0.3], [0,-2.5,0.3]], ["Land_WoodenCrate_01_stack_x5_F","Land_WoodenCrate_01_stack_x3_F"]],
 	["C_Truck_02_covered_F", [[0,-2.5,0]], ["Box_NATO_AmmoVeh_F","Box_EAF_AmmoVeh_F","Box_East_AmmoVeh_F","Box_IND_AmmoVeh_F","Land_CargoBox_V1_F"]]
 	
-] params ["_objType", "_objAtt", "_objArr"];
+] params ["_vehClass", "_objAtt", "_objArr"];
 
 private _iconName = "Repair";
-private _obj = _objType createVehicle [0,0,0];
-_obj allowDamage false;
-_obj setFuel 0;
-_obj setVehiclePosition [_targetPos, [], 0, "NONE"];
-_obj spawn { sleep 5; _this lock true; _this allowDamage true; _this setDamage 0.5; };
-_obj setVariable ["var_zoneID", _zoneID];
+private _veh = createVehicle [_vehClass, _targetPos, [], 0, "NONE"];
+_veh allowDamage false;
+_veh setFuel 0;
+_veh setPos (getPos _veh vectorAdd [0, 0, 3]);
+_veh setVectorUp surfaceNormal position _veh;
+_veh spawn {
+	{ _x hideObjectGlobal true } forEach (nearestTerrainObjects [getPos _this, ["TREE", "SMALL TREE", "BUSH", "BUILDING", "HOUSE", "FOREST BORDER", "FOREST TRIANGLE", "FOREST SQUARE", "CHURCH", "CHAPEL", "CROSS", "BUNKER", "FORTRESS", "FOUNTAIN", "VIEW-TOWER", "LIGHTHOUSE", "QUAY", "FUELSTATION", "HOSPITAL", "FENCE", "WALL", "HIDE", "BUSSTOP", "FOREST", "TRANSMITTER", "STACK", "RUIN", "TOURISM", "WATERTOWER", "ROCK", "ROCKS", "POWERSOLAR", "POWERWAVE", "POWERWIND", "SHIPWRECK"], 5]);
+	sleep 5;
+	_this lock true;
+	_this allowDamage true;
+	_this setDamage 0.5;
+};
+_veh setVariable ["var_zoneID", _zoneID];
 
-missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _obj];
+missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _veh];
 
 {
 	private _tempObj = createSimpleObject [selectRandom _objArr,[0,0,0]];
-	_tempObj attachTo [_obj, _x];
+	_tempObj attachTo [_veh, _x];
 } forEach _objAtt;
 
-[_obj, 
+[_veh, 
 	"<t color='#00FF80'>Check Vehicle</t>", 
 	"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_search_ca.paa",
 	"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_search_ca.paa",
-	"!(_target getVariable ['var_allDone', false]) && !(_target getVariable ['var_inProgress', false]) && _this distance _target < 5",
-	"!(_target getVariable ['var_allDone', false]) && !(_target getVariable ['var_inProgress', false]) && _caller distance _target < 5",
+	"!(_target getVariable ['var_allDone', false]) && !(_target getVariable ['var_inProgress', false]) && _this distance2d _target < 5",
+	"!(_target getVariable ['var_allDone', false]) && !(_target getVariable ['var_inProgress', false]) && _caller distance2d _target < 5",
 	{}, 
 	{ parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>%4 (%5)</t><br/><br/><t size='1.5' color='#FFFF00'>Checking</t><br/>%3<br/><t color='#FFFF00'></t><br/><br/><t size='1.75' color='#CCCCCC'>%2&#37;</t><br/><br/>", "repair", (round ((_this select 4) * 4.16)), getText (configFile >> "CfgVehicles" >> typeOf _target >> "displayName"), if (_caller getUnitTrait "engineer") then { "Engineer" } else { "Non-Engineer" }, name _caller] remoteExec ["hintSilent"]}, 
 	{ 
@@ -126,12 +133,12 @@ missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _obj];
 	10, 
 	10,
 	false
-] remoteExec ["bis_fnc_holdActionAdd"];
+] remoteExec ["bis_fnc_holdActionAdd", 0, _veh];
 
-private _civObj = createAgent ["C_Man_UtilityWorker_01_F", _obj getPos [1.7, 90], [], 0, "NONE"];
+private _civObj = createAgent ["C_Man_UtilityWorker_01_F", _veh getPos [1.7, 90], [], 0, "NONE"];
 _civObj setVariable ["BIS_fnc_animalBehaviour_disable", true];
 _civObj setUnitPos "MIDDLE";
-_civObj setDir (_civObj getRelDir _obj);
+_civObj setDir (_civObj getRelDir _veh);
 _civObj allowDamage false;
 
 missionNamespace setVariable [format["ZMM_%1_MAN", _zoneID], _civObj];
@@ -146,13 +153,13 @@ _qrfTrigger setTriggerStatements [ "this",
 	"" ];
 
 // Add to Zeus
-{ _x addCuratorEditableObjects [[_obj,_civObj], true] } forEach allCurators;
+{ _x addCuratorEditableObjects [[_veh,_civObj], true] } forEach allCurators;
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
 _objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
 _objTrigger setTriggerArea [_radius, _radius, 0, true];
-_objTrigger triggerAttachVehicle [_obj];
+_objTrigger triggerAttachVehicle [_veh];
 _objTrigger setTriggerStatements [ 	format["this && alive ZMM_%1_OBJ", _zoneID], 
 									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
@@ -164,6 +171,6 @@ _faiTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID],
 									"" ];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[(selectRandom _missionDesc) + "<br/><br/>Target Vehicle: <font color='#00FFFF'>%2</font><br/><br/><img width='300' image='%3'/>", _locName, getText (configFile >> "CfgVehicles" >> _objType >> "displayName"), getText (configFile >> "CfgVehicles" >> _objType >> "editorPreview")], ["Repair"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _targetPos, "CREATED", 1, false, true, "defend"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[(selectRandom _missionDesc) + "<br/><br/>Target Vehicle: <font color='#00FFFF'>%2</font><br/><br/><img width='300' image='%3'/>", _locName, getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], ["Repair"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _targetPos, "CREATED", 1, false, true, "defend"] call BIS_fnc_setTask;
 
 true

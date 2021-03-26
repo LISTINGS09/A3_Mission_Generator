@@ -17,12 +17,13 @@ private _missionDesc = [
 
 private _prisonerType = selectRandom ['Civilians', 'POWs', 'Prisoners', 'Dissidents', 'Rebels', 'Soldiers', 'Scientists', 'Workers'];
 	
-if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
+if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
+if (isNil "_targetPos") then { _targetPos = _centre };
 
-_targetPos = _targetPos findEmptyPosition [1, 50, "C_Truck_02_covered_F"];
+private _targetPos = _targetPos findEmptyPosition [1, 100, "C_Truck_02_covered_F"];
 	
 // Create Truck
-private _truckType = selectRandom ["C_Truck_02_covered_F", "C_Truck_02_transport_F", "I_G_Van_01_transport_F"];
+private _truckType = selectRandom ["C_Truck_02_covered_F", "C_Truck_02_transport_F"];
 private _truck = _truckType createVehicle _targetPos;
 
 missionNamespace setVariable [format["ZMM_%1_VEH", _zoneID], _truck, true];
@@ -48,8 +49,8 @@ _truck setVariable ["var_zoneID", _zoneID, true];
 	format["<t color='#72E500'>Unlock %1</t>", getText (configFile >> "CfgVehicles" >> _truckType >> "displayName")],  
 	"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_unbind_ca.paa",  
 	"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_unbind_ca.paa",  
-	"_this distance _target < 4 && locked _target >= 1",  
-	"_caller distance _target < 4 && locked _target >= 1",  
+	"_this distance2d _target < 4 && locked _target >= 1",  
+	"_caller distance2d _target < 4 && locked _target >= 1",  
 	{},  
 	{},  
 	{
@@ -72,6 +73,8 @@ _truck setVariable ["var_zoneID", _zoneID, true];
 	3,   
 	10] remoteExec ["bis_fnc_holdActionAdd", 0, _truck];
 
+// Add to Zeus
+{ _x addCuratorEditableObjects [[_truck], true] } forEach allCurators;
 
 // Get carrying capacity
 private _prisMax = getNumber (configFile >> "CfgVehicles" >> _truckType >> "transportSoldier");

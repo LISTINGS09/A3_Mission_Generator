@@ -56,8 +56,8 @@ private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] 
 			format["<t color='#00FF80'>Verify identify of %1</t>", name _x], 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_forceRespawn_ca.paa", 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_forceRespawn_ca.paa", 
-			"_this distance _target < 3 && !alive _target", 
-			"_caller distance _target < 3 && !alive _target", 
+			"_this distance2d _target < 3 && !alive _target", 
+			"_caller distance2d _target < 3 && !alive _target", 
 			{}, 
 			{}, 
 			{

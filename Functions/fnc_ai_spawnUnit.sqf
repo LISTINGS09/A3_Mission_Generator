@@ -56,7 +56,8 @@ if (_unitClass isEqualType "") then {
 	_vehType = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "vehicleClass");
 	_vehName = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "displayName");
 	_grpVeh = createVehicle [_unitClass, _startingPos, [], 15, if _isAir then {"FLY"} else {"NONE"}];
-	_grpVeh setVehicleLock "LOCKEDPLAYER"; 
+	_grpVeh setVehicleLock "LOCKEDPLAYER";
+	_grpVeh setVehicleTIPars [1, 0.5, 0.5];
 
 	if _isAir then {
 		_sleep = false;

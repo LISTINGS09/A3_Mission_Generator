@@ -3,6 +3,8 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _menArray = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
 private _missionDesc = [
 		"Locate a <font color='#00FFFF'>%1</font> that has been recently acquired by enemy forces. It is somewhere in %3 and contains %2, find and return the %1 safely.",
 		"Enemy forces at %3 are known to have come into possession of a <font color='#00FFFF'>%1</font>, containing %2. Find and secure the %1.",
@@ -41,17 +43,43 @@ private _intelTypes = selectRandom [
 
 _intelTypes params ["_intelName", "_intelType", "_intelCont"];
 
-if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; };
+if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
 
-[_zoneID, _targetPos, false] call zmm_fnc_areaSite;
+_targetPos = [_zoneID, _targetPos, false, true] call zmm_fnc_areaSite;
+
+// No suitable location nearby
+if (_targetPos isEqualTo []) then { _targetPos = _centre };
  
-private _foundArr = nearestObjects [_targetPos, ["Land_CampingTable_small_F","Land_CampingTable_small_white_F","Land_CampingTable_F","Land_CampingTable_white_F","Land_WoodenTable_large_F","Land_WoodenTable_small_F","Land_TableBig_01_F","OfficeTable_01_new_F","OfficeTable_01_old_F"], 50];
+private _foundArr = nearestObjects [_targetPos, ["Land_CampingTable_small_F","Land_CampingTable_small_white_F","Land_CampingTable_F","Land_CampingTable_white_F","Land_WoodenTable_large_F","Land_WoodenTable_small_F","Land_TableBig_01_F","OfficeTable_01_new_F","OfficeTable_01_old_F"], 150, true];
 
 if (count _foundArr > 0) then {
 	_targetPos = getPos (_foundArr#0);
 	
 	private _bbr = boundingBoxReal (_foundArr#0);
 	_targetPos set [2, 0.05 + (abs ((_bbr#1#2) - (_bbr#0#2)))];
+} else {
+	// Site failed to create, spawn some filler
+	private _table = createVehicle ["Land_WoodenTable_small_F", _targetPos, [], 0, "NONE"];
+	_targetPos = getPos _table;
+	
+	private _bbr = boundingBoxReal _table;
+	_targetPos set [2, 0.05 + (abs ((_bbr#1#2) - (_bbr#0#2)))];
+	
+	for "_i" from 0 to 1 + random 3 do {
+		private _sObj = createSimpleObject [selectRandom ["Land_WoodenCrate_01_F", "Land_WoodenCrate_01_stack_x3_F", "Land_WoodenCrate_01_stack_x5_F", "Land_TentA_F", "Land_Pallets_stack_F", "Land_PaperBox_01_open_empty_F", "Land_CratesWooden_F", "Land_Sacks_heap_F"], AGLToASL (_table getPos [2 + random 5, random 360])]; 
+		_sObj setDir random 360;
+	};
+
+	private _enemyGrp = createGroup [_enemySide, true];
+	for "_i" from 0 to 1 + random 2 do {
+		private _unit = _enemyGrp createUnit [selectRandom _menArray, (_table getPos [random 15, random 360]), [], 0, "NONE"];
+		[_unit] joinSilent _enemyGrp; 
+		_unit disableAI "PATH";
+		_unit setDir ((_table getRelDir _unit) - 180);
+		_unit setFormDir ((_table getRelDir _unit) - 180);
+		_unit setUnitPos "MIDDLE";
+		_unit setBehaviour "SAFE";
+	};
 };
 
 private _itemObj = createVehicle [_intelType, [0,0,0], [], 0, "NONE"];
@@ -66,8 +94,8 @@ if (alive _itemObj) then {
 		format["<t color='#00FF80'>Take %1</t>", getText (configFile >> "CfgVehicles" >> _intelType >> "displayName")], 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_Search_ca.paa", 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_Search_ca.paa", 
-		"_this distance _target < 3", 
-		"_caller distance _target < 3", 
+		"_this distance2d _target < 3", 
+		"_caller distance2d _target < 3", 
 		{}, 
 		{}, 
 		{

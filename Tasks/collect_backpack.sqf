@@ -46,7 +46,7 @@ if (_positions isEqualTo []) then {
 };
 
 // Generate the crates.
-for "_i" from 0 to (_itemMax) do {
+for "_i" from 1 to (_itemMax) do {
 	if (_positions isEqualTo []) exitWith {};
 
 	
@@ -75,7 +75,7 @@ for "_i" from 0 to (_itemMax) do {
 		
 		missionNamespace setVariable [format["ZMM_%1_OBJ_%2", _zoneID, _i], _itemHolder, true];
 		
-		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Find and collect the item somewhere within the marked area.<br/><br/>Target: <font color='#00FFFF'>%1</font><br/><br/>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], format["Item #%1", _i + 1], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i + 1]] call BIS_fnc_setTask;
+		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Find and collect the item somewhere within the marked area.<br/><br/>Target: <font color='#00FFFF'>%1</font><br/><br/>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], format["Item #%1", _i], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 		
 		private _objTrigger = createTrigger ["EmptyDetector", _itemPos, false];
 		_objTrigger setTriggerStatements [  format["!('%3' in (backpackCargo ZMM_%1_OBJ_%2))", _zoneID, _i, _itemType], 

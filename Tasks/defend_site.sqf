@@ -15,11 +15,31 @@ private _missionDesc = [
 		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>. Eliminate any enemy forces already present, then hold the centre area of %1 from attackers to allow friendly forces to finish their operation in a nearby town. Hold the area for <font color='#00FFFF'>%2 Minutes</font> before withdrawing."
 	];
 	
-if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; };
+if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
 
 if !(_radius isEqualType 0) then { _radius = 25 };
 
-[_zoneID, _targetPos, false] call zmm_fnc_areaSupport;
+_targetPos = [_zoneID, _targetPos, false, true] call zmm_fnc_areaSupport;
+
+if (_targetPos isEqualTo []) then { 
+	// Site failed to create, spawn some filler
+	_targetPos = _centre;
+
+	for "_i" from 0 to 2 do {
+		private _sObj = createSimpleObject [selectRandom ["Land_WoodenCrate_01_F", "Land_WoodenCrate_01_stack_x3_F", "Land_WoodenCrate_01_stack_x5_F", "Land_TentA_F", "Land_Pallets_stack_F", "Land_PaperBox_01_open_empty_F", "Land_CratesWooden_F", "Land_Sacks_heap_F"], AGLToASL (_targetPos getPos [2 + random 5, random 360])]; 
+		_sObj setDir random 360;
+	};
+
+	private _enemyGrp = createGroup [_enemySide, true];
+	for "_i" from 0 to 1 + random 3 do {
+		private _unit = _enemyGrp createUnit [selectRandom _menArray, (_targetPos getPos [random 15, random 360]), [], 0, "NONE"];
+		[_unit] joinSilent _enemyGrp; 
+		_unit disableAI "PATH";
+		_unit setDir random 360;
+		_unit setUnitPos "MIDDLE";
+		_unit setBehaviour "SAFE";
+	};
+};
  
 if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) == 0) then { 
 	private _QRFLocs = [];
@@ -29,7 +49,7 @@ if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID]
 		private _roads = ((_centre getPos [_qrfDist, _i]) nearRoads 150) select {count (roadsConnectedTo _x) > 0};
 		private _tempPos = [];	
 		
-		_tempPos = if (count _roads > 0) then { getPos _roads#0 } else { (_centre getPos [_qrfDist, _i]) isFlatEmpty  [15, -1, -1, -1, -1, false] };
+		_tempPos = if (count _roads > 0) then { getPos (_roads#0) } else { (_centre getPos [_qrfDist, _i]) isFlatEmpty  [15, -1, -1, -1, -1, false] };
 		
 		if !(_tempPos isEqualTo []) then {
 			if ({_x distance2D _tempPos < 350} count _QRFLocs == 0) then {

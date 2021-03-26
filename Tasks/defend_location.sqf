@@ -25,7 +25,7 @@ if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID]
 		private _roads = ((_centre getPos [_qrfDist, _i]) nearRoads 150) select {count (roadsConnectedTo _x) > 0};
 		private _tempPos = [];	
 		
-		_tempPos = if (count _roads > 0) then { getPos _roads#0 } else { (_centre getPos [_qrfDist, _i]) isFlatEmpty  [15, -1, -1, -1, -1, false] };
+		_tempPos = if (count _roads > 0) then { getPos (_roads#0) } else { (_centre getPos [_qrfDist, _i]) isFlatEmpty  [15, -1, -1, -1, -1, false] };
 		
 		if !(_tempPos isEqualTo []) then {
 			if ({_x distance2D _tempPos < 350} count _QRFLocs == 0) then {

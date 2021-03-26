@@ -131,7 +131,7 @@ private _objHVT = ObjNull;
 	
 		_endActivation pushBack format["!alive ZMM_%1_VEH_%2", _zoneID, _forEachIndex];
 	
-		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate and destroy the convoy vehicle.<br/><br/>Target Vehicle: <font color='#FFA500'>%1</font><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehType >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehType >> "editorPreview")], format["Vehicle #%1", _forEachIndex + 1], format["MKR_%1_LOC", _zoneID]], _grpVeh, "CREATED", 1, false, true, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
+		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate and destroy the convoy vehicle.<br/><br/>Target Vehicle: <font color='#FFA500'>%1</font><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehType >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehType >> "editorPreview")], format["Vehicle #%1", _forEachIndex + 1], format["MKR_%1_LOC", _zoneID]], nil, "CREATED", 1, false, true, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
 		_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 		_childTrigger setTriggerStatements [  format["!alive ZMM_%1_VEH_%2", _zoneID, _forEachIndex],
 										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _forEachIndex],
@@ -158,8 +158,8 @@ if (!isNull _objHVT) then {
 			format["<t color='#00FF80'>Take %1</t>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], 
 			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa", 
 			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa", 
-			"_this distance _target < 3", 
-			"_caller distance _target < 3", 
+			"_this distance2d _target < 3", 
+			"_caller distance2d _target < 3", 
 			{}, 
 			{}, 
 			{

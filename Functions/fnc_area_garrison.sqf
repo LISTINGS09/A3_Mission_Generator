@@ -131,6 +131,4 @@ _grp setVariable ["VCM_DISABLE", true];
 _grp enableDynamicSimulation true;
 
 //Add to Zeus
-{
-	_x addCuratorEditableObjects [units _grp, true];
-} forEach allCurators;
+{ _x addCuratorEditableObjects [units _grp, true] } forEach allCurators;

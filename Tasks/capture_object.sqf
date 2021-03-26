@@ -104,7 +104,7 @@ _inBuilding = false;
 		[], 
 		5, 
 		10 
-	] remoteExec ["BIS_fnc_holdActionAdd", 0];
+	] remoteExec ["BIS_fnc_holdActionAdd", 0, _item];
 
 	_itemDist = if (_inBuilding) then { 35 } else { 50 };
 	

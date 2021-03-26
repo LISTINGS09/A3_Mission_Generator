@@ -40,7 +40,7 @@ if (_locations isEqualTo [] || count _locations < _maxCount) then {
 };
 
 // Generate the items.
-for "_i" from 0 to _maxCount do {
+for "_i" from 1 to _maxCount do {
 	private _garType = selectRandom ["Land_GarbagePallet_F", "Land_GarbageBags_F", "Land_GarbageWashingMachine_F"];
 	private _garPos = [];
 	private _garObj = objNull;
@@ -85,14 +85,14 @@ for "_i" from 0 to _maxCount do {
 		_garObj setVariable ["var_zoneID", _zoneID, true];
 		_garObj setVariable ["var_itemID", _i, true];
 		
-		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Search the garbage located somewhere inside the marked area.<br/><br/>Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _garType >> "displayName"), getText (configFile >> "CfgVehicles" >> _garType >> "editorPreview")], format["Garbage #%1", _i + 1], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, "search"] call BIS_fnc_setTask;
+		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Search the garbage located somewhere inside the marked area.<br/><br/>Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _garType >> "displayName"), getText (configFile >> "CfgVehicles" >> _garType >> "editorPreview")], format["Garbage #%1", _i], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, "search"] call BIS_fnc_setTask;
 
 		[_garObj, 
 			format["<t color='#00FF80'>Search the %1</t>", getText (configFile >> "CfgVehicles" >> _garType >> "displayName")], 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
-			"_this distance _target < 3", 
-			"_caller distance _target < 3", 
+			"_this distance2d _target < 3", 
+			"_caller distance2d _target < 3", 
 			{}, 
 			{}, 
 			{
@@ -100,7 +100,7 @@ for "_i" from 0 to _maxCount do {
 				_caller playAction "PutDown";
 				sleep 1;
 				private _varName = format["ZMM_%1_TSK_Counter", (_target getVariable ["var_zoneID", 0])];
-				missionNamespace setVariable [_varName, (missionNamespace getVariable [_varName, 0]) - 1, true];
+				missionNamespace setVariable [_varName, (missionNamespace getVariable [_varName, 0]) - ((random 1) + 1), true];
 				deleteMarker format["MKR_%1_OBJ_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])];
 				[name _caller, if (missionNamespace getVariable [_varName, 0] >= 1) then { "There is nothing of value in here." } else { "We have got what we came for, mission complete." }] remoteExec ["BIS_fnc_showSubtitle"];
 				[format["ZMM_%1_SUB_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];

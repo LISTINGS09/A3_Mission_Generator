@@ -40,7 +40,7 @@ if (_positions isEqualTo []) then {
 };
 
 // Generate the bombs.
-for "_i" from 0 to _bombMax do {
+for "_i" from 1 to _bombMax do {
 	if (_positions isEqualTo []) exitWith {};
 
 	private _bombType = format["BombCluster_0%1_UXO%2_F", _uxoSide, ceil random 4];
@@ -49,7 +49,7 @@ for "_i" from 0 to _bombMax do {
 	_positions deleteAt (_positions find _bombPos);
 	
 	if (count _bombPos > 0) then { 	
-		private _bombObj = createMine [_bombType, [0,0,0], [], 3];
+		private _bombObj = createMine [_bombType, [0,0,0], [], 2];
 		_bombPos set [2, 0.1];
 		_bombObj setPos _bombPos;
 		_enemySide revealMine _bombObj;
@@ -80,9 +80,9 @@ for "_i" from 0 to _bombMax do {
 									"" ];
 			
 			// Child task
-			private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the UXO somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _bombType >> "displayName"), getText (configFile >> "CfgVehicles" >> _bombType >> "editorPreview")], format["UXO #%1", _i + 1], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i + 1]] call BIS_fnc_setTask;
+			private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the UXO somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _bombType >> "displayName"), getText (configFile >> "CfgVehicles" >> _bombType >> "editorPreview")], format["UXO #%1", _i], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 			private _childTrigger = createTrigger ["EmptyDetector", _bombObj, false];
-			_childTrigger setTriggerStatements [  format["(!alive ZMM_%1_OBJ_%2 || 'empty.p3d' in (getModelInfo ZMM_%1_OBJ_%2))", _zoneID, _i],
+			_childTrigger setTriggerStatements [  format["(!mineActive ZMM_%1_OBJ_%2 || !alive ZMM_%1_OBJ_%2 || 'empty.p3d' in (getModelInfo ZMM_%1_OBJ_%2))", _zoneID, _i],
 										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 										"" ];
 			

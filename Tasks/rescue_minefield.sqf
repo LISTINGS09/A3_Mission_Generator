@@ -105,8 +105,8 @@ if (_taskType == "RECOVER") then {
 		format["<t color='#00FF80'>Take %1</t>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], 
 		"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa", 
 		"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_Search_ca.paa", 
-		"_this distance _target < 3", 
-		"_caller distance _target < 3", 
+		"_this distance2d _target < 3", 
+		"_caller distance2d _target < 3", 
 		{}, 
 		{}, 
 		{
@@ -158,8 +158,8 @@ if (_taskType == "RECOVER") then {
 			format["<t color='#00FF80'>Revive %1</t>", name _evacMan], 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_revive_ca.paa", 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_revive_ca.paa", 
-			"lifeState _target == 'INCAPACITATED' && _this distance _target < 3 && 'Medkit' in items _this",   
-			"lifeState _target == 'INCAPACITATED' && _caller distance _target < 3",   
+			"lifeState _target == 'INCAPACITATED' && _this distance2d _target < 3 && 'Medkit' in items _this",   
+			"lifeState _target == 'INCAPACITATED' && _caller distance2d _target < 3",   
 			{ _caller playAction "medic" },
 			{}, 
 			{
