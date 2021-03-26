@@ -30,7 +30,14 @@ if _triggerOnly exitWith {
 	_timeOut = (missionNamespace getVariable ['ZMM_%1_QRFTime', 600]) / 2;
 
 	_detectedTrg = createTrigger ["EmptyDetector", _centre, false];
-	_detectedTrg setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+	
+	// No side defined, so active when players are near, otherwise allow stealth.
+	if (missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], CIVILIAN] isEqualTo CIVILIAN) then {
+		_detectedTrg setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+	} else {
+		_detectedTrg setTriggerActivation ["ANYPLAYER", toUpper format["%1 D", (missionNamespace getVariable format["ZMM_%1_enemySide", _zoneID])], false];
+	};
+	
 	_detectedTrg setTriggerTimeout [_timeOut, _timeOut, _timeOut, true];
 	_detectedTrg setTriggerArea [_radius, _radius, 0, false];
 	_detectedTrg setTriggerStatements ["this", format["[%1, false, (missionNamespace getVariable ['ZMM_%1_QRFTime', %2]), (missionNamespace getVariable ['ZMM_%1_QRFWaves', %3]), %4, %5] spawn zmm_fnc_areaQRF;", _zoneID, _delay, _maxWave, _qrfType, _diff], ""];
