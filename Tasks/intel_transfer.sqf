@@ -7,16 +7,16 @@ private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
 private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
 
-private _missionDesc = [
-		"We have tracked a leak of %2 to a <font color='#00FFFF'>%1</font> at this location, find it and %3 the data.",
-		"A <font color='#00FFFF'>%1</font> containing %2 has been located. Find it and %3 the data from it.",
-		"We've picked up a signal indicating a <font color='#00FFFF'>%1</font> is in the area. It contains %2 and is vital it is recovered; locate it and %3 the data.",
-		"The enemy have located a <font color='#00FFFF'>%1</font> that is carrying %2. Find it and %3 the data from it before it can be accessed by the enemy.",
-		"Locate the <font color='#00FFFF'>%1</font> which details %2 and %3 the information from it.",
-		"A <font color='#00FFFF'>%1</font> has been spotted in this area, find it and %3 %2 from it."
+private _missionDesc = selectRandom [
+		"We have tracked a leak of %2 to a <font color='#00FFFF'>%1</font> at this location, find it and %3 the data in <font color='#00FFFF'>%4 Packets</font>.",
+		"A <font color='#00FFFF'>%1</font> containing %2 has been located. Find it and %3 the data from it in a series of <font color='#00FFFF'>%4 Packets</font>.",
+		"We've picked up a signal indicating a <font color='#00FFFF'>%1</font> is in the area. It contains %2 and is vital it is recovered; locate it and %3 the data in <font color='#00FFFF'>%4 Packets</font>.",
+		"The enemy have located a <font color='#00FFFF'>%1</font> that is carrying %2. Find it and %3 the data in <font color='#00FFFF'>%4 Parts</font> from it before it can be accessed by the enemy.",
+		"Locate the <font color='#00FFFF'>%1</font> which details %2 and %3 the information from it in a series of <font color='#00FFFF'>%4 Segments</font>.",
+		"A <font color='#00FFFF'>%1</font> has been spotted in this area, find it and %3 %2 from it, <font color='#00FFFF'>%4 Packets</font> of information will be required."
 	];
 	
-private _dataName = selectRandom ["download","upload"];
+private _dataName = selectRandom ["Download","Upload"];
 
 private _bldPos = [];
 { _bldPos append (_x buildingPos -1) } forEach _buildings;
@@ -87,7 +87,7 @@ _dataObj setVariable ["var_zoneID", _zoneID, true];
 	{ 
 		_target setVariable ["var_isSending", true, true]; 
 		_target setVariable ["var_packetNo", (_target getVariable ["var_packetNo", 0]) + 1, true]; 
-		private _packetMax = 5; 
+		private _packetMax = (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]); 
 
 		if ((_target getVariable "var_packetNo") <= _packetMax) then { 
 		   private _percent = 0; 
@@ -156,6 +156,6 @@ _faiTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID],
 */
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, getText (configFile >> "CfgVehicles" >> _dataType >> "displayName"), _dataHeading, _dataName], [toUpper _dataName] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, _dataName] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, getText (configFile >> "CfgVehicles" >> _dataType >> "displayName"), _dataHeading, _dataName, missionNamespace getVariable ["ZZM_ObjectiveCount", 4]], [_dataName] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, _dataName] call BIS_fnc_setTask;
 
 true

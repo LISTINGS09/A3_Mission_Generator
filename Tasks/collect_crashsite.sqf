@@ -6,7 +6,7 @@ private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _z
 private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
-private _missionDesc = [
+private _missionDesc = selectRandom [
 		"The enemy has engaged a cargo transport over %2, search the crash site for nearby for <font color='#00FFFF'>%1 Crates or Boxes</font> and collect them.",
 		"An enemy transporter has crashed near %2, search the area for <font color='#00FFFF'>%1 Crates or Boxes</font> and secure them.",
 		"<font color='#00FFFF'>%1 Crates or Boxes</font> have been spotted near a wreck at %2, move in and recover them.",
@@ -14,15 +14,6 @@ private _missionDesc = [
 		"A transporter carrying supplies has crashed at %2. Secure the area and recover the <font color='#00FFFF'>%1 Crates or Boxes</font> before they can fall into enemy hands.",
 		"A crashed transport has been spotted near %2. Find the <font color='#00FFFF'>%1 Crates or Boxes</font> before the enemy can and collect them."
 	];
-	
-private _crateNo = switch (_locType) do {
-	case "Airport": { 4 };
-	case "NameCityCapital": { 4 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 2 };
-};
 	
 if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; };
 
@@ -52,7 +43,7 @@ private _crater = createSimpleObject ["CraterLong", AGLToASL position _wreck];
 _crater setVectorUp surfaceNormal position _wreck;
 
 // Generate the crates.
-for "_i" from 1 to _crateNo do {
+for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	private _ammoType = selectRandom ["Box_Syndicate_Ammo_F","Box_Syndicate_WpsLaunch_F","Land_PaperBox_01_small_closed_white_med_F","Land_PaperBox_01_small_closed_brown_food_F","Box_East_Ammo_F","Box_EAF_AmmoOrd_F","Box_IND_Grenades_F"];
 	private _ammoPos = [_centre, 100 + random 50, 200, 2, 0, 0.5, 0, [], [ _targetPos, _targetPos ]] call BIS_fnc_findSafePos;
 	_ammoPos = _ammoPos findEmptyPosition [1, 25, _ammoType];
@@ -120,6 +111,6 @@ _objTrigger setTriggerStatements [  (_crateActivation joinString " && "),
 	"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _crateNo, _locName], ["Crash"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "plane"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, (count _crateActivation) + 1, _locName], ["Crash"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "plane"] call BIS_fnc_setTask;
 
 true

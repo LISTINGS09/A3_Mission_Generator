@@ -65,8 +65,16 @@ if (isNil "ZMM_playerSide") then {
 
 ZMM_tasks sort true;
 
-private _ZMMtext = "<font size='18' color='#FF7F00'>Commander Selection</font><br/>
-	<font size='16' color='#80FF00'>1. Choose Mission</font><br/>
+private _ZMMtext = "<font size='18' color='#FF7F00'>Commander Selection</font><br/>";
+
+private _ZMMtext = _ZMMtext + "<font size='16' color='#80FF00'>Objective Count (If applicable)</font><br/>The number of Objectives/Targets/Data Packets/Waves<br/>";
+{
+	_ZMMtext = _ZMMtext + format["<execute expression=""missionNamespace setVariable['ZZM_ObjectiveCount', %2, true]; '[ZMM] %1: Objective Counter - %2' remoteExec ['SystemChat'];"">%2</execute> | ", name player, _x ];
+} forEach [1,2,3,4,5,6,7,8];
+
+private _ZMMtext = _ZMMtext + "<execute expression=""missionNamespace setVariable['ZZM_ObjectiveCount', 1 + (floor(random 4)), true]; '[ZMM] Objective Count: Random' remoteExec ['SystemChat'];"">Random</execute><br/><br/>";
+
+private _ZMMtext = _ZMMtext + "<font size='16' color='#80FF00'>1. Choose Mission</font><br/>
 	Choosing any option below will attempt to force a type of mission (if the objective cannot be created, an alternative will be chosen).
 	<br/><execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '', true]; format['[ZMM] %1 switched to mission type: Random', name player] remoteExec ['SystemChat'];"">Random</execute> - Choose a random objective <font color='#00FFFF'>DEFAULT</font>.<br/>";
 	
@@ -75,7 +83,7 @@ private _lastType = "";
 	_x params ["_mType", "_mName", "_mDesc", "_mIcon"];
 	
 	if (_lastType != _mType) then {
-		_ZMMtext = _ZMMtext + format["<br/><img width='15' image='%3'/> <execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '%2', true]; '[ZMM] %1: Mission - %2 (Random)'remoteExec ['SystemChat'];"">%2</execute><br/>",
+		_ZMMtext = _ZMMtext + format["<br/><img width='15' image='%3'/> <execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '%2', true]; '[ZMM] %1: Mission - %2 (Random)' remoteExec ['SystemChat'];"">%2</execute><br/>",
 			name player,
 			_mType,
 			_mIcon
@@ -83,7 +91,7 @@ private _lastType = "";
 		_lastType = _mType;
 	};
 	
-	_ZMMtext = _ZMMtext + format["<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '%2', true]; '[ZMM] %1: Mission - %2'remoteExec ['SystemChat'];"">%2</execute> - %3.<br/>",
+	_ZMMtext = _ZMMtext + format["<execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '%2', true]; '[ZMM] %1: Mission - %2' remoteExec ['SystemChat'];"">%2</execute> - %3.<br/>",
 		name player,
 		_mName,
 		_mDesc

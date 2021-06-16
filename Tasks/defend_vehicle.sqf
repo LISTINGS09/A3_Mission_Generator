@@ -37,15 +37,7 @@ if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID]
 };
 
 // Overwrite depending on location
-private _waves = switch (_locType) do {
-	case "Airport": { 5 };
-	case "NameCityCapital": { 5 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 3 };
-};
-
+private _waves = 5;
 private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) max 200;
 
 // Select vehicle type
@@ -91,7 +83,7 @@ missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _veh];
 		_target setVariable ["var_inProgress", true, true]; 
 		_target setVariable ["var_counter", (_target getVariable ["var_counter", 0]) + 1, true]; 
 		private _zoneID = _target getVariable ["var_zoneID", 1]; 
-		private _countMax = 5; 
+		private _countMax = missionNamespace getVariable ["ZZM_ObjectiveCount", 4]; 
 		private _repairMan = missionNamespace getVariable [format["ZMM_%1_MAN", _zoneID], objNull];
 
 		if ((_target getVariable "var_counter") <= _countMax) then { 

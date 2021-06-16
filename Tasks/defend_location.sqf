@@ -37,17 +37,8 @@ if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID]
 };
 
 // Overwrite depending on location
-private _waves = switch (_locType) do {
-	case "Airport": { 5 };
-	case "NameCityCapital": { 5 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 3 };
-};
-
+private _waves = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) max 200;
-
 private _timePerWave = 300;
 private _time = _waves * _timePerWave;
 

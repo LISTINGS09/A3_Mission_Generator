@@ -19,18 +19,8 @@ private _missionDesc = [
 		"A UAV flying over %2 has spotted an enemy smuggling <font color='#00FFFF'>%1 Ammo Caches</font> into the area, find and destroy them."
 	];
 
-private _cacheNo = switch (_locType) do {
-	case "Airport": { 5 };
-	case "NameCityCapital": { 4 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 2 };
-};
-
 // Find all building positions.
-private _bldPos = [];
-{ _bldPos append (_x buildingPos -1) } forEach _buildings;
+private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 
 // Merge all locations
 { _locations pushBack position _x } forEach _buildings;
@@ -39,7 +29,7 @@ private _crateActivation = [];
 private _crateNo = 0;
 
 // Generate the crates.
-for "_i" from 1 to _cacheNo do {
+for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	private _ammoType = selectRandom ["Box_FIA_Ammo_F","Box_FIA_Support_F","Box_FIA_Wps_F"];
 	private _ammoPos = [];
 
@@ -52,10 +42,10 @@ for "_i" from 1 to _cacheNo do {
 			_ammoPos = selectRandom _locations;
 			_locations deleteAt (_locations find _ammoPos);
 		} else { 
-			_ammoPos = [[_centre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+			_ammoPos = [[_centre, 50 + random 150, random 360] call BIS_fnc_relPos, 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
 		};
 		
-		_ammoPos = _ammoPos findEmptyPosition [1, 25, _ammoType];
+		_ammoPos = _ammoPos findEmptyPosition [1, 50, _ammoType];
 	};
 		
 	if (count _ammoPos > 0) then { 

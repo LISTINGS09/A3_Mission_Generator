@@ -6,10 +6,12 @@ private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneI
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
+private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
+private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = [
+private _missionDesc = selectRandom [
 		"Locate and rescue <font color='#00FFFF'>%2 %3s</font> who have been captured nearby %1.",
 		"Save <font color='#00FFFF'>%2 %3s</font> who were spotted by the enemy entering %1, they must be saved.",
 		"There are <font color='#00FFFF'>%2 %3s</font> who where trying to flee %1 but were captured and are awaiting execution, rescue them.",
@@ -18,25 +20,11 @@ private _missionDesc = [
 		"A group of <font color='#00FFFF'>%2 %3s</font> are confirmed to be in the area near %1, ensure they are brought back to safety."
 	];
 
-private _hvtMax = switch (_locType) do {
-	case "Airport": { 6 };
-	case "NameCityCapital": { 5 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 3 };
-};
-
 // Find a random building position.
-private _positions = [];
-{ _positions pushBack (selectRandom (_x buildingPos -1)) } forEach _buildings;
+private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 
-// Create locations if none exist
-if (count _positions < _hvtMax) then {
-	for "_i" from 0 to _hvtMax do {
-		_positions pushBack (_centre getPos [25 + random 50, random 360]);
-	};
-};
+// Merge all locations
+{ _locations pushBack position _x } forEach _buildings;
 
 // Create HVT Team
 private _hvtActivation = [];
@@ -55,18 +43,26 @@ selectRandom [
 	["Soldier", 	["I_G_Survivor_F"]]
 ] params ["_rescueType","_rescueClass"];
 
-for "_i" from 1 to _hvtMax do {
-	if (_positions isEqualTo []) exitWith {};
-	
+for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	private _hvtClass = selectRandom _rescueClass;
-	private _hvtPos = selectRandom _positions;
-	_positions deleteAt (_positions find _hvtPos);
+	private _hvtPos = [];
+	private _inBuilding = false;
 	
-	if (_hvtPos#2 == 0) then { 
-		_hvtPos = _hvtPos findEmptyPosition [1, 25, "B_Soldier_F"];
-		_inBuilding = false;
+	if (random 100 > 50 && {count _bldPos > 0}) then {
+		_hvtPos = selectRandom _bldPos;
+		_bldPos deleteAt (_bldPos find _hvtPos);
+		_inBuilding = true;
+	} else {
+		if (count _locations > 0) then { 
+			_hvtPos = selectRandom _locations;
+			_locations deleteAt (_locations find _hvtPos);
+		} else { 
+			_hvtPos = [_centre getPos [50 + random _radius, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+		};
+		
+		_hvtPos = _hvtPos findEmptyPosition [1, 50, _hvtClass];
 	};
-	
+		
 	private _hvtObj = _hvtGroup createUnit [_hvtClass, [0,0,0], [], 150, "NONE"];
 	_hvtObj setCaptive true;
 	_hvtObj setPosATL _hvtPos;
@@ -128,6 +124,8 @@ for "_i" from 1 to _hvtMax do {
 		// Select random pose for HVT.
 		[_hvtObj, selectRandom ["AmovPercMstpSnonWnonDnon_Ease", "Acts_JetsMarshallingStop_loop", "Acts_JetsShooterIdle"]] remoteExec ["switchMove"]; 
 		
+		_hvtObj setVariable ["FAR_var_isStable", true, true];
+		
 		// Add HVT Action for player.
 		[_hvtObj, 
 			format["<t color='#00FF80'>Untie %1</t>", name _hvtObj], 
@@ -142,11 +140,11 @@ for "_i" from 1 to _hvtMax do {
 				private _zoneID = _target getVariable ["var_zoneID", 0];
 				private _itemID = _target getVariable ["var_itemID", 0];
 				deleteMarker format["MKR_%1_OBJ_%2", _zoneID, _itemID];
-				[_target, "ALL"] remoteExec ["enableAI", _target]; 
-				[_target, ""] remoteExec ["playMoveNow", _target]; 
-				sleep 1;
 				[_target] joinSilent group _caller; 
-				_hvtObj setCaptive false;
+				sleep 2;
+				[_target, "ALL"] remoteExec ["enableAI", owner _target]; 
+				[_target, ""] remoteExec ["playMoveNow", owner _target]; 
+				[_target, false] remoteExec ["setCaptive", owner _target];
 			}, 
 			{}, 
 			[], 
@@ -185,6 +183,6 @@ _objTrigger setTriggerStatements [ 	(_hvtActivation joinString " && "),
 									format["if (%2) then { ['ZMM_%1_TSK', 'Failed', true] spawn BIS_fnc_taskSetState; } else { ['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; }; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, (_hvtFailure joinString " || ")],
 									"" ];
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, count units _hvtGroup, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "help"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _locName, count units _hvtGroup, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "help"] call BIS_fnc_setTask;
 
 true

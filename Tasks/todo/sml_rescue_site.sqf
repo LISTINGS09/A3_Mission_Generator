@@ -3,8 +3,7 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-//private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
-private _menArray = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
+private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
 private _missionDesc = [
@@ -17,10 +16,6 @@ private _missionDesc = [
 	];	
 	
 private _grpName = format["%1 %2", selectRandom ["Elite","Specialist","Special","Veteran"], selectRandom ["Group","Unit","Forces Team","Squad","Operator Team"] ];
-
-private _enemyTeam = [];
-_enemyTeam resize (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]);
-{ _enemyTeam set [_forEachIndex, selectRandom _menArray] } forEach _enemyTeam;
 
 // Create Objective
 private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos), _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;

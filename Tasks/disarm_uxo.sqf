@@ -15,14 +15,7 @@ private _missionDesc = [
 		"<font color='#00FFFF'>%1 UXOs</font> have been placed within %2. Find and disarm all the explosives."
 	];
 
-private _bombMax = switch (_locType) do {
-	case "Airport": { 6 };
-	case "NameCityCapital": { 6 };
-	case "NameCity": { 5 };
-	case "NameVillage": { 4 };
-	case "NameLocal": { 4 };
-	default { 3 };
-};
+private _bombMax = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 
 // Find all outdoor positions.
 private _positions = _locations;

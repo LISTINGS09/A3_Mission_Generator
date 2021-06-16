@@ -1,13 +1,14 @@
 // Set-up mission variables.
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-_buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
-_locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
-_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
-_locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
+private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
+private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
+private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-_missionDesc = [
+private _missionDesc = selectRandom [
 		"Collect <font color='#00FFFF'>%1 %2 Supplies</font> that were recently left by enemy forces in %3.",
 		"Search %3 for <font color='#00FFFF'>%1 %2 Supplies</font> left around the area by enemy forces.",
 		"Allied forces were forced to quickly withdraw from %3, leaving <font color='#00FFFF'>%1 %2 Supplies</font>. Enter the area and recover the items.",
@@ -16,23 +17,13 @@ _missionDesc = [
 		"Retrieve <font color='#00FFFF'>%1 %2 Supplies</font> that have been hidden by enemy forces somewhere around %3."
 	];
 
-_itemMax = switch (_locType) do {
-	case "Airport": { 6 };
-	case "NameCityCapital": { 6 };
-	case "NameCity": { 5 };
-	case "NameVillage": { 4 };
-	case "NameLocal": { 4 };
-	default { 2 };
-};
+private _itemMax = missionNamespace getVariable ["ZZM_ObjectiveCount", 4];
 
-// Find all building positions.
-private _positions = [];
-{ _positions append (_x buildingPos -1) } forEach _buildings;
+// Find one building position.
+private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 
-// Add locations if there is not enough building positions
-if (count _positions < _itemMax * 3) then {
-	{ _positions pushBack _x } forEach _locations;
-};
+// Merge all locations
+{ _locations pushBack position _x } forEach _buildings;
 
 (selectRandom [
 	["Aid",["Land_PaperBox_01_small_closed_brown_IDAP_F","Land_PaperBox_01_small_closed_white_med_F","Land_PaperBox_01_small_closed_white_IDAP_F","Land_PaperBox_01_small_closed_brown_food_F","Land_FoodSack_01_full_white_idap_F","Land_FoodSack_01_full_brown_idap_F","Land_PlasticCase_01_small_idap_F"]]
@@ -48,31 +39,32 @@ private _itemTask = "<br/><br/>Search for any of the following items Located in 
 
 private _itemCount = 0;
 
-// Create locations if none exist
-if (_positions isEqualTo []) then {
-	for "_i" from 0 to (_itemMax * 3) do {
-		_positions pushBack (_centre getPos [25 + random 50, random 360]);
-	};
-};
-
 // Generate the crates.
-for "_i" from 0 to (_itemMax * 2) do {
-	if (_positions isEqualTo []) exitWith {};
-
+for "_i" from 1 to (_itemMax + 3) do {
 	private _itemType = selectRandom _itemArr;
-	private _itemPos = selectRandom _positions;
-	if (count _positions > _itemMax) then { _positions deleteAt (_positions find _itemPos) };
+	private _itemPos = [];
 
-	if (count _itemPos > 0) then { 
-		// If not in a building find an empty position.
-		if (_itemPos#2 == 0) then { _itemPos = _itemPos findEmptyPosition [1, 25, "B_Soldier_F"] };
+	if (random 100 > 25 && {count _bldPos > 0}) then {
+		_itemPos = selectRandom _bldPos;
+		_bldPos deleteAt (_bldPos find _itemPos);
+	} else {
+		if (count _locations > 0) then { 
+			_itemPos = selectRandom _locations;
+			_locations deleteAt (_locations find _itemPos);
+		} else { 
+			_itemPos = [_centre getPos [50 + random 100, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+		};
 		
+		_itemPos = _itemPos findEmptyPosition [1, 50, _itemType];
+	};
+		
+	if (count _itemPos > 0) then {		
 		_itemCount = _itemCount + 1;
 		_itemObj = _itemType createVehicle [0,0,0];
 		_itemObj setPosATL _itemPos;
 		_itemObj setDir random 360;
 			
-		// If the crate was moved safely, create the task.
+		// If the item was moved safely, create the task.
 		if (alive _itemObj) then {
 			_itemObj setVariable ["var_zoneID", _zoneID, true];
 
@@ -103,11 +95,11 @@ for "_i" from 0 to (_itemMax * 2) do {
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-_objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_TSK_Counter',0]) >= %2", _zoneID, _itemCount], 
+_objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_TSK_Counter',0]) >= %2", _zoneID, _itemMax], 
 									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _itemCount, _itemName, _locName] + _itemTask, ["Item Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "box"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _itemMax, _itemName, _locName] + _itemTask, ["Item Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "box"] call BIS_fnc_setTask;
 
 true

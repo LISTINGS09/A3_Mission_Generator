@@ -4,59 +4,48 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
 private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
+private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = [
-		"Intel has identified <font color='#00FFFF'>%1x Radio Packs</font> being stored at %2, find them and extract them.",
-		"%2 is known to have enemy forces trying to smuggle <font color='#00FFFF'>%1x Radio Packs</font> out the area, find where they are keeping them and take the items.",
-		"Smugglers have hidden <font color='#00FFFF'>%1x Portable Radio Packs</font> within %2. Find the packs and take them from the area.",
-		"Somewhere in %2 are <font color='#00FFFF'>%1x Radio Packs</font>. Find and take the packs before enemy forces can move them out of the area.",
-		"Locate <font color='#00FFFF'>%1x Radio Packs</font> in %2 and remove the items from the area."
+private _missionDesc = selectRandom [
+		"Intel has identified <font color='#00FFFF'>%1x %2s</font> being stored at %3, find them and extract them.",
+		"%3 is known to have enemy forces trying to smuggle <font color='#00FFFF'>%1x %2s</font> out the area, find where they are keeping them and take the items.",
+		"Smugglers have hidden <font color='#00FFFF'>%1x %2s</font> within %3. Find the packs and take them from the area.",
+		"Somewhere in %3 are <font color='#00FFFF'>%1x %2s</font>. Find and take the packs before enemy forces can move them out of the area.",
+		"Locate <font color='#00FFFF'>%1x %2s</font> in %3 and remove the items from the area."
 	];
 
-private _itemMax = switch (_locType) do {
-	case "Airport": { 4 };
-	case "NameCityCapital": { 4 };
-	case "NameCity": { 3 };
-	case "NameVillage": { 2 };
-	case "NameLocal": { 2 };
-	default { 2 };
-};
+// Find one building position.
+private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 
-// Find a random building position.
-private _positions = [];
-{ _positions pushBack (selectRandom (_x buildingPos -1)) } forEach _buildings;
-
-// Add locations if there is not enough building positions
-if (count _positions < _itemMax) then {
-	{ _positions pushBack _x } forEach _locations;
-};
+// Merge all locations
+{ _locations pushBack position _x } forEach _buildings;
 
 private _itemCount = 0;
 private _itemType = selectRandom ["B_RadioBag_01_eaf_F","B_RadioBag_01_ghex_F","B_RadioBag_01_mtp_F","B_RadioBag_01_tropic_F","B_RadioBag_01_oucamo_F","B_RadioBag_01_wdl_F"];
 
-// Create locations if none exist
-if (_positions isEqualTo []) then {
-	for "_i" from 0 to (_itemMax) do {
-		_positions pushBack (_centre getPos [25 + random 50, random 360]);
-	};
-};
-
 // Generate the crates.
-for "_i" from 1 to (_itemMax) do {
-	if (_positions isEqualTo []) exitWith {};
+for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
+	private _itemPos = [];
 
-	
-	private _itemPos = selectRandom _positions;
-	if (count _positions > _itemMax) then { _positions deleteAt (_positions find _itemPos) };
-
-	if (count _itemPos > 0) then { 
-		// If not in a building find an empty position.
-		if (_itemPos#2 == 0) then { _itemPos = _itemPos findEmptyPosition [1, 25, "B_Soldier_F"] };
+	if (random 100 > 50 && {count _bldPos > 0}) then {
+		_itemPos = selectRandom _bldPos;
+		_bldPos deleteAt (_bldPos find _itemPos);
+	} else {
+		if (count _locations > 0) then { 
+			_itemPos = selectRandom _locations;
+			_locations deleteAt (_locations find _itemPos);
+		} else { 
+			_itemPos = [_centre getPos [50 + random _radius, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+		};
 		
+		_itemPos = _itemPos findEmptyPosition [1, 50, "B_Soldier_F"];
+	};
+	
+	if (count _itemPos > 0) then { 		
 		_itemCount = _itemCount + 1;
 		
 		private _itemHolder = createVehicle ["GroundWeaponHolder_scripted", [0,0,0], [], 0, "CAN_COLLIDE"];
@@ -71,7 +60,7 @@ for "_i" from 1 to (_itemMax) do {
 		_mrkr setMarkerBrush "SolidBorder";
 		_mrkr setMarkerSize [50,50];
 		_mrkr setMarkerAlpha 0.4;
-		_mrkr setMarkerColor "ColorCivilian";
+		_mrkr setMarkerColor format[ "color%1", _enemySide ];
 		
 		missionNamespace setVariable [format["ZMM_%1_OBJ_%2", _zoneID, _i], _itemHolder, true];
 		
@@ -97,6 +86,6 @@ _objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_
 									"" ];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + format["<br/><br/>Backpack: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"), getText (configFile >> "CfgVehicles" >> _itemType >> "picture")], _itemCount, _locName], ["Find"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "radio"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc + format["<br/><br/>Backpack: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"), getText (configFile >> "CfgVehicles" >> _itemType >> "picture")], _itemCount, getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"), _locName], ["Find"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "radio"] call BIS_fnc_setTask;
 
 true

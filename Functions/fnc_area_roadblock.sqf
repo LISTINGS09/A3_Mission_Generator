@@ -48,50 +48,50 @@ if (count _locations == 0) then {
 
 private _buildingList = [
 	[
-		["V", selectRandom _vehArr, [-10.125,-2,0.2], 0, false],
-		["S","Land_CncBarrier_stripes_F", [-7.5,6.5,0], 0],
-		["S","Land_CncBarrier_F", [-11.5,6.5,0], 165],
-		["S","Land_CncBarrierMedium_F", [-14.5,1,0], 270],
-		["S","Land_CncBarrierMedium4_F", [-6.5,-0.5,0], 90],
-		["S","Land_BagFence_Round_F", [-13,3.25,0], 150],
-		["S","Land_BagFence_Long_F", [-7.5,3.5,0], 0],
+		["S","Land_BagBunker_Small_F", [8.25,-0.5,-0.1], 180, false],
 		["S","Land_BagFence_Long_F", [-10.25,3.5,0], 0],
+		["S","Land_BagFence_Long_F", [-7.5,3.5,0], 0],
+		["S","Land_BagFence_Round_F", [-13,3.25,0], 150],
+		["S","Land_CncBarrierMedium4_F", [-6.5,-0.5,0], 90],
+		["S","Land_CncBarrierMedium_F", [-14.5,1,0], 270],
 		["S","Land_CncBarrierMedium_F", [11.75,-1.5,0], 0],
 		["S","Land_CncBarrierMedium_F", [13.75,-2.5,0], 30],
-		["S","Land_CncBarrier_stripes_F", [8.25,5.5,0], 0],
+		["S","Land_CncBarrier_F", [-11.5,6.5,0], 165],
 		["S","Land_CncBarrier_F", [12.25,4.5,0], 30],
+		["S","Land_CncBarrier_stripes_F", [-7.5,6.5,0], 0],
+		["S","Land_CncBarrier_stripes_F", [8.25,5.5,0], 0],
 		["V", selectRandom _hmgArr, [8.5,-0.25,0.2], 0, false],
-		["S","Land_BagBunker_Small_F", [8.25,-0.5,-0.1], 180, false]
+		["V", selectRandom _vehArr, [-10.125,-2,0.2], 0, false]
 	],
 	[
-		["S","RoadBarrier_F", [-8,10,0], 0],
-		["S","RoadBarrier_F", [-14,10,0], 0],
-		["V", selectRandom _vehArr, [-10,0,0.2], 0, false],
-		["S","Land_BagFence_Round_F", [-12.75,5.75,0], 135],
-		["S","Land_BagFence_Round_F", [-8,5.75,0], 225],
 		["S","Land_BagFence_End_F", [-7.25,4.5,0], 60],
 		["S","Land_BagFence_Long_F", [-10.25,6.5,0], 0],
 		["S","Land_BagFence_Long_F", [-13.5,3.75,0], 90],
-		["V", selectRandom _hmgArr, [10.5,1.25,0.2], 0, false],
+		["S","Land_BagFence_Round_F", [-12.75,5.75,0], 135],
+		["S","Land_BagFence_Round_F", [-8,5.75,0], 225],
+		["S","Land_BagFence_Round_F", [11.25,2,0], 225],
 		["S","Land_BagFence_Round_F", [9.25,2,0], 135],
-		["S","Land_BagFence_Round_F", [11.25,2,0], 225]
+		["S","RoadBarrier_F", [-14,10,0], 0],
+		["S","RoadBarrier_F", [-8,10,0], 0],
+		["V", selectRandom _hmgArr, [10.5,1.25,0.2], 0, false],
+		["V", selectRandom _vehArr, [-10,0,0.2], 0, false]
 	],
 	[
 		["S","Land_BagBunker_Tower_F", [-11,1,-0.1], 180, false],
-		["S","Land_CncBarrier_stripes_F", [-8,7,0], 0],
 		["S","Land_CncBarrier_F", [-11,7,0], 0],
 		["S","Land_CncBarrier_F", [-14.5,6.25,0], 315],
-		["S","RoadBarrier_F", [-9,10,0], 0],
-		["S","RoadBarrier_small_F", [-12,10,0], 330],
-		["V", selectRandom _hmgArr, [-10.25,3,2.8], 0, false],
-		["S","Land_CncBarrier_stripes_F", [16,-0.75,0], 90],
-		["V", selectRandom _vehArr, [11.25,0.5,0.2], 0, false],
-		["S","Land_CncBarrier_stripes_F", [9,7,0], 0],
-		["S","Land_CncBarrier_F", [16,3,0], 90],
-		["S","Land_CncBarrier_F", [15,6,0], 45],
 		["S","Land_CncBarrier_F", [12,7,0], 0],
+		["S","Land_CncBarrier_F", [15,6,0], 45],
+		["S","Land_CncBarrier_F", [16,3,0], 90],
+		["S","Land_CncBarrier_stripes_F", [-8,7,0], 0],
+		["S","Land_CncBarrier_stripes_F", [16,-0.75,0], 90],
+		["S","Land_CncBarrier_stripes_F", [9,7,0], 0],
+		["S","RoadBarrier_F", [-9,10,0], 0],
 		["S","RoadBarrier_F", [10,10,0], 0],
-		["S","RoadBarrier_small_F", [14,10,0], 15]
+		["S","RoadBarrier_small_F", [-12,10,0], 330],
+		["S","RoadBarrier_small_F", [14,10,0], 15],
+		["V", selectRandom _hmgArr, [-10.25,3,2.8], 0, false],
+		["V", selectRandom _vehArr, [11.25,0.5,0.2], 0, false]
 	]
 ];
 

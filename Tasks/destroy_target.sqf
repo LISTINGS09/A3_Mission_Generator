@@ -16,17 +16,8 @@ private _missionDesc = [
 		"Destroy <font color='#00FFFF'>%2%3</font> somewhere around %1."
 	];
 
-private _count = switch (_locType) do {
-	case "Airport": { 4 };
-	case "NameCityCapital": { 4 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 2 };
-};
-	
+private _count = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 private _targetArr = [];
-
 private _targetTypes = ["Land_Research_house_V1_F", "Land_Research_HQ_F", "Land_dp_bigTank_F", "Land_dp_smallTank_F", "Land_ReservoirTank_V1_F", "Land_ReservoirTank_Airport_F",
 	"Land_ReservoirTank_Rust_F", "Land_TTowerSmall_1_F", "Land_TTowerSmall_2_F", "Land_ReservoirTank_01_military_F", "Land_Radar_F", "Land_Radar_Small_F", "Land_TTowerBig_1_F", "Land_TTowerBig_2_F", "Land_Communication_F"
 ];

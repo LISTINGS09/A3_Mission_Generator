@@ -34,9 +34,8 @@ if (count _wreckList > 0) then {
 	_wreck setDir random 360;
 	_wreck lock true;
 	_wreck setVehicleAmmo 0;
-	_wreck allowDamage false;
-	_wreck setDamage [0.8,false];
-	
+	_wreck allowDamage false;	
+	{ _wreck setObjectTextureGlobal [_forEachIndex, "a3\structures_f\wrecks\data\plane_transport_01_body_co.paa"] } forEach (getObjectTextures _wreck);	
 	removeFromRemainsCollector [_wreck];
 	
 	_targetPos = getPos _wreck;
@@ -58,10 +57,10 @@ private _hvtActivation = [];
 private _hvtFailure = [];
 private _hvtNum = 0;
 
-for "_i" from 1 to (random 1 + 2) do {
+for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	_hvtNum = _hvtNum + 1;
 		
-	private _evacMan = _hvtGroup createUnit ["C_man_w_worker_F", _targetPos getPos [2 + random 2, random 360], [], 3, "NONE"];	
+	private _evacMan = _hvtGroup createUnit ["C_man_w_worker_F", _targetPos getPos [5 + random 25, random 360], [], 3, "NONE"];	
 	_evacMan setCaptive true;
 	_evacMan disableAI "MOVE";
 	_evacMan setDir random 360;
@@ -93,6 +92,8 @@ for "_i" from 1 to (random 1 + 2) do {
 
 	// Check if ACE is enabled
 	if !(isClass(configFile >> "CfgPatches" >> "ace_main")) then {
+		_evacMan setVariable ["FAR_var_isStable", true, true];
+		
 		[_evacMan, 
 			format["<t color='#00FF80'>Revive %1</t>", name _evacMan], 
 			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_revive_ca.paa", 
@@ -102,11 +103,12 @@ for "_i" from 1 to (random 1 + 2) do {
 			{ _caller playAction "medic" },
 			{}, 
 			{
-				[_target, _actionID] remoteExecCall ["BIS_fnc_holdActionRemove"];
-				[_target, false] remoteExecCall ["setUnconscious", _target]; 
-				[_target, "ALL"] remoteExecCall ["enableAI", _target];
-				sleep 2;
+				[_target, _actionID] remoteExecCall ["BIS_fnc_holdActionRemove"];			
 				[_target] join group _caller;
+				sleep 2;
+				[_target, false] remoteExecCall ["setUnconscious", owner _target]; 
+				[_target, "MOVE"] remoteExecCall ["enableAI", owner _target];
+				[_target, false] remoteExec ["setCaptive", owner _target];
 			}, 
 			{_caller switchMove ""},
 			[], 

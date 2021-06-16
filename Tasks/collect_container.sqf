@@ -1,17 +1,16 @@
 // Set-up mission variables.
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-_enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
-_buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
-_locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
-_radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
-_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
-_locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
+private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
+private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
+private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
+private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-
-_missionDesc = [
+private _missionDesc = selectRandom [
 		"Intel has identified <font color='#00FFFF'>%1x Items</font> being stored at %4, find their containers and obtain the items.",
 		"%4 is known to have enemy forces smuggling <font color='#00FFFF'>%1x Items</font> into the area, find where they are keeping them and take the items.",
 		"Smugglers have hidden <font color='#00FFFF'>%1x Items</font> within %4. Find the caches containing the item and take it.",
@@ -19,23 +18,11 @@ _missionDesc = [
 		"Locate the caches containing <font color='#00FFFF'>%1x Items</font> in %4 and take the items."
 	];
 
-_cacheNo = switch (_locType) do {
-	case "Airport": { 3 };
-	case "NameCityCapital": { 3 };
-	case "NameCity": { 3 };
-	case "NameVillage": { 2 };
-	case "NameLocal": { 2 };
-	default { 2 };
-};
-
 // Find one building position.
-_bldPos = [];
-{ _bldPos pushBack selectRandom (_x buildingPos -1) } forEach _buildings;
+private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 
 // Merge all locations
-{
-	_locations pushBack position _x;
-} forEach _buildings;
+{ _locations pushBack position _x } forEach _buildings;
 
 private _crateActivation = [];
 private _crateNo = 0;
@@ -44,7 +31,7 @@ private _findObj = selectRandom ["ChemicalDetector_01_watch_F","ItemCompass","It
 private _findName = format["%1 %2", _prefix, getText (configFile >> "CfgWeapons" >> _findObj >> "displayName")];
 
 // Generate the crates.
-for "_i" from 1 to _cacheNo do {
+for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	private _contType = selectRandom ["Box_FIA_Support_F"];
 	private _contPos = [];
 	private _inBuilding = false;
@@ -59,11 +46,10 @@ for "_i" from 1 to _cacheNo do {
 			_contPos = selectRandom _locations;
 			_locations deleteAt (_locations find _contPos);
 		} else { 
-			_contPos = [[_centre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+			_contPos = [_centre getPos [50 + random _radius, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
 		};
 		
-		_contPos = _contPos findEmptyPosition [1, 25, _contType];
-		
+		_contPos = _contPos findEmptyPosition [1, 50, _contType];
 	};
 		
 	if (count _contPos > 0) then { 
@@ -151,6 +137,6 @@ _objTrigger setTriggerStatements [  (_crateActivation joinString " && "),
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc + "<br/><br/>Target Item: <font color='#00FFFF'>%2</font><br/><br/><img width='150' image='%3'/>", _crateNo, _findName, getText (configFile >> "CfgWeapons" >> _findObj >> "picture"), _locName], ["Take Item"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "box"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc + "<br/><br/>Target Item: <font color='#00FFFF'>%2</font><br/><br/><img width='150' image='%3'/>", count _crateActivation, _findName, getText (configFile >> "CfgWeapons" >> _findObj >> "picture"), _locName], ["Take Item"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "box"] call BIS_fnc_setTask;
 
 true

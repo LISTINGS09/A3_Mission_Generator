@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.25;
+ZMM_Version = 4.27;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
@@ -47,6 +47,7 @@ ZMM_tasks = [
 	,["Recovery", "Collect Items", "Hunt down specific items found around a location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_items.sqf"]
 	,["Recovery", "Collect Drop", "Secure a drop due to land shortly within the area", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_paradrop.sqf"]
 	,["Recovery", "Collect Weapon", "Obtain one or more weapons located in the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_weapon.sqf"]
+	,["Recovery", "Collect Minefield", "Recover an object from an enemy minefield", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_minefield.sqf"]
 	,["Secure", "Capture Location", "Capture the location by securing flags within the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "capture_location.sqf"]
 	,["Secure", "Capture Object", "Mark the locations of key objects in the area", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "capture_object.sqf"]
 	,["Secure", "Clear Location", "Eliminate all enemy forces from the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "clear_location.sqf", [900]]
@@ -64,7 +65,7 @@ ZMM_tasks = [
 	,["Denial", "Crash Site", "Destroy a crashed wreck and any of its lost cargo", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Location", "destroy_crashsite.sqf"]
 	,["Denial", "Destroy Tower", "Disrupt enemy communications by destroying a tower", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Location", "destroy_tower.sqf"]
 	,["Recovery", "Collect Crash Site", "Locate a crashed wreck and recover its lost cargo", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Location", "collect_crashsite.sqf"]
-	,["Rescue", "Minefield Rescue", "Recover an object or person from an enemy minefield", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Location", "rescue_minefield.sqf"]
+	,["Rescue", "Minefield Rescue", "Recover people from an enemy minefield", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Location", "rescue_minefield.sqf"]
 	,["Intel", "Intel Site", "Obtain a key item or document from an enemy site", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Location", "intel_site.sqf"]
 
 	// Roads

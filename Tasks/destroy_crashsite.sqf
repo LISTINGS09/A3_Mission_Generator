@@ -16,14 +16,7 @@ private _missionDesc = [
 		"A crashed transport has been spotted near %2. Find the <font color='#00FFFF'>%1 Ammo Crates</font> before the enemy can and destroy them."
 	];
 	
-private _crateNo = switch (_locType) do {
-	case "Airport": { 4 };
-	case "NameCityCapital": { 4 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 2 };
-};
+private _crateNo = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 	
 if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; };
 

@@ -61,17 +61,8 @@ if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID]
 };
 
 // Overwrite depending on location
-private _waves = switch (_locType) do {
-	case "Airport": { 5 };
-	case "NameCityCapital": { 5 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 3 };
-};
-
+private _waves = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) max 200;
-
 private _timePerWave = 300;
 private _time = _waves * _timePerWave;
 
@@ -88,7 +79,7 @@ _infTrigger setTriggerArea [100, 100, 0, false, 150];
 _infTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _infTrigger setTriggerTimeout [120, 120, 120, true];
 _infTrigger setTriggerStatements [  "this", 
-									format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend the site for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
+									format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend within the site for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
 									[] spawn { sleep 140; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
 									[] spawn { sleep 150; [ %3, false, %4, %5, 5 ] spawn zmm_fnc_areaQRF; }
 									", _locName, _time / 60, _zoneID, _delay, _waves],
@@ -98,7 +89,7 @@ _infTrigger setTriggerStatements [  "this",
 private _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
 _objTrigger setTriggerArea [100, 100, 0, false];
 _objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-_objTrigger setTriggerTimeout [(_time + 180), (_time + 240), (_time + 300), true];
+_objTrigger setTriggerTimeout [(_time + 120), (_time + 120), (_time + 120), true];
 _objTrigger setTriggerStatements [ 	"this", 
 									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; deleteMarker 'ZMM_%1_OBJMKR'; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
 									"" ];

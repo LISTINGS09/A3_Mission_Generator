@@ -20,18 +20,6 @@ private _missionDesc = [
 _enemyGrp = createGroup [_enemySide, true];
 _areaActivation = [];
 _areaGrids = [];
-_allGrids = [
-		_centre getPos [100 + random _radius, 15 + random 60],
-		_centre getPos [100 + random _radius, 105 + random 60],
-		_centre getPos [100 + random _radius, 195 + random 60],
-		_centre getPos [100 + random _radius, 285 + random 60],
-		_centre getPos [250 + random _radius, 15 + random 60],
-		_centre getPos [250 + random _radius, 105 + random 60],
-		_centre getPos [250 + random _radius, 195 + random 60],
-		_centre getPos [250 + random _radius, 285 + random 60]
-	];
-	
-_allGrids resize ((missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) min 8);
 
 {
 	private _gridRef = _x call BIS_fnc_posToGrid;
@@ -75,7 +63,12 @@ _allGrids resize ((missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) min 8
 			_unit setBehaviour "SAFE";
 		};
 	};
-} forEach _allGrids;
+} forEach [
+	 _centre getPos [100 + random _radius, 15 + random 60],
+	 _centre getPos [100 + random _radius, 105 + random 60],
+	 _centre getPos [100 + random _radius, 195 + random 60],
+	 _centre getPos [100 + random _radius, 285 + random 60]
+];
 
 // Wait before setting DS to allow positions to set.
 _enemyGrp spawn { sleep 5; _this enableDynamicSimulation true };

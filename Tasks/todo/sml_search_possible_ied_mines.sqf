@@ -17,7 +17,15 @@ private _missionDesc = selectRandom [
 
 _missionDesc = _missionDesc + "<br/><br/>The IEDs are wired to a motion sensor; walking or crawling slowly to an IED will stop it from detonating.<br/><br/>IEDs can either be disarmed by an engineer or disabled with an explosive.";
 	
-private _bombMax = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
+private _bombMax = switch (_locType) do {
+	case "Airport": { 5 };
+	case "NameCityCapital": { 5 };
+	case "NameCity": { 4 };
+	case "NameVillage": { 3 };
+	case "NameLocal": { 3 };
+	default { 2 };
+};
+
 private _bombLocs = [];
 
 {

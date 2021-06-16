@@ -16,14 +16,7 @@ private _missionDesc = [
 		"<font color='#00FFFF'>%1 Demo Charges</font> have been placed within %2. Find and disarm all the explosives."
 	];
 
-private _bombMax = switch (_locType) do {
-	case "Airport": { 5 };
-	case "NameCityCapital": { 5 };
-	case "NameCity": { 4 };
-	case "NameVillage": { 3 };
-	case "NameLocal": { 3 };
-	default { 2 };
-};
+private _bombMax = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 
 // Find one building position.
 private _positions = [];

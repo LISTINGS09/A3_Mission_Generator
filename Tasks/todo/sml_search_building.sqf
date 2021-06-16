@@ -16,7 +16,14 @@ _missionDesc = [
 		"Clear out the enemy found within <font color='#00FFFF'>%2%3</font> in %1."
 	];
 
-_buildCount = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
+_buildCount = switch (_locType) do {
+	case "Airport": { 4 };
+	case "NameCityCapital": { 4 };
+	case "NameCity": { 4 };
+	case "NameVillage": { 3 };
+	case "NameLocal": { 3 };
+	default { 2 };
+};
 
 private _targetArr = [];
 private _tempBlds = nearestObjects [_centre, ["building"], 150, true];
@@ -55,7 +62,7 @@ private _endActivation = [];
 	_childTrigger setTriggerActivation [format["%1",_enemySide], "NOT PRESENT", false];
 	_childTrigger setTriggerArea [_max, _max, 0, true];
 	_childTrigger setTriggerTimeout [10, 10, 10, true];
-	_childTrigger setTriggerStatements [  format["count thisList <= %1", (count (_x buildingPos -1) min 2)], 
+	_childTrigger setTriggerStatements [  "count thisList <= 2", 
 										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker '%3';", _zoneID, _forEachIndex, _mrkr],
 										"" ];
 										

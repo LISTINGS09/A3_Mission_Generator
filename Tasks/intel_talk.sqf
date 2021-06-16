@@ -4,10 +4,11 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
 private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
+private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = [
+private _missionDesc = selectRandom [
 		"Locate and speak to <font color='#00FFFF'>%1 Undercover Informants</font> with information on %2 within %3.",
 		"Search around %3 for <font color='#00FFFF'>%1 Contacts</font> regarding %2.",
 		"Allied forces wish to identify %2 near %3, speak to <font color='#00FFFF'>%1 Civilians</font> and obtain their intel.",
@@ -18,45 +19,35 @@ private _missionDesc = [
 	
 private _civInfo = selectRandom ["nearby Munitions Caches", "possible Chemical Weapons", "an enemy HQ", "enemy movements", "an underground bunker", "a planned ambush"];
 
-private _talkMax = switch (_locType) do {
-	case "Airport": { 3 };
-	case "NameCityCapital": { 3 };
-	case "NameCity": { 2 };
-	case "NameVillage": { 2 };
-	case "NameLocal": { 2 };
-	default { 1 };
-};
-
 // Find a random building position.
-private _positions = [];
-{ _positions pushBack (selectRandom (_x buildingPos -1)) } forEach _buildings;
+private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 
-// Add locations if there is not enough building positions
-if (count _positions < _talkMax) then {
-	{ _positions pushBack _x } forEach _locations;
-};
-
-// Create locations if none exist
-if (_positions isEqualTo []) then {
-	for "_i" from 0 to (_talkMax) do {
-		_positions pushBack (_centre getPos [25 + random 50, random 360]);
-	};
-};
+// Merge all locations
+{ _locations pushBack position _x } forEach _buildings;
 
 private _civCount = 0;
 
 // Generate the crates.
-for "_i" from 1 to (_talkMax) do {
-	if (_positions isEqualTo []) exitWith {};
-
+for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	private _civType = selectRandom ["C_man_polo_1_F_afro","C_man_polo_3_F_afro","C_man_polo_6_F_afro","C_man_polo_2_F_euro","C_man_polo_4_F_euro","C_man_polo_5_F_asia"];
-	private _civPos = selectRandom _positions;
-	_positions deleteAt (_positions find _civPos);
-
-	if (count _civPos > 0) then { 
-		// If not in a building find an empty position.
-		if (_civPos#2 == 0) then { _civPos = _civPos findEmptyPosition [1, 25, "B_Soldier_F"] };
+	private _civPos = [];
+	
+	if (random 100 > 50 && {count _bldPos > 0}) then {
+		_civPos = selectRandom _bldPos;
+		_bldPos deleteAt (_bldPos find _civPos);
+		_contType = selectRandom ["Box_NATO_Wps_F","Box_EAF_Wps_F","Box_East_Wps_F","Box_T_East_Wps_F","Box_IND_Wps_F"];
+	} else {
+		if (count _locations > 0) then { 
+			_civPos = selectRandom _locations;
+			_locations deleteAt (_locations find _civPos);
+		} else { 
+			_civPos = [_centre getPos [50 + random _radius, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+		};
 		
+		_civPos = _civPos findEmptyPosition [1, 50, _civType];
+	};
+
+	if (count _civPos > 0) then {		
 		_civCount = _civCount + 1;
 		private _civObj = createAgent [_civType, [0,0,0], [], 0, "NONE"];
 		_civObj setVariable ["BIS_fnc_animalBehaviour_disable", true];
@@ -122,6 +113,6 @@ _objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_
 									"" ];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _civCount, _civInfo, _locName], ["Talk"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "talk"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _civCount, _civInfo, _locName], ["Talk"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "talk"] call BIS_fnc_setTask;
 
 true

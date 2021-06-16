@@ -6,7 +6,7 @@ private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneI
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
-private _missionDesc = [
+private _missionDesc = selectRandom [
 		"A group of %3 have been captured by enemy forces near %1 and are being transported to a prison camp. Locate the unarmed transport, disable the vehicle and free the <font color='#00FFFF'>%2 %3</font>.",
 		"An unarmed transport carrying <font color='#00FFFF'>%2 %3</font> captured by enemy forces will be passing through %1 shortly. Ambush the vehicle, disable it and free the %3 from the vehicle.",
 		"A transport carrying captive %1 has been located near %1. Disable the vehicle and free the <font color='#00FFFF'>%2 %3</font> aboard.",
@@ -137,6 +137,6 @@ _objTrigger setTriggerStatements [ 	format["ZMM_%1_UNLOCK", _zoneID],
 									"" ];
 									
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, _prisMax, _prisonerType] + format["<br/><br/>Model: <font color='#FFA500'>%1</font><br/>Registration: <font color='#FFA500'>%2</font><br/><img width='350' image='%3'/>", getText (configFile >> "CfgVehicles" >> _truckType >> "displayName"), getPlateNumber _truck, getText (configFile >> "CfgVehicles" >> _truckType >> "editorPreview")], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "truck"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _locName, _prisMax, _prisonerType] + format["<br/><br/>Model: <font color='#FFA500'>%1</font><br/>Registration: <font color='#FFA500'>%2</font><br/><img width='350' image='%3'/>", getText (configFile >> "CfgVehicles" >> _truckType >> "displayName"), getPlateNumber _truck, getText (configFile >> "CfgVehicles" >> _truckType >> "editorPreview")], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "truck"] call BIS_fnc_setTask;
 
 true

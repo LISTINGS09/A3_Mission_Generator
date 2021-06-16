@@ -120,6 +120,6 @@ _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID],
 									"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _intelName, _intelCont, _locName] + format["<br/><br/>Intel indicates that there is an small enemy POI located somewhere in this area that houses the %1.<br/><br/>Target Item: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _intelType >> "displayName"), getText (configFile >> "CfgVehicles" >> _intelType >> "editorPreview")], ["SITE"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "radio"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _intelName, _intelCont, _locName] + format["<br/><br/>Intel indicates that there is an small enemy POI located somewhere in this area that houses the %1.<br/><br/>Target Item: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _intelType >> "displayName"), getText (configFile >> "CfgVehicles" >> _intelType >> "editorPreview")], ["Site"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "radio"] call BIS_fnc_setTask;
 
 true
