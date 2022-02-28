@@ -24,31 +24,48 @@ private _doIED = missionNamespace getVariable [ format["ZMM_%1_IEDs", _zoneID], 
 
 // Populate the area
 if _doPatrols then { [_zoneID, _locType] call zmm_fnc_areaPatrols };
-if _doGarrison then { [_zoneID] spawn zmm_fnc_areaGarrison };
+if _doGarrison then { [_zoneID] spawn zmm_fnc_areaGarrison; 
+	if !(_locType isEqualTo "Ambient") then { [_zoneID] spawn zmm_fnc_areaMilitarise };
+};
 if _doRoadblock then { [_zoneID] spawn zmm_fnc_areaRoadblock };
 if _doSupport then { [_zoneID] spawn zmm_fnc_areaSupport };
 if _doQRF then { [_zoneID, true] spawn zmm_fnc_areaQRF };
 if _doIED then { [_zoneID] spawn zmm_fnc_areaIED };
 
-if (_locType != "Ambient") then {
+if (_locType != "Ambient" && getMarkerColor format["MKR_%1_MAX", _zoneID] != "") then {
 	[
+		_zoneID,
 		format["ZMM_%1_PatrolsStrength", _zoneID],
-		format["Intel Sector #%1", _zoneID],
+		missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "Location"],
 		format["
-		<br/><font size='18' color='#80FF00'>ENEMY INTEL</font>
-		<br/>The following units are known to be operational in the AO:
-		<br/>%1%2
-		<br/>%3%4%5
-		<br/>",
-		(((vehicles select { side _x getFriend ZMM_playerSide < 0.6 && !(_x isKindOf "staticWeapon" || _x isKindOf "static") && count crew _x > 0}) apply {  getText (configFile >> "CfgVehicles" >> typeOf _x >> "displayName") }) call BIS_fnc_consolidateArray) apply { format["%2x <font color='#00FFFF'>%1</font><br/>", _x#0, _x#1] } joinString "",
-		format["%1x <font color='#00FFFF'>Infantry Groups</font><br/>", { side _x getFriend ZMM_playerSide < 0.6 && count units _x >= 2 && vehicle leader _x == leader _x} count allGroups],
-		if (_doGarrison) then { "<br/>Enemy forces will have occupied buildings within the marked zone.<br/>" } else { "" },
-		if (_doRoadblock || _doSupport) then { "<br/>Roadblocks or support buildings are present in the area and will likely have a mechanised or motorised vehicle nearby.<br/>" } else { "" },
-		if (_doIED) then { "<br/>The enemy is known to be using IEDs with motion detector triggers - Slow movement will not set them off.<br/>" } else { "" }
+			<br/><font size='18' color='#80FF00'>ENEMY INTEL</font>
+			<br/>The following units are known to be operational in %6:
+			<br/>%1%2
+			<br/>%3%4%5",
+			((((vehicles inAreaArray format["MKR_%1_MAX", _zoneID]) select { side _x getFriend ZMM_playerSide < 0.6 && count crew _x > 0}) apply {  getText (configFile >> "CfgVehicles" >> typeOf _x >> "displayName") }) call BIS_fnc_consolidateArray) apply { format["%2x <font color='#00FFFF'>%1</font><br/>", _x#0, _x#1] } joinString "",
+			format["%1x <font color='#00FFFF'>Infantry Groups</font><br/>", { side _x getFriend ZMM_playerSide < 0.6 && count units _x >= 2 && vehicle leader _x == leader _x} count ((allGroups apply { leader _x }) inAreaArray format["MKR_%1_MAX", _zoneID])],
+			if (_doGarrison) then { "<br/>Enemy forces will have occupied buildings within the marked zone.<br/>" } else { "" },
+			if (_doRoadblock || _doSupport) then { "<br/>Roadblocks or support buildings are present in the area and will likely have a mechanised or motorised vehicle nearby.<br/>" } else { "" },
+			if (_doIED) then { "<br/>The enemy is known to be using IEDs with motion detector triggers - Slow movement will not set them off.<br/>" } else { "" },
+			missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "Location"]
 		]
 	] spawn {
-		uiSleep 2;
-		[player,["IntelZMM","Intel"]] remoteExec ["createDiarySubject"];		
-		[player,["IntelZMM",[_this#1, _this#2]]] remoteExec ["createDiaryRecord"];
+		sleep 30;
+		[player, ["IntelZMM","Intel"]] remoteExec ["createDiarySubject"];		
+		[player, ["IntelZMM",[format["%1 (Sector #%2)", _this#2, _this#0], _this#3]]] remoteExec ["createDiaryRecord"];
+		format["*** Intel Available For: %1 ***", _this#2] remoteExec ["systemChat"];
 	};
+};
+
+// Change sector colour when cleared on CTI Mode
+if (ZZM_Mode == 1 && ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) > 0) then {
+	private _clearTrg = createTrigger [ "EmptyDetector", missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]], false ];
+	_clearTrg setTriggerArea [ ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0), ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0), 0, false, 150 ];
+	_clearTrg setTriggerActivation [ str (missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST]), "NOT PRESENT", true ];
+	_clearTrg setTriggerTimeout [10, 10, 10, true];
+	_clearTrg setTriggerStatements [ "count thisList < 4", 
+		format["{ _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+		format["{ _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST]]];
+		
+	missionNamespace setVariable [format["TR_%1_CLEARED", _zoneID], _clearTrg];
 };

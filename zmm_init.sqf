@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.27;
+ZMM_Version = 4.33;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
@@ -21,7 +21,7 @@ ZMM_Debug = !isMultiplayer;
 
 #include "zmm_factions.sqf";
 
-if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_ZMMMode", 0] };
+if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_ZMMMode", 1] };
 if (isNil "ZZM_Diff") then { ZZM_Diff = missionNamespace getVariable ["f_param_ZMMDiff", 1] };
 if (isNil "ZZM_IED") then { ZZM_IED = missionNamespace getVariable ["f_param_ZMMIED", 1] };
 if (isNil "ZZM_QRF") then { ZZM_QRF = missionNamespace getVariable ["f_param_ZMMQRF", 1] };
@@ -109,6 +109,7 @@ if isServer then {
 	if (isNil("zmm_fnc_aiUPS")) then {zmm_fnc_aiUPS = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_ups.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_areaIED")) then {zmm_fnc_areaIED = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_ied.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_areaGarrison")) then {zmm_fnc_areaGarrison = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_garrison.sqf", ZMM_FolderLocation]; };
+	if (isNil("zmm_fnc_areaMilitarise")) then {zmm_fnc_areaMilitarise = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_militarise.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_areaPatrols")) then {zmm_fnc_areaPatrols = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_patrols.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_areaQRF")) then {zmm_fnc_areaQRF = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_qrf.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_areaRoadblock")) then {zmm_fnc_areaRoadblock = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_roadblock.sqf", ZMM_FolderLocation]; };
@@ -117,6 +118,7 @@ if isServer then {
 	if (isNil("zmm_fnc_intelAdd")) then {zmm_fnc_intelAdd = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_intel_add.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_logMsg")) then {zmm_fnc_logMsg = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_logMsg.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_nameGen")) then {zmm_fnc_nameGen = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_nameGen.sqf", ZMM_FolderLocation]; };
+	if (isNil("zmm_fnc_unitDirPos")) then {zmm_fnc_unitDirPos = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_unitDirPos.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupPopulate")) then {zmm_fnc_setupPopulate = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_populate.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupTask")) then {zmm_fnc_setupTask = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_task.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_setupWorld")) then {zmm_fnc_setupWorld = compileFinal preprocessFileLineNumbers format["%1\zmm_setup_world.sqf", ZMM_FolderLocation]; };
@@ -136,13 +138,17 @@ if isServer then {
 		} forEach allMapMarkers;
 	
 		if _makeSZ then {
-			_safeMrk = createMarker [ format["SAFEZONE_PRE%1",_forEachIndex], getPos _x ];
+			private  _safeMrk = createMarker [ format["SAFEZONE_PRE%1",_forEachIndex], getPos _x ];
 			_safeMrk setMarkerShape "ELLIPSE";
 			_safeMrk setMarkerBrush "FDiagonal";
 			_safeMrk setMarkerAlpha 0.3;
 			_safeMrk setMarkerColor format["color%1", side _x];
 			_safeMrk setMarkerSize [ 2000, 2000];
 			["DEBUG", format["Safe Zone '%1' created at %2", _safeMrk, getPos _x]] call zmm_fnc_logMsg;
+			
+			private _blackList = missionNamespace getVariable ["ZCS_var_BlackList",[]];
+			_blackList pushBackUnique _safeMrk;
+			missionNamespace setVariable ["ZCS_var_BlackList", _blackList];
 		};
 		
 		if (isNil "ZMM_playerSide") then { ZMM_playerSide = side _x };
@@ -155,5 +161,73 @@ if isServer then {
 	
 	// Waits for publicVariable then creates zone.
 	if (ZZM_Mode isEqualTo 0) exitWith { _nul = [] execVM format["%1\zmm_setup_custom.sqf", ZMM_FolderLocation]; }; 
-	if (ZZM_Mode isEqualTo 2) exitWith { _nul = [] execVM format["%1\zmm_setup_fixed.sqf", ZMM_FolderLocation]; }; 
+	if (ZZM_Mode isEqualTo 2) exitWith { _nul = [] execVM format["%1\zmm_setup_fixed.sqf", ZMM_FolderLocation]; };
+	
+	// Check classnames
+	{
+		private _side = _x;
+		
+		// Check Vehicles
+		{
+			private _varName = _x;
+			private _arr = missionNamespace getVariable[_varName,[]];
+			
+			["INFO", format["%1: %2", _varName, _arr]] call zmm_fnc_logMsg;
+			
+			if (count _arr == 0) then { ["WARNING", format["Variable '%1' has no valid classes in.", _varName]] call zmm_fnc_logMsg };
+			{
+				_x params [["_obj",""],["_init",""]];
+				
+				if (_obj isEqualType "") then {
+					if !(isClass (configFile >> "CfgVehicles" >> _obj)) then { ["ERROR", format["Invalid Unit '%1' in %2.", _obj, _varName]] call zmm_fnc_logMsg };
+				} else {
+					if !(isClass _obj) then { ["ERROR", format["Invalid Class in '%1'.", _varName]] call zmm_fnc_logMsg };
+				};
+			} forEach _arr;
+		} forEach [
+			format["ZMM_%1Veh_Truck",_side],
+			format["ZMM_%1Veh_Util",_side],
+			format["ZMM_%1Veh_Light",_side],
+			format["ZMM_%1Veh_Medium",_side],
+			format["ZMM_%1Veh_Heavy",_side],
+			format["ZMM_%1Veh_Air",_side],
+			format["ZMM_%1Veh_CasH",_side],
+			format["ZMM_%1Veh_CasP",_side],
+			format["ZMM_%1Veh_Convoy",_side],
+			format["ZMM_%1Veh_Static",_side]
+		];
+		
+		// Check Units
+		{
+			if !(isClass (configFile >> "CfgVehicles" >> _x)) then { ["ERROR", format["Invalid Unit '%1' in ZMM_%2Man.", _obj, _side]] call zmm_fnc_logMsg };
+		} forEach (missionNamespace getVariable [format["ZMM_%1Man", _side], []]);
+		
+		// Check Groups
+		{
+			private _varName = _x;
+			private _arr = missionNamespace getVariable[_varName,[]];
+			
+			["INFO", format["%1: %2", _varName, _arr]] call zmm_fnc_logMsg;
+			
+			if (count _arr == 0) then { 
+				["WARNING", format["Variable '%1' has no valid classes in.", _varName]] call zmm_fnc_logMsg
+			} else {
+				// Clean up Group Arrays
+				if (_arr#0 isEqualType []) then { _arr = _arr select 0 };
+				if (_arr#0 isEqualType []) then { _arr = _arr select 0 };
+			};
+			
+			{
+				if (_x isEqualType "") then {
+					if !(isClass (configFile >> "CfgVehicles" >> _x)) then { ["ERROR", format["Invalid Unit '%1' in %2.", _x, _varName]] call zmm_fnc_logMsg };
+				} else {
+					if !(isClass _x) then { ["ERROR", format["Invalid Class in '%1'.", _varName]] call zmm_fnc_logMsg };
+				};
+			} forEach _arr;
+		} forEach [
+			format["ZMM_%1Grp_Sentry",_side],
+			format["ZMM_%1Grp_Team",_side],
+			format["ZMM_%1Grp_Squad",_side]
+		];
+	} forEach ZMM_enemySides;
 };

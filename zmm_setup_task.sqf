@@ -3,9 +3,6 @@ if !isServer exitWith {};
 
 params [ "_zoneID", ["_filterTask", ""] ];
 
-// Are we in CTI Mode?
-private _isCTI = ZZM_Mode == 1;
-
 // Zone not defined - Pick a random one.
 if (isNil "_zoneID") then {
 	private _markersAll = missionNamespace getVariable ["ZMM_ZoneMarkers", []];

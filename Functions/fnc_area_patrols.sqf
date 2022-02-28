@@ -10,13 +10,12 @@ private _squad = missionNamespace getVariable [format["ZMM_%1Grp_Squad", _side],
 private _light = missionNamespace getVariable [format["ZMM_%1Veh_Light", _side], []];
 private _medium = missionNamespace getVariable [format["ZMM_%1Veh_Medium", _side], []];
 private _heavy = missionNamespace getVariable [format["ZMM_%1Veh_Heavy", _side], []];
-private _casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
-private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
+private _cas = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side],[]])];
 
 if (_locType isEqualTo "") then { _locType = type (nearestLocation [_centre,""]) };
 
 _fnc_spawnGroup = {
-	params ["_zoneID", "_centre", "_types", ["_marker", ""], "_count", ["_maxTeamSize", 0]];
+	params ["_zoneID", "_centre", ["_types", []], ["_marker", ""], "_count", ["_maxTeamSize", 0]];
 	
 	if (round _count isEqualTo 0) exitWith {};
 	
@@ -75,7 +74,7 @@ _fnc_spawnGroup = {
 			
 			{ _x addCuratorEditableObjects [ units _group, true ] } forEach allCurators;
 			
-			["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType configFile) then { configName _type } else { _type }, _side, getPos leader _group]] call zmm_fnc_logMsg;
+			["DEBUG", format["Zone%1 (%3) - Spawning '%2' [Random]", _zoneID, if (_type isEqualType configFile) then { configName _type } else { _type }, _side]] call zmm_fnc_logMsg;
 			[leader _group, _marker, "SHOWMARKER", "RANDOM"] spawn zmm_fnc_aiUPS;
 			
 			[leader _group] call zmm_fnc_inteladd; // Add Intel Drop

@@ -4,7 +4,7 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],[""]]); // CfgGroups entry.
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
 private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
 private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
@@ -79,8 +79,8 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 
 		[_flagObj, 
 			"<t color='#00FF80'>Capture Flag</t>", 
-			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_unbind_ca.paa",  
-			"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_unbind_ca.paa",  
+			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_requestleadership_ca.paa",
+			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_requestleadership_ca.paa",
 			"!(_target getVariable ['var_claimed', false]) && _this distance2d _target < 5", 
 			"!(_target getVariable ['var_claimed', false]) && _caller distance2d _target < 5", 
 			{}, 
@@ -127,25 +127,25 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 				_sObj setDir random 360;
 			};
 			
-			// Create enemy guards if valid group
-			if !(_enemyTeam isEqualTo "") then {
-				// Create enemy Team
-				private _milGroup = [_flagObj getPos [random 10, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
-				
-				{
-					_x setVehiclePosition [_flagObj getPos [10 + random 5, random 360], [], 0, "NONE"];
-					_x disableAI "PATH";
-					_x setDir ((_flagObj getRelDir _x) - 180);
-					_x setFormDir ((_flagObj getRelDir _x) - 180);
-					_x setBehaviour "SAFE";
-					_x setUnitPos "MIDDLE";
-				} forEach units _milGroup;
+			// Create enemy Team
+			private _enemyTeam = [];
+			for "_j" from 0 to (4 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };
+			
+			private _milGroup = [_flagObj getPos [random 10, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
+			
+			{
+				_x setVehiclePosition [_flagObj getPos [10 + random 5, random 360], [], 0, "NONE"];
+				_x disableAI "PATH";
+				_x setDir ((_flagObj getRelDir _x) - 180);
+				_x setFormDir ((_flagObj getRelDir _x) - 180);
+				_x setBehaviour "SAFE";
+				_x setUnitPos "MIDDLE";
+			} forEach units _milGroup;
 
-				{ _x addCuratorEditableObjects [[_flagObj] + units _milGroup, true] } forEach allCurators;
-				
-				// Wait before setting DS to allow positions to set.
-				_milGroup spawn { sleep 5; _this enableDynamicSimulation true };
-			};
+			{ _x addCuratorEditableObjects [[_flagObj] + units _milGroup, true] } forEach allCurators;
+			
+			// Wait before setting DS to allow positions to set.
+			_milGroup spawn { sleep 5; _this enableDynamicSimulation true };
 		};
 	};
 }; 

@@ -19,7 +19,7 @@ _missionDesc = [
 _buildCount = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 
 private _targetArr = [];
-private _tempBlds = nearestObjects [_centre, ["building"], 150, true];
+private _tempBlds = nearestObjects [_centre, ["building","static"], 150, true];
 private _bldHuge = _tempBlds select { count (_x buildingPos -1) >= 12 }; // Get Huge Buildings
 private _bldLarge = _tempBlds select { count (_x buildingPos -1) >= 8 }; // Get Large Buildings
 private _bldSmall = _tempBlds select { count (_x buildingPos -1) >= 3 }; // Get Normal Buildings

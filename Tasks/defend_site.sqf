@@ -7,12 +7,12 @@ private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID],
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 private _missionDesc = [
-		"Enemy forces are trying to filter though <font color='#00FFFF'>%1</font>. Clear out and then delay their advance through the centre of %1 for <font color='#00FFFF'>%2 Minutes</font>.",
-		"A number of enemy groups are advancing towards <font color='#00FFFF'>%1</font>. Eliminate any enemy already there, then hold the centre for <font color='#00FFFF'>%2 Minutes</font> until allied forces have retreated, after which you will be called to exfil.",
-		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>. Enemy forces may already be present, secure the area, then hold off the centre of %1 from enemy forces for <font color='#00FFFF'>%2 Minutes</font> to allow civilians time to escape.",
-		"Enemy forces have launched an attack on <font color='#00FFFF'>%1</font>. Eliminate any contact already present in %1 at the centre of the area, then defend it for <font color='#00FFFF'>%2 Minutes</font> until called to extract.",
-		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>. Clean out any forces already present at the centre of %1, while preventing enemy reinforcements from taking the town. Hold it for <font color='#00FFFF'>%2 Minutes</font> before withdrawing.",
-		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>. Eliminate any enemy forces already present, then hold the centre area of %1 from attackers to allow friendly forces to finish their operation in a nearby town. Hold the area for <font color='#00FFFF'>%2 Minutes</font> before withdrawing."
+		"Enemy forces are trying to filter though <font color='#00FFFF'>%1</font>. Clear out and then delay their advance through the area by defending the site at %1 for <font color='#00FFFF'>%2 Minutes</font>.",
+		"A number of enemy groups are advancing towards <font color='#00FFFF'>%1</font>. Eliminate any enemy already there, then hold the site for <font color='#00FFFF'>%2 Minutes</font> until allied forces have retreated, after which you will be called to exfil.",
+		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>. Enemy forces may already be present, secure the area, then hold off the site near %1 from enemy forces for <font color='#00FFFF'>%2 Minutes</font> to allow civilians time to escape.",
+		"Enemy forces have launched an attack on <font color='#00FFFF'>%1</font>. Eliminate any contact already present in %1 at a  site located in the area, then defend it for <font color='#00FFFF'>%2 Minutes</font> until called to extract.",
+		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>. Clean out any forces already present at a site within %1, while preventing enemy reinforcements from taking that location. Hold it for <font color='#00FFFF'>%2 Minutes</font> before withdrawing.",
+		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>. Eliminate any enemy forces already present, then hold the site at %1 from attackers to allow friendly forces to finish their operation in a nearby town. Hold the area for <font color='#00FFFF'>%2 Minutes</font> before withdrawing."
 	];
 	
 if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };

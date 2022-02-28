@@ -46,6 +46,7 @@ switch (_type) do {
 		
 		_tempGrp deleteGroupWhenEmpty true;
 		_tempGrp enableDynamicSimulation true;
+		{ _x addCuratorEditableObjects [[_grpVeh] + units _tempGrp, true] } forEach allCurators;
 		
 		// Add artillery/mortar to the zone supports list.
 		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_%1_MAX", _zoneID] != "") then {

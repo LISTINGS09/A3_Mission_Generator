@@ -4,7 +4,7 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]], ["_bld", objNull ] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
 private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
 private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
@@ -153,28 +153,28 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		] remoteExec ["BIS_fnc_holdActionAdd", 0, _hvtObj];
 	};
 	
-	// Create enemy guards if valid group
-	if !(_enemyTeam isEqualTo "") then {
-		// Create enemy Team
-		private _milGroup = [_hvtPos getPos [random 2, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
-		
-		private _bldArr = if (_inBuilding) then { (nearestBuilding _hvtObj) buildingPos -1 } else { [] };
-		_bldArr deleteAt (_bldArr find _hvtPos);
-		
-		{
-			if (count _bldArr > 0) then {
-				private _tempPos = selectRandom _bldArr;
-				_bldArr deleteAt (_bldArr find _tempPos);
-				_x setPosATL _tempPos;
-				_x disableAI "PATH";
-			} else {
-				_x setVehiclePosition [_hvtObj getPos [random 10, random 360], [], 0, "NONE"];
-				_x setUnitPos "MIDDLE";
-			};
-		} forEach units _milGroup;
+	// Create enemy Team
+	private _enemyTeam = [];
+	for "_j" from 0 to (2 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };
+	
+	private _milGroup = [_hvtPos getPos [random 2, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
+	
+	private _bldArr = if (_inBuilding) then { (nearestBuilding _hvtObj) buildingPos -1 } else { [] };
+	_bldArr deleteAt (_bldArr find _hvtPos);
+	
+	{
+		if (count _bldArr > 0) then {
+			private _tempPos = selectRandom _bldArr;
+			_bldArr deleteAt (_bldArr find _tempPos);
+			_x setPosATL _tempPos;
+			_x disableAI "PATH";
+		} else {
+			_x setVehiclePosition [_hvtObj getPos [random 10, random 360], [], 0, "NONE"];
+			_x setUnitPos "MIDDLE";
+		};
+	} forEach units _milGroup;
 
-		{ _x addCuratorEditableObjects [[_hvtObj] + units _milGroup, true] } forEach allCurators;
-	};
+	{ _x addCuratorEditableObjects [[_hvtObj] + units _milGroup, true] } forEach allCurators;
 };
 
 // Create Completion Trigger

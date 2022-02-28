@@ -28,7 +28,7 @@ private _vehActivation = [];
 	if (_x isEqualType []) then { _veh = _x#0 };
 	
 	if !(isClass (configFile >> "CfgVehicles" >> _veh)) then {
-		format["[ZMM] Invalid vehicle class: %1", _veh] call zmm_fnc_logMsg;
+		["WARNING", format["Invalid vehicle class: %1", _veh]] call zmm_fnc_logMsg;
 		_veh = "";
 	};
 	_vehArr set [_forEachIndex, _veh];
@@ -52,9 +52,11 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 1]) do {
 		_roadPos deleteAt (_roadPos find _vehPos);
 	};
 
-	if (missionNamespace getVariable ["ZZM_ObjectiveCount", 1] isEqualTo 1 && _targetPos isNotEqualTo _centre && _targetPos isNotEqualTo [0,0,0]) then { _vehPos = _targetPos };
+	if ((missionNamespace getVariable ["ZZM_ObjectiveCount", 1] isEqualTo 1 && _targetPos isNotEqualTo _centre && _targetPos isNotEqualTo [0,0,0]) || count _vehPos == 0) then { _vehPos = _targetPos };
 	
-	private _vehObj = createVehicle [_vehClass, _vehPos, [], 0, "NONE"];
+	["DEBUG", format["destroy_vehicle (%1) - Creating %2 at %3", _zoneID, _vehClass, _vehPos]] call zmm_fnc_logMsg;
+
+	private _vehObj = _vehClass createVehicle _vehPos;	
 	private _randAnim = [];
 	{ 
 		_configName = configName _x; 

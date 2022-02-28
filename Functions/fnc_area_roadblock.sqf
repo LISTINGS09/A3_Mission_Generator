@@ -140,6 +140,7 @@ for "_i" from 1 to _count do {
 	[_tempGrp, getPos _key] call BIS_fnc_taskDefend;
 	_tempGrp deleteGroupWhenEmpty true;
 	_tempGrp enableDynamicSimulation true;
+	{ _x addCuratorEditableObjects [units _tempGrp, true] } forEach allCurators;
 	
 	if (missionNamespace getVariable ["ZZM_Mode", 0] != 1) then {
 		private _mrkr = createMarker [format["MKR_%1_CP_%2", _zoneID, _i], _road getPos [25, random 360]];

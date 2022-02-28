@@ -6,7 +6,7 @@ private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _z
 private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
 private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
@@ -70,12 +70,13 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		_objTrigger setTriggerStatements [  format["!('%3' in (backpackCargo ZMM_%1_OBJ_%2))", _zoneID, _i, _itemType], 
 			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2'; missionNamespace setVariable ['ZMM_%1_TSK_Counter', (missionNamespace getVariable ['ZMM_%1_TSK_Counter', 0]) + 1, true]; [] spawn { sleep 120; deleteVehicle ZMM_%1_OBJ_%2; }", _zoneID, _i],
 			"" ];
-			
-		if !(_enemyTeam isEqualTo "") then {
-			private _milGroup = [_itemHolder getPos [random 2, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
-			{ _x setUnitPos "MIDDLE" } forEach units _milGroup;
-			{ _x addCuratorEditableObjects [[_itemHolder] + units _milGroup, true] } forEach allCurators;
-		};
+
+		private _enemyTeam = [];
+		for "_j" from 0 to (2 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };
+		
+		private _milGroup = [_itemHolder getPos [random 2, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
+		{ _x setUnitPos "MIDDLE" } forEach units _milGroup;
+		{ _x addCuratorEditableObjects [[_itemHolder] + units _milGroup, true] } forEach allCurators;
 	};
 };
 

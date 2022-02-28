@@ -3,7 +3,7 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyType = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Squad",_enemySide],[""]]); // CfgGroups entry.
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
 private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
@@ -26,7 +26,10 @@ _locPos = _locPos findEmptyPosition [1, 25, "B_Soldier_F"];
 if (count _locPos <= 0) then { _locPos = _centre; };
 	
 // Create Objective
-private _milGroup = [_locPos, _enemySide, _enemyType] call BIS_fnc_spawnGroup;
+private _enemyTeam = [];
+for "_j" from 0 to (8 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };
+			
+private _milGroup = [_locPos, _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
 [_milGroup, _centre, 10] call bis_fnc_taskPatrol;
 
 // Add to Zeus

@@ -113,7 +113,9 @@ if (_unitClass isEqualType "") then {
 };
 
 // Run custom init for vehicle (set camos etc).
-if !(_customInit isEqualTo "") then { call compile _customInit; };
+if !(isNil "_customInit") then { 
+	if !(_customInit isEqualTo "") then { call compile _customInit; };
+};
 
 if !_isAir then {
 	if (random 1 > 0.3) then {

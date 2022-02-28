@@ -5,7 +5,7 @@ private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneI
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
-private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
 
 private _missionDesc = selectRandom [
 		"We have tracked a leak of %2 to a <font color='#00FFFF'>%1</font> at this location, find it and %3 the data in <font color='#00FFFF'>%4 Packets</font>.",
@@ -119,28 +119,28 @@ _dataObj setVariable ["var_zoneID", _zoneID, true];
 
 missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _dataObj];
 
-// Create enemy guards if valid group
-if !(_enemyTeam isEqualTo "") then {
-	// Create enemy Team
-	private _milGroup = [_dataPos getPos [random 10, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
+// Create enemy Team
+private _enemyTeam = [];
+for "_j" from 0 to (2 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };
 		
-	private _bldArr = if (_inBuilding) then { (nearestBuilding _dataPos) buildingPos -1 } else { [] };
-	_bldArr deleteAt (_bldArr find _dataPos);
+private _milGroup = [_dataPos getPos [random 10, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
 	
-	{
-		if (count _bldArr > 0) then {
-			private _tempPos = selectRandom _bldArr;
-			_bldArr deleteAt (_bldArr find _tempPos);
-			_x setPosATL _tempPos;
-			_x disableAI "PATH";
-		} else {
-			_x setPos (_dataPos getPos [random 10, random 360]);
-			_x setUnitPos "MIDDLE";
-		};
-	} forEach units _milGroup;
+private _bldArr = if (_inBuilding) then { (nearestBuilding _dataPos) buildingPos -1 } else { [] };
+_bldArr deleteAt (_bldArr find _dataPos);
 
-	{ _x addCuratorEditableObjects [[_dataObj] + units _milGroup, true] } forEach allCurators;
-};
+{
+	if (count _bldArr > 0) then {
+		private _tempPos = selectRandom _bldArr;
+		_bldArr deleteAt (_bldArr find _tempPos);
+		_x setPosATL _tempPos;
+		_x disableAI "PATH";
+	} else {
+		_x setPos (_dataPos getPos [random 10, random 360]);
+		_x setUnitPos "MIDDLE";
+	};
+} forEach units _milGroup;
+
+{ _x addCuratorEditableObjects [[_dataObj] + units _milGroup, true] } forEach allCurators;
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];

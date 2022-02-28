@@ -192,6 +192,10 @@ _mrk setMarkerAlphaLocal 0.2;
 _mrk setMarkerColorLocal format[ "color%1", "Black" ];
 _mrk setMarkerSizeLocal [ _triggerRadius, _triggerRadius];
 
+// Create Building Locations
+private _allBlds = nearestObjects [_pos, ["building","static"], ((_radius * _locSize) max 150), true]; // +static for SOG!
+missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 4}) ]; // Set Large Buildings
+
 // *** Ambient Zone - EXIT ***
 // This zone doesn't need extra locations as it's just a filler for garrison/patrols.
 if (_locType isEqualTo "Ambient") exitWith {
@@ -204,8 +208,8 @@ if (_locType isEqualTo "Ambient") exitWith {
 	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, false, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", false ];
 	_setupTrg setTriggerStatements [ "this", 
-									format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
-									""];
+		format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
+		""];
 };
 
 // *** Task Zone - EXIT ***
@@ -215,10 +219,6 @@ if (_locType isEqualTo "Task") exitWith {
 	format["MKR_%1_MIN", _zoneID] setMarkerAlpha 0;
 	[ _zoneID, _locType, _forceTask] spawn zmm_fnc_setupPopulate; // Extra param forces a task type to spawn regardless of game type
 };
-
-// Create Building Locations
-private _allBlds = nearestObjects [_pos, ["building"], ((_radius * _locSize) max 150), true];
-missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 4}) ]; // Set Large Buildings
 
 // Genuine location, so add it to possible locations list (to pick a random task location in CTI).
 if (isNil "ZMM_ZoneMarkers") then { ZMM_ZoneMarkers = [] };
@@ -254,8 +254,6 @@ missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], _QRFLocs 
 	_qrfMkr setMarkerAlphaLocal 0.2;
 	_qrfMkr setMarkerTextLocal format["Q%1", _forEachIndex];
 } forEach _QRFLocs;*/
-
-
 
 // ***  Find Flat Points *** 
 private _groundLocs = [];
@@ -353,8 +351,8 @@ if (ZZM_Mode == 1) then {
 	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, false, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", false ];
 	_setupTrg setTriggerStatements [ "this", 
-									format [ "[%1] spawn zmm_fnc_setupPopulate;", _zoneID ], 
-									""];
+		format [ "[%1, '%2'] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
+		""];
 } else {
 	// Non-CTI Mode - Fill Zone immediately.
 	[ _zoneID, _locType, _forceTask ] spawn zmm_fnc_setupPopulate;

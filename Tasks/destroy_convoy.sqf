@@ -67,20 +67,28 @@ private _objHVT = ObjNull;
 	
 	};
 	
-	private _foundRoad = selectRandom (_targetPos nearRoads 150);
+	private _foundRoad = objNull;
+	
+	for "_i" from 50 to 1000 step 50 do {
+		private _road = selectRandom (_targetPos nearRoads _i);
+		if !(isNil "_road") exitWith { _foundRoad = _road };
+	};
+	
 	private _tempPos = [0,0,0];
 	
 	// No valid road
-	if !(isNil "_foundRoad") then {
+	if !(isNull _foundRoad) then {
 		_tempPos = (getPos _foundRoad) findEmptyPosition [1, 25, _vehType];
 	} else {
 		_tempPos = (_centre getPos [10 + random 40, random 360]) findEmptyPosition [1, 25, _vehType];
 	};
 	
+	["DEBUG", format["destroy_convoy (%1) - Creating %2 at %3", _zoneID, _vehType, _tempPos]] call zmm_fnc_logMsg;
+	
 	_grpVeh = _vehType createVehicle _tempPos;
 	
 	// Set direction to nearby road
-	if !(isNil "_foundRoad") then { _grpVeh setDir ([_foundRoad, (roadsConnectedTo _foundRoad) # 0] call BIS_fnc_DirTo) };
+	if (isNil "_foundRoad" && count roadsConnectedTo _foundRoad > 0) then { _grpVeh setDir ([_foundRoad, (roadsConnectedTo _foundRoad) # 0] call BIS_fnc_DirTo) };
 
 	// Run custom script if provided
 	if (_customInit != "") then { _nul = call compile _customInit };

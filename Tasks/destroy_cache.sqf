@@ -4,7 +4,7 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
 private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
 private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
@@ -79,11 +79,13 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			clearItemCargoGlobal _ammoObj;
 			clearBackpackCargoGlobal _ammoObj;
 			
-			if !(_enemyTeam isEqualTo "") then {
-				private _milGroup = [_ammoObj getPos [random 2, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
-				{ _x setUnitPos "MIDDLE" } forEach units _milGroup;
-				{ _x addCuratorEditableObjects [[_ammoObj] + units _milGroup, true] } forEach allCurators;
-			};
+			// Create enemy Team
+			private _enemyTeam = [];
+			for "_j" from 0 to (2 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };
+			
+			private _milGroup = [_ammoObj getPos [random 2, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
+			{ _x setUnitPos "MIDDLE" } forEach units _milGroup;
+			{ _x addCuratorEditableObjects [[_ammoObj] + units _milGroup, true] } forEach allCurators;
 		};
 	};
 };

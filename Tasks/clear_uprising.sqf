@@ -3,10 +3,10 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
 private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
 private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
-private _enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Sentry",_enemySide],[""]]); // CfgGroups entry.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
@@ -95,31 +95,32 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) do {
 { _x addCuratorEditableObjects [units _enemyGrp, true] } forEach allCurators;
 
 // Spawn Bandit Hunt Groups
-if !(_enemyTeam isEqualTo "") then {
-	for "_i" from 0 to (random 2) do {	
-		_huntGroup = [(leader _enemyGrp) getPos [15, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
-		_huntGroup deleteGroupWhenEmpty true;
-		
-		// Patrol at start.
-		[_huntGroup, getPos leader _huntGroup, 25] call BIS_fnc_taskPatrol;
+for "_i" from 0 to (random 2) do {	
+	private _enemyTeam = [];
+	for "_j" from 0 to (3 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };
 
-		missionNamespace setVariable [format["ZMM_%1_HUNT_%2", _zoneID, _i], _huntGroup];	
-		
-		_huntTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-		_huntTrigger setTriggerTimeout [10, 10, 10, true];
-		_huntTrigger setTriggerArea [150, 150, 0, false, 25];
-		_huntTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-		_huntTrigger setTriggerStatements [  "this", 
-			format["[ZMM_%1_HUNT_%2, group (selectRandom thisList)] spawn BIS_fnc_stalk;", _zoneID, _i],
-			"" ];
-										
-		_huntTrigger attachTo [leader _huntGroup, [0,0,0]];
-		
-		// Add Hunters to Zeus
-		{ _x addCuratorEditableObjects [units _huntGroup, true] } forEach allCurators;
-		
-		_huntGroup spawn { sleep 10; _this enableDynamicSimulation true };
-	};
+	_huntGroup = [(leader _enemyGrp) getPos [15, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
+	_huntGroup deleteGroupWhenEmpty true;
+	
+	// Patrol at start.
+	[_huntGroup, getPos leader _huntGroup, 25] call BIS_fnc_taskPatrol;
+
+	missionNamespace setVariable [format["ZMM_%1_HUNT_%2", _zoneID, _i], _huntGroup];	
+	
+	_huntTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
+	_huntTrigger setTriggerTimeout [10, 10, 10, true];
+	_huntTrigger setTriggerArea [150, 150, 0, false, 25];
+	_huntTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+	_huntTrigger setTriggerStatements [  "this", 
+		format["[ZMM_%1_HUNT_%2, group (selectRandom thisList)] spawn BIS_fnc_stalk;", _zoneID, _i],
+		"" ];
+									
+	_huntTrigger attachTo [leader _huntGroup, [0,0,0]];
+	
+	// Add Hunters to Zeus
+	{ _x addCuratorEditableObjects [units _huntGroup, true] } forEach allCurators;
+	
+	_huntGroup spawn { sleep 10; _this enableDynamicSimulation true };
 };
 
 // Spawn Suicide Bombers

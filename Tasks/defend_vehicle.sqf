@@ -9,9 +9,9 @@ private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID],
 private _missionDesc = [
 		"Enemy forces are trying to filter though <font color='#00FFFF'>%1</font>. Assist the civilian with repairs and defend the vehicle, before extracting it from the area.",
 		"A number of enemy groups are advancing towards <font color='#00FFFF'>%1</font>. Help with the repairing of the vehicle and hold the location until the vehicle has been repaired and it can be driven away.",
-		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>. Enemy forces may already be present, secure the area and assist with the repairs of a disabled vehicle. When repaired, drive it from the location.",
-		"Enemy forces have launched an attack on <font color='#00FFFF'>%1</font>. Eliminate any contact already present in %1 at the centre of the area, then begin repairs on a stranded vehicle before driving it away when repaired.",
-		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>. Clean out any forces already present at the centre of %1, while preventing enemy reinforcements from destroying a damaged vehicle there. Assist with repairs before withdrawing with the fixed vehicle.",
+		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>. Enemy forces may already be present, secure and assist with the repairs of a disabled vehicle. When repaired, drive it from the location.",
+		"Enemy forces have launched an attack on <font color='#00FFFF'>%1</font>. Eliminate any contact already present in %1, then begin repairs on a stranded vehicle before driving it away when repaired.",
+		"The enemy is trying to occupy <font color='#00FFFF'>%1</font>. Clean out any forces already present at %1, while preventing enemy reinforcements from destroying a damaged vehicle there. Assist with repairs before withdrawing with the fixed vehicle.",
 		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>. Eliminate any enemy forces already present, then defend and assist with repairing a vehicle until fully working. You should then extract with the vehicle."
 	];
 	

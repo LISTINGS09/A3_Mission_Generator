@@ -1,13 +1,13 @@
 // Set-up mission variables.
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]], ["_bld", objNull] ];
 
-_centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-_enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-_enemyTeam = selectRandom (missionNamespace getVariable[format["ZMM_%1Grp_Team",_enemySide],["O_Soldier_F"]]); // CfgGroups entry.
-_buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
-_locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
+private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
+private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
+private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
+private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
-_missionDesc = [
+private _missionDesc = [
 		"Locate and eliminate <font color='#00FFFF'>El %3</font> also known as %2.<br/><br/>They can be found nearby %1 within the marked location.",
 		"An Officer named %2 or better identified as <font color='#00FFFF'>The %3</font> has been spotted entering the area near %1, they must be eliminated.",
 		"There is an enemy insurgent known as <font color='#00FFFF'>The %3</font>, real name %2.<br/><br/>%2 is trying to leave %1 and is awaiting extraction from this location, they must be tracked down and eliminated.",
@@ -31,6 +31,9 @@ private _bldPos = _bld buildingPos -1;
 if (_bld distance _centre > 100) then { _bldPos = [] };
 
 // Create HVT Team
+private _enemyTeam = [];
+for "_j" from 0 to (4 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };
+
 private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos), _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
 {
 	if (leader _x == _x) then { 
