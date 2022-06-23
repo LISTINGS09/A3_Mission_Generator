@@ -27,7 +27,7 @@ private _dataObj = objNull;
 private _inBuilding = false;
 
 if (random 100 > 50 && count _bldPos > 0) then {
-	_dataObj = _dataType createVehicle [0,0,0];
+	_dataObj = createVehicle [_dataType, [0,0,0], [], 0, "NONE"];
 	_dataPos = selectRandom _bldPos;
 	_dataObj setPosATL _dataPos;	
 	_inBuilding = true;

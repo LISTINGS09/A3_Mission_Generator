@@ -24,7 +24,7 @@ private _targetPos = _targetPos findEmptyPosition [1, 100, "C_Truck_02_covered_F
 	
 // Create Truck
 private _truckType = selectRandom ["C_Truck_02_covered_F", "C_Truck_02_transport_F"];
-private _truck = _truckType createVehicle _targetPos;
+private _truck = createVehicle [_truckType, _targetPos, [], 0, "NONE"];
 
 missionNamespace setVariable [format["ZMM_%1_VEH", _zoneID], _truck, true];
 

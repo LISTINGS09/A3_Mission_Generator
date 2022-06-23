@@ -6,10 +6,11 @@ params [
 	["_zoneID", 0],
 	["_centre", (missionNamespace getVariable [ format[ "ZMM_%1_Location", _this#0], [0,0,0]])],
 	["_showMarker", true],
-	["_forcePos", false]
+	["_forcePos", false],
+	["_forceID", -1]
 ];
 
-if (_centre isEqualTo [0,0,0]) then { _centre = [_centre, 50, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
+if (_centre isEqualTo [0,0,0]) then { _centre = [_centre, 0, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
 
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locations = missionNamespace getVariable [ format[ "ZMM_%1_SupportLocations", _zoneID ], []];  // Takes too long to populate - Left blank
@@ -28,9 +29,9 @@ if (_count == 0) then { _count = 1 };
 
 ["DEBUG", format["Zone%1 - Creating Support: Count %2 at %3%4", _zoneID, _count, _centre, [""," [FORCED]"] select _forcePos]] call zmm_fnc_logMsg;
 
-private _vehArr = [];
-if (count _vehL > 1) then { _vehArr append _vehL; _vehArr append _vehL; }; // Common
-if (count _vehM > 1) then { _vehArr append _vehM; }; // Medium
+private _vehArr = _vehL;
+if ((missionNamespace getVariable ["ZZM_Diff", 1]) >= 1) then { _vehArr append _vehM };
+if ((missionNamespace getVariable ["ZZM_Diff", 1]) >= 1.5) then { _vehArr append _vehH };
 if (count _hmgArr == 0) then { _hmgArr = ["B_GMG_01_high_F","B_HMG_01_high_F"] };
 
 if (!_forcePos && count _locations == 0) then {
@@ -110,7 +111,7 @@ private _buildingList = [
 		]
 	],
 	[
-		"o_ordinance", // Small Munitions Area
+		"o_ordnance", // Small Munitions Area
 		[
 			["O","Box_Syndicate_WpsLaunch_F", [5,-3.75,0.1], 165],
 			["O","Box_Syndicate_WpsLaunch_F", [5.5,-2.375,0.1], 75],
@@ -225,7 +226,7 @@ private _buildingList = [
 	]
 ];
 
-["DEBUG", format["Zone%1 - Creating Supports: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Creating Support: %2 in %3 positions (%4 types)", _zoneID, _count, count _locations, count _buildingList]] call zmm_fnc_logMsg;
 
 private _pos = [];
 
@@ -242,10 +243,10 @@ for "_i" from 1 to _count do {
 	{ [_x, true] remoteExec ["hideObject", 0, true] } forEach (nearestTerrainObjects [_pos, ["TREE", "SMALL TREE", "BUSH", "BUILDING", "HOUSE", "FOREST BORDER", "FOREST TRIANGLE", "FOREST SQUARE", "CHURCH", "CHAPEL", "CROSS", "BUNKER", "FORTRESS", "FOUNTAIN", "VIEW-TOWER", "LIGHTHOUSE", "QUAY", "FUELSTATION", "HOSPITAL", "FENCE", "WALL", "HIDE", "BUSSTOP", "FOREST", "TRANSMITTER", "STACK", "RUIN", "TOURISM", "WATERTOWER", "ROCK", "ROCKS", "POWERSOLAR", "POWERWAVE", "POWERWIND", "SHIPWRECK"], 25]);
 	
 	// Build Support
-	_bID = floor random count _buildingList;
+	_bID = if (_forceID >= 0 && _forceID < count _buildingList) then { _forceID } else { floor random count _buildingList };
 	(_buildingList#_bID) params ["_icon", "_list"];
 	
-	["DEBUG", format["Zone%1 - Spawning Support: ID%2 (%3) at %4", _zoneID, _bID, _icon, _pos]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Spawning Support: %5 of %6 - ID%2 (%3) at %4", _zoneID, _bID, _icon, _pos, _i, _count]] call zmm_fnc_logMsg;
 	
 	{
 		_x params ["_type", ["_class",""], ["_rel",[0,0,0]], ["_dir", 0], ["_flat", true]];
@@ -279,9 +280,9 @@ for "_i" from 1 to _count do {
 			_hdTrigger setTriggerStatements [  "this", format["'MKR_%1_SP_%2' setMarkerType '%3'", _zoneID, _i, _icon], "" ];
 		} else {
 			private _mrkr = createMarkerLocal [format ["MKR_%1_SP_%2", _zoneID, _i], _pos];
-			_mrkr setMarkerTypeLocal "mil_dot";
-			_mrkr setMarkerColorLocal "ColorGreen";
-			_mrkr setMarkerTextLocal format["Supp%1", _i];
+			_mrkr setMarkerTypeLocal _icon;
+			_mrkr setMarkerColorLocal format["Color%1",_side];
+			if (!isMultiplayer) then { _mrkr setMarkerTextLocal format["Support%1", _bID]; };
 		};
 	};
 };

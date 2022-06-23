@@ -17,15 +17,16 @@ private _menArr = missionNamespace getVariable [format["ZMM_%1Man",_side],[]];
 
 private _vehL = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
 private _vehM = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
+private _vehH = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
 
 if (_count == 0) then { _count = 1 };
 
 ["DEBUG", format["Zone%1 - Creating Roadblocks: %2", _zoneID, _count]] call zmm_fnc_logMsg;
 
 // Populate Vehicles
-private _vehArr = [];
-if (count _vehL > 1) then { _vehArr append _vehL; _vehArr append _vehL; }; // Common
-if (count _vehM > 1) then { _vehArr append _vehM; }; // Medium
+private _vehArr = _vehL;
+if ((missionNamespace getVariable ["ZZM_Diff", 1]) >= 1) then { _vehArr append _vehM };
+if ((missionNamespace getVariable ["ZZM_Diff", 1]) >= 1.5) then { _vehArr append _vehH };
 
 // Fill missing statics
 private _hmgArr = missionNamespace getVariable [format["ZMM_%1Veh_Static",_side],[]];

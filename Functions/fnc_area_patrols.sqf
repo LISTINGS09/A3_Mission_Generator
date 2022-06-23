@@ -15,9 +15,10 @@ private _cas = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (mi
 if (_locType isEqualTo "") then { _locType = type (nearestLocation [_centre,""]) };
 
 _fnc_spawnGroup = {
-	params ["_zoneID", "_centre", ["_types", []], ["_marker", ""], "_count", ["_maxTeamSize", 0]];
+	params ["_zoneID", "_centre", ["_types", []], ["_marker", ""], "_count"];
 	
-	if (round _count isEqualTo 0) exitWith {};
+	if (round _count <= 0) exitWith {};
+	if (count _types isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 	
 	if (_markerOverride isEqualTo "") then { 
 		if (_marker isEqualTo "") then { 
@@ -29,7 +30,7 @@ _fnc_spawnGroup = {
 
 	for [{_i = 0}, {_i < _count}, {_i = _i + 1}] do {
 		_group = grpNull;
-		if (count _types isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
+		
 		// If _unitClass is array, extract the custom init.
 		(selectRandom _types) params [["_type", objNull], ["_customInit", ""]];
 
@@ -78,8 +79,9 @@ _fnc_spawnGroup = {
 			[leader _group, _marker, "SHOWMARKER", "RANDOM"] spawn zmm_fnc_aiUPS;
 			
 			[leader _group] call zmm_fnc_inteladd; // Add Intel Drop
-		};		
-		uiSleep 1;
+		};
+		
+		if (time > 0) then { uiSleep 1 };
 	};
 };
 
@@ -87,55 +89,79 @@ _fnc_spawnGroup = {
 
 private _str = selectRandom ["Heavy", "Normal", "Light"];
 private _multiplier = missionNamespace getVariable ["ZZM_Diff", 1];
+private _customInfSml = missionNamespace getVariable ["ZMM_CustomSentry", -1];
+private _customInfMed = missionNamespace getVariable ["ZMM_CustomTeam", -1];
+private _customInfLrg = missionNamespace getVariable ["ZMM_CustomSquad", -1];
+private _customVehSml = missionNamespace getVariable ["ZMM_CustomLight", -1];
+private _customVehMed = missionNamespace getVariable ["ZMM_CustomMedium", -1];
+private _customVehLrg = missionNamespace getVariable ["ZMM_CustomHeavy", -1];
 
 switch (_locType) do {
-	case "Airport": { 
-		[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], 1 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _medium + _heavy, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _heavy + _cas, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (3 * _multiplier) + random 2, 3 * _multiplier] call _fnc_spawnGroup;	
-		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1, 5 * _multiplier] call _fnc_spawnGroup;	
-		[_zoneID, _centre, _squad, format["MKR_%1_MIN", _zoneID], 1 + random 1, 10 * _multiplier] call _fnc_spawnGroup;
+	case "Airport": { 		
+		[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], if (_customVehSml >= 0) then { _customVehSml } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], if (_customVehMed >= 0) then { _customVehMed } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _heavy, format["MKR_%1_MIN", _zoneID], if (_customVehLrg >= 0) then { _customVehLrg } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], if (_customInfSml >= 0) then { _customInfSml } else { (3 * _multiplier) + random 2 }] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], if (_customInfMed >= 0) then { _customInfMed } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _squad, format["MKR_%1_MIN", _zoneID], if (_customInfLrg >= 0) then { _customInfLrg } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
 	};
 	case "NameCityCapital": { 
-		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _medium + _heavy, format["MKR_%1_MIN", _zoneID], 2 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (3 * _multiplier) + random 2, 3 * _multiplier] call _fnc_spawnGroup;	
-		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1, 5 * _multiplier] call _fnc_spawnGroup;
-		[_zoneID, _centre, _squad, format["MKR_%1_MIN", _zoneID], 1 + random 1, 10 * _multiplier] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], if (_customVehSml >= 0) then { _customVehSml } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], if (_customVehMed >= 0) then { _customVehMed } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _heavy, format["MKR_%1_MIN", _zoneID], if (_customVehLrg >= 0) then { _customVehLrg } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], if (_customInfSml >= 0) then { _customInfSml } else { (3 * _multiplier) + random 2 }] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], if (_customInfMed >= 0) then { _customInfMed } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _squad, format["MKR_%1_MIN", _zoneID], if (_customInfLrg >= 0) then { _customInfLrg } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;	
 	};
 	case "NameCity": { 
-		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _medium + _heavy, format["MKR_%1_MIN", _zoneID], 1 + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 2, 3 * _multiplier] call _fnc_spawnGroup;
-		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 1 + random 1, 5 * _multiplier] call _fnc_spawnGroup;
+		[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], if (_customVehSml >= 0) then { _customVehSml } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], if (_customVehMed >= 0) then { _customVehMed } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _heavy, format["MKR_%1_MIN", _zoneID], if (_customVehLrg >= 0) then { _customVehLrg } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], if (_customInfSml >= 0) then { _customInfSml } else { (2 * _multiplier) + random 2 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], if (_customInfMed >= 0) then { _customInfMed } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _squad, format["MKR_%1_MAX", _zoneID], _customInfLrg] call _fnc_spawnGroup;  // Only valid for custom override.
 	};
 	case "NameVillage": { 
-		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], (1 * _multiplier) + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 2, 3 * _multiplier] call _fnc_spawnGroup;	
-		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 1 + random 1, 5 * _multiplier] call _fnc_spawnGroup;
+		[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], if (_customVehSml >= 0) then { _customVehSml } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], if (_customVehMed >= 0) then { _customVehMed } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _heavy, format["MKR_%1_MIN", _zoneID], _customVehLrg] call _fnc_spawnGroup;  // Only valid for custom override.
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], if (_customInfSml >= 0) then { _customInfSml } else { (2 * _multiplier) + random 2 }] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], if (_customInfMed >= 0) then { _customInfMed } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _squad, format["MKR_%1_MAX", _zoneID], _customInfLrg] call _fnc_spawnGroup;  // Only valid for custom override.
 	};
 	case "NameLocal": { 
-		[_zoneID, _centre, _light + _medium, format["MKR_%1_MAX", _zoneID], (1 * _multiplier) + random 1] call _fnc_spawnGroup;
-		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], (2 * _multiplier) + random 2, 3 * _multiplier] call _fnc_spawnGroup;	
-		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 1 + random 1, 5 * _multiplier] call _fnc_spawnGroup;
+		[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], if (_customVehSml >= 0) then { _customVehSml } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], if (_customVehMed >= 0) then { _customVehMed } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _heavy, format["MKR_%1_MIN", _zoneID], _customVehLrg] call _fnc_spawnGroup;  // Only valid for custom override.
+		[_zoneID, _centre, _sentry, format["MKR_%1_MAX", _zoneID], if (_customInfSml >= 0) then { _customInfSml } else { (2 * _multiplier) + random 2 }] call _fnc_spawnGroup;	
+		[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], if (_customInfMed >= 0) then { _customInfMed } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+		[_zoneID, _centre, _squad, format["MKR_%1_MAX", _zoneID], _customInfLrg] call _fnc_spawnGroup;  // Only valid for custom override.
 	};
 	default { 		
 		switch (_str) do {
 			case "Heavy": { 
-				[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], 1] call _fnc_spawnGroup;
-				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], random 1] call _fnc_spawnGroup; 
-				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], (2 * _multiplier) + random 1, 3 * _multiplier] call _fnc_spawnGroup;
-				[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1, 5 * _multiplier] call _fnc_spawnGroup;
+				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], if (_customVehSml >= 0) then { _customVehSml } else { (1 * _multiplier) }] call _fnc_spawnGroup; 
+				[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], if (_customVehMed >= 0) then { _customVehMed } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+				[_zoneID, _centre, _heavy, format["MKR_%1_MIN", _zoneID], _customVehLrg] call _fnc_spawnGroup;  // Only valid for custom override.
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], if (_customInfSml >= 0) then { _customInfSml } else { (3 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+				[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], if (_customInfMed >= 0) then { _customInfMed } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+				[_zoneID, _centre, _squad, format["MKR_%1_MAX", _zoneID], _customInfLrg] call _fnc_spawnGroup;  // Only valid for custom override.
 			};
 			case "Light": { 
-				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], random 1] call _fnc_spawnGroup; 
-				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], (3 * _multiplier) + random 1, 3 * _multiplier] call _fnc_spawnGroup;
+				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], if (_customVehSml >= 0) then { _customVehSml } else { (1 * _multiplier) }] call _fnc_spawnGroup;
+				[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], _customVehMed] call _fnc_spawnGroup; // Only valid for custom override.
+				[_zoneID, _centre, _heavy, format["MKR_%1_MIN", _zoneID], _customVehLrg] call _fnc_spawnGroup;  // Only valid for custom override.
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], if (_customInfSml >= 0) then { _customInfSml } else { (3 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+				[_zoneID, _centre, _team, format["MKR_%1_MAX", _zoneID], _customInfMed] call _fnc_spawnGroup;  // Only valid for custom override.
+				[_zoneID, _centre, _squad, format["MKR_%1_MAX", _zoneID], _customInfLrg] call _fnc_spawnGroup;  // Only valid for custom override.
 			};
 			default { 
-				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], 1 + random 1] call _fnc_spawnGroup; 
-				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], (2 * _multiplier) + random 1, 3 * _multiplier] call _fnc_spawnGroup;
-				[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], 2 + random 1, 5 * _multiplier] call _fnc_spawnGroup;
+				[_zoneID, _centre, _light, format["MKR_%1_MAX", _zoneID], if (_customVehSml >= 0) then { _customVehSml } else { (1 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+				[_zoneID, _centre, _medium, format["MKR_%1_MAX", _zoneID], _customVehMed] call _fnc_spawnGroup; // Only valid for custom override.
+				[_zoneID, _centre, _heavy, format["MKR_%1_MIN", _zoneID], _customVehLrg] call _fnc_spawnGroup;  // Only valid for custom override.
+				[_zoneID, _centre, _sentry, format["MKR_%1_MIN", _zoneID], if (_customInfSml >= 0) then { _customInfSml } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+				[_zoneID, _centre, _team, format["MKR_%1_MIN", _zoneID], if (_customInfMed >= 0) then { _customInfMed } else { (2 * _multiplier) + random 1 }] call _fnc_spawnGroup;
+				[_zoneID, _centre, _squad, format["MKR_%1_MAX", _zoneID], _customInfLrg] call _fnc_spawnGroup;  // Only valid for custom override.
 			};
 		};
 	};

@@ -57,7 +57,7 @@ if (_unitClass isEqualType "") then {
 	_vehName = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "displayName");
 	_grpVeh = createVehicle [_unitClass, _startingPos, [], 15, if _isAir then {"FLY"} else {"NONE"}];
 	_grpVeh setVehicleLock "LOCKEDPLAYER";
-	_grpVeh setVehicleTIPars [1, 0.5, 0.5];
+	[_grpVeh,[1, 0.5, 0.5]] remoteExec ["setVehicleTIPars"];
 
 	if _isAir then {
 		_sleep = false;
@@ -223,7 +223,7 @@ if !_isAir then {
 			private _time = time + 600;
 			while {	alive (vehicle leader _rGrp) && time < _time } do {
 				uiSleep 30;
-				{ if (_rGrp knowsAbout _x < 4) then { _rGrp reveal [_x, 4] } } forEach (allPlayers select {_x distance2D leader _rGrp < 1200 && vehicle _x == _x && stance _x == "STAND" });
+				{ if (_rGrp knowsAbout _x < 4) then { _rGrp reveal [_x, 4] } } forEach (allPlayers select {_x distance2D leader _rGrp < 2500 && stance _x != "PRONE" });
 			};
 		};
 	} else {

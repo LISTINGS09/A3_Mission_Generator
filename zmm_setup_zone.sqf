@@ -116,7 +116,7 @@ switch (_locType) do {
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (10 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 2)];
-		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 1.5)];
+		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime + 100];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], (4 * _multiplier)];
 		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], floor (random 1)];
@@ -136,6 +136,7 @@ switch (_locType) do {
 		_locSize = 0.75;
 		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (6 * _multiplier) + random 6];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 1.5)];
+		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 1.5)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], 0];
 		missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], 0];

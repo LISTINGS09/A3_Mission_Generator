@@ -57,7 +57,7 @@ for "_i" from 1 to _bombMax do {
 		};
 		
 		_bombCount = _bombCount + 1;
-		private _bombObj = _bombType createVehicle [0,0,0];
+		private _bombObj = createVehicle [_bombType, [0,0,0], [], 0, "NONE"];
 		_bombObj setPosATL _bombPos;
 		_bombObj setDir random 360;
 		
@@ -87,7 +87,7 @@ for "_i" from 1 to _bombMax do {
 			missionNamespace setVariable [format["ZMM_%1_OBJ_%2", _zoneID, _i], _bombObj];
 			
 			// Child task
-			private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the explosive somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgMagazines" >> "SatchelCharge_Remote_Mag" >> "displayName"), getText (configFile >> "CfgMagazines" >> "SatchelCharge_Remote_Mag" >> "picture")], format["Explosive #%1", _i], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
+			private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the explosive somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgMagazines" >> "SatchelCharge_Remote_Mag" >> "displayName"), getText (configFile >> "CfgMagazines" >> "SatchelCharge_Remote_Mag" >> "picture")], format["Explosive #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 			private _childTrigger = createTrigger ["EmptyDetector", getPos _bombObj, false];
 			_childTrigger setTriggerStatements [  format["!alive ZMM_%1_OBJ_%2", _zoneID, _i],
 										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],

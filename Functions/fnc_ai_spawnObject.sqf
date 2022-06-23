@@ -23,9 +23,10 @@ switch (_type) do {
 		// If _class is array, extract the custom init.
 		if (_class isEqualType []) then { _customInit = _class#1; _class = _class#0 };
 		
-		_obj = _class createVehicle [0,0,0];
-		_obj setVehiclePosition [_worldPos, [], 0, "NONE"];
+		_obj =  createVehicle [_class, [0,0,0], [], 150, "NONE"];
 		_obj setDir _worldDir;
+		_obj setPos _worldPos;
+		//_obj setVehiclePosition [_worldPos, [], 0, "NONE"];
 		
 		if (_obj isKindOf "StaticWeapon") then { _obj setPosATL _worldPos };
 		
@@ -50,11 +51,11 @@ switch (_type) do {
 		
 		// Add artillery/mortar to the zone supports list.
 		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_%1_MAX", _zoneID] != "") then {
-			[leader _tempGrp, format["MKR_%1_MAX", _zoneID], "SHOWMARKER", "NOAI", "NOWP"] spawn zmm_fnc_aiUPS;
+			[_grpVeh, format["MKR_%1_MAX", _zoneID], "SHOWMARKER", "NOAI", "NOWP"] spawn zmm_fnc_aiUPS;
 		};
 	};
 	case "O": {
-		_obj = _class createVehicle [0,0,0];
+		_obj = createVehicle [_class, [0,0,0], [], 0, "NONE"];
 		_obj setDir _worldDir;
 		_obj setPosATL _worldPos;
 		if !((_obj buildingPos -1) isEqualTo []) then { [_zoneID, 3, (_obj buildingPos -1)] spawn zmm_fnc_areaGarrison };

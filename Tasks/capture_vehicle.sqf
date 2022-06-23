@@ -57,7 +57,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
 	
 	["DEBUG", format["capture_vehicle (%1) - Creating %2 at %3", _zoneID, _vehClass, _vehPos]] call zmm_fnc_logMsg;
 
-	private _vehObj = _vehClass createVehicle _vehPos;
+	private _vehObj = createVehicle [_vehClass, _vehPos, [], 0, "NONE"];
 	private _randAnim = [];
 	{ 
 		_configName = configName _x; 

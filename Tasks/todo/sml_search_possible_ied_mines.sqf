@@ -17,7 +17,15 @@ private _missionDesc = selectRandom [
 
 _missionDesc = _missionDesc + "<br/><br/>The IEDs are wired to a motion sensor; walking or crawling slowly to an IED will stop it from detonating.<br/><br/>IEDs can either be disarmed by an engineer or disabled with an explosive.";
 	
-private _bombMax = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
+private _bombMax = switch (_locType) do {
+	case "Airport": { 5 };
+	case "NameCityCapital": { 5 };
+	case "NameCity": { 4 };
+	case "NameVillage": { 3 };
+	case "NameLocal": { 3 };
+	default { 2 };
+};
+
 private _bombLocs = [];
 
 {
@@ -75,7 +83,7 @@ for "_i" from 1 to _bombMax do {
 		_zoneID, _i], "" ];
 	
 	// Child task
-	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the IED somewhere within the marked area.<br/><br/>Target Explosive: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _bombType >> "displayName"), getText (configFile >> "CfgVehicles" >> _bombType >> "editorPreview")], format["IED #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
+	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the IED somewhere within the marked area.<br/><br/>Target Explosive: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _bombType >> "displayName"), getText (configFile >> "CfgVehicles" >> _bombType >> "editorPreview")], format["IED #%1", _i], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 	private _childTrigger = createTrigger ["EmptyDetector", getPos _mineObj, false];
 	_childTrigger setTriggerTimeout [1, 1, 1, true];
 	_childTrigger setTriggerStatements [  format["!alive ZMM_%1_OBJ_%2", _zoneID, _i],

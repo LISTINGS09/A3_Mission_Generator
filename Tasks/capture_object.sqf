@@ -18,15 +18,12 @@ private _missionDesc = selectRandom [
 		"Enemy forces have occupied <font color='#0080FF'>%1</font color>, eliminate them and find the <font color='#00FFFF'>%2 Container(s)</font color> in the area.",
 		"Locate the <font color='#00FFFF'>%2 Container(s)</font color> hidden somewhere in <font color='#0080FF'>%1</font color>."
 	];
-	
-// Find one building position.
-private _bldPos = [];
-{ _bldPos pushBack selectRandom (_x buildingPos -1) } forEach _buildings;
 
+private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 private _itemNo = 0;
 private _itemActivation = [];
 
-for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
+for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	private _itemType = selectRandom ["C_IDAP_supplyCrate_F", "Box_FIA_Ammo_F", "Land_MetalCase_01_large_F", "Land_PlasticCase_01_large_F", "Land_PlasticCase_01_large_gray_F"];
 	private _itemPos = [];
 	private _inBuilding = false;
@@ -49,7 +46,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
 		
 	if (count _itemPos > 0) then {
 		_itemNo = _itemNo + 1;
-		private _item = createVehicle [_itemType, [0,0,0], [], 0, "NONE"];
+		private _item = createVehicle [_itemType, [0,0,0], [], 150, "NONE"];
 		_item setPosATL _itemPos;
 		_item setDir random 360;
 		_item allowDamage false;

@@ -85,7 +85,7 @@ private _objHVT = ObjNull;
 	
 	["DEBUG", format["destroy_convoy (%1) - Creating %2 at %3", _zoneID, _vehType, _tempPos]] call zmm_fnc_logMsg;
 	
-	_grpVeh = _vehType createVehicle _tempPos;
+	_grpVeh = createVehicle [_vehType, _tempPos, [], 0, "NONE"];
 	
 	// Set direction to nearby road
 	if (isNil "_foundRoad" && count roadsConnectedTo _foundRoad > 0) then { _grpVeh setDir ([_foundRoad, (roadsConnectedTo _foundRoad) # 0] call BIS_fnc_DirTo) };

@@ -67,7 +67,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			_civObj setVariable ["var_zoneID", _zoneID, true];
 			_civObj setVariable ["var_itemID", _i, true];
 			
-			_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Speak to the civilian somewhere within the marked area.<br/><br/>Contact: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", name _civObj, getText (configFile >> "CfgVehicles" >> _civType >> "editorPreview")], format["Person #%1", _i], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["talk%1", _i]] call BIS_fnc_setTask;
+			_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Speak to the civilian somewhere within the marked area.<br/><br/>Contact: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", name _civObj, getText (configFile >> "CfgVehicles" >> _civType >> "editorPreview")], format["Person #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["talk%1", _i]] call BIS_fnc_setTask;
 
 			[_civObj, 
 				format["<t color='#00FF80'>Speak to %1</t>", name _civObj], 

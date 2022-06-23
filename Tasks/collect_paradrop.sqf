@@ -18,7 +18,7 @@ private _dropPos = [_centre getPos [random 100, random 360], 1, _radius, 1, 0, 0
 _dropType = selectRandom ["CargoNet_01_barrels_F","CargoNet_01_box_F","I_CargoNet_01_ammo_F","O_CargoNet_01_ammo_F","C_IDAP_CargoNet_01_supplies_F","B_CargoNet_01_ammo_F"];
 _dropName = [getText (configFile >> "CfgVehicles" >> _dropType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString;
 
-private _dropObj = _dropType createVehicle [50,50,0];
+private _dropObj = createVehicle [_dropType, [0,0,0], [], 0, "NONE"];
 _dropObj allowDamage false; 
 
 clearMagazineCargoGlobal _dropObj;

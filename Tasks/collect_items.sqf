@@ -60,7 +60,7 @@ for "_i" from 1 to (_itemMax + 3) do {
 		
 	if (count _itemPos > 0) then {		
 		_itemCount = _itemCount + 1;
-		_itemObj = _itemType createVehicle [0,0,0];
+		_itemObj = createVehicle [_itemType, [0,0,0], [], 0, "NONE"];
 		_itemObj setPosATL _itemPos;
 		_itemObj setDir random 360;
 			

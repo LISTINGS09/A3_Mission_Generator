@@ -56,7 +56,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 1]) do {
 	
 	["DEBUG", format["destroy_vehicle (%1) - Creating %2 at %3", _zoneID, _vehClass, _vehPos]] call zmm_fnc_logMsg;
 
-	private _vehObj = _vehClass createVehicle _vehPos;	
+	private _vehObj = createVehicle [_vehClass, _vehPos, [], 0, "NONE"];
 	private _randAnim = [];
 	{ 
 		_configName = configName _x; 
@@ -149,7 +149,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 1]) do {
 		] remoteExec ["bis_fnc_holdActionAdd", 0, _vehObj];
 						
 		// Child task
-		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _vehNo], format['ZMM_%1_TSK', _zoneID]], true, [format["Destroy the vehicle somewhere within the area and then approach it. Interact with the destroyed vehicle collect the <font color='#00FFFF'>%3</font> from it.<br/><br/>Target Vehicle: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview"), _vehText], format["Vehicle #%1", _vehNo], format["MKR_%1_%2_OBJ", _zoneID, _vehNo]], nil, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
+		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _vehNo], format['ZMM_%1_TSK', _zoneID]], true, [format["Destroy the vehicle somewhere within the area and then approach it. Interact with the destroyed vehicle collect the <font color='#00FFFF'>%3</font> from it.<br/><br/>Target Vehicle: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview"), _vehText], format["Vehicle #%1", _vehNo], format["MKR_%1_MIN", _zoneID]], nil, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
 	} else { deleteVehicle _vehObj };
 };
 

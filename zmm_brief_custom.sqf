@@ -99,7 +99,21 @@ private _lastType = "";
 } forEach ZMM_tasks;
 
 _ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>2. Select Location</font><br/><execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute> and choose where to begin your Assignment. Any place not on water may be selected.";
-_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>3. Confirm</font><br/>Once happy with your location <execute expression=""[] call zmm_fnc_confirm;"">Confirm Selection</execute><br/><br/>";
+_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>3. Choose Unit Groups</font><br/>By default unit groups will be chosen by location size and type, they can be overridden using the settings below:<br/>";
+
+{
+	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];
+	_ZMMtext = _ZMMtext + format["[<execute expression=""systemChat ('%2: ' + str (missionNamespace getVariable ['%1', -1]))"">CHK</execute>] [<execute expression=""missionNamespace setVariable ['%1', -1, true]; systemChat ('%2: Using Mission Default')"">Default</execute>] [<execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) + 1) min 8, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">+</execute>] [<execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) - 1) max 0, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">-</execute>] %2<br/>", _varName, _varText];
+} forEach [
+	["ZMM_CustomSentry", "Sentries (2-3 Units)"],
+	["ZMM_CustomTeam", "Team (4-6 Units)"],
+	["ZMM_CustomSquad", "Squads (8+ Units)"],
+	["ZMM_CustomLight", "Light Vehicles"],
+	["ZMM_CustomMedium", "Medium Vehicles"],
+	["ZMM_CustomHeavy", "Heavy Vehicles"]
+];
+
+_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>4. Confirm</font><br/>Once happy with your location <execute expression=""[] call zmm_fnc_confirm;"">Confirm Selection</execute><br/><br/>";
 _ZMMtext = _ZMMtext + format["<br/>ZMM v%1<br/><br/>", missionNamespace getVariable["ZMM_Version",0]];
 	
 

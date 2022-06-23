@@ -62,11 +62,11 @@ private _indQRF = [
 	0,	2.5, 				// General
 	1,	2.5, 				// Motorized
 	2,	1.5, 				// Mechanised
-	3,	(0.5 * ZZM_Diff), 	// Armoured
+	3,	(0.25 * ZZM_Diff), 	// Armoured
 	4,	0.5, 				// Airborne
 	5,	3.5, 				// Infantry
-	6,	(0.5 * ZZM_Diff), 	// Helicopter
-	7,	(0.5 * ZZM_Diff)	// Aircraft
+	6,	(0.25 * ZZM_Diff), 	// Helicopter
+	7,	(0.25 * ZZM_Diff)	// Aircraft
 ];
 
 private _opfQRF = [
@@ -412,9 +412,11 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 						case 3: {
 							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
 							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
 						};
 						default {
 							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
 							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
 						};
 					};

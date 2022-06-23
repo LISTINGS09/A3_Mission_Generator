@@ -51,7 +51,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	
 	if (count _garPos > 0) then { 
 	
-		private _garObj = _garType createVehicle [0,0,0];
+		private _garObj = createVehicle [_garType, [0,0,0], [], 0, "NONE"];
 		_garObj setPosATL _garPos;
 		_garObj setDir random 360;
 		_garObj allowDamage false;
@@ -75,10 +75,10 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			_mrkr setMarkerColor format["Color%1",_enemySide];
 			
 			// Child task
-			_garObj setVariable ["var_zoneID", _zoneID, true];
-			_garObj setVariable ["var_itemID", _i, true];
+			_garObj setVariable ["var_zID", _zoneID, true];
+			_garObj setVariable ["var_iID", _i, true];
 			
-			_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Search the garbage located somewhere inside the marked area.<br/><br/>Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _garType >> "displayName"), getText (configFile >> "CfgVehicles" >> _garType >> "editorPreview")], format["Garbage #%1", _i], format["MKR_%1_%2_OBJ", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, "search"] call BIS_fnc_setTask;
+			_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Search the garbage located somewhere inside the marked area.<br/><br/>Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _garType >> "displayName"), getText (configFile >> "CfgVehicles" >> _garType >> "editorPreview")], format["Garbage #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, "search"] call BIS_fnc_setTask;
 
 			[_garObj, 
 				format["<t color='#00FF80'>Search the %1</t>", getText (configFile >> "CfgVehicles" >> _garType >> "displayName")], 
@@ -92,11 +92,11 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 					[_target, _actionId] remoteExec ["BIS_fnc_holdActionRemove"];
 					_caller playAction "PutDown";
 					sleep 1;
-					private _varName = format["ZMM_%1_TSK_Counter", (_target getVariable ["var_zoneID", 0])];
+					private _varName = format["ZMM_%1_TSK_Counter", (_target getVariable ["var_zID", 0])];
 					missionNamespace setVariable [_varName, (missionNamespace getVariable [_varName, 0]) - ((random 1) + 1), true];
-					deleteMarker format["MKR_%1_OBJ_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])];
+					deleteMarker format["MKR_%1_OBJ_%2", (_target getVariable ["var_zID", 0]), (_target getVariable ["var_iID", 0])];
 					[name _caller, if (missionNamespace getVariable [_varName, 0] >= 1) then { "There is nothing of value in here." } else { "We have got what we came for, mission complete." }] remoteExec ["BIS_fnc_showSubtitle"];
-					[format["ZMM_%1_SUB_%2", (_target getVariable ["var_zoneID", 0]), (_target getVariable ["var_itemID", 0])], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
+					[format["ZMM_%1_SUB_%2", (_target getVariable ["var_zID", 0]), (_target getVariable ["var_iID", 0])], 'Succeeded', true] remoteExec ["BIS_fnc_taskSetState"];
 					[_target, { sleep 120; deleteVehicle _this }] remoteExec ["BIS_fnc_spawn", _target];
 				}, 
 				{}, 

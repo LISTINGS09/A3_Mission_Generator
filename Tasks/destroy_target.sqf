@@ -34,7 +34,7 @@ if (count _tempArr == 0) then {
 	// Add to Zeus
 	{ _x addCuratorEditableObjects [[_targetObj], true] } forEach allCurators;
 } else {
-	_targetArr = selectRandom _tempArr;
+	_targetArr pushBack (selectRandom _tempArr);
 	
 	for "_i" from 0 to _count do {
 		if (count _tempArr < 1) exitWith {};
