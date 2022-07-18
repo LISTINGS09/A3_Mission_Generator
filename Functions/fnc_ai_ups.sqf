@@ -1,5 +1,6 @@
 //
 //  Urban Patrol Script Zeus Edition
+//  Version: 2.2
 //  Author: 2600K & Kronzky (www.kronzky.info / kronzky@gmail.com)
 //  BIS Forum: http://forums.bistudio.com/showthread.php?147904-Urban-Patrol-Script&highlight=Urban+Patrol+Script
 //
