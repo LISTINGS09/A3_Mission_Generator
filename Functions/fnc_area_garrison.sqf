@@ -24,7 +24,7 @@ if (count _bPos isEqualTo 0) then {
 	} forEach _buildings;
 };
 
-["DEBUG", format["Zone%1 - Creating Garrison: %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Area Garrison - Creating: %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
 
 if (count _menArray isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 
@@ -33,7 +33,7 @@ private _grp = createGroup [_side, true];
 for "_i" from 1 to (_enemyCount) do {
 	 _unitType = selectRandom _menArray;
 	 _inHouse = true;
-	 
+	
 	if (count _bPos == 0) exitWith {
 		// Spawn stationary soldiers.
 		if (random 1 > 0.8) then {
@@ -62,6 +62,18 @@ for "_i" from 1 to (_enemyCount) do {
 		[_unit] spawn zmm_fnc_unitDirPos;
 
 		if (random 1 < 0.1) then { [_unit] call zmm_fnc_inteladd };
+		
+		if (count (_unit nearEntities ["EmptyDetector", 50]) isEqualTo 0) then {
+			private _trg = createTrigger ["EmptyDetector", getPos _unit];
+			_trg setTriggerArea [50, 50, 0, false, 15];
+			_trg setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+			_trg setTriggerInterval 5;
+			_trg setTriggerStatements [
+				"this", 
+				"{ if (local _x) then { if (!(_x checkAIFeature 'PATH') && random 1 < 0.2) then { doStop _x; _x enableAI 'PATH' }; }; } forEach (allUnits inAreaArray thisTrigger);",
+				"{ if (local _x) then { if !(_x checkAIFeature 'PATH') then { _x doFollow leader _x; _x enableAI 'PATH' }; }; } forEach (allUnits inAreaArray thisTrigger);"
+			];
+		};
 	};
 };
 

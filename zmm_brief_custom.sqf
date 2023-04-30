@@ -103,7 +103,7 @@ _ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>3. Choose Unit 
 
 {
 	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];
-	_ZMMtext = _ZMMtext + format["[<execute expression=""systemChat ('%2: ' + str (missionNamespace getVariable ['%1', -1]))"">CHK</execute>] [<execute expression=""missionNamespace setVariable ['%1', -1, true]; systemChat ('%2: Using Mission Default')"">Default</execute>] [<execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) + 1) min 8, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">+</execute>] [<execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) - 1) max 0, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">-</execute>] %2<br/>", _varName, _varText];
+	_ZMMtext = _ZMMtext + format["[<execute expression=""systemChat ('%2: ' + str (if ((missionNamespace getVariable ['%1', -1]) < 0) then { 'Mission Default' } else { missionNamespace getVariable ['%1', -1] }))"">CHK</execute>] [<execute expression=""missionNamespace setVariable ['%1', -1, true]; systemChat ('%2: Using Mission Default')"">Default</execute>] [<execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) + 1) min 8, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">+</execute>] [<execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) - 1) max 0, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">-</execute>] %2<br/>", _varName, _varText];
 } forEach [
 	["ZMM_CustomSentry", "Sentries (2-3 Units)"],
 	["ZMM_CustomTeam", "Team (4-6 Units)"],

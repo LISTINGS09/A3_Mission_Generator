@@ -36,8 +36,6 @@ _allGrids resize ((missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) min 8
 {
 	private _gridRef = mapGridPosition _x;
 	private _gridID = _forEachIndex + 1;
-		
-	private _gridRef = format["%1%2", _gridRef#0, _gridRef#1];
 	
 	if (!(surfaceIsWater _x) && !(_gridRef in _areaGrids)) then {
 		_areaGrids pushBack _gridRef;

@@ -18,15 +18,23 @@ private _missionDesc = [
 
 private _count = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 private _targetArr = [];
-private _targetTypes = ["Land_Research_house_V1_F", "Land_Research_HQ_F", "Land_dp_bigTank_F", "Land_dp_smallTank_F", "Land_ReservoirTank_V1_F", "Land_ReservoirTank_Airport_F",
-	"Land_ReservoirTank_Rust_F", "Land_TTowerSmall_1_F", "Land_TTowerSmall_2_F", "Land_ReservoirTank_01_military_F", "Land_Radar_F", "Land_Radar_Small_F", "Land_TTowerBig_1_F", "Land_TTowerBig_2_F", "Land_Communication_F"
+private _targetTypes = ["Land_Research_house_V1_F", "Land_Research_HQ_F", "Land_dp_bigTank_F", 
+	"Land_dp_smallTank_F", "Land_ReservoirTank_V1_F", "Land_ReservoirTank_Airport_F",
+	"Land_ReservoirTank_Rust_F", "Land_TTowerSmall_1_F", "Land_TTowerSmall_2_F", 
+	"Land_ReservoirTank_01_military_F", "Land_Radar_F", "Land_Radar_Small_F", "Land_TTowerBig_1_F", 
+	"Land_TTowerBig_2_F", "Land_Communication_F", "Land_Warehouse_03_F",
+	"Land_i_Shed_Ind_F", "Land_u_Shed_Ind_F", "Land_ReservoirTower_F",
+	"Land_PowerLine_distributor_F","Land_dp_bigTank_old_F","Land_dp_smallTank_old_F",
+	"Land_i_Shed_Ind_old_F","Land_SM_01_reservoirTower_F", "Land_WaterTower_01_F", "Land_WindmillPump_01_F",
+	"Land_SM_01_shed_F", "Land_SM_01_shed_unfinished_F", "Land_DPP_01_transformer_F",
+	"Land_wpp_Turbine_V2_F", "Land_wpp_Turbine_V1_F", "Land_wpp_Turbine_V2_off_F", "Land_wpp_Turbine_V1_off_F"
 ];
 
 private _tempArr = (_centre nearObjects ["Building", 200]) select { typeOf _x in _targetTypes };
 
 if (count _tempArr == 0) then { 
 	if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
-	private _targetObj = createVehicle [selectRandom _targetTypes, _targetPos, [], 50, "NONE"];
+	private _targetObj = createVehicle [selectRandom _targetTypes, _targetPos, [], 0, "NONE"];
 	_targetObj setVectorUp [0,0,1];
 	_targetPos = getPos _targetObj;
 	_targetArr pushBack _targetObj;

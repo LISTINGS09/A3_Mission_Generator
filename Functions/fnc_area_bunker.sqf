@@ -718,7 +718,7 @@ private _buildingList = [
 	]
 ];
 
-["DEBUG", format["Zone%1 - Creating Sites: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Area Bunker - Creating: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_logMsg;
 
 for "_i" from 1 to _count do {
 	private _pos = [];
@@ -755,7 +755,7 @@ for "_i" from 1 to _count do {
 	_tempGrp deleteGroupWhenEmpty true;
 	_tempGrp enableDynamicSimulation true;
 	
-	if (missionNamespace getVariable ["ZZM_Mode", 0] != 1) then {
+	if (missionNamespace getVariable ["ZZM_Mode", 0] == 0) then {
 		private _mrkr = createMarker [format["MKR_%1_SP_%2", _zoneID, _i], _pos getPos [25, random 360]];
 		_mrkr setMarkerType "mil_unknown";
 		_mrkr setMarkerColor format["Color%1",_side];

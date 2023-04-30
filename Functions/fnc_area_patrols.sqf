@@ -18,7 +18,7 @@ _fnc_spawnGroup = {
 	params ["_zoneID", "_centre", ["_types", []], ["_marker", ""], "_count"];
 	
 	if (round _count <= 0) exitWith {};
-	if (count _types isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
+	if (count _types isEqualTo 0) exitWith { ["ERROR", format["Zone%1 - Area Patrols - (%2) No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 	
 	if (_markerOverride isEqualTo "") then { 
 		if (_marker isEqualTo "") then { 
@@ -59,7 +59,7 @@ _fnc_spawnGroup = {
 				
 				{ _x addCuratorEditableObjects [ crew _veh, true ] } forEach allCurators;
 				
-				["DEBUG", format["Zone%1 (%3) - Spawning '%2' [%4]", _zoneID, if (_type isEqualType configFile) then { configName _type } else { _type }, _side, getPos _veh]] call zmm_fnc_logMsg;
+				["DEBUG", format["Zone%1 - Area Patrols - Spawning (%3) '%2' [%4]", _zoneID, if (_type isEqualType configFile) then { configName _type } else { _type }, _side, getPos _veh]] call zmm_fnc_logMsg;
 				[driver _veh, _marker, "SHOWMARKER"] spawn zmm_fnc_aiUPS;
 			} else {
 				["ERROR", format["Invalid vehicle class: %1", _type]] call zmm_fnc_logMsg;
@@ -75,7 +75,7 @@ _fnc_spawnGroup = {
 			
 			{ _x addCuratorEditableObjects [ units _group, true ] } forEach allCurators;
 			
-			["DEBUG", format["Zone%1 (%3) - Spawning '%2' [Random]", _zoneID, if (_type isEqualType configFile) then { configName _type } else { _type }, _side]] call zmm_fnc_logMsg;
+			["DEBUG", format["Zone%1 - Area Patrols - Spawning (%3) '%2' [Random]", _zoneID, if (_type isEqualType configFile) then { configName _type } else { _type }, _side]] call zmm_fnc_logMsg;
 			[leader _group, _marker, "SHOWMARKER", "RANDOM"] spawn zmm_fnc_aiUPS;
 			
 			[leader _group] call zmm_fnc_inteladd; // Add Intel Drop
@@ -85,7 +85,7 @@ _fnc_spawnGroup = {
 	};
 };
 
-["DEBUG", format["Zone%1 - Creating Patrols (%2)", _zoneID, _locType]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Area Patrols - Creating (%2)", _zoneID, _locType]] call zmm_fnc_logMsg;
 
 private _str = selectRandom ["Heavy", "Normal", "Light"];
 private _multiplier = missionNamespace getVariable ["ZZM_Diff", 1];

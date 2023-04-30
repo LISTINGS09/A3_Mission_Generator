@@ -46,7 +46,7 @@ private _counter = 0;
 				// Objective Zone
 				if _create then { 
 					// Are we in CTI Mode?
-					if (ZZM_Mode == 1) then {
+					if (ZZM_Mode > 0) then {
 						_zoneId = [_pos, _locType, _radius, _locName ] call zmm_fnc_setupZone;
 						_counter = _counter + 1;
 					} else {
@@ -63,5 +63,12 @@ private _counter = 0;
 		};
 	} forEach ("getText (_x >> 'type') == _configType" configClasses (configFile >> "CfgWorlds" >> worldName >> "Names"));
 } forEach ["Airport", "NameCityCapital", "NameCity", "NameVillage", "NameLocal"];
+
+// TODO: Custom Locations Here?
+//
+{
+	_zoneId = [getPos _x,  "NameVillage", 250, format["Location %1", _forEachIndex] ] call zmm_fnc_setupZone;
+	_counter = _counter + 1;
+} forEach (allMissionObjects "logic" select { str _x find "ZMM_LOC_" >= 0 });
 
 ["INFO", format["Populating World: Complete (%1 Zones)", _counter]] call zmm_fnc_logMsg;

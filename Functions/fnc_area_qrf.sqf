@@ -99,7 +99,7 @@ private _air = missionNamespace getVariable [format["ZMM_%1Veh_Air",_side],[]];
 private _casH = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
 private _casP = missionNamespace getVariable [format["ZMM_%1Veh_CasP",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])];
 
-["DEBUG", format["Zone%1 - Starting QRF - T:%2 D:%3 W:%4", _zoneID, _qrfTypes select _qrfType, _diff, _maxWave]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Area QRF - Starting - T:%2 D:%3 W:%4", _zoneID, _qrfTypes select _qrfType, _diff, _maxWave]] call zmm_fnc_logMsg;
 
 /*if ((missionNamespace getVariable ["ZZM_Mode",1]) != 1 && isNil "ZMM_Announced") then {
 	[selectRandom ["HQ","UAV","Recon"], format["%1 enemy %2 forces are %3.", selectRandom ["Warning,","Caution,","Be advised,","Be aware,"], _qrfTypes select _qrfType, selectRandom ["inbound","en-route","responding","closing in"]]] remoteExec ["BIS_fnc_showSubtitle"];
@@ -111,7 +111,7 @@ sleep (_delay / 4);
 // MAIN
 // Spawn waves.
 for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
-	["DEBUG", format["Zone%1 - Spawning QRF #%2", _zoneID, _wave]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Area QRF - Spawning #%2", _zoneID, _wave]] call zmm_fnc_logMsg;
 	
 	if (({ _centre distance2D _x < 1000 } count (switchableUnits + playableUnits)) isEqualTo 0) exitWith {
 		["DEBUG", format["Zone%1 - Stopping QRF: No players nearby", _zoneID]] call zmm_fnc_logMsg;

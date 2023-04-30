@@ -1,12 +1,12 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.35;
+ZMM_Version = 4.36;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
 // ZZM_Mode = 1 - CTI Intel Mode
-// ZZM_Mode = 2 - Fixed location, objective selection.
-// ZZM_Mode = 0;
+// ZZM_Mode = 2 - C&C Mode.
+// ZZM_Mode = 2;
 // ZZM_Diff = 0.5 - Which Part Is The Trigger
 // ZZM_Diff = 0.7 - Walk In The Park
 // ZZM_Diff = 1 - Lean Mean Killing Machine
@@ -25,9 +25,6 @@ if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_Z
 if (isNil "ZZM_Diff") then { ZZM_Diff = missionNamespace getVariable ["f_param_ZMMDiff", 1] };
 if (isNil "ZZM_IED") then { ZZM_IED = missionNamespace getVariable ["f_param_ZMMIED", 1] };
 if (isNil "ZZM_QRF") then { ZZM_QRF = missionNamespace getVariable ["f_param_ZMMQRF", 1] };
-
-if (ZZM_Mode isEqualTo 0 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief_custom.sqf", ZMM_FolderLocation] };
-if (ZZM_Mode isEqualTo 2 && hasInterface) then { _nul = [] execVM format["%1\zmm_brief_fixed.sqf", ZMM_FolderLocation] };
 
 // Register Tasks
 ZMM_tasks = [
@@ -80,7 +77,7 @@ ZMM_tasks = [
 	,["Disarm", "UXO Search", "Secure and remove a number of UXOs from the location", "\A3\ui_f\data\igui\cfg\simpleTasks\types\mine_ca.paa", "Anywhere", "disarm_uxo.sqf"]
 ];
 
-
+// TODO:
 // ,["Rescue", "Evacuate Civilians", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_civilians.sqf"]
 // ,["Recovery", "Recover Supplies", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "collect_supplies.sqf"]
 // ,["Secure", "Capture Site", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\attack_ca.paa", "Anywhere", "capture_site.sqf"]
@@ -92,12 +89,12 @@ ZMM_tasks = [
 // ,["Rescue", "Rescue Pilot", "Destroy the crashed vehicle then locate and rescue the crew", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_pilot.sqf"]
 // ,["Rescue", "Rescue Hostage", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_hostage.sqf"]
 
-
-// INSTALL A SPY MICROPHONE
-// neutralise 3 OFFICERS
-
-// FREE A HOSTAGE
-// PATROL AN AREA
+if hasInterface then {
+	switch (ZZM_Mode) do {
+		case 0: { _nul = [] execVM format["%1\zmm_brief_custom.sqf", ZMM_FolderLocation] };
+		case 2: { _nul = [] execVM format["%1\zmm_brief_commander.sqf", ZMM_FolderLocation] };
+	};
+};
 
 if isServer then {
 	EAST setFriend [RESISTANCE, 0];
@@ -152,7 +149,7 @@ if isServer then {
 			missionNamespace setVariable ["ZCS_var_BlackList", _blackList];
 		};
 		
-		if (isNil "ZMM_playerSide") then { ZMM_playerSide = side _x };
+		if (isNil "ZMM_playerSide") then { ZMM_playerSide = side group _x };
 	} forEach (playableUnits + switchableUnits);
 	
 	ZMM_enemySides = [ WEST, EAST, INDEPENDENT ] - [ ZMM_playerSide ];
@@ -161,8 +158,10 @@ if isServer then {
 	[] spawn zmm_fnc_setupWorld;
 	
 	// Waits for publicVariable then creates zone.
-	if (ZZM_Mode isEqualTo 0) exitWith { _nul = [] execVM format["%1\zmm_setup_custom.sqf", ZMM_FolderLocation]; }; 
-	if (ZZM_Mode isEqualTo 2) exitWith { _nul = [] execVM format["%1\zmm_setup_fixed.sqf", ZMM_FolderLocation]; };
+	switch (ZZM_Mode) do {
+		case 0: { _nul = [] execVM format["%1\zmm_setup_custom.sqf", ZMM_FolderLocation] };
+		case 2: { _nul = [] execVM format["%1\zmm_setup_commander.sqf", ZMM_FolderLocation] };
+	};
 	
 	// Check classnames
 	{

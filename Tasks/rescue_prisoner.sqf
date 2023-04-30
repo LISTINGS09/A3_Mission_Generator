@@ -1,5 +1,6 @@
 // v1.0
 // Set-up mission variables.
+// TODO: Add support for ZZM_ObjectiveCount
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]], ["_bld", objNull ] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];

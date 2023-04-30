@@ -1,4 +1,4 @@
-// Iterates the Zone and selects a suitable objective.
+// Iterates the Zone and selects a suitable objective, current zone is stored as 'ZMM_ZONE'
 if !isServer exitWith {};
 
 params [ "_zoneID", ["_filterTask", ""] ];
@@ -8,11 +8,11 @@ if (isNil "_zoneID") then {
 	private _markersAll = missionNamespace getVariable ["ZMM_ZoneMarkers", []];
 	private _markersFar = [];
 	
-	if (_markersAll isEqualTo []) exitWith {}; // No markers so just exit.
+	if (_markersAll isEqualTo []) exitWith { ["ERROR", "Setup Task - No more markers remaining in 'ZMM_ZoneMarkers'!"] call zmm_fnc_logMsg }; // No markers!
 	
 	{
 		_mkr = _x;
-		if ((playableUnits + switchableUnits) findIf { _x distance (getmarkerPos _mkr) < 1500 } isEqualTo -1) then { _markersFar pushBack _mkr };
+		if ((playableUnits + switchableUnits) findIf { _x distance (getmarkerPos _mkr) < (missionNamespace getVariable ["ZMM_TaskDistance",15000]) } isEqualTo -1) then { _markersFar pushBack _mkr };
 	} forEach _markersAll;
 	
 	private _foundZone = selectRandom _markersAll;
@@ -28,6 +28,7 @@ if (isNil "_zoneID") exitWith { ["ERROR", "Invalid Objective Zone"] call zmm_fnc
 
 // Set global mission variable to false.
 missionNamespace setVariable ["ZMM_DONE", false, true];
+missionNamespace setVariable ["ZMM_ZONE", _zoneID, true];
 
 // Find a Main Objective
 private _centre = missionNamespace getVariable [ format[ "ZMM_%1_Location", _zoneID ], [0,0,0] ];
@@ -57,7 +58,7 @@ if (count _objectives == 0) exitWith {
 // Get any custom parameters from the task.
 (selectRandom _objectives) params ["_type", "_name", "_desc", "_icon", "_args", "_script", ["_overWrite", []]];
 
-_args = switch (_args) do {
+private _argument = switch (_args) do {
 	// Get Large Building
 	case "Building": {
 		private _lrgBlds = _buildings select { count (_x buildingPos -1) >= 6 }; 
@@ -95,13 +96,12 @@ if (count _overWrite > 0) then {
 	if !_roadblock then { missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 0] };	
 };
 
-_result = _args call compile preprocessFileLineNumbers format["%1\tasks\%2", ZMM_FolderLocation, _script];
+["DEBUG", format["Zone%1 - Setup Task - Compiling Script '%2' script '%3'", _zoneID, _argument, _script]] call zmm_fnc_logMsg;
 
-if !_result then {
-	["ERROR", format["Zone%1 - Failed to create: %2 [%3]", _zoneID, _script, _type]] call zmm_fnc_logMsg;
-	[_zoneID, ""] call zmm_fnc_setupTask;
-} else {
-	["DEBUG", format["Zone%1 - Created Objective %2 [%3] - (Wanted: %5) at %4", _zoneID, _script, _type, _locName, _filterTask]] call zmm_fnc_logMsg;
-};
+private _handle = _argument spawn compile preprocessFileLineNumbers format["%1\tasks\%2", ZMM_FolderLocation, _script];
+
+// Force activate population of the zone
+private _popTrigger = missionNamespace getVariable [format["TR_%1_POPULATE", _zoneID],objNull];
+if (_popTrigger isKindOf "EmptyDetector") then { _popTrigger setTriggerStatements ["true",(triggerStatements _popTrigger)#1,(triggerStatements _popTrigger)#2]; };
 
 true

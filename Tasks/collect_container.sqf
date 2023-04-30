@@ -61,49 +61,33 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		
 		// If the crate was moved safely, create the task.
 		if (alive _contObj) then {
-			_mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _contObj getPos [random 50, random 360]];
-			_mrkr setMarkerShape "ELLIPSE";
-			_mrkr setMarkerBrush "SolidBorder";
-			_mrkr setMarkerSize [50,50];
-			_mrkr setMarkerAlpha 0.4;
-			_mrkr setMarkerColor format["Color%1",_enemySide];
-			
-			_contStr = format["ZMM_%1_OBJ_%2", _zoneID, _i];
-			missionNamespace setVariable [_contStr, _contObj, true];
-			_contObj setVariable ["ZMM_Id", _contStr + "_DONE", true];
-			_contObj setVariable ["ZMM_Type", _findObj, true];
-			
-			// Child task
-			_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the cache somewhere within the marked area.<br/><br/>Target Cache: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _contType >> "displayName"), getText (configFile >> "CfgVehicles" >> _contType >> "editorPreview")], format["Cache #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
-			_childTrigger = createTrigger ["EmptyDetector", _contObj, false];
-			_childTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2_DONE', false])", _zoneID, _i],
-										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
-										"" ];
-			
-			_crateActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2_DONE', false])", _zoneID, _i];
-						
 			clearWeaponCargoGlobal _contObj;
 			clearMagazineCargoGlobal _contObj;
 			clearItemCargoGlobal _contObj;
 			clearBackpackCargoGlobal _contObj;
 			
 			_contObj addItemCargoGlobal [_findObj, 1];
-			
-			if !(_inBuilding) then { _contObj setVectorUp surfaceNormal position _contObj };
-			
-			[_contObj, ["ContainerClosed", { 
-				params ["_cont", "_unit"]; 
-				
-				private _id = _cont getVariable ["ZMM_Id", "NULL"];
-				private _item = _cont getVariable ["ZMM_Type", "Item_FirstAidKit"];
-				
-				if !(_item in ((weaponCargo _cont) + (itemCargo _cont) + (magazineCargo _cont))) then {
-					missionNamespace setVariable [_id, true, true];
-					(parseText format["<t size='1.5' color='#72E500'>Collected:</t><br/><t size='1.25'>%2</t><br/><br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\search_ca.paa'/><br/><br/>Found By: <t color='#0080FF'>%1</t><br/>", name _unit, getText (configFile >> "CfgWeapons" >> _item >> "displayName")]) remoteExec ["hintSilent"];
-					[_cont, "ContainerClosed"] remoteExec ["removeAllEventHandlers"];
-				};
-			}]] remoteExec ["addEventHandler"];
 		
+			private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _contObj getPos [random 50, random 360]];
+			_mrkr setMarkerShape "ELLIPSE";
+			_mrkr setMarkerBrush "SolidBorder";
+			_mrkr setMarkerSize [50,50];
+			_mrkr setMarkerAlpha 0.4;
+			_mrkr setMarkerColor format["Color%1",_enemySide];
+			
+			missionNamespace setVariable [ format["ZMM_%1_OBJ_%2", _zoneID, _i], _contObj, true];
+			
+			// Child task
+			private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the cache somewhere within the marked area.<br/><br/>Target Cache: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _contType >> "displayName"), getText (configFile >> "CfgVehicles" >> _contType >> "editorPreview")], format["Cache #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
+			private _childTrigger = createTrigger ["EmptyDetector", _contObj, false];
+			_childTrigger setTriggerStatements [ format["((getItemCargo ZMM_%1_OBJ_%2)#0) find '%3' < 0", _zoneID, _i, _findObj],
+										format["missionNamespace setVariable ['ZMM_%1_OBJ_%2_DONE', true, true]; ['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
+										"" ];
+			
+			_crateActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2_DONE', false])", _zoneID, _i];
+
+			if !(_inBuilding) then { _contObj setVectorUp surfaceNormal position _contObj };
+					
 			// Create enemy Team
 			private _enemyTeam = [];
 			for "_j" from 0 to (4 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _menArray] };

@@ -3,7 +3,10 @@ if !isServer exitWith {};
 
 params [
 	["_zoneID", 0],
-	["_centre", (missionNamespace getVariable [ format[ "ZMM_%1_Location", _this#0], [0,0,0]])]
+	["_centre", (missionNamespace getVariable [ format[ "ZMM_%1_Location", _this#0], [0,0,0]])],
+	["_showMarker", true],
+	["_forcePos", false],
+	["_forceLayout", -1]
 ];
 
 if (_centre isEqualTo [0,0,0]) exitWith { ["ERROR", format["Zone%1 - Invalid roadblock location: %1 (%2)", _zoneID, _centre]] call zmm_fnc_logMsg };
@@ -18,6 +21,7 @@ private _menArr = missionNamespace getVariable [format["ZMM_%1Man",_side],[]];
 private _vehL = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
 private _vehM = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
 private _vehH = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
+private _hmgArr = missionNamespace getVariable [format["ZMM_%1Veh_Static",_side],[]];
 
 if (_count == 0) then { _count = 1 };
 
@@ -27,13 +31,9 @@ if (_count == 0) then { _count = 1 };
 private _vehArr = _vehL;
 if ((missionNamespace getVariable ["ZZM_Diff", 1]) >= 1) then { _vehArr append _vehM };
 if ((missionNamespace getVariable ["ZZM_Diff", 1]) >= 1.5) then { _vehArr append _vehH };
+if (count _hmgArr == 0) then { _hmgArr = ["I_HMG_02_high_F"] };
 
-// Fill missing statics
-private _hmgArr = missionNamespace getVariable [format["ZMM_%1Veh_Static",_side],[]];
-
-if (count _hmgArr == 0) then { _hmgArr = ["B_GMG_01_high_F","B_HMG_01_high_F"] };
-
-if (count _locations == 0) then {
+if (!_forcePos && count _locations == 0) then {
 	// Find Road Block Locations
 	for [{_i = 0}, {_i < 360}, {_i = _i + 10}] do {
 		private _roads = ((_centre getPos [(_radius * (1 + random 0.5)) max 300, _i]) nearRoads 100) select {count roadsConnectedTo _x > 0 && (nearestBuilding _x) distance _x > 75 && !((getPos _x) isFlatEmpty [-1, -1, 0.25, 6] isEqualTo [])};
@@ -45,6 +45,11 @@ if (count _locations == 0) then {
 			};
 		};
 	};
+	
+	if (count _locations > _count) exitWith {};
+} else {
+	private _tempRoad = "Land_ClutterCutter_small_F" createVehicleLocal _centre; // Create Fake Object
+	if _forcePos then { _locations = [_tempRoad] };
 };
 
 private _buildingList = [
@@ -102,40 +107,44 @@ for "_i" from 1 to _count do {
 	if (count _locations == 0) exitWith {};
 	
 	private _road = selectRandom _locations;
+	private _pos = getPos _road;
 	_locations deleteAt (_locations find _road);
 	
-	private _farRoad = objNull;
+	private _key = "Land_ClutterCutter_small_F" createVehicleLocal (getPosATL _road);
 	
-	{if ((_x distance _centre) < (_farRoad distance _centre)) then {_farRoad = _x}} forEach (roadsConnectedTo _road);
-
-	/*private _blockMkr = createMarkerLocal [format ["OBLK_%1_%2", _zoneID, _i], position _road];
-	_blockMkr setMarkerDirLocal (_road getDir _farRoad) + 180;
-	_blockMkr setMarkerTypeLocal "mil_arrow";
-	_blockMkr setMarkerColorLocal "ColorYellow";
-	_blockMkr setMarkerTextLocal format["block_%1", _i];*/
-	
-	// Easy way of orienting the objects?
-	private _key = "Land_HelipadEmpty_F" createVehicleLocal (getPosATL _road);
-	_key setDir ((_road getDir _farRoad) + 180);
+	// If nothing connected to it (or forced) just rotate...
+	if (count (roadsConnectedTo _road) > 0) then {
+		private _farRoad = objNull;
+		{if ((_x distance _centre) < (_farRoad distance _centre)) then {_farRoad = _x}} forEach (roadsConnectedTo _road);
+		_key setDir ((_road getDir _farRoad) + 180);
+		/*private _blockMkr = createMarkerLocal [format ["OBLK_%1_%2", _zoneID, _i], position _road];
+		_blockMkr setMarkerDirLocal (_road getDir _farRoad) + 180;
+		_blockMkr setMarkerTypeLocal "mil_arrow";
+		_blockMkr setMarkerColorLocal "ColorYellow";
+		_blockMkr setMarkerTextLocal format["block_%1", _i];*/
+	} else {
+		_key setDir ((getDir _road) + 90);
+	};
 	
 	// Clear Area
-	{ [_x, true] remoteExec ["hideObject", 0, true] } forEach (nearestTerrainObjects [_road, [], 25]);
+	{ [_x, true] remoteExec ["hideObject", 0, true] } forEach (nearestTerrainObjects [_pos, ["TREE", "SMALL TREE", "BUSH", "BUILDING", "HOUSE", "FOREST BORDER", "FOREST TRIANGLE", "FOREST SQUARE", "CHURCH", "CHAPEL", "CROSS", "BUNKER", "FORTRESS", "FOUNTAIN", "VIEW-TOWER", "LIGHTHOUSE", "QUAY", "FUELSTATION", "HOSPITAL", "FENCE", "WALL", "HIDE", "BUSSTOP", "FOREST", "TRANSMITTER", "STACK", "RUIN", "TOURISM", "WATERTOWER", "ROCK", "ROCKS", "POWERSOLAR", "POWERWAVE", "POWERWIND", "SHIPWRECK"], 25]);
 	
-	// Build Roadblock	
+	// Build Roadblock
+	_bID = if (_forceLayout >= 0 && _forceLayout < count _buildingList) then { _forceLayout } else { floor random count _buildingList };
+	private _list = _buildingList#_bID;
+	private _icon = "o_installation";
+	
+	["DEBUG", format["Zone%1 - Area Roadblock - Spawning: %4 of %5 - ID%2 at %3", _zoneID, _bID, _pos, _i, _count]] call zmm_fnc_logMsg;
+	
 	{
 		_x params ["_type", ["_class",""], ["_rel",[0,0,0]], ["_dir", 0], ["_flat", true]];
 		private _worldPos = _key modeltoWorld _rel;	
 		private _obj = [_zoneID, _side, _type, _class, [_worldPos#0, _worldPos#1, _rel#2], getDir _key + _dir, _flat] call zmm_fnc_spawnObject;		
 	} forEach selectRandom _buildingList;
 	
-	uiSleep 1;
-	
 	// Create a local patrolling group
 	private _grpArr = [];
-			
-	for "_j" from 0 to (1 + random 3) do {
-		_grpArr pushBack (selectRandom _menArr);
-	};
+	for "_j" from 0 to (1 + random 3) do { _grpArr pushBack (selectRandom _menArr) };
 
 	private _tempGrp = [_key getPos [25, random 360], _side, _grpArr] call BIS_fnc_spawnGroup;
 	[_tempGrp, getPos _key] call BIS_fnc_taskDefend;
@@ -143,28 +152,31 @@ for "_i" from 1 to _count do {
 	_tempGrp enableDynamicSimulation true;
 	{ _x addCuratorEditableObjects [units _tempGrp, true] } forEach allCurators;
 	
-	if (missionNamespace getVariable ["ZZM_Mode", 0] != 1) then {
-		private _mrkr = createMarker [format["MKR_%1_CP_%2", _zoneID, _i], _road getPos [25, random 360]];
-		_mrkr setMarkerType "mil_unknown";
-		_mrkr setMarkerColor format["Color%1",_side];
+	if (_showMarker) then {
+		if (missionNamespace getVariable ["ZZM_Mode", 0] == 0) then {
+			private _mrkr = createMarker [format["MKR_%1_RB_%2", _zoneID, _i], _pos getPos [25, random 360]];
+			_mrkr setMarkerType "mil_unknown";
+			_mrkr setMarkerColor format["Color%1",_side];
 
-		private _cpTrigger = createTrigger ["EmptyDetector", getPos _road, false];
-		_cpTrigger setTriggerActivation [format["%1",_side], "NOT PRESENT", false];
-		_cpTrigger setTriggerArea [25, 25, 0, false];
-		_cpTrigger setTriggerStatements [  "this", format["'MKR_%1_CP_%2' setMarkerColor 'ColorGrey'", _zoneID, _i], "" ];
-		
-		private _hdTrigger = createTrigger ["EmptyDetector", getPos _road, false];
-		_hdTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-		_hdTrigger setTriggerArea [150, 150, 0, false, 25];
-		_hdTrigger setTriggerStatements [  "this", format["'MKR_%1_CP_%2' setMarkerType 'o_installation'", _zoneID, _i], "" ];
-	} else {
-		private _mrkr = createMarkerLocal [format ["MKR_%1_CP_%2", _zoneID, _i], getPos _road];
-		_mrkr setMarkerTypeLocal "mil_dot";
-		_mrkr setMarkerColorLocal "ColorBlue";
-		_mrkr setMarkerTextLocal format["R%1", _i];
+			private _cpTrigger = createTrigger ["EmptyDetector", _pos, false];
+			_cpTrigger setTriggerActivation [format["%1",_side], "NOT PRESENT", false];
+			_cpTrigger setTriggerArea [25, 25, 0, false];
+			_cpTrigger setTriggerStatements [  "this", format["'MKR_%1_RB_%2' setMarkerColor 'ColorGrey'", _zoneID, _i], "" ];
+			
+			private _hdTrigger = createTrigger ["EmptyDetector", _pos, false];
+			_hdTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+			_hdTrigger setTriggerArea [150, 150, 0, false, 25];
+			_hdTrigger setTriggerStatements [  "this", format["'MKR_%1_RB_%2' setMarkerType '%3'; 'MKR_%1_RB_%2' setMarkerPos %4", _zoneID, _i, _icon, _pos], "" ];
+		} else {
+			private _mrkr = createMarkerLocal [format ["MKR_%1_RB_%2", _zoneID, _i], _pos];
+			_mrkr setMarkerTypeLocal _icon;
+			_mrkr setMarkerColorLocal format["Color%1",_side];
+			if (!isMultiplayer) then { _mrkr setMarkerTextLocal format["RoadBlock%1", _bID]; };
+		};
 	};
-	
-	deleteVehicle _key;
 };
 
 missionNamespace setVariable [ format[ "ZMM_%1_BlockLocations", _zoneID ], _locations];
+
+_centre set [2,0];
+_centre

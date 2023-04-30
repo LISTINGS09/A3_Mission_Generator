@@ -85,7 +85,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		_blood setVectorUp surfaceNormal position _blood;
 		_blood setPos ((getPos _blood) vectorAdd [0,0,0.02]);
 		
-		if (isClass(configFile >> "CfgPatches" >> "ace_main")) then { [_this, true] call ace_medical_fnc_setUnconscious } else { _this setUnconscious true };
+		if (isClass(configFile >> "CfgPatches" >> "ace_main")) then { [_this, true] call ace_medical_fnc_setUnconscious } else { _this setUnconscious true; _this switchMove "unconsciousReviveDefault"; };
 	};
 
 	missionNamespace setVariable [format["ZMM_%1_HVT_%2", _zoneID, _i], _evacMan];

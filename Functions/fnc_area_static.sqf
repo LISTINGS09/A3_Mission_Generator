@@ -7,7 +7,7 @@ params [
 	["_centre", (missionNamespace getVariable [ format[ "ZMM_%1_Location", _this#0], [0,0,0]])],
 	["_showMarker", true],
 	["_forcePos", false],
-	["_forceID", -1]
+	["_forceLayout", -1]
 ];
 
 if (_centre isEqualTo [0,0,0]) then { _centre = [_centre, 0, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos };
@@ -209,10 +209,10 @@ for "_i" from 1 to _count do {
 	{ [_x, true] remoteExec ["hideObject", 0, true] } forEach (nearestTerrainObjects [_pos, ["TREE", "SMALL TREE", "BUSH", "BUILDING", "HOUSE", "FOREST BORDER", "FOREST TRIANGLE", "FOREST SQUARE", "CHURCH", "CHAPEL", "CROSS", "BUNKER", "FORTRESS", "FOUNTAIN", "VIEW-TOWER", "LIGHTHOUSE", "QUAY", "FUELSTATION", "HOSPITAL", "FENCE", "WALL", "HIDE", "BUSSTOP", "FOREST", "TRANSMITTER", "STACK", "RUIN", "TOURISM", "WATERTOWER", "ROCK", "ROCKS", "POWERSOLAR", "POWERWAVE", "POWERWIND", "SHIPWRECK"], 5]);
 	
 	// Build Support	
-	_bID = if (_forceID >= 0 && _forceID < count _buildingList) then { _forceID } else { floor random count _buildingList };
+	_bID = if (_forceLayout >= 0 && _forceLayout < count _buildingList) then { _forceLayout } else { floor random count _buildingList };
 	(_buildingList#_bID) params ["_icon", "_buildingObjects"];
 	
-	["DEBUG", format["Zone%1 - Spawning Static: %5 of %6 - ID%2 (%3) at %4", _zoneID, _bID, _icon, _pos, _i, _count]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Area Static - Spawning: %5 of %6 - ID%2 (%3) at %4", _zoneID, _bID, _icon, _pos, _i, _count]] call zmm_fnc_logMsg;
 
 	{
 		_x params ["_type", ["_class",""], ["_rel",[0,0,0]], ["_dir", 0], ["_flat", true]];
@@ -231,22 +231,22 @@ for "_i" from 1 to _count do {
 	{ _x addCuratorEditableObjects [units _tempGrp, true] } forEach allCurators;
 	
 	if (_showMarker) then {
-		if (missionNamespace getVariable ["ZZM_Mode", 0] != 1) then {
-			private _mrkr = createMarker [format["MKR_%1_SP_%2", _zoneID, _i], _pos getPos [25, random 360]];
+		if (missionNamespace getVariable ["ZZM_Mode", 0] == 0) then {
+			private _mrkr = createMarker [format["MKR_%1_ST_%2", _zoneID, _i], _pos getPos [25, random 360]];
 			_mrkr setMarkerType "mil_unknown";
 			_mrkr setMarkerColor format["Color%1",_side];
 
 			private _cpTrigger = createTrigger ["EmptyDetector", _pos, false];
 			_cpTrigger setTriggerActivation [format["%1",_side], "NOT PRESENT", false];
 			_cpTrigger setTriggerArea [25, 25, 0, false];
-			_cpTrigger setTriggerStatements [  "this", format["'MKR_%1_SP_%2' setMarkerColor 'ColorGrey'", _zoneID, _i], "" ];
+			_cpTrigger setTriggerStatements [  "this", format["'MKR_%1_ST_%2' setMarkerColor 'ColorGrey'", _zoneID, _i], "" ];
 			
 			private _hdTrigger = createTrigger ["EmptyDetector", _pos, false];
 			_hdTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 			_hdTrigger setTriggerArea [250, 250, 0, false, 100];
-			_hdTrigger setTriggerStatements [  "this", format["'MKR_%1_SP_%2' setMarkerType '%3'", _zoneID, _i, _icon], "" ];
+			_hdTrigger setTriggerStatements [  "this", format["'MKR_%1_ST_%2' setMarkerType '%3'; 'MKR_%1_ST_%2' setMarkerPos %4", _zoneID, _i, _icon, getPos _key], "" ];
 		} else {
-			private _mrkr = createMarkerLocal [format ["MKR_%1_SP_%2", _zoneID, _i], _pos];
+			private _mrkr = createMarkerLocal [format ["MKR_%1_ST_%2", _zoneID, _i], _pos];
 			_mrkr setMarkerTypeLocal _icon;
 			_mrkr setMarkerColorLocal format["Color%1",_side];
 			if (!isMultiplayer) then { _mrkr setMarkerTextLocal format["Static%1", _bID]; };

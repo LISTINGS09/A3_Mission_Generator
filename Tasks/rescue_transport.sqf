@@ -42,7 +42,7 @@ _driver moveInDriver _truck;
 [group _driver, getPos _driver, 50] call bis_fnc_taskPatrol;
 
 _truck lockDriver true;
-_truck lock true;
+_truck lock 1;
 _truck setVariable ["var_zoneID", _zoneID, true];
 
 [_truck,  
@@ -58,6 +58,7 @@ _truck setVariable ["var_zoneID", _zoneID, true];
 		private _zoneID = _target getVariable ["var_zoneID", 0];
 		missionNamespace setVariable [format["ZMM_%1_UNLOCK", _zoneID], true, true];
 		[_target, {
+			_this lock 0;
 			{
 				unassignVehicle _x;
 				moveOut _x;

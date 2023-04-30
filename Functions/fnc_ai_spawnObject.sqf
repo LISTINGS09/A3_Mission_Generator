@@ -46,12 +46,12 @@ switch (_type) do {
 		private _clear = createVehicle ["Land_ClutterCutter_large_F", _worldPos, [], 0, "CAN_COLLIDE"];
 		
 		_tempGrp deleteGroupWhenEmpty true;
-		_tempGrp enableDynamicSimulation true;
+		if !(_obj isKindOf "StaticWeapon") then { _tempGrp enableDynamicSimulation true };
 		{ _x addCuratorEditableObjects [[_grpVeh] + units _tempGrp, true] } forEach allCurators;
 		
 		// Add artillery/mortar to the zone supports list.
 		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_%1_MAX", _zoneID] != "") then {
-			[_grpVeh, format["MKR_%1_MAX", _zoneID], "SHOWMARKER", "NOAI", "NOWP"] spawn zmm_fnc_aiUPS;
+			[_grpVeh, format["MKR_%1_MAX", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
 		};
 	};
 	case "O": {

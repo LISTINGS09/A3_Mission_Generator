@@ -1,5 +1,6 @@
 // v 1.0
 // Spawns a minefield and either adds a CASVAC mission or recover object mission.
+// TODO: Add support for ZZM_ObjectiveCount
 params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
@@ -91,7 +92,7 @@ _evacMan spawn {
 	_this addVest (vest selectRandom allPlayers);
 	_this addHeadgear (headgear selectRandom allPlayers);
 	removeFromRemainsCollector [_this];
-	if (isClass(configFile >> "CfgPatches" >> "ace_main")) then { [_this, true] call ace_medical_fnc_setUnconscious } else { _this setUnconscious true };
+	if (isClass(configFile >> "CfgPatches" >> "ace_main")) then { [_this, true] call ace_medical_fnc_setUnconscious } else { _this setUnconscious true; _this switchMove "unconsciousReviveDefault"; };
 };
 
 _evacMan addEventHandler ["killed",{
@@ -136,7 +137,7 @@ if !(isClass(configFile >> "CfgPatches" >> "ace_main")) then {
 private _allowDmgTrigger = createTrigger ["EmptyDetector", _targetPos, false];
 _allowDmgTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _allowDmgTrigger setTriggerArea [25, 25, 0, false, 25];
-_allowDmgTrigger setTriggerStatements [	format["this", _zoneID], 
+_allowDmgTrigger setTriggerStatements [	"this", 
 	format["ZMM_%1_HVT allowDamage true;", _zoneID],
 	"" ];
 

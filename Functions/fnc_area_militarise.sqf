@@ -6,7 +6,7 @@ private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneI
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
 
-if (count _menArray isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
+if (count _menArray isEqualTo 0) exitWith { ["ERROR", format["Zone%1 - Area Militarise - (%2) No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 
 // Always populate military buildings.
 
@@ -62,7 +62,7 @@ private _milBlds = nearestObjects [_centre, _milPrimary, 500];
 } forEach _milBlds;
 
 if (count units _milGrp > 0) then {
-	["DEBUG", format["Zone%1 - Garrison Military - Created: %2 units", _zoneID, count units _milGrp]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Area Militarise - Garrison Created: %2 units", _zoneID, count units _milGrp]] call zmm_fnc_logMsg;
 	
 	_milGrp setVariable ["VCM_DISABLE", true];
 	_milGrp enableDynamicSimulation true;
