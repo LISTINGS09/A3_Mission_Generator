@@ -15,7 +15,7 @@ private _cas = missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (mi
 if (_locType isEqualTo "") then { _locType = type (nearestLocation [_centre,""]) };
 
 _fnc_spawnGroup = {
-	params ["_zoneID", "_centre", ["_types", []], ["_marker", ""], "_count"];
+	params ["_zoneID", "_spawnPos", ["_types", []], ["_marker", ""], "_count"];
 	
 	if (round _count <= 0) exitWith {};
 	if (count _types isEqualTo 0) exitWith { ["ERROR", format["Zone%1 - Area Patrols - (%2) No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
@@ -42,9 +42,9 @@ _fnc_spawnGroup = {
 				// Spawn vehicle on a road.
 				_roads = (getMarkerPos _marker nearRoads (getMarkerSize _marker select 0)) select { count (roadsConnectedTo _x) > 0};
 
-				if (count _roads > 0) then { _centre = position (selectRandom _roads) };
+				if (count _roads > 0) then { _spawnPos = position (selectRandom _roads) };
 				
-				_veh = createVehicle [_type, if _isAir then { [0,0,0] } else { _centre }, [], 150, if _isAir then {"FLY"} else {"NONE"}];
+				_veh = createVehicle [_type, if _isAir then { [0,0,0] } else { _spawnPos }, [], 0, if _isAir then {"FLY"} else {"NONE"}];
 				
 				if !(_customInit isEqualTo "") then { _grpVeh = _veh; call compile _customInit; };
 				if !_isAir then { _veh enableDynamicSimulation true };
@@ -77,8 +77,6 @@ _fnc_spawnGroup = {
 			
 			["DEBUG", format["Zone%1 - Area Patrols - Spawning (%3) '%2' [Random]", _zoneID, if (_type isEqualType configFile) then { configName _type } else { _type }, _side]] call zmm_fnc_logMsg;
 			[leader _group, _marker, "SHOWMARKER", "RANDOM"] spawn zmm_fnc_aiUPS;
-			
-			[leader _group] call zmm_fnc_inteladd; // Add Intel Drop
 		};
 		
 		if (time > 0) then { uiSleep 1 };

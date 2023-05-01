@@ -60,8 +60,6 @@ for "_i" from 1 to (_enemyCount) do {
 		if (random 1 > 0.7) then { doStop _unit } else { _unit disableAI "PATH" };
 
 		[_unit] spawn zmm_fnc_unitDirPos;
-
-		if (random 1 < 0.1) then { [_unit] call zmm_fnc_inteladd };
 		
 		if (count (_unit nearEntities ["EmptyDetector", 50]) isEqualTo 0) then {
 			private _trg = createTrigger ["EmptyDetector", getPos _unit];
@@ -77,9 +75,7 @@ for "_i" from 1 to (_enemyCount) do {
 	};
 };
 
-if (!(_bPos isEqualTo []) && ZZM_Mode == 1) then {
-	[selectRandom _bPos] call zmm_fnc_intelAdd; // Add Intel Item
-};
+if (!(_bPos isEqualTo []) && ZZM_Mode == 1) then { [selectRandom _bPos] call zmm_fnc_intelAdd };
 
 _grp setVariable ["VCM_DISABLE", true];
 _grp enableDynamicSimulation true;

@@ -69,15 +69,15 @@ for "_i" from 1 to _bombMax do {
 			_objEnable setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 			_objEnable setTriggerArea [25, 25, 0, false];
 			_objEnable setTriggerStatements [ "this", 
-									format["if (alive ZMM_%1_OBJ_%2) then { ZMM_%1_OBJ_%2 enableSimulationGlobal true };", _zoneID, _i],
-									"" ];
+				format["if (alive ZMM_%1_OBJ_%2) then { ZMM_%1_OBJ_%2 enableSimulationGlobal true };", _zoneID, _i],
+				"" ];
 			
 			// Child task
 			private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the UXO somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _bombType >> "displayName"), getText (configFile >> "CfgVehicles" >> _bombType >> "editorPreview")], format["UXO #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 			private _childTrigger = createTrigger ["EmptyDetector", _bombObj, false];
 			_childTrigger setTriggerStatements [  format["(!mineActive ZMM_%1_OBJ_%2 || !alive ZMM_%1_OBJ_%2 || 'empty.p3d' in (getModelInfo ZMM_%1_OBJ_%2))", _zoneID, _i],
-										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
-										"" ];
+				format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
+				"" ];
 			
 			_bombActivation pushBack format["(!alive ZMM_%1_OBJ_%2 || 'empty.p3d' in (getModelInfo ZMM_%1_OBJ_%2))", _zoneID, _i];
 			
@@ -91,8 +91,8 @@ for "_i" from 1 to _bombMax do {
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [  (_bombActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
-									"" ];
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+	"" ];
 
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _bombCount, _locName], ["Disarm"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;

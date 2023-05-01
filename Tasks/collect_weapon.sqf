@@ -81,8 +81,8 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the cache somewhere within the marked area.<br/><br/>Target Cache: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _contType >> "displayName"), getText (configFile >> "CfgVehicles" >> _contType >> "editorPreview")], format["Cache #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 			private _childTrigger = createTrigger ["EmptyDetector", _contObj, false];
 			_childTrigger setTriggerStatements [ format["((getWeaponCargo ZMM_%1_OBJ_%2)#0) find '%3' < 0", _zoneID, _i, _findObj],
-										format["missionNamespace setVariable ['ZMM_%1_OBJ_%2_DONE', true, true]; ['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
-										"" ];
+				format["missionNamespace setVariable ['ZMM_%1_OBJ_%2_DONE', true, true]; ['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
+				"" ];
 			
 			_crateActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2_DONE', false])", _zoneID, _i];
 			
@@ -118,8 +118,8 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [  (_crateActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
-									"" ];
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+	"" ];
 
 // Create Task
 private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc + "<br/><br/>Target Weapon: <font color='#00FFFF'>%2</font><br/><br/><img width='150' image='%3'/>", _crateNo, _findName, getText (configFile >> "CfgWeapons" >> _findObj >> "picture"), _locName], ["Take Weapon"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "rifle"] call BIS_fnc_setTask;

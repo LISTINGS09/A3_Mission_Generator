@@ -116,8 +116,8 @@ if (alive _itemObj) then {
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID], 
-									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
-									"" ];
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+	"" ];
 
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _intelName, _intelCont, _locName] + format["<br/><br/>Intel indicates that there is an small enemy POI located somewhere in this area that houses the %1.<br/><br/>Target Item: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _intelType >> "displayName"), getText (configFile >> "CfgVehicles" >> _intelType >> "editorPreview")], ["Site"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "radio"] call BIS_fnc_setTask;

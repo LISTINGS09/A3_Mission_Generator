@@ -55,8 +55,6 @@ private _milBlds = nearestObjects [_centre, _milPrimary, 500];
 			if (random 1 > 0.7) then { doStop _unit } else { _unit disableAI "PATH" };
 			
 			[_unit] spawn zmm_fnc_unitDirPos;
-			
-			if (random 1 < 0.1) then { [_unit] call zmm_fnc_inteladd };
 		};
 	};
 } forEach _milBlds;

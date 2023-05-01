@@ -24,12 +24,13 @@ private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 { _locations pushBack position _x } forEach _buildings;
 
 private _aniActivation = [];
-private _animalNo = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
+private _aniNo = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
+private _aniType = selectRandom ["Cock_random_F","Hen_random_F","Goat_random_F","Sheep_random_F"];
 private _aniPrefix = selectRandom ["infected with a brain parasite","used for chemical testing","marked for organ harvesting","poisoned with a radioactive isotope","used to smuggle weapons into the region","placed to infect other livestock"];
 
 // Generate the crates.
-for "_i" from 1 to (_animalNo + 2) do {
-	private _aniType = selectRandom ["Cock_random_F","Hen_random_F","Goat_random_F","Sheep_random_F"];
+for "_i" from 1 to (_aniNo + 2) do {
+	
 	private _aniPos = [];
 
 	if (random 100 > 75 && {count _bldPos > 0}) then {
@@ -58,11 +59,11 @@ for "_i" from 1 to (_animalNo + 2) do {
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-_objTrigger setTriggerStatements [  format["{ !alive _x } count [%1] >= %2", (_aniActivation joinString ","), _animalNo], 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+_objTrigger setTriggerStatements [  format["{ !alive _x } count [%1] >= %2", (_aniActivation joinString ","), _aniNo], 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc + "<br/><br/>Target creatures will include; Sheep, Goats and Chickens.", _animalNo, _aniPrefix, _locName], ["Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc + "<br/><br/>Target Animal: <font color='#00FFFF'>%4</font><br/>", _aniNo, _aniPrefix, _locName, getText (configFile >> "CfgVehicles" >> _aniType >> "displayName")], ["Hunt"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
 
 true

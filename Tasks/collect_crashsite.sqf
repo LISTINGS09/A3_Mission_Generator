@@ -32,8 +32,9 @@ missionNamespace setVariable [format["ZMM_%1_OBJ_WRECK", _zoneID], _wreck];
 
 private _wreckTask = [[format["ZMM_%1_SUB_WRECK", _zoneID], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the wreck somewhere within the marked area.<br/><br/>Target: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> typeOf _wreck >> "displayName"), getText (configFile >> "CfgVehicles" >> typeOf _wreck >> "editorPreview")], "Destroy Wreck", format["MKR_%1_LOC", _zoneID]], objNull, "CREATED", 1, false, true, "destroy"] call BIS_fnc_setTask;
 private _wreckTrigger = createTrigger ["EmptyDetector", _targetPos, false];
-_wreckTrigger setTriggerStatements [ format["!alive ZMM_%1_OBJ_WRECK", _zoneID],
-	format["['ZMM_%1_SUB_WRECK', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],
+_wreckTrigger setTriggerArea [5, 5, 0, false];
+_wreckTrigger setTriggerStatements [ "{_x inArea thisTrigger} count allMissionObjects '#explosion' > 0",
+	format["deleteVehicle ZMM_%1_OBJ_WRECK; ['ZMM_%1_SUB_WRECK', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],
 	"" ];
 
 private _crateActivation = [format["!alive ZMM_%1_OBJ_WRECK", _zoneID]];
@@ -109,7 +110,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
 _objTrigger setTriggerStatements [  (_crateActivation joinString " && "),
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
 // Create Task

@@ -142,8 +142,8 @@ private _objHVT = ObjNull;
 		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate and destroy the convoy vehicle.<br/><br/>Target Vehicle: <font color='#FFA500'>%1</font><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehType >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehType >> "editorPreview")], format["Vehicle #%1", _forEachIndex + 1], format["MKR_%1_LOC", _zoneID]], nil, "CREATED", 1, false, true, format["move%1", _forEachIndex + 1]] call BIS_fnc_setTask;
 		_childTrigger = createTrigger ["EmptyDetector", _centre, false];
 		_childTrigger setTriggerStatements [  format["!alive ZMM_%1_VEH_%2", _zoneID, _forEachIndex],
-										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _forEachIndex],
-										"" ];
+			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _forEachIndex],
+			"" ];
 										
 		_vehCount = _vehCount + 1;
 	};
@@ -200,8 +200,8 @@ if (!isNull _objHVT) then {
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, false];
 _objTrigger setTriggerStatements [ 	(_endActivation joinString " && "), 
-									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
-									"" ];
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+	"" ];
 									
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, _vehCount, _conVerb, _conType] + _itemText, ["Convoy"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "car"] call BIS_fnc_setTask;

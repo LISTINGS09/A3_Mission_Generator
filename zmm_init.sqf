@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.37;
+ZMM_Version = 4.38;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection

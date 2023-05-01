@@ -55,15 +55,14 @@ _dropTrigger = createTrigger ["EmptyDetector", _centre, false];
 _dropTrigger setTriggerArea [_radius, _radius, 0, false];
 _dropTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _dropTrigger setTriggerStatements ["this", 
-								 format["ZMM_%1_OBJ setPos [%2, %3, 250]; [objNull, ZMM_%1_OBJ] call BIS_fnc_curatorobjectedited; playSound3D ['A3\Sounds_F\environment\ambient\battlefield\battlefield_jet1.wss', objNull, false, AGLToASL [%2, %3, 0], 2, 1, 1000]; _nul = [] spawn { waitUntil { sleep 5; playSound3D ['a3\sounds_f\sfx\beep_target.wss', ZMM_%1_OBJ, false, getPosASL ZMM_%1_OBJ, 1, 0.5, 75]; !(ZMM_%1_OBJ getVariable ['var_canUse', true]); }; };", _zoneID, _dropPos select 0, _dropPos select 1],
-								 ""];
-
+	 format["ZMM_%1_OBJ setPos [%2, %3, 250]; [objNull, ZMM_%1_OBJ] call BIS_fnc_curatorobjectedited; playSound3D ['A3\Sounds_F\environment\ambient\battlefield\battlefield_jet1.wss', objNull, false, AGLToASL [%2, %3, 0], 2, 1, 1000]; _nul = [] spawn { waitUntil { sleep 5; playSound3D ['a3\sounds_f\sfx\beep_target.wss', ZMM_%1_OBJ, false, getPosASL ZMM_%1_OBJ, 1, 0.5, 75]; !(ZMM_%1_OBJ getVariable ['var_canUse', true]); }; };", _zoneID, _dropPos select 0, _dropPos select 1],
+	 ""];
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [  format["!(ZMM_%1_OBJ getVariable ['var_canUse', true])", _zoneID], 
-									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
-									"" ];
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+	"" ];
 
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _dropName] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> _dropType >> "editorPreview")], ["Drop"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "airdrop"] call BIS_fnc_setTask;

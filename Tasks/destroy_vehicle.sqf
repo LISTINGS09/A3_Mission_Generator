@@ -155,8 +155,8 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 1]) do {
 
 _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
 _objTrigger setTriggerStatements [ 	(_vehActivation joinString " && "),
-									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
-									"" ];
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+	"" ];
 
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, count _vehActivation, if (count _vehActivation > 1) then {"Vehicles"} else {"Vehicle"}, _locName], ["Destroy"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "destroy"] call BIS_fnc_setTask;

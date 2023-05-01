@@ -35,7 +35,7 @@ private _counter = 0;
 			};
 			
 			// Don't let the area be too big.
-			if (_radius > 500) then { _radius = 500 };
+			_radius = (_radius min 500) max 200;
 			
 			if _bypass exitWith {};
 		} forEach allMapMarkers;

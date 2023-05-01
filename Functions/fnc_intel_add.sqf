@@ -25,8 +25,10 @@ if (_value isEqualType []) exitWith {
 			deleteVehicle _target;
 			sleep 2;
 			if (missionNamespace getVariable ["ZMM_DONE", true]) then {
-				format["Intel Collected by %1 - Check Map", name player] remoteExec ["systemChat"];
+				[name player, "Intel Collected - Check the map for a Task!"] remoteExec ["BIS_fnc_showSubtitle"];
 				[] remoteExec ["zmm_fnc_setupTask", 2];
+			} else {
+				[name player, "Intel Collected - Nothing of value was found!"] remoteExec ["BIS_fnc_showSubtitle"];
 			}; 
 			[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
 		}, 
@@ -35,39 +37,4 @@ if (_value isEqualType []) exitWith {
 		3, 
 		10
 	] remoteExec ["bis_fnc_holdActionAdd", 0, _intel];
-};
-
-// Unit passed so add EH
-if (_value isKindOf "Man") exitWith {
-	_value addEventHandler["Killed", {
-		params["_killed", "_killer"]; 
-		if ((missionNamespace getVariable ["ZMM_DONE", true]) && (random 1 < (missionNamespace getVariable ["ZMM_IntelChance", 0.2]))) then { 
-			_intel = _intelType createVehicle (_killed getPos [ random 3, random 360 ]);
-
-			[_intel, 
-				"<t color='#00FF80'>Gather Intel</t>", 
-				"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
-				"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
-				"_this distance2d _target < 3", 
-				"_caller distance2d _target < 3", 
-				{}, 
-				{}, 
-				{
-					_caller playAction "PutDown"; 
-					sleep 1;
-					deleteVehicle _target;
-					sleep 2;
-					if (missionNamespace getVariable ["ZMM_DONE", true]) then {
-						format["Intel Collected by %1 - Check Map", name player] remoteExec ["systemChat"];
-						[] remoteExec ["zmm_fnc_setupTask", 2];
-					}; 
-					[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
-				}, 
-				{}, 
-				[], 
-				3, 
-				10
-			] remoteExec ["bis_fnc_holdActionAdd", 0, _intel];
-		}; 
-	}];
 };

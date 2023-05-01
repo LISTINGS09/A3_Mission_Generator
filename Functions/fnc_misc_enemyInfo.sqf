@@ -15,8 +15,8 @@ private _doPatrols = missionNamespace getVariable [ format[ "ZMM_%1_Patrols", _z
 private _doGarrison = missionNamespace getVariable [ format[ "ZMM_%1_Garrison", _zoneID ], 14] > 0;
 private _doRoadblock = missionNamespace getVariable [ format[ "ZMM_%1_Roadblocks", _zoneID ], floor random 2] > 0;
 private _doSupport = missionNamespace getVariable [ format[ "ZMM_%1_Supports", _zoneID ], 0] > 0;
-private _doQRF = count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) > 0 && missionNamespace getVariable ["f_param_ZMMQRF", 1] == 1;
-private _doIED = missionNamespace getVariable [ format["ZMM_%1_IEDs", _zoneID], 0] > 0 && missionNamespace getVariable ["f_param_ZMMIED", 1] == 1;
+private _doQRF = count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) > 0 && missionNamespace getVariable ["ZZM_QRF", 1] == 1;
+private _doIED = missionNamespace getVariable [ format["ZMM_%1_IEDs", _zoneID], 0] > 0 && missionNamespace getVariable ["ZZM_IED", 1] == 1;
 
 private _ZMMtext = format["<font size='18' color='#80FF00'>Intel for %1 (ID#%2)</font><br/>", _location, _zoneID] + 
 	format["

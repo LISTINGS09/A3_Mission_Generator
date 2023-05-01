@@ -79,11 +79,11 @@ _infTrigger setTriggerArea [100, 100, 0, false, 150];
 _infTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _infTrigger setTriggerTimeout [120, 120, 120, true];
 _infTrigger setTriggerStatements [  "this", 
-									format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend within the site for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
-									[] spawn { sleep 140; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
-									[] spawn { sleep 150; [ %3, false, %4, %5, 5 ] spawn zmm_fnc_areaQRF; }
-									", _locName, _time / 60, _zoneID, _delay, _waves],
-									"" ];
+	format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend within the site for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
+	[] spawn { sleep 140; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
+	[] spawn { sleep 150; [ %3, false, %4, %5, 5 ] spawn zmm_fnc_areaQRF; }
+	", _locName, _time / 60, _zoneID, _delay, _waves],
+	"" ];
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
@@ -91,8 +91,8 @@ _objTrigger setTriggerArea [100, 100, 0, false];
 _objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerTimeout [(_time + 120), (_time + 120), (_time + 120), true];
 _objTrigger setTriggerStatements [ 	"this", 
-									format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; deleteMarker 'ZMM_%1_OBJMKR'; { _x setMarkerColor 'ColorWest' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
-									"" ];
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; deleteMarker 'ZMM_%1_OBJMKR'; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+	"" ];
 
 // Create Task
 private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, round (_time / 60)], ["Site"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _targetPos, "CREATED", 1, false, true, "defend"] call BIS_fnc_setTask;
