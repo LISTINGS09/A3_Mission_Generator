@@ -315,6 +315,24 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Convoy = ["rhsgref_cdf_b_reg_uaz_dshkm","rhsgref_cdf_b_reg_uaz","rhsgref_cdf_b_btr70"];
 		ZMM_GUERVeh_Static = ["rhsgref_cdf_b_DSHKM"];
 	};
+	case 7: {
+		// GUER - TLA
+		ZMM_GUERFlag = ["FlagCarrierINS", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
+		ZMM_GUERMan = ["rhsgref_tla_rifleman_M16","rhsgref_tla_specialist_at","rhsgref_tla_rifleman_M16","rhsgref_tla_grenadier","rhsgref_tla_rifleman_M16","rhsgref_tla_squadleader","rhsgref_tla_rifleman_M16","rhsgref_tla_rifleman_rpg75","rhsgref_tla_rifleman_M16","rhsgref_tla_machinegunner","rhsgref_tla_rifleman_M16","rhsgref_tla_machinegunner_mg42"];
+		ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "rhsgref_faction_tla" >> "rhsgref_group_tla_infantry" >> "rhsgref_group_tla_insurgent_cell"];
+		ZMM_GUERGrp_Team = [configFile >> "CfgGroups" >> "East" >> "rhsgref_faction_tla" >> "rhsgref_group_tla_infantry" >> "rhsgref_group_tla_insurgent_cell"];
+		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "rhsgref_faction_tla" >> "rhsgref_group_tla_infantry" >> "rhsgref_group_tla_insurgent_cell"];
+		ZMM_GUERVeh_Truck = ["rhsgref_ins_g_zil131_open"];
+		ZMM_GUERVeh_Util = ["rhsgref_ins_g_kraz255b1_fuel","rhsgref_ins_g_gaz66_repair","rhsgref_ins_g_gaz66_ammo"];
+		ZMM_GUERVeh_Light = ["rhsgref_ins_g_uaz_spg9","rhsgref_ins_g_uaz_ags","rhsgref_ins_g_uaz_dshkm_chdkz","rhsgref_BRDM2_ins_g"];
+		ZMM_GUERVeh_Medium = ["rhsgref_ins_g_ural_Zu23","rhsgref_ins_g_btr70","rhsgref_ins_g_bmd1"];
+		ZMM_GUERVeh_Heavy = ["rhsgref_ins_g_bmd2","rhsgref_ins_g_zsu234","rhsgref_ins_g_t72ba","rhsgref_ins_g_t72bb"];
+		ZMM_GUERVeh_Air = ["rhsgref_ins_g_Mi8amt"];
+		ZMM_GUERVeh_CasH = [["rhsgref_cdf_reg_Mi17Sh","[_grpVeh,['Camo1',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_CasP = [["RHSGREF_A29B_HIDF","[_grpVeh,['Ecuador',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_GUERVeh_Convoy = ["rhsgref_BRDM2_ins_g","rhsgref_ins_g_zil131_open","rhsgref_ins_g_bmd2"];
+		ZMM_GUERVeh_Static = ["rhsgref_ins_g_DSHKM"];
+	};
 	default {
 		// GUER - ChDKZ
 		ZMM_GUERFlag = ["FlagCarrierINS", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];

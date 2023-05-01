@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.36;
+ZMM_Version = 4.37;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Mode = 0 - Objective Selection
@@ -18,8 +18,6 @@ ZMM_Debug = !isMultiplayer;
 
 "Group" setDynamicSimulationDistance 800;
 "Vehicle" setDynamicSimulationDistance 1000;
-
-#include "zmm_factions.sqf";
 
 if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_ZMMMode", 1] };
 if (isNil "ZZM_Diff") then { ZZM_Diff = missionNamespace getVariable ["f_param_ZMMDiff", 1] };
@@ -89,6 +87,17 @@ ZMM_tasks = [
 // ,["Rescue", "Rescue Pilot", "Destroy the crashed vehicle then locate and rescue the crew", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_pilot.sqf"]
 // ,["Rescue", "Rescue Hostage", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_hostage.sqf"]
 
+// Load Units from Templates
+switch (toLower worldName) do {
+	case "gm_weferlingen_winter";
+	case "gm_weferlingen_summer": { call compileScript [format["%1\zmm_factions_gm.sqf", ZMM_FolderLocation]] };
+	case "cam_lao_nam";
+	case "vn_khe_sanh";
+	case "vn_the_bra": { call compileScript [format["%1\zmm_factions_sog.sqf", ZMM_FolderLocation]] };
+	case "sefrouramal": { call compileScript [format["%1\zmm_factions_sahara.sqf", ZMM_FolderLocation]] };
+	default { call compileScript [format["%1\zmm_factions_vanilla.sqf", ZMM_FolderLocation]] };
+};
+
 if hasInterface then {
 	switch (ZZM_Mode) do {
 		case 0: { _nul = [] execVM format["%1\zmm_brief_custom.sqf", ZMM_FolderLocation] };
@@ -113,6 +122,7 @@ if isServer then {
 	if (isNil("zmm_fnc_areaSite")) then {zmm_fnc_areaSite = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_site.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_areaSupport")) then {zmm_fnc_areaSupport = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_support.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_areaStatic")) then {zmm_fnc_areaStatic = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_area_static.sqf", ZMM_FolderLocation]; };
+	if (isNil("zmm_fnc_fillGrid")) then {zmm_fnc_fillGrid = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_fillGrid.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_intelAdd")) then {zmm_fnc_intelAdd = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_intel_add.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_logMsg")) then {zmm_fnc_logMsg = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_logMsg.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_nameGen")) then {zmm_fnc_nameGen = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_nameGen.sqf", ZMM_FolderLocation]; };
@@ -124,7 +134,7 @@ if isServer then {
 	if (isNil("zmm_fnc_spawnPara")) then {zmm_fnc_spawnPara = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnPara.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_spawnUnit")) then {zmm_fnc_spawnUnit = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnUnit.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_spawnObject")) then {zmm_fnc_spawnObject = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnObject.sqf", ZMM_FolderLocation]; };
-		
+			
 	// Create a safe zone around all players.
 	{
 		_makeSZ = true;
@@ -172,7 +182,7 @@ if isServer then {
 			private _varName = _x;
 			private _arr = missionNamespace getVariable[_varName,[]];
 			
-			["INFO", format["%1: %2", _varName, _arr]] call zmm_fnc_logMsg;
+			["DEBUG", format["%1: %2", _varName, _arr]] call zmm_fnc_logMsg;
 			
 			if (count _arr == 0) then { ["WARNING", format["Variable '%1' has no valid classes in.", _varName]] call zmm_fnc_logMsg };
 			{
