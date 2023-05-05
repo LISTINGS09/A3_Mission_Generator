@@ -40,7 +40,7 @@ _ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>Task Location</
 <execute expression=""missionNamespace setVariable ['ZMM_TaskDistance',15000,true]; systemChat 'Choosing locations within 15KM';"">15KM (Default)</execute><br/>
 <execute expression=""missionNamespace setVariable ['ZMM_TaskDistance',50000,true]; systemChat 'Choosing All Locations';"">All Locations</execute><br/>";
 
-_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>Customise Unit Groups</font><br/>By default unit groups will be chosen by location size and type, they can be overridden using the settings below:<br/>";
+_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>Customise Unit Groups</font><br/>By default unit groups will be chosen by mission difficulty, location size and type. Any changes made here will always override anything else:<br/>";
 
 {
 	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];

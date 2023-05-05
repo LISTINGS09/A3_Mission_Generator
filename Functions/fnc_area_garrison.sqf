@@ -5,7 +5,7 @@ params [["_zoneID", 0], ["_enemyCount", -1], ["_bPos",[]]];
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
-private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
 
 if (_enemyCount < 0) then { 
 	_enemyCount = missionNamespace getVariable [format[ "ZMM_%1_Garrison", _zoneID ], 14];
@@ -26,12 +26,12 @@ if (count _bPos isEqualTo 0) then {
 
 ["DEBUG", format["Zone%1 - Area Garrison - Creating: %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
 
-if (count _menArray isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
+if (count _enemyMen isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 
 private _grp = createGroup [_side, true];
 
 for "_i" from 1 to (_enemyCount) do {
-	 _unitType = selectRandom _menArray;
+	 _unitType = selectRandom _enemyMen;
 	 _inHouse = true;
 	
 	if (count _bPos == 0) exitWith {

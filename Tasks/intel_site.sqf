@@ -4,7 +4,7 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _menArray = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
+private _enemyMen = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
 private _missionDesc = [
 		"Locate a <font color='#00FFFF'>%1</font> that has been recently acquired by enemy forces. It is somewhere in %3 and contains %2, find and return the %1 safely.",
 		"Enemy forces at %3 are known to have come into possession of a <font color='#00FFFF'>%1</font>, containing %2. Find and secure the %1.",
@@ -72,7 +72,7 @@ if (count _foundArr > 0) then {
 
 	private _enemyGrp = createGroup [_enemySide, true];
 	for "_i" from 0 to 1 + random 2 do {
-		private _unit = _enemyGrp createUnit [selectRandom _menArray, (_table getPos [random 15, random 360]), [], 0, "NONE"];
+		private _unit = _enemyGrp createUnit [selectRandom _enemyMen, (_table getPos [random 15, random 360]), [], 0, "NONE"];
 		[_unit] joinSilent _enemyGrp; 
 		_unit disableAI "PATH";
 		_unit setDir ((_table getRelDir _unit) - 180);

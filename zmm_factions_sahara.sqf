@@ -4,9 +4,6 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		// WEST - NATO (DESERT)
 		ZMM_WESTFlag = ["Flag_ION_F", "\A3\Data_F\Flags\flag_ion_CO.paa"];
 		ZMM_WESTMan = ["B_D_Soldier_lxWS","B_D_soldier_LAT2_lxWS","B_D_Soldier_TL_lxWS","B_D_soldier_AR_lxWS","B_D_Soldier_GL_lxWS"];
-		ZMM_WESTGrp_Sentry = [[["B_D_Soldier_GL_lxWS","B_D_Soldier_lxWS","B_D_Soldier_lxWS"]]];
-		ZMM_WESTGrp_Team = [[["B_D_Soldier_GL_lxWS","B_D_Soldier_lxWS","B_D_soldier_AR_lxWS","B_D_soldier_LAT2_lxWS","B_D_Soldier_lxWS"]]];
-		ZMM_WESTGrp_Squad = [[["B_D_Soldier_GL_lxWS","B_D_Soldier_lxWS","B_D_soldier_AR_lxWS","B_D_soldier_LAT2_lxWS","B_D_Soldier_lxWS","B_D_Soldier_lxWS","B_D_soldier_AR_lxWS","B_D_soldier_LAT2_lxWS","B_D_Soldier_lxWS","B_D_Soldier_lxWS"]]];
 		ZMM_WESTVeh_Truck = ["B_D_Truck_01_covered_lxWS"];
 		ZMM_WESTVeh_Util = ["B_D_Truck_01_Repair_lxWS","B_D_Truck_01_fuel_lxWS","B_D_Truck_01_ammo_lxWS"];
 		ZMM_WESTVeh_Light = ["B_D_MRAP_01_hmg_lxWS","B_D_MRAP_01_gmg_lxWS"];
@@ -22,9 +19,6 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		// WEST - UNA
 		ZMM_WESTFlag = ["Flag_UNO_F", "\lxws\data_f_lxws\img\flags\flag_una_CO.paa"];
 		ZMM_WESTMan = ["B_UN_soldier_AR_lxWS","B_UN_engineer_lxWS","B_UN_soldier_repair_lxWS","B_UN_Soldier_lxWS","B_UN_Soldier_TL_lxWS"];
-		ZMM_WESTGrp_Sentry = [[["B_UN_Soldier_TL_lxWS","B_UN_Soldier_lxWS","B_UN_Soldier_lxWS"]]];
-		ZMM_WESTGrp_Team = [[["B_UN_Soldier_TL_lxWS","B_UN_soldier_AR_lxWS","B_UN_Soldier_lxWS","B_UN_Soldier_lxWS","B_UN_Soldier_lxWS"]]];
-		ZMM_WESTGrp_Squad = [[["B_UN_Soldier_TL_lxWS","B_UN_soldier_AR_lxWS","B_UN_soldier_repair_lxWS","B_UN_Soldier_lxWS","B_UN_Soldier_lxWS","B_UN_Soldier_lxWS","B_UN_soldier_AR_lxWS","B_UN_Soldier_lxWS","B_UN_Soldier_lxWS","B_UN_Soldier_lxWS"]]];
 		ZMM_WESTVeh_Truck = ["B_ION_Truck_02_covered_lxWS"];
 		ZMM_WESTVeh_Util = ["B_UN_Truck_01_fuel_lxWS","B_UN_Truck_01_medical_lxWS","B_UN_Truck_01_Repair_lxWS"];
 		ZMM_WESTVeh_Light = ["B_ION_Offroad_armed_lxWS"];
@@ -40,9 +34,6 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		// WEST - ION
 		ZMM_WESTFlag = ["Flag_ION_F", "\A3\Data_F\Flags\flag_ion_CO.paa"];
 		ZMM_WESTMan = ["B_ION_soldier_AR_lxWS","B_ION_Soldier_GL_lxWS","B_ION_shot_lxWS","B_ION_TL_lxWS","B_ION_Soldier_lxWS","B_ION_medic_lxWS"];
-		ZMM_WESTGrp_Sentry = [[["B_ION_Soldier_GL_lxWS","B_ION_Soldier_lxWS","B_ION_Soldier_lxWS"]]];
-		ZMM_WESTGrp_Team = [[["B_ION_Soldier_GL_lxWS","B_ION_shot_lxWS","B_ION_Soldier_lxWS","B_ION_soldier_AR_lxWS","B_ION_Soldier_lxWS"]]];
-		ZMM_WESTGrp_Squad = [[["B_ION_TL_lxWS","B_ION_Soldier_GL_lxWS","B_ION_medic_lxWS","B_ION_Soldier_lxWS","B_ION_soldier_AR_lxWS","B_ION_Soldier_GL_lxWS","B_ION_shot_lxWS","B_ION_Soldier_lxWS","B_ION_soldier_AR_lxWS","B_ION_Soldier_lxWS"]]];
 		ZMM_WESTVeh_Truck = ["B_ION_Truck_02_covered_lxWS"];
 		ZMM_WESTVeh_Util = ["B_UN_Truck_01_fuel_lxWS","B_UN_Truck_01_medical_lxWS","B_UN_Truck_01_Repair_lxWS"];
 		ZMM_WESTVeh_Light = ["B_ION_Offroad_armed_lxWS"];
@@ -62,9 +53,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		// EAST - SFIA
 		ZMM_EASTFlag = ["Flag_SFIA_lxWS", "\lxws\data_f_lxws\img\flags\flag_SFIA_CO.paa"];
 		ZMM_EASTMan = ["O_SFIA_soldier_lxWS","O_SFIA_Soldier_AR_lxWS","O_SFIA_soldier_at_lxWS","O_SFIA_Soldier_TL_lxWS","O_SFIA_Soldier_GL_lxWS"];
-		ZMM_EASTGrp_Sentry = [[["O_SFIA_Soldier_GL_lxWS","O_SFIA_soldier_lxWS","O_SFIA_soldier_lxWS"]]];
-		ZMM_EASTGrp_Team = [[["O_SFIA_Soldier_GL_lxWS","O_SFIA_soldier_at_lxWS","O_SFIA_soldier_lxWS","O_SFIA_Soldier_AR_lxWS","O_SFIA_soldier_lxWS"]]];
-		ZMM_EASTGrp_Squad = [[["O_SFIA_Soldier_GL_lxWS","O_SFIA_Soldier_TL_lxWS","O_SFIA_soldier_at_lxWS","O_SFIA_soldier_lxWS","O_SFIA_Soldier_AR_lxWS","O_SFIA_soldier_at_lxWS","O_SFIA_soldier_lxWS","O_SFIA_soldier_lxWS","O_SFIA_Soldier_AR_lxWS","O_SFIA_soldier_lxWS"]]];
 		ZMM_EASTVeh_Truck = ["O_SFIA_Truck_02_covered_lxWS"];
 		ZMM_EASTVeh_Util = ["O_SFIA_Truck_02_box_lxWS","O_SFIA_Truck_02_fuel_lxWS","O_SFIA_Truck_02_Ammo_lxWS"];
 		ZMM_EASTVeh_Light = ["O_Tura_Offroad_armor_AT_lxWS","O_Tura_Offroad_armor_armed_lxWS"];
@@ -83,9 +71,6 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		// GUER - TURA
 		ZMM_GUERFlag = ["Flag_Argana_F_lxWS", "\lxws\data_f_lxws\img\flags\flag_Argana_CO.paa"];
 		ZMM_GUERMan = ["I_SFIA_enforcer_lxWS","I_SFIA_hireling_lxWS","I_SFIA_scout_lxWS","I_SFIA_medic2_lxWS","I_SFIA_thug_lxWS","I_SFIA_watcher_lxWS"];
-		ZMM_GUERGrp_Sentry = [[["I_SFIA_enforcer_lxWS","I_SFIA_hireling_lxWS","I_SFIA_watcher_lxWS"]]];
-		ZMM_GUERGrp_Team = [[["I_SFIA_thug_lxWS","I_SFIA_enforcer_lxWS","I_SFIA_scout_lxWS","I_SFIA_hireling_lxWS","I_SFIA_scout_lxWS"]]];
-		ZMM_GUERGrp_Squad = [[["I_SFIA_thug_lxWS","I_SFIA_enforcer_lxWS","I_SFIA_scout_lxWS","I_SFIA_hireling_lxWS","I_SFIA_thug_lxWS","I_SFIA_scout_lxWS","I_SFIA_hireling_lxWS","I_SFIA_medic2_lxWS"]]];
 		ZMM_GUERVeh_Truck = ["I_C_Van_02_transport_F"];
 		ZMM_GUERVeh_Util = ["O_SFIA_Truck_02_box_lxWS","O_SFIA_Truck_02_fuel_lxWS","O_SFIA_Truck_02_Ammo_lxWS"];
 		ZMM_GUERVeh_Light = ["I_Tura_Offroad_armor_AT_lxWS","I_Tura_Offroad_armor_armed_lxWS"];

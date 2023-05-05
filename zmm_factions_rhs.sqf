@@ -4,9 +4,6 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		// WEST - US ARMY D
 		ZMM_WESTFlag = ["FlagCarrierUSA", "\ca\data\flag_usa_co.paa"];
 		ZMM_WESTMan = ["rhsusf_army_ocp_rifleman","rhsusf_army_ocp_machinegunner","rhsusf_army_ocp_rifleman","rhsusf_army_ocp_grenadier","rhsusf_army_ocp_rifleman","rhsusf_army_ocp_riflemanat","rhsusf_army_ocp_rifleman","rhsusf_army_ocp_squadleader","rhsusf_army_ocp_rifleman","rhsusf_army_ocp_aa","rhsusf_army_ocp_rifleman","rhsusf_army_ocp_maaws"];
-		ZMM_WESTGrp_Sentry = [configFile >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_d" >> "rhs_group_nato_usarmy_d_infantry" >> "rhs_group_nato_usarmy_d_infantry_team"];
-		ZMM_WESTGrp_Team = [configFile >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_d" >> "rhs_group_nato_usarmy_d_infantry" >> "rhs_group_nato_usarmy_d_infantry_team"];
-		ZMM_WESTGrp_Squad = [configFile >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_d" >> "rhs_group_nato_usarmy_d_infantry" >> "rhs_group_nato_usarmy_d_infantry_squad"];
 		ZMM_WESTVeh_Truck = [configFile >> "CfgGroups" >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_d" >> "rhs_group_nato_usarmy_d_RG33" >> "rhs_group_nato_usarmy_d_RG33_m2_squad", configFile >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_d" >> "rhs_group_nato_usarmy_d_RG33" >> "rhs_group_nato_usarmy_d_RG33_squad"];
 		ZMM_WESTVeh_Util = ["rhsusf_M978A4_usarmy_d","rhsusf_M977A4_AMMO_usarmy_d","rhsusf_M977A4_REPAIR_usarmy_d"];
 		ZMM_WESTVeh_Light = ["rhsusf_m1025_d_m2","rhsusf_m1025_d_Mk19"];
@@ -22,9 +19,6 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		// WEST - CDF
 		ZMM_WESTFlag = ["FlagCarrierCDF_EP1", "\ca\data\flag_Chernarus_co.paa"];
 		ZMM_WESTMan = ["rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_machinegunner","rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_grenadier","rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_grenadier_rpg","rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_specialist_aa"];
-		ZMM_WESTGrp_Sentry = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_cdf_b_ground" >> "rhsgref_group_cdf_b_reg_infantry" >> "rhsgref_group_cdf_b_reg_infantry_squad"];
-		ZMM_WESTGrp_Team = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_cdf_b_ground" >> "rhsgref_group_cdf_b_reg_infantry" >> "rhsgref_group_cdf_b_reg_infantry_squad"];
-		ZMM_WESTGrp_Squad = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_cdf_b_ground" >> "rhsgref_group_cdf_b_reg_infantry" >> "rhsgref_group_cdf_b_reg_infantry_squad"];
 		ZMM_WESTVeh_Truck = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_cdf_b_ground" >> "rhs_group_cdf_b_gaz66" >> "rhs_group_cdf_b_gaz66_squad", configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_cdf_b_ground" >> "rhs_group_cdf_b_ural" >> "rhs_group_cdf_b_ural_squad"];
 		ZMM_WESTVeh_Util = ["rhsgref_cdf_b_ural_fuel","rhsgref_cdf_b_ural_repair","rhsgref_cdf_b_gaz66_ammo"];
 		ZMM_WESTVeh_Light = ["rhsgref_cdf_b_reg_uaz_ags","rhsgref_cdf_b_reg_uaz_dshkm","rhsgref_cdf_b_reg_uaz_spg9"];
@@ -40,9 +34,6 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		// WEST - HORIZON
 		ZMM_WESTFlag = ["FlagCarrierUSA", "\ca\data\flag_usa_co.paa"];
 		ZMM_WESTMan = ["rhsgref_hidf_rifleman","rhsgref_hidf_grenadier","rhsgref_hidf_rifleman","rhsgref_hidf_squadleader","rhsgref_hidf_grenadier_m79","rhsgref_hidf_rifleman","rhsgref_hidf_autorifleman"];
-		ZMM_WESTGrp_Sentry = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_hidf" >> "rhsgref_group_hidf_infantry" >> "rhs_group_hidf_infantry_team"];
-		ZMM_WESTGrp_Team = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_hidf" >> "rhsgref_group_hidf_infantry" >> "rhs_group_hidf_infantry_team"];
-		ZMM_WESTGrp_Squad = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_hidf" >> "rhsgref_group_hidf_infantry" >> "rhsgref_group_hidf_infantry_squad"];
 		ZMM_WESTVeh_Truck = ["rhsgref_hidf_m998_4dr"];
 		ZMM_WESTVeh_Util = ["rhsusf_M977A4_AMMO_usarmy_wd","rhsusf_M977A4_REPAIR_usarmy_wd","rhsusf_M978A4_usarmy_wd"];
 		ZMM_WESTVeh_Light = ["rhsgref_hidf_m1025_m2","rhsgref_hidf_m1025_mk19"];
@@ -58,9 +49,6 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		// WEST - US ARMY W
 		ZMM_WESTFlag = ["FlagCarrierUSA", "\ca\data\flag_usa_co.paa"];
 		ZMM_WESTMan = ["rhsusf_army_ucp_rifleman","rhsusf_army_ucp_machinegunner","rhsusf_army_ucp_rifleman","rhsusf_army_ucp_grenadier","rhsusf_army_ucp_rifleman","rhsusf_army_ucp_riflemanat","rhsusf_army_ucp_rifleman","rhsusf_army_ucp_squadleader","rhsusf_army_ucp_rifleman","rhsusf_army_ucp_maaws","rhsusf_army_ucp_rifleman","rhsusf_army_ucp_aa"];
-		ZMM_WESTGrp_Sentry = [configFile >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_wd" >> "rhs_group_nato_usarmy_wd_infantry" >> "rhs_group_nato_usarmy_wd_infantry_team"];
-		ZMM_WESTGrp_Team = [configFile >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_wd" >> "rhs_group_nato_usarmy_wd_infantry" >> "rhs_group_nato_usarmy_wd_infantry_team"];
-		ZMM_WESTGrp_Squad = [configFile >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_wd" >> "rhs_group_nato_usarmy_wd_infantry" >> "rhs_group_nato_usarmy_wd_infantry_squad"];
 		ZMM_WESTVeh_Truck = [configFile >> "CfgGroups" >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_wd" >> "rhs_group_nato_usarmy_wd_RG33" >> "rhs_group_nato_usarmy_wd_RG33_m2_squad", configFile >> "CfgGroups" >> "West" >> "rhs_faction_usarmy_wd" >> "rhs_group_nato_usarmy_wd_RG33" >> "rhs_group_nato_usarmy_wd_RG33_squad"];
 		ZMM_WESTVeh_Util = ["rhsusf_M977A4_AMMO_usarmy_wd","rhsusf_M977A4_REPAIR_usarmy_wd","rhsusf_M978A4_usarmy_wd"];
 		ZMM_WESTVeh_Light = ["rhsusf_m1025_w_m2","rhsusf_m1025_w_Mk19"];
@@ -80,9 +68,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		// EAST - RU DESERT MFLORA
 		ZMM_EASTFlag = ["rhs_Flag_Russia_F", "\ca\data\flag_rus_co.paa"];
 		ZMM_EASTMan = ["rhs_vdv_mflora_rifleman","rhs_vdv_mflora_sergeant","rhs_vdv_mflora_rifleman","rhs_vdv_mflora_aa","rhs_vdv_mflora_rifleman","rhs_vdv_mflora_at","rhs_vdv_mflora_rifleman","rhs_vdv_mflora_RShG2","rhs_vdv_mflora_rifleman","rhs_vdv_mflora_grenadier","rhs_vdv_mflora_rifleman","rhs_vdv_mflora_LAT","rhs_vdv_mflora_rifleman","rhs_vdv_mflora_machinegunner"];
-		ZMM_EASTGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_infantry_mflora" >> "rhs_group_rus_vdv_infantry_mflora_MANEUVER"];
-		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_infantry_mflora" >> "rhs_group_rus_vdv_infantry_mflora_fireteam"];
-		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_infantry_mflora" >> "rhs_group_rus_vdv_infantry_mflora_squad"];
 		ZMM_EASTVeh_Truck = [["RHS_Ural_MSV_01","[_grpVeh,['rhs_sand',1],true] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Util = ["rhs_gaz66_ammo_msv","RHS_Ural_Fuel_MSV_01","RHS_Ural_Repair_MSV_01"];
 		ZMM_EASTVeh_Light = [["rhs_btr70_vdv","[_grpVeh,['rhs_sand',1]] call BIS_fnc_initVehicle;"]];
@@ -98,9 +83,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		// EAST - RU DESERT EMR
 		ZMM_EASTFlag = ["rhs_Flag_Russia_F", "\ca\data\flag_rus_co.paa"];
 		ZMM_EASTMan = ["rhs_vdv_des_rifleman","rhs_vdv_des_sergeant","rhs_vdv_des_rifleman","rhs_vdv_des_aa","rhs_vdv_des_rifleman","rhs_vdv_des_at","rhs_vdv_des_rifleman","rhs_vdv_des_RShG2","rhs_vdv_des_rifleman","rhs_vdv_des_grenadier","rhs_vdv_des_rifleman","rhs_vdv_des_LAT","rhs_vdv_des_rifleman","rhs_vdv_des_machinegunner"];
-		ZMM_EASTGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_des_infantry" >> "rhs_group_rus_vdv_des_infantry_MANEUVER"];
-		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_des_infantry" >> "rhs_group_rus_vdv_des_infantry_fireteam"];
-		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_des_infantry" >> "rhs_group_rus_vdv_des_infantry_squad"];
 		ZMM_EASTVeh_Truck = [["RHS_Ural_MSV_01","[_grpVeh,['rhs_sand',1],true] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Util = ["rhs_gaz66_ammo_msv","RHS_Ural_Fuel_MSV_01","RHS_Ural_Repair_MSV_01"];
 		ZMM_EASTVeh_Light = [["rhs_btr70_vdv","[_grpVeh,['rhs_sand',1]] call BIS_fnc_initVehicle;"]];
@@ -116,9 +98,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		// EAST - RU MSV FLORA
 		ZMM_EASTFlag = ["rhs_Flag_Russia_F", "\ca\data\flag_rus_co.paa"];
 		ZMM_EASTMan = ["rhs_msv_rifleman","rhs_msv_aa","rhs_msv_rifleman","rhs_msv_at","rhs_msv_rifleman","rhs_msv_machinegunner","rhs_msv_rifleman","rhs_msv_RShG2","rhs_msv_rifleman","rhs_msv_grenadier","rhs_msv_rifleman","rhs_msv_sergeant","rhs_msv_rifleman","rhs_msv_LAT"];
-		ZMM_EASTGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_infantry" >> "rhs_group_rus_msv_infantry_MANEUVER"];
-		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_infantry" >> "rhs_group_rus_msv_infantry_fireteam"];
-		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_infantry" >> "rhs_group_rus_msv_infantry_squad"];
 		ZMM_EASTVeh_Truck = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_Ural" >> "rhs_group_rus_msv_Ural_squad", configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_gaz66" >> "rhs_group_rus_msv_gaz66_squad"];
 		ZMM_EASTVeh_Util = ["rhs_gaz66_ammo_msv","RHS_Ural_Fuel_MSV_01","RHS_Ural_Repair_MSV_01"];
 		ZMM_EASTVeh_Light = ["rhs_tigr_sts_msv","rhsgref_nat_uaz_dshkm","rhsgref_nat_uaz_ags","rhsgref_nat_uaz_spg9"];
@@ -134,9 +113,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		// EAST - TAKI
 		ZMM_EASTFlag = ["FlagCarrierTKMilitia_EP1", "ca\Ca_E\data\flag_tkm_co.paa"];
 		ZMM_EASTMan = ["O_Taki_soldier_R_AK74M_F","O_Taki_soldier_G_AK74M_F","O_Taki_soldier_R_AK74M_F","O_Taki_soldier_RSG_F","O_Taki_soldier_R_AK74M_F","O_Taki_soldier_R26_F","O_Taki_soldier_R_AK74M_F","O_Taki_soldier_SL_F","O_Taki_soldier_R_AK74M_F","O_Taki_soldier_MG_F","O_Taki_soldier_R_AK74M_F","O_Taki_soldier_G_RPG_F","O_Taki_soldier_R_AK74M_F"];
-		ZMM_EASTGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "Taki_Opfor" >> "Infantry" >> "Taki_Sentry"];
-		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "East" >> "Taki_Opfor" >> "Infantry" >> "Taki_AssaultTeam"];
-		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "Taki_Opfor" >> "Infantry" >> "Taki_RifleSquad"];
 		ZMM_EASTVeh_Truck = [configFile >> "CfgGroups" >> "East" >> "Taki_Opfor" >> "Motorized" >> "Taki_MountedWarband"];
 		ZMM_EASTVeh_Util = ["rhs_gaz66_ammo_msv","RHS_Ural_Fuel_MSV_01","RHS_Ural_Repair_MSV_01"];
 		ZMM_EASTVeh_Light = ["Taki_Ural_Zu23_F","Taki_UAZ_ags30_F","Taki_UAZ_dshkm_F","Taki_UAZ_spg9_F"];
@@ -152,9 +128,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		// EAST - RU EMR DESERT
 		ZMM_EASTFlag = ["rhs_Flag_Russia_F", "\ca\data\flag_rus_co.paa"];
 		ZMM_EASTMan = ["rhs_vdv_des_rifleman","rhs_vdv_des_sergeant","rhs_vdv_des_rifleman","rhs_vdv_des_aa","rhs_vdv_des_rifleman","rhs_vdv_des_at","rhs_vdv_des_rifleman","rhs_vdv_des_RShG2","rhs_vdv_des_rifleman","rhs_vdv_des_grenadier","rhs_vdv_des_rifleman","rhs_vdv_des_LAT","rhs_vdv_des_rifleman","rhs_vdv_des_machinegunner"];
-		ZMM_EASTGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_des_infantry" >> "rhs_group_rus_vdv_des_infantry_MANEUVER"];
-		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_des_infantry" >> "rhs_group_rus_vdv_des_infantry_fireteam"];
-		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_vdv" >> "rhs_group_rus_vdv_des_infantry" >> "rhs_group_rus_vdv_des_infantry_squad"];
 		ZMM_EASTVeh_Truck = ["rhs_gaz66_msv"];
 		ZMM_EASTVeh_Util = ["rhs_gaz66_ammo_msv","RHS_Ural_Fuel_MSV_01","RHS_Ural_Repair_MSV_01"];
 		ZMM_EASTVeh_Light = ["Taki_UAZ_ags30_F","Taki_UAZ_dshkm_F","Taki_UAZ_spg9_F",["rhs_btr70_msv","[_grpVeh,['rhs_sand',1]] call BIS_fnc_initVehicle;"]];
@@ -170,9 +143,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		// EAST - ChDKZ
 		ZMM_EASTFlag = ["FlagCarrierINS", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
 		ZMM_EASTMan = ["rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_grenadier_rpg","rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_rifleman_RPG26","rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_grenadier","rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_machinegunner","rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_saboteur","rhsgref_ins_g_rifleman_aks74"];
-		ZMM_EASTGrp_Sentry = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_chdkz_g" >> "rhsgref_group_chdkz_ins_gurgents_infantry" >> "rhsgref_group_chdkz_infantry_mg"];
-		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_chdkz_g" >> "rhsgref_group_chdkz_ins_gurgents_infantry" >> "rhsgref_group_chdkz_infantry_patrol"];
-		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_chdkz_g" >> "rhsgref_group_chdkz_ins_gurgents_infantry" >> "rhsgref_group_chdkz_ins_gurgents_squad"];
 		ZMM_EASTVeh_Truck = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_chdkz_g" >> "rhs_group_indp_ins_g_ural" >> "rhs_group_chdkz_ural_squad"];
 		ZMM_EASTVeh_Util = ["rhsgref_ins_ural_repair","rhsgref_ins_gaz66_ammo"];
 		ZMM_EASTVeh_Light = ["rhsgref_ins_uaz_spg9","rhsgref_ins_uaz_ags","rhsgref_ins_uaz_dshkm_chdkz","rhsgref_BRDM2_ins"];
@@ -188,9 +158,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		// EAST - RU MSV EMR
 		ZMM_EASTFlag = ["rhs_Flag_Russia_F", "\ca\data\flag_rus_co.paa"];
 		ZMM_EASTMan = ["rhs_msv_emr_rifleman","rhs_msv_emr_aa","rhs_msv_emr_rifleman","rhs_msv_emr_at","rhs_msv_emr_rifleman","rhs_msv_emr_machinegunner","rhs_msv_emr_rifleman","rhs_msv_emr_RShG2","rhs_msv_emr_rifleman","rhs_msv_emr_grenadier","rhs_msv_emr_rifleman","rhs_msv_emr_sergeant","rhs_msv_emr_rifleman","rhs_msv_emr_LAT"];
-		ZMM_EASTGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_infantry_emr" >> "rhs_group_rus_msv_infantry_emr_MANEUVER"];
-		ZMM_EASTGrp_Team = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_infantry_emr" >> "rhs_group_rus_msv_infantry_emr_fireteam"];
-		ZMM_EASTGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_infantry_emr" >> "rhs_group_rus_msv_infantry_emr_squad"];
 		ZMM_EASTVeh_Truck = [configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_Ural" >> "rhs_group_rus_msv_Ural_squad", configFile >> "CfgGroups" >> "East" >> "rhs_faction_msv" >> "rhs_group_rus_msv_gaz66" >> "rhs_group_rus_msv_gaz66_squad"];
 		ZMM_EASTVeh_Util = ["rhs_gaz66_ammo_msv","RHS_Ural_Fuel_MSV_01","RHS_Ural_Repair_MSV_01"];
 		ZMM_EASTVeh_Light = ["rhs_tigr_sts_msv","rhsgref_nat_uaz_dshkm","rhsgref_nat_uaz_ags","rhsgref_nat_uaz_spg9"];
@@ -210,9 +177,6 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		// GUER - NAPA
 		ZMM_GUERFlag = ["Flag_Enoch_F", "\a3\Data_F_Enoch\Flags\flag_Enoch_CO.paa"];
 		ZMM_GUERMan = ["rhsgref_nat_rifleman","rhsgref_nat_rifleman","rhsgref_nat_grenadier_rpg","rhsgref_nat_rifleman","rhsgref_nat_machinegunner","rhsgref_nat_rifleman","rhsgref_nat_grenadier","rhsgref_nat_rifleman_mp44rhsgref_nat_scout","rhsgref_nat_rifleman","rhsgref_nat_commander"];
-		ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_nationalist" >> "rhsgref_group_national_infantry" >> "rhsgref_group_national_infantry_at"];
-		ZMM_GUERGrp_Team = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_nationalist" >> "rhsgref_group_national_infantry" >> "rhsgref_group_national_infantry_patrol"];
-		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_nationalist" >> "rhsgref_group_national_infantry" >> "rhsgref_group_national_infantry_squad_2"];
 		ZMM_GUERVeh_Truck = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_nationalist" >> "rhs_group_indp_nat_ural" >> "rhs_group_nat_ural_squad"];
 		ZMM_GUERVeh_Util = ["rhs_gaz66_ammo_msv","RHS_Ural_Fuel_MSV_01","RHS_Ural_Repair_MSV_01"];
 		ZMM_GUERVeh_Light = ["rhsgref_nat_uaz_ags","rhsgref_nat_uaz_spg9","rhsgref_nat_uaz_dshkm","rhsgref_nat_btr70"];
@@ -228,9 +192,6 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		// GUER - UN
 		ZMM_GUERFlag = ["Flag_Enoch_F", "\a3\Data_F_Enoch\Flags\flag_Enoch_CO.paa"];
 		ZMM_GUERMan = ["rhssaf_un_m10_digital_desert_rifleman_m70","rhssaf_un_m10_digital_desert_rifleman_at","rhssaf_un_m10_digital_desert_rifleman_m70","rhssaf_un_m10_digital_desert_sq_lead","rhssaf_un_m10_digital_desert_rifleman_m70vrhssaf_un_m10_digital_desert_spec_at","rhssaf_un_m10_digital_desert_rifleman_m70","rhssaf_un_m10_digital_desert_rifleman_m70","rhssaf_un_m10_digital_desert_mgun_m84","rhssaf_un_m10_digital_desert_rifleman_m70","rhssaf_un_m10_digital_desert_sniper_m76"];
-		ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "Indep" >> "rhssaf_faction_un" >> "rhssaf_group_un_infantry" >> "rhssaf_group_un_infantry_infantry_team"];
-		ZMM_GUERGrp_Team = [configFile >> "CfgGroups" >> "Indep" >> "rhssaf_faction_un" >> "rhssaf_group_un_infantry" >> "rhssaf_group_un_infantry_infantry_team"];
-		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "Indep" >> "rhssaf_faction_un" >> "rhssaf_group_un_infantry" >> "rhssaf_group_un_infantry_infantry_squad"];
 		ZMM_GUERVeh_Truck = [configFile >> "CfgGroups" >> "Indep" >> "rhssaf_faction_un" >> "rhssaf_group_un_ural" >> "rhssaf_group_un_ural_squad"];
 		ZMM_GUERVeh_Util = ["C_IDAP_Truck_02_water_F","C_IDAP_Van_02_medevac_F"];
 		ZMM_GUERVeh_Light = ["rhsgref_un_m1117"];
@@ -247,9 +208,6 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		// GUER - SAF (DIGITAL)
 		ZMM_GUERFlag = ["FlagCarrierINS", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
 		ZMM_GUERMan = ["rhssaf_army_m10_digital_rifleman_m21","rhssaf_army_m10_digital_rifleman_m70","rhssaf_army_m10_digital_sq_lead","rhssaf_army_m10_digital_rifleman_at","rhssaf_army_m10_digital_mgun_m84","rhssaf_army_m10_digital_spec_at","rhssaf_army_m10_digital_spec_aa","rhssaf_army_m10_digital_gl"];
-		ZMM_GUERGrp_Sentry = [[["rhssaf_army_m10_digital_sq_lead","rhssaf_army_m10_digital_rifleman_m21","rhssaf_army_m10_digital_rifleman_m70"]]];
-		ZMM_GUERGrp_Team = [[["rhssaf_army_m10_digital_sq_lead","rhssaf_army_m10_digital_rifleman_m21","rhssaf_army_m10_digital_rifleman_at","rhssaf_army_m10_digital_mgun_m84"]]];
-		ZMM_GUERGrp_Squad = [[["rhssaf_army_m10_digital_sq_lead","rhssaf_army_m10_digital_rifleman_m21","rhssaf_army_m10_digital_rifleman_at","rhssaf_army_m10_digital_rifleman_m70","rhssaf_army_m10_digital_gl","rhssaf_army_m10_digital_mgun_m84","rhssaf_army_m10_digital_rifleman_m70","rhssaf_army_m10_digital_spec_at"]]];
 		ZMM_GUERVeh_Truck = ["rhsgref_cdf_zil131"];
 		ZMM_GUERVeh_Util = ["rhsgref_cdf_ural_fuel","rhsgref_cdf_ural_repair"];
 		ZMM_GUERVeh_Light = ["rhsgref_BRDM2","rhssaf_m1025_olive_m2","rhssaf_m1151_olive_pkm"];
@@ -265,9 +223,6 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		// GUER - SAF (OAKLEAF)
 		ZMM_GUERFlag = ["FlagCarrierINS", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
 		ZMM_GUERMan = ["rhssaf_army_m93_oakleaf_summer_sq_lead","rhssaf_army_m93_oakleaf_summer_rifleman_m21","rhssaf_army_m93_oakleaf_summer_rifleman_m70","rhssaf_army_m93_oakleaf_summer_spec_at","rhssaf_army_m93_oakleaf_summer_spec_aa","rhssaf_army_m93_oakleaf_summer_mgun_m84","rhssaf_army_m93_oakleaf_summer_gl"];
-		ZMM_GUERGrp_Sentry = [[["rhssaf_army_m93_oakleaf_summer_sq_lead","rhssaf_army_m93_oakleaf_summer_rifleman_m21","rhssaf_army_m93_oakleaf_summer_rifleman_m70"]]];
-		ZMM_GUERGrp_Team = [[["rhssaf_army_m93_oakleaf_summer_sq_lead","rhssaf_army_m93_oakleaf_summer_rifleman_m21","rhssaf_army_m93_oakleaf_summer_spec_at","rhssaf_army_m93_oakleaf_summer_mgun_m84"]]];
-		ZMM_GUERGrp_Squad = [[["rhssaf_army_m93_oakleaf_summer_sq_lead","rhssaf_army_m93_oakleaf_summer_rifleman_m21","rhssaf_army_m93_oakleaf_summer_spec_at","rhssaf_army_m93_oakleaf_summer_rifleman_m70","rhssaf_army_m93_oakleaf_summer_gl","rhssaf_army_m93_oakleaf_summer_mgun_m84","rhssaf_army_m93_oakleaf_summer_rifleman_m70","rhssaf_army_m93_oakleaf_summer_gl"]]];
 		ZMM_GUERVeh_Truck = ["rhsgref_cdf_zil131"];
 		ZMM_GUERVeh_Util = ["rhsgref_cdf_ural_fuel","rhsgref_cdf_ural_repair"];
 		ZMM_GUERVeh_Light = ["rhsgref_BRDM2","rhssaf_m1025_olive_m2","rhssaf_m1151_olive_pkm"];
@@ -283,9 +238,6 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		// GUER - TLA
 		ZMM_GUERFlag = ["FlagCarrierINS", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
 		ZMM_GUERMan = ["rhsgref_tla_rifleman_M16","rhsgref_tla_specialist_at","rhsgref_tla_rifleman_M16","rhsgref_tla_grenadier","rhsgref_tla_rifleman_M16","rhsgref_tla_squadleader","rhsgref_tla_rifleman_M16","rhsgref_tla_rifleman_rpg75","rhsgref_tla_rifleman_M16","rhsgref_tla_machinegunner","rhsgref_tla_rifleman_M16","rhsgref_tla_machinegunner_mg42"];
-		ZMM_GUERGrp_Sentry = [[["rhsgref_tla_grenadier","rhsgref_tla_rifleman_M16","rhsgref_tla_rifleman_M16"]]];
-		ZMM_GUERGrp_Team = [[["rhsgref_tla_grenadier","rhsgref_tla_rifleman_M16","rhsgref_tla_machinegunner","rhsgref_tla_specialist_at"]]];
-		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "rhsgref_faction_tla" >> "rhsgref_group_tla_infantry" >> "rhsgref_group_tla_insurgent_cell"];
 		ZMM_GUERVeh_Truck = ["rhsgref_tla_g_kraz255b1_cargo_open"];
 		ZMM_GUERVeh_Util = ["rhsgref_ins_g_kraz255b1_fuel","rhsgref_ins_g_gaz66_repair","rhsgref_ins_g_gaz66_ammo"];
 		ZMM_GUERVeh_Light = ["rhsgref_ins_g_uaz_spg9","rhsgref_ins_g_uaz_ags","rhsgref_ins_g_uaz_dshkm_chdkz","rhsgref_BRDM2_ins_g"];
@@ -301,9 +253,6 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		// GUER - CDF
 		ZMM_GUERFlag = ["FlagCarrierCDF_EP1", "\ca\data\flag_Chernarus_co.paa"];
 		ZMM_GUERMan = ["rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_machinegunner","rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_grenadier","rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_grenadier_rpg","rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_specialist_aa"];
-		ZMM_GUERGrp_Sentry = [[["rhsgref_cdf_b_reg_grenadier","rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_rifleman"]]];
-		ZMM_GUERGrp_Team = [[["rhsgref_cdf_b_reg_grenadier","rhsgref_cdf_b_reg_rifleman","rhsgref_cdf_b_reg_grenadier_rpg","rhsgref_cdf_b_reg_machinegunner"]]];
-		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_cdf_b_ground" >> "rhsgref_group_cdf_b_reg_infantry" >> "rhsgref_group_cdf_b_reg_infantry_squad"];
 		ZMM_GUERVeh_Truck = [configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_cdf_b_ground" >> "rhs_group_cdf_b_gaz66" >> "rhs_group_cdf_b_gaz66_squad", configFile >> "CfgGroups" >> "West" >> "rhsgref_faction_cdf_b_ground" >> "rhs_group_cdf_b_ural" >> "rhs_group_cdf_b_ural_squad"];
 		ZMM_GUERVeh_Util = ["rhsgref_cdf_b_ural_fuel","rhsgref_cdf_b_ural_repair","rhsgref_cdf_b_gaz66_ammo"];
 		ZMM_GUERVeh_Light = ["rhsgref_cdf_b_reg_uaz_ags","rhsgref_cdf_b_reg_uaz_dshkm","rhsgref_cdf_b_reg_uaz_spg9"];
@@ -315,31 +264,10 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_Convoy = ["rhsgref_cdf_b_reg_uaz_dshkm","rhsgref_cdf_b_reg_uaz","rhsgref_cdf_b_btr70"];
 		ZMM_GUERVeh_Static = ["rhsgref_cdf_b_DSHKM"];
 	};
-	case 7: {
-		// GUER - TLA
-		ZMM_GUERFlag = ["FlagCarrierINS", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
-		ZMM_GUERMan = ["rhsgref_tla_rifleman_M16","rhsgref_tla_specialist_at","rhsgref_tla_rifleman_M16","rhsgref_tla_grenadier","rhsgref_tla_rifleman_M16","rhsgref_tla_squadleader","rhsgref_tla_rifleman_M16","rhsgref_tla_rifleman_rpg75","rhsgref_tla_rifleman_M16","rhsgref_tla_machinegunner","rhsgref_tla_rifleman_M16","rhsgref_tla_machinegunner_mg42"];
-		ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "East" >> "rhsgref_faction_tla" >> "rhsgref_group_tla_infantry" >> "rhsgref_group_tla_insurgent_cell"];
-		ZMM_GUERGrp_Team = [configFile >> "CfgGroups" >> "East" >> "rhsgref_faction_tla" >> "rhsgref_group_tla_infantry" >> "rhsgref_group_tla_insurgent_cell"];
-		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "East" >> "rhsgref_faction_tla" >> "rhsgref_group_tla_infantry" >> "rhsgref_group_tla_insurgent_cell"];
-		ZMM_GUERVeh_Truck = ["rhsgref_ins_g_zil131_open"];
-		ZMM_GUERVeh_Util = ["rhsgref_ins_g_kraz255b1_fuel","rhsgref_ins_g_gaz66_repair","rhsgref_ins_g_gaz66_ammo"];
-		ZMM_GUERVeh_Light = ["rhsgref_ins_g_uaz_spg9","rhsgref_ins_g_uaz_ags","rhsgref_ins_g_uaz_dshkm_chdkz","rhsgref_BRDM2_ins_g"];
-		ZMM_GUERVeh_Medium = ["rhsgref_ins_g_ural_Zu23","rhsgref_ins_g_btr70","rhsgref_ins_g_bmd1"];
-		ZMM_GUERVeh_Heavy = ["rhsgref_ins_g_bmd2","rhsgref_ins_g_zsu234","rhsgref_ins_g_t72ba","rhsgref_ins_g_t72bb"];
-		ZMM_GUERVeh_Air = ["rhsgref_ins_g_Mi8amt"];
-		ZMM_GUERVeh_CasH = [["rhsgref_cdf_reg_Mi17Sh","[_grpVeh,['Camo1',1]] call BIS_fnc_initVehicle;"]];
-		ZMM_GUERVeh_CasP = [["RHSGREF_A29B_HIDF","[_grpVeh,['Ecuador',1]] call BIS_fnc_initVehicle;"]];
-		ZMM_GUERVeh_Convoy = ["rhsgref_BRDM2_ins_g","rhsgref_ins_g_zil131_open","rhsgref_ins_g_bmd2"];
-		ZMM_GUERVeh_Static = ["rhsgref_ins_g_DSHKM"];
-	};
 	default {
 		// GUER - ChDKZ
 		ZMM_GUERFlag = ["FlagCarrierINS", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
 		ZMM_GUERMan = ["rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_grenadier_rpg","rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_rifleman_RPG26","rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_grenadier","rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_machinegunner","rhsgref_ins_g_rifleman_aks74","rhsgref_ins_g_saboteur","rhsgref_ins_g_rifleman_aks74"];
-		ZMM_GUERGrp_Sentry = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_chdkz_g" >> "rhsgref_group_chdkz_ins_gurgents_infantry" >> "rhsgref_group_chdkz_infantry_mg"];
-		ZMM_GUERGrp_Team = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_chdkz_g" >> "rhsgref_group_chdkz_ins_gurgents_infantry" >> "rhsgref_group_chdkz_infantry_patrol"];
-		ZMM_GUERGrp_Squad = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_chdkz_g" >> "rhsgref_group_chdkz_ins_gurgents_infantry" >> "rhsgref_group_chdkz_ins_gurgents_squad"];
 		ZMM_GUERVeh_Truck = [configFile >> "CfgGroups" >> "Indep" >> "rhsgref_faction_chdkz_g" >> "rhs_group_indp_ins_g_ural" >> "rhs_group_chdkz_ural_squad"];
 		ZMM_GUERVeh_Util = ["rhsgref_ins_g_ural_repair","rhsgref_ins_g_gaz66_ammo"];
 		ZMM_GUERVeh_Light = ["rhsgref_ins_g_uaz_spg9","rhsgref_ins_g_uaz_ags","rhsgref_ins_g_uaz_dshkm_chdkz","rhsgref_BRDM2_ins_g"];

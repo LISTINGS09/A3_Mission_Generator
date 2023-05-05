@@ -1,8 +1,9 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.38;
+ZMM_Version = 4.39;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
+// ZZM_Template = "vanilla";
 // ZZM_Mode = 0 - Objective Selection
 // ZZM_Mode = 1 - CTI Intel Mode
 // ZZM_Mode = 2 - C&C Mode.
@@ -23,6 +24,12 @@ if (isNil "ZZM_Mode") then { ZZM_Mode = missionNamespace getVariable ["f_param_Z
 if (isNil "ZZM_Diff") then { ZZM_Diff = missionNamespace getVariable ["f_param_ZMMDiff", 1] };
 if (isNil "ZZM_IED") then { ZZM_IED = missionNamespace getVariable ["f_param_ZMMIED", 1] };
 if (isNil "ZZM_QRF") then { ZZM_QRF = missionNamespace getVariable ["f_param_ZMMQRF", 1] };
+if (isNil "ZZM_Template") then {
+	if ("gm_core" in activatedAddons) then { ZZM_Template = "GM" };
+	if ("data_f_lxws" in activatedAddons) then { ZZM_Template = "WS" };
+	if ("vn_data_f" in activatedAddons) then { ZZM_Template = "VN" };
+	if ("rhs_main" in activatedAddons) then { ZZM_Template = "RHS" };
+};
 
 // Register Tasks
 ZMM_tasks = [
@@ -87,17 +94,6 @@ ZMM_tasks = [
 // ,["Rescue", "Rescue Pilot", "Destroy the crashed vehicle then locate and rescue the crew", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_pilot.sqf"]
 // ,["Rescue", "Rescue Hostage", "", "\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa", "Anywhere", "rescue_hostage.sqf"]
 
-// Load Units from Templates
-switch (toLower worldName) do {
-	case "gm_weferlingen_winter";
-	case "gm_weferlingen_summer": { call compileScript [format["%1\zmm_factions_gm.sqf", ZMM_FolderLocation]] };
-	case "cam_lao_nam";
-	case "vn_khe_sanh";
-	case "vn_the_bra": { call compileScript [format["%1\zmm_factions_sog.sqf", ZMM_FolderLocation]] };
-	case "sefrouramal": { call compileScript [format["%1\zmm_factions_sahara.sqf", ZMM_FolderLocation]] };
-	default { call compileScript [format["%1\zmm_factions_vanilla.sqf", ZMM_FolderLocation]] };
-};
-
 if hasInterface then {
 	switch (ZZM_Mode) do {
 		case 0: { _nul = [] execVM format["%1\zmm_brief_custom.sqf", ZMM_FolderLocation] };
@@ -110,6 +106,15 @@ if isServer then {
 	RESISTANCE setFriend [EAST, 0];
 	WEST setFriend [RESISTANCE, 0];
 	RESISTANCE setFriend [WEST, 0];
+
+	// Load Units from Templates
+	switch (toUpper (missionNamespace getVariable ["ZZM_Template","DEFAULT"])) do {
+		case "GM": { call compileScript [format["%1\zmm_factions_gm.sqf", ZMM_FolderLocation]] };
+		case "VN": { call compileScript [format["%1\zmm_factions_sog.sqf", ZMM_FolderLocation]] };
+		case "WS": { call compileScript [format["%1\zmm_factions_sahara.sqf", ZMM_FolderLocation]] };
+		case "RHS": { call compileScript [format["%1\zmm_factions_rhs.sqf", ZMM_FolderLocation]] };
+		default { call compileScript [format["%1\zmm_factions_vanilla.sqf", ZMM_FolderLocation]] };
+	};
 	
 	// Register Functions
 	if (isNil("zmm_fnc_aiUPS")) then {zmm_fnc_aiUPS = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_ups.sqf", ZMM_FolderLocation]; };
@@ -208,36 +213,13 @@ if isServer then {
 		];
 		
 		// Check Units
-		{
-			if !(isClass (configFile >> "CfgVehicles" >> _x)) then { ["ERROR", format["Invalid Unit '%1' in ZMM_%2Man.", _obj, _side]] call zmm_fnc_logMsg };
-		} forEach (missionNamespace getVariable [format["ZMM_%1Man", _side], []]);
+		private _unitArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
+		{ if !(isClass (configFile >> "CfgVehicles" >> _x)) then { _x set [_forEachIndex,""];	["ERROR", format["Invalid Unit '%1' in ZMM_%2Man.", _obj, _side]] call zmm_fnc_logMsg } } forEach _unitArray;
 		
-		// Check Groups
-		{
-			private _varName = _x;
-			private _arr = missionNamespace getVariable[_varName,[]];
-			
-			["INFO", format["%1: %2", _varName, _arr]] call zmm_fnc_logMsg;
-			
-			if (count _arr == 0) then { 
-				["WARNING", format["Variable '%1' has no valid classes in.", _varName]] call zmm_fnc_logMsg
-			} else {
-				// Clean up Group Arrays
-				if (_arr#0 isEqualType []) then { _arr = _arr select 0 };
-				if (_arr#0 isEqualType []) then { _arr = _arr select 0 };
-			};
-			
-			{
-				if (_x isEqualType "") then {
-					if !(isClass (configFile >> "CfgVehicles" >> _x)) then { ["ERROR", format["Invalid Unit '%1' in %2.", _x, _varName]] call zmm_fnc_logMsg };
-				} else {
-					if !(isClass _x) then { ["ERROR", format["Invalid Class in '%1'.", _varName]] call zmm_fnc_logMsg };
-				};
-			} forEach _arr;
-		} forEach [
-			format["ZMM_%1Grp_Sentry",_side],
-			format["ZMM_%1Grp_Team",_side],
-			format["ZMM_%1Grp_Squad",_side]
-		];
+		if (count _unitArray == 0) then {
+			["ERROR", format["Variable '%1' has no valid classes in.", format["ZMM_%1Man", _side]]] call zmm_fnc_logMsg 
+		} else {
+			missionNamespace setVariable [format["ZMM_%1Man", _side], _unitArray];
+		};
 	} forEach ZMM_enemySides;
 };

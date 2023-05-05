@@ -4,7 +4,7 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _menArray = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
+private _enemyMen = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
 private _missionDesc = [
 		"Destroy a <font color='#00FFFF'>%2</font> recently established by enemy forces somewhere within %1.",
 		"The enemy has established a <font color='#00FFFF'>%2</font>, it must be destroyed. Search around %1 to locate it.",
@@ -34,7 +34,7 @@ if (count _foundArr > 0) then {
 
 	private _enemyGrp = createGroup [_enemySide, true];
 	for "_i" from 0 to 1 + random 3 do {
-		private _unit = _enemyGrp createUnit [selectRandom _menArray, (_targetPos getPos [random 15, random 360]), [], 0, "NONE"];
+		private _unit = _enemyGrp createUnit [selectRandom _enemyMen, (_targetPos getPos [random 15, random 360]), [], 0, "NONE"];
 		[_unit] joinSilent _enemyGrp; 
 		_unit disableAI "PATH";
 		_unit setDir random 360;

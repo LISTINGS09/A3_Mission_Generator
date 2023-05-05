@@ -32,7 +32,7 @@ if (_targetPos isEqualTo []) then {
 
 	private _enemyGrp = createGroup [_enemySide, true];
 	for "_i" from 0 to 1 + random 3 do {
-		private _unit = _enemyGrp createUnit [selectRandom _menArray, (_targetPos getPos [random 15, random 360]), [], 0, "NONE"];
+		private _unit = _enemyGrp createUnit [selectRandom _enemyMen, (_targetPos getPos [random 15, random 360]), [], 0, "NONE"];
 		[_unit] joinSilent _enemyGrp; 
 		_unit disableAI "PATH";
 		_unit setDir random 360;
@@ -80,8 +80,8 @@ _infTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _infTrigger setTriggerTimeout [120, 120, 120, true];
 _infTrigger setTriggerStatements [  "this", 
 	format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend within the site for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
-	[] spawn { sleep 140; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
-	[] spawn { sleep 150; [ %3, false, %4, %5, 5 ] spawn zmm_fnc_areaQRF; }
+	[] spawn { sleep 60; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
+	[] spawn { sleep 150; [ %3, false, %4, %5, 5 ] spawn zmm_fnc_areaQRF; };
 	", _locName, _time / 60, _zoneID, _delay, _waves],
 	"" ];
 

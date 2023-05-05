@@ -4,9 +4,9 @@ params [["_zoneID", 0], ["_enemyCount", 30]];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _menArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
 
-if (count _menArray isEqualTo 0) exitWith { ["ERROR", format["Zone%1 - Area Militarise - (%2) No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
+if (count _enemyMen isEqualTo 0) exitWith { ["ERROR", format["Zone%1 - Area Militarise - (%2) No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
 
 // Always populate military buildings.
 
@@ -46,7 +46,7 @@ private _milBlds = nearestObjects [_centre, _milPrimary, 500];
 		private _pos = selectRandom (_x buildingPos -1);
 		
 		if (count (_pos nearEntities ["Man", 1]) < 1) then {
-			private _type = selectRandom _menArray;	
+			private _type = selectRandom _enemyMen;	
 			private _unit = _milGrp createUnit [_type, [0,0,0], [], 150, "NONE"];
 			[_unit] joinSilent _milGrp; 
 			_unit setPosATL _pos;

@@ -88,9 +88,6 @@ if (_qrfType < 0) then {
 // If the value is invalid default it.
 if (_qrfType >= count _qrfTypes) then { _qrfType = 0 };
 
-private _sentry = missionNamespace getVariable [format["ZMM_%1Grp_Sentry",_side],[]];
-private _team = missionNamespace getVariable [format["ZMM_%1Grp_Team",_side],[]];
-private _squad = missionNamespace getVariable [format["ZMM_%1Grp_Squad",_side],[]];
 private _truck = missionNamespace getVariable [format["ZMM_%1Veh_Truck",_side],[]];
 private _light = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
 private _medium = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
@@ -366,17 +363,17 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 				case 0: {
 					switch (_wave) do {
 						case 1: {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
 						};
 						case 2;
 						case 3: {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
 						};
 						default {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
 						};
 					};
 				};
@@ -384,40 +381,40 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 				case 2: {
 					switch (_wave) do {
 						case 1: {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
 						};
 						case 2;
 						case 3: {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
 						};
 						default {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
 						};
 					};
 				};
 				default {
 					switch (_wave) do {
 						case 1: {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
 						};
 						case 2;
 						case 3: {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
 						};
 						default {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _team] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 4] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
 						};
 					};
 				};
@@ -481,8 +478,8 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 							[_centre, _locations, _side, selectRandom _casP] call zmm_fnc_spawnUnit;
 						};
 						default {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
 						};
 					};
 				};
@@ -491,8 +488,8 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 					switch (_wave) do {
 						case 1;
 						case 3: {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
 						};
 						default {
 							[_centre, _locations, _side, selectRandom _casP] call zmm_fnc_spawnUnit;
@@ -507,8 +504,8 @@ for [{_wave = 1}, {_wave <= _maxWave}, {_wave = _wave + 1}] do {
 							[_centre, _locations, _side, selectRandom _casP] call zmm_fnc_spawnUnit;
 						};
 						default {
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
-							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, selectRandom _squad] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
+							[_centre, [(_centre getPos [600, random 360]),(_centre getPos [600, random 360]),(_centre getPos [600, random 360])], _side, 8] call zmm_fnc_spawnUnit;
 						};
 					};
 				};

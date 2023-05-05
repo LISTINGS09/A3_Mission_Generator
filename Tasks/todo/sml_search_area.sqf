@@ -4,7 +4,7 @@ params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _menArray = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
+private _enemyMen = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
 private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
@@ -53,7 +53,7 @@ _areaGrids = [];
 		_areaActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2', false])", _zoneID, _gridID];
 			
 		for "_i" from 0 to 1 + random 2 do {
-			private _unitType = selectRandom _menArray;
+			private _unitType = selectRandom _enemyMen;
 			private _unit = _enemyGrp createUnit [_unitType, _gridPos getPos [random 25, random 360], [], 0, "NONE"];
 			[_unit] joinSilent _enemyGrp; 
 			_unit disableAI "PATH";

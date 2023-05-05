@@ -40,6 +40,13 @@ private _manArray = missionNamespace getVariable [format["ZMM_%1Man", _side], ["
 // If _unitClass is array, extract the custom init.
 if (_unitClass isEqualType []) then { _customInit = _unitClass # 1; _unitClass = _unitClass # 0 };
 
+// If _unitClass is a number, fill it with random units.
+if (_unitClass isEqualType 1) then { 
+	private _unitArr = []; 
+	while { count _unitArr < _unitClass } do { _unitArr pushBack (selectRandom _manArray) };
+	_unitClass = _unitArr;
+};
+
 // Check if _unitClass is an air vehicle.
 _isAir = false;
 if (_unitClass isEqualType "") then {
