@@ -13,6 +13,8 @@ _missionDesc = [
 		"A transport has been spotted near this location. It is due to drop one <font color='#00FFFF'>%1</font> locate it and upload its location to allied forces."
 	];	
 
+// TODO: Support Objective Counts
+
 // Create Objective
 private _dropPos = [_centre getPos [random 100, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
 _dropType = selectRandom ["CargoNet_01_barrels_F","CargoNet_01_box_F","I_CargoNet_01_ammo_F","O_CargoNet_01_ammo_F","C_IDAP_CargoNet_01_supplies_F","B_CargoNet_01_ammo_F"];
@@ -63,6 +65,9 @@ _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [  format["!(ZMM_%1_OBJ getVariable ['var_canUse', true])", _zoneID], 
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
+
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
+[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
 
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _dropName] + format["<br/><br/><img width='350' image='%1'/>", getText (configFile >> "CfgVehicles" >> _dropType >> "editorPreview")], ["Drop"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "airdrop"] call BIS_fnc_setTask;

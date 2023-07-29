@@ -155,6 +155,9 @@ _objTrigger setTriggerStatements [  (_activation joinString " && "),
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
+[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+
 // Create Task
 private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc + format["<br/><br/>You will need to verify the identity of any target when eliminated. Each target is known to be wearing a <font color='#00FFFF'>%1</font>.<br/><br/><img image='%2' width='60'/>", getText (configFile >> "CfgWeapons" >> _hat >> "displayName"), getText (configFile >> "CfgWeapons" >> _hat >> "picture")], _locName, _alias, _team], ["Killer"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
 

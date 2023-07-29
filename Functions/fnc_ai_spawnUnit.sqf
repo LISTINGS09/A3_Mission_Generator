@@ -12,8 +12,7 @@ params [
 if (_unitClass isEqualTo "") exitWith { ["ERROR", format["SpawnUnit - Empty Unit Passed: %1 (%2)", _unitClass, _side]] call zmm_fnc_logMsg };
 if (_tries > 10) exitWith {};
 
-["DEBUG", format["SpawnUnit - Passed %1: %2 [%3] Try:%4", _targetPos, _unitClass, _side, _tries]] call zmm_fnc_logMsg;
-
+private _startClass = _unitClass;
 private _reinfGrp = grpNull;
 private _grpVeh = objNull;
 private _vehType = "";
@@ -22,7 +21,11 @@ private _dir = 0;
 private _customInit = "";
 
 // No positions to use
-if (count _posArray == 0 || count _targetPos == 0) exitWith {};
+if (count _posArray == 0 || count _targetPos == 0) exitWith {
+	["DEBUG", format["SpawnUnit - Aborted %1 [%2] No Valid Positions", _unitClass, _side, _tries]] call zmm_fnc_logMsg;
+};
+
+["DEBUG", format["SpawnUnit - Passed %1: %2 [%3] Try:%4", _targetPos, _unitClass, _side, _tries]] call zmm_fnc_logMsg;
 
 // Fix any positions are not in array format
 {
@@ -35,16 +38,16 @@ if (count _posArray == 0 || count _targetPos == 0) exitWith {};
 private _startingPos = selectRandom _posArray;
 _startingPos set [2,0];
 _dir = _startingPos getDir _targetPos;
-private _manArray = missionNamespace getVariable [format["ZMM_%1Man", _side], ["B_Soldier_F"]];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _side], ["B_Soldier_F"]];
 
 // If _unitClass is array, extract the custom init.
 if (_unitClass isEqualType []) then { _customInit = _unitClass # 1; _unitClass = _unitClass # 0 };
 
 // If _unitClass is a number, fill it with random units.
 if (_unitClass isEqualType 1) then { 
-	private _unitArr = []; 
-	while { count _unitArr < _unitClass } do { _unitArr pushBack (selectRandom _manArray) };
-	_unitClass = _unitArr;
+	private _enemyTeam = []; 
+	for "_i" from 0 to (_unitClass - 1) do { _enemyTeam set [_i, selectRandom _enemyMen] };
+	_unitClass = _enemyTeam;
 };
 
 // Check if _unitClass is an air vehicle.
@@ -56,13 +59,13 @@ if (_unitClass isEqualType "") then {
 // Don't spawn object if too close to any players.
 if ({ alive _x && _x distance2D _startingPos < (if _isAir then {1000} else {500})} count allPlayers > 0 && isMultiplayer) exitWith { 
 	sleep 30;
-	[_targetPos, _posArray, _side, _unitClass, _tries + 1] call zmm_fnc_spawnUnit;
+	[_targetPos, _posArray, _side, _startClass, _tries + 1] call zmm_fnc_spawnUnit;
 };
 
 if (_unitClass isEqualType "") then {
 	_vehType = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "vehicleClass");
 	_vehName = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "displayName");
-	_grpVeh = createVehicle [_unitClass, _startingPos, [], 15, if _isAir then {"FLY"} else {"NONE"}];
+	_grpVeh = createVehicle [_unitClass, _startingPos, [], 0, if _isAir then {"FLY"} else {"NONE"}];
 	_grpVeh setVehicleLock "LOCKEDPLAYER";
 	[_grpVeh,[1, 0.5, 0.5]] remoteExec ["setVehicleTIPars"];
 
@@ -81,7 +84,7 @@ if (_unitClass isEqualType "") then {
 		private _soldierArr = [];
 		private _cargoNo = (count fullCrew [_grpVeh, "", true]) min 12;
 		
-		for "_i" from 1 to _cargoNo do { _soldierArr pushBack (if (_cargoNo > 4) then { selectRandom _manArray } else { _manArray#0 }) }; // Random units for cargo
+		for "_i" from 1 to _cargoNo do { _soldierArr pushBack (if (_cargoNo > 4) then { selectRandom _enemyMen } else { _enemyMen#0 }) }; // Random units for cargo
 	
 		_reinfGrp = [_grpVeh getPos [15, random 360], _side, _soldierArr] call BIS_fnc_spawnGroup;
 		_reinfGrp addVehicle _grpVeh;
@@ -185,7 +188,7 @@ if !_isAir then {
 		_reinfGrp setBehaviour "CARELESS";
 		_soldierArr = [];
 		
-		for "_i" from 1 to _cargoNo do { _soldierArr pushBack (selectRandom _manArray) };
+		for "_i" from 1 to _cargoNo do { _soldierArr pushBack (selectRandom _enemyMen) };
 
 		_paraGrp = [[0,0,0], _side, _soldierArr] call BIS_fnc_spawnGroup;
 		

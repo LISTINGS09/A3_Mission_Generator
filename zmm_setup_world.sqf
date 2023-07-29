@@ -54,7 +54,7 @@ private _counter = 0;
 						_counter = _counter + 1;
 					};
 				} else {
-					if (random 100 > 50) then {
+					if (random 100 > 50 && ({ _pos inArea _x } count allMapMarkers) < 3) then {
 						_zoneID = [_pos, "Ambient", _radius, _locName, _locType] call zmm_fnc_setupZone;
 						_counter = _counter + 1;
 					};

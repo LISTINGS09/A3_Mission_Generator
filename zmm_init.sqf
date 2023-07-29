@@ -1,18 +1,17 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.39;
+ZMM_Version = 4.44;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
-// ZZM_Template = "vanilla";
-// ZZM_Mode = 0 - Objective Selection
-// ZZM_Mode = 1 - CTI Intel Mode
-// ZZM_Mode = 2 - C&C Mode.
-// ZZM_Mode = 2;
-// ZZM_Diff = 0.5 - Which Part Is The Trigger
-// ZZM_Diff = 0.7 - Walk In The Park
-// ZZM_Diff = 1 - Lean Mean Killing Machine
-// ZZM_Diff = 1.5 - Reaper Man
-// ZZM_Diff = 2 - Freight Train O' Death
+// ZZM_Template = "vanilla"; // Force Template
+// ZZM_Mode = 0; // Objective Selection
+// ZZM_Mode = 1; // CTI Intel Mode
+// ZZM_Mode = 2; // C&C Mode.
+// ZZM_Diff = 0.5; // Which Part Is The Trigger
+// ZZM_Diff = 0.7; // Walk In The Park
+// ZZM_Diff = 1; -//Lean Mean Killing Machine
+// ZZM_Diff = 1.5; // Reaper Man
+// ZZM_Diff = 2; // Freight Train O' Death
 // ZZM_Diff = 1; // Enemy strength multiplier
 // ZZM_IED = 1; // 0 - Disabled  1 - Enabled
 // ZZM_QRF = 1; // 0 - Disabled  1 - Enabled
@@ -28,6 +27,7 @@ if (isNil "ZZM_Template") then {
 	if ("gm_core" in activatedAddons) then { ZZM_Template = "GM" };
 	if ("data_f_lxws" in activatedAddons) then { ZZM_Template = "WS" };
 	if ("vn_data_f" in activatedAddons) then { ZZM_Template = "VN" };
+	if ("ww2_spe_core_c_data_c" in activatedAddons) then { ZZM_Template = "SPE" };
 	if ("rhs_main" in activatedAddons) then { ZZM_Template = "RHS" };
 };
 
@@ -106,12 +106,16 @@ if isServer then {
 	RESISTANCE setFriend [EAST, 0];
 	WEST setFriend [RESISTANCE, 0];
 	RESISTANCE setFriend [WEST, 0];
+	createCenter EAST;
+	createCenter RESISTANCE;
+	createCenter WEST;
 
 	// Load Units from Templates
 	switch (toUpper (missionNamespace getVariable ["ZZM_Template","DEFAULT"])) do {
 		case "GM": { call compileScript [format["%1\zmm_factions_gm.sqf", ZMM_FolderLocation]] };
 		case "VN": { call compileScript [format["%1\zmm_factions_sog.sqf", ZMM_FolderLocation]] };
 		case "WS": { call compileScript [format["%1\zmm_factions_sahara.sqf", ZMM_FolderLocation]] };
+		case "SPE": { call compileScript [format["%1\zmm_factions_spe.sqf", ZMM_FolderLocation]] };
 		case "RHS": { call compileScript [format["%1\zmm_factions_rhs.sqf", ZMM_FolderLocation]] };
 		default { call compileScript [format["%1\zmm_factions_vanilla.sqf", ZMM_FolderLocation]] };
 	};
@@ -139,6 +143,7 @@ if isServer then {
 	if (isNil("zmm_fnc_spawnPara")) then {zmm_fnc_spawnPara = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnPara.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_spawnUnit")) then {zmm_fnc_spawnUnit = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnUnit.sqf", ZMM_FolderLocation]; };
 	if (isNil("zmm_fnc_spawnObject")) then {zmm_fnc_spawnObject = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_spawnObject.sqf", ZMM_FolderLocation]; };
+	if (isNil("zmm_fnc_zoneInfo")) then {zmm_fnc_zoneInfo = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_misc_zoneInfo.sqf", ZMM_FolderLocation]; };
 			
 	// Create a safe zone around all players.
 	{

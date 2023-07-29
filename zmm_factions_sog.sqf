@@ -109,7 +109,6 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Convoy = ["vn_o_wheeled_btr40_mg_03_vcmf","vn_o_wheeled_btr40_01_vcmf","vn_o_armor_type63_01"];
 		ZMM_EASTVeh_Static = ["vn_o_vc_static_dshkm_high_02","vn_o_vc_static_pk_high","vn_o_vc_static_rpd_high"];
 	};
-	};
 	default {
 		// EAST - PAVN 65
 		ZMM_EASTFlag = ["vn_flag_pavn", "\vn\objects_f_vietnam\flags\data\vn_flag_01_pavn_co.paa"];

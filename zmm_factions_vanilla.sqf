@@ -3,7 +3,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	case 1: {
 		// WEST - NATO
 		ZMM_WESTFlag = ["Flag_NATO_F", "\A3\Data_F\Flags\Flag_NATO_CO.paa"];
-		ZMM_WESTMan = ["B_Soldier_F","B_Soldier_LAT_F","B_Soldier_F","B_Soldier_GL_F","B_Soldier_F","B_Soldier_AR_F","B_Soldier_F","B_soldier_AA_F","B_Soldier_F","B_soldier_LAT2_F"];
+		ZMM_WESTMan = ["B_Soldier_F","B_soldier_LAT_F","B_Soldier_F","B_soldier_AR_F","B_Soldier_F","B_Soldier_TL_F","B_Soldier_F",selectRandom["B_Soldier_AA_F","B_Soldier_AT_F"]];
 		ZMM_WESTVeh_Truck = [configFile >> "CfgGroups" >> "West" >> "BLU_F" >> "Motorized" >> "BUS_MotInf_Reinforce"];
 		ZMM_WESTVeh_Util = ["B_Truck_01_ammo_F","B_Truck_01_fuel_F","B_Truck_01_Repair_F"];
 		ZMM_WESTVeh_Light = ["B_MRAP_01_gmg_F","B_MRAP_01_hmg_F","B_LSV_01_armed_F"];
@@ -19,7 +19,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	case 2: {
 		// WEST - NATO TANOA
 		ZMM_WESTFlag = ["Flag_NATO_F", "\A3\Data_F\Flags\Flag_NATO_CO.paa"];
-		ZMM_WESTMan = ["B_T_Soldier_F","B_T_soldier_LAT_F","B_T_Soldier_F","B_T_soldier_AR_F","B_T_Soldier_F","B_T_Soldier_TL_F","B_T_Soldier_F","B_T_Soldier_AA_F","B_T_Soldier_F","B_T_Soldier_LAT2_F"];
+		ZMM_WESTMan = ["B_T_Soldier_F","B_T_soldier_LAT_F","B_T_Soldier_F","B_T_soldier_AR_F","B_T_Soldier_F","B_T_Soldier_TL_F","B_T_Soldier_F",selectRandom["B_T_Soldier_AA_F","B_T_Soldier_AT_F"]];
 		ZMM_WESTVeh_Truck = [configFile >> "CfgGroups" >> "West" >> "BLU_T_F" >> "Motorized" >> "B_T_MotInf_Reinforcements"];
 		ZMM_WESTVeh_Util = ["B_T_Truck_01_medical_F","B_T_Truck_01_fuel_F","B_T_Truck_01_Repair_F","B_T_Truck_01_ammo_F"];
 		ZMM_WESTVeh_Light = ["B_T_MRAP_01_gmg_F","B_T_MRAP_01_hmg_F","B_T_LSV_01_AT_F","B_T_LSV_01_armed_F"];
@@ -34,7 +34,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	case 3: {
 		// WEST - NATO WOODLAND
 		ZMM_WESTFlag = ["Flag_NATO_F", "\A3\Data_F\Flags\Flag_NATO_CO.paa"];
-		ZMM_WESTMan = ["B_W_Soldier_F","B_W_soldier_LAT_F","B_W_Soldier_F","B_W_soldier_AR_F","B_W_Soldier_F","B_W_Soldier_TL_F","B_W_Soldier_F","B_W_Soldier_AA_F","B_W_Soldier_F","B_W_Soldier_LAT2_F"];
+		ZMM_WESTMan = ["B_W_Soldier_F","B_W_soldier_AR_F","B_W_Soldier_F","B_W_Soldier_TL_F","B_W_Soldier_F","B_W_Soldier_LAT2_F","B_W_Soldier_F",selectRandom["B_W_Soldier_AA_F","B_W_Soldier_AT_F"]];
 		ZMM_WESTVeh_Truck = ["B_T_Truck_01_covered_F"];
 		ZMM_WESTVeh_Util = ["B_T_Truck_01_medical_F","B_T_Truck_01_fuel_F","B_T_Truck_01_Repair_F","B_T_Truck_01_ammo_F"];
 		ZMM_WESTVeh_Light = ["B_T_MRAP_01_gmg_F","B_T_MRAP_01_hmg_F","B_T_LSV_01_AT_F","B_T_LSV_01_armed_F"];
@@ -49,7 +49,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	case 4: {
 		// WEST - GENDARME (VANILLA)
 		ZMM_WESTFlag = ["Flag_Gendarmerie_F", "\A3\Data_F_Exp\Flags\flag_GEN_CO.paa"];
-		ZMM_WESTMan = ["B_GEN_Soldier_F","B_GEN_Commander_F"];
+		ZMM_WESTMan = ["B_GEN_Soldier_F","B_GEN_Commander_F","B_GEN_Soldier_F","B_GEN_Soldier_F"];
 		ZMM_WESTVeh_Truck = ["B_GEN_Van_02_transport_F"];
 		ZMM_WESTVeh_Util = ["B_Truck_01_ammo_F","B_Truck_01_fuel_F","B_Truck_01_Repair_F"];
 		ZMM_WESTVeh_Light = [["B_G_Offroad_01_armed_F","[_grpVeh,false,['HideDoor1',0,'HideDoor2',0,'HideDoor3',0,'HideBackpacks',1,'HideBumper1',0,'HideBumper2',1,'HideConstruction',0]] call BIS_fnc_initVehicle;_grpVeh setObjectTextureGlobal [0,'\A3\Soft_F_Exp\Offroad_01\Data\Offroad_01_ext_gen_CO.paa']"]];
@@ -64,7 +64,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	default {
 		// WEST - FIA
 		ZMM_WESTFlag = ["Flag_FIA_F", "\A3\Data_F\Flags\Flag_FIA_CO.paa"];
-		ZMM_WESTMan = ["B_G_Soldier_F","B_G_Soldier_LAT_F","B_G_Soldier_F","B_G_Soldier_SL_F","B_G_Soldier_F","B_G_Soldier_AR_F","B_G_Soldier_F","B_G_Soldier_LAT2_F"];
+		ZMM_WESTMan = ["B_G_Soldier_F","B_G_Soldier_LAT_F","B_G_Soldier_F","B_G_Soldier_SL_F","B_G_Soldier_F","B_G_Soldier_AR_F"];
 		ZMM_WESTVeh_Truck = ["B_G_Van_01_transport_F"];
 		ZMM_WESTVeh_Util = ["B_G_Offroad_01_repair_F","B_G_Van_01_fuel_F"];
 		ZMM_WESTVeh_Light = ["B_G_Offroad_01_AT_F","B_G_Offroad_01_armed_F"];
@@ -83,7 +83,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	case 1: {
 		// EAST - CSAT (URBAN)
 		ZMM_EASTFlag = ["Flag_CSAT_F", "\A3\Data_F\Flags\Flag_CSAT_CO.paa"];
-		ZMM_EASTMan = ["O_soldierU_F","O_soldierU_M_F","O_soldierU_F","O_Urban_HeavyGunner_F","O_soldierU_F","O_SoldierU_SL_F","O_soldierU_F","O_soldierU_LAT_F","O_soldierU_F","O_soldierU_AA_F","O_soldierU_F","O_soldierU_AT_F","O_soldierU_F","O_soldierU_AR_F"]; // Urban
+		ZMM_EASTMan = ["O_SoldierU_F","O_soldierU_LAT_F","O_SoldierU_F","O_SoldierU_SL_F","O_soldierU_F","O_Urban_HeavyGunner_F","O_soldierU_F",selectRandom["O_soldierU_AA_F","O_soldierU_AT_F"]];
 		ZMM_EASTVeh_Truck = ["O_Truck_02_transport_F"];
 		ZMM_EASTVeh_Util = ["O_Truck_02_Ammo_F","O_Truck_02_fuel_F","O_Truck_02_box_F"];
 		ZMM_EASTVeh_Light = ["O_MRAP_02_hmg_F","O_LSV_02_armed_F"];
@@ -98,7 +98,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	case 2: {
 		// EAST - CSAT TANOA
 		ZMM_EASTFlag = ["Flag_CSAT_F", "\A3\Data_F\Flags\Flag_CSAT_CO.paa"];
-		ZMM_EASTMan = ["O_T_Soldier_F","O_T_Soldier_AR_F","O_T_Soldier_F","O_T_Soldier_M_F","O_T_Soldier_F","O_T_Soldier_AA_F","O_T_Soldier_F","O_T_Soldier_AT_F","O_T_Soldier_F","O_T_Soldier_LAT_F","O_T_Soldier_F","O_T_Soldier_SL_F","O_T_Soldier_F","O_T_Soldier_GL_F"];
+		ZMM_EASTMan = ["O_T_Soldier_F","O_T_Soldier_LAT_F","O_T_Soldier_F","O_T_Soldier_GL_F","O_T_Soldier_F","O_T_Soldier_AR_F","O_T_Soldier_F",selectRandom["O_T_Soldier_AA_F","O_T_Soldier_AT_F"]];
 		ZMM_EASTVeh_Truck = [configFile >> "CfgGroups" >> "East" >> "OPF_T_F" >> "Motorized_MTP" >> "O_T_MotInf_Reinforcements"];
 		ZMM_EASTVeh_Util = ["O_T_Truck_02_Ammo_F","O_T_Truck_02_fuel_F","O_T_Truck_02_box_F"];
 		ZMM_EASTVeh_Light = ["O_T_MRAP_02_hmg_ghex_F","O_T_LSV_02_armed_F"];
@@ -113,7 +113,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	case 3: {
 		// EAST - SPETSNAZ VANILLA
 		ZMM_EASTFlag = ["Flag_CSAT_F", "\A3\Data_F\Flags\Flag_CSAT_CO.paa"];
-		ZMM_EASTMan = ["O_R_Soldier_TL_F","O_R_Soldier_AR_F","O_R_Soldier_LAT_F","O_R_Soldier_GL_F"];
+		ZMM_EASTMan = ["O_R_Soldier_TL_F","O_R_soldier_M_F","O_R_Soldier_AR_F","O_R_JTAC_F","O_R_medic_F","O_R_Soldier_LAT_F","O_R_Soldier_GL_F"];
 		ZMM_EASTVeh_Truck = [configFile >> "CfgGroups" >> "East" >> "OPF_R_F" >> "SpecOps" >> "O_T_MotInf_Reinforcements"];
 		ZMM_EASTVeh_Util = ["O_T_Truck_02_Ammo_F","O_T_Truck_02_fuel_F","O_T_Truck_02_box_F"];
 		ZMM_EASTVeh_Light = ["O_T_MRAP_02_hmg_ghex_F","O_T_LSV_02_armed_F"];
@@ -128,7 +128,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	case 4: {
 		// EAST - FIA (VANILLA)
 		ZMM_EASTFlag = ["Flag_FIA_F", "\A3\Data_F\Flags\Flag_FIA_CO.paa"];
-		ZMM_EASTMan = ["O_G_Soldier_SL_F","O_G_Soldier_AR_F","O_G_Soldier_LAT_F","O_G_Soldier_F"];
+		ZMM_EASTMan = ["O_G_Soldier_SL_F","O_G_Soldier_F","O_G_Soldier_AR_F","O_G_Soldier_F","O_G_Soldier_LAT_F","O_G_Soldier_F"];
 		ZMM_EASTVeh_Truck = ["O_G_Van_01_transport_F"];
 		ZMM_EASTVeh_Util = ["O_Truck_02_Ammo_F","O_Truck_02_fuel_F","O_Truck_02_box_F"];
 		ZMM_EASTVeh_Light = ["O_G_Offroad_01_armed_F","O_G_Offroad_01_AT_F"];
@@ -144,7 +144,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	default {
 		// EAST - CSAT
 		ZMM_EASTFlag = ["Flag_CSAT_F", "\A3\Data_F\Flags\Flag_CSAT_CO.paa"];
-		ZMM_EASTMan = ["O_Soldier_F","O_Soldier_LAT_F","O_Soldier_F","O_Soldier_AT_F","O_Soldier_F","O_Soldier_AA_F","O_Soldier_F","O_Soldier_SL_F","O_Soldier_F","O_HeavyGunner_F","O_Soldier_F","O_Soldier_AR_F","O_Soldier_F","O_soldier_M_F","O_Soldier_F","O_Soldier_F"];
+		ZMM_EASTMan = ["O_Soldier_F","O_Soldier_LAT_F","O_Soldier_F","O_Soldier_GL_F","O_Soldier_F","O_Soldier_AR_F","O_Soldier_F",selectRandom["O_Soldier_AA_F","O_Soldier_AT_F"]];
 		ZMM_EASTVeh_Truck = [configFile >> "CfgGroups" >> "East" >> "OPF_F" >> "Motorized_MTP" >> "OIA_MotInf_Reinforce"];
 		ZMM_EASTVeh_Util = ["O_Truck_02_Ammo_F","O_Truck_02_fuel_F","O_Truck_02_box_F"];
 		ZMM_EASTVeh_Light = ["O_MRAP_02_hmg_F","O_LSV_02_armed_F"];
@@ -163,7 +163,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	case 1: {
 		// GUER - AAF
 		ZMM_GUERFlag = ["Flag_AAF_F", "\A3\Data_F_Exp\Flags\Flag_AAF_CO.paa"];
-		ZMM_GUERMan = ["I_Soldier_F","I_Soldier_LAT_F","I_Soldier_GL_F","I_Soldier_AR_F"];
+		ZMM_GUERMan = ["I_Soldier_F","I_Soldier_LAT2_F","I_Soldier_F","I_Soldier_GL_F","I_Soldier_F","I_Soldier_AR_F","I_Soldier_F",selectRandom["I_Soldier_AA_F","I_Soldier_AT_F"]];
 		ZMM_GUERVeh_Truck = [configFile >> "CfgGroups" >> "Indep" >> "IND_F" >> "Motorized" >> "HAF_MotInf_Reinforce"];
 		ZMM_GUERVeh_Util = ["I_Truck_02_fuel_F","I_Truck_02_ammo_F","I_Truck_02_medical_F","I_Truck_02_box_F","I_Truck_02_MRL_F"];
 		ZMM_GUERVeh_Light = ["I_MRAP_03_hmg_F","I_MRAP_03_gmg_F","I_LT_01_cannon_F"];
@@ -193,7 +193,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	case 3: {
 		// GUER - LDF
 		ZMM_GUERFlag = ["Flag_EAF_F", "\a3\Data_F_Enoch\Flags\flag_EAF_CO.paa"];
-		ZMM_GUERMan = ["I_E_Soldier_F","I_E_Soldier_AR_F","I_E_Soldier_F","I_E_Soldier_GL_F","I_E_Soldier_F","I_E_soldier_M_F","I_E_Soldier_F","I_E_Soldier_AA_F","I_E_Soldier_F","I_E_Soldier_LAT2_F","I_E_Soldier_F","I_E_Soldier_LAT_F","I_E_Soldier_F","I_E_Soldier_SL_F"];
+		ZMM_GUERMan = ["I_E_Soldier_F","I_E_Soldier_LAT2_F","I_E_Soldier_F","I_E_Soldier_AR_F","I_E_Soldier_F","I_E_Soldier_TL_F","I_E_Soldier_F",selectRandom["I_E_Soldier_AA_F","I_E_Soldier_AT_F"]];
 		ZMM_GUERVeh_Truck = [configFile >> "CfgGroups" >> "Indep" >> "IND_E_F" >> "Motorized" >> "I_E_MotInf_Reinforcements"];
 		ZMM_GUERVeh_Util = ["I_E_Truck_02_Box_F","I_E_Truck_02_fuel_F","I_E_Truck_02_Ammo_F"];
 		ZMM_GUERVeh_Light = ["B_T_MRAP_01_hmg_F","B_T_MRAP_01_gmg_F"];

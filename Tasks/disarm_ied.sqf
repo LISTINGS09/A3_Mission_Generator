@@ -79,7 +79,7 @@ for "_i" from 1 to _bombMax do {
 	private _childTrigger = createTrigger ["EmptyDetector", getPos _mineObj, false];
 	_childTrigger setTriggerTimeout [1, 1, 1, true];
 	_childTrigger setTriggerStatements [  format["!alive ZMM_%1_OBJ_%2", _zoneID, _i],
-			format["if (getMarkerColor 'MKR_%1_OBJ_%2' == '') then { ['ZMM_%1_SUB_%2', 'Failed', true] spawn BIS_fnc_taskSetState; } else { ['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2'; };", _zoneID, _i],
+			format["['ZMM_%1_SUB_%2', if (getMarkerColor 'MKR_%1_OBJ_%2' isEqualTo '') then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 		"" ];
 	
 	_bombActivation pushBack format["!alive ZMM_%1_OBJ_%2", _zoneID, _i];
@@ -123,6 +123,9 @@ _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [  (_bombActivation joinString " && "), 
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
+
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
+[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
 
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, count _bombActivation, _locName], ["Disarm"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;

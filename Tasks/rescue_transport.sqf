@@ -124,17 +124,14 @@ for "_i" from 1 to _prisMax do {
 	if (_newV != "") then { _tempMan addVest _newV } else { removeVest _tempMan };
 };
 
-// Create Failure Trigger
-_failTrigger = createTrigger ["EmptyDetector", _centre, false];
-_failTrigger setTriggerStatements [ 	format["!alive ZMM_%1_VEH && locked ZMM_%1_VEH > 0", _zoneID], 
-	format["['ZMM_%1_TSK', 'Failed', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
-	"" ];
-
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, false];
-_objTrigger setTriggerStatements [ 	format["ZMM_%1_UNLOCK", _zoneID], 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+_objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_VEH || missionNamespace getVariable ['ZMM_%1_UNLOCK',false]", _zoneID], 
+	format["['ZMM_%1_TSK', if (%3) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide, format["!alive ZMM_%1_VEH",_zoneID]],
 	"" ];
+	
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
+[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
 									
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _locName, _prisMax, _prisonerType] + format["<br/><br/>Model: <font color='#FFA500'>%1</font><br/>Registration: <font color='#FFA500'>%2</font><br/><img width='350' image='%3'/>", getText (configFile >> "CfgVehicles" >> _truckType >> "displayName"), getPlateNumber _truck, getText (configFile >> "CfgVehicles" >> _truckType >> "editorPreview")], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "truck"] call BIS_fnc_setTask;

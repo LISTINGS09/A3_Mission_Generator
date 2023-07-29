@@ -15,8 +15,8 @@ private _groupSize = 8; // Units number per para group
 _startPos = _location getPos [3000, random 360];
 
 // Split out init from class.
-private _init = "";
-if (_vehicle isEqualType []) then { _init = _vehicle # 1; _vehicle = _vehicle # 0 };
+private _customInit = "";
+if (_vehicle isEqualType []) then { _customInit = _vehicle # 1; _vehicle = _vehicle # 0 };
 
 private _grpVeh = createVehicle [_vehicle, _startPos, [], 0, "FLY"];
 private _dirTo =  _grpVeh getDir _location;
@@ -24,8 +24,10 @@ private _dirFrom =  (_grpVeh getDir _location) + 180;
 _grpVeh setDir _dirTo;
 //_grpVeh flyInHeight 200;
 
-// Run the custom init 
-if !(_init isEqualTo "") then { call compile _init; };
+// Run custom init for vehicle (set camos etc).
+if !(isNil "_customInit") then { 
+	if !(_customInit isEqualTo "") then { call compile _customInit; };
+};
 
 createVehicleCrew _grpVeh;
 (group effectiveCommander _grpVeh) deleteGroupWhenEmpty true;
@@ -41,7 +43,7 @@ private _grp = group effectiveCommander _grpVeh;
 // Find the number of seats we can hold
 private _cargoMax = ([_vehicle, true] call BIS_fnc_crewCount) - ([_vehicle, false] call BIS_fnc_crewCount);
 
-if (_cargoMax < 1) exitWith { _grpVeh setDamage 1 };
+if (_cargoMax < 1) exitWith { _grpVeh setDamage [1, false] };
 
 // Create Para Group
 private _paraList = [];

@@ -7,7 +7,7 @@ if (isNil "ZMM_CMDR") then {
 	
 	_cmdPos = selectRandom (if (_cmdPos isEqualTo []) then { allPlayers apply { getPosATL _x } } else { _cmdPos });
 
-	private _agent = createAgent ["C_Man_Messenger_01_F", _cmdPos, [], 0, "NONE"];
+	private _agent = createAgent ["C_Man_Messenger_01_F", _cmdPos, [], 3, "NONE"];
 	removeAllWeapons _agent;
 	removeAllItems _agent;
 	removeAllAssignedItems _agent;

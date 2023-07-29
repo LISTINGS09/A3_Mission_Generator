@@ -148,20 +148,17 @@ _qrfTrigger setTriggerStatements [ "this",
 { _x addCuratorEditableObjects [[_veh,_civObj], true] } forEach allCurators;
 
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
+private _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
 _objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
 _objTrigger setTriggerArea [_radius, _radius, 0, true];
 _objTrigger triggerAttachVehicle [_veh];
-_objTrigger setTriggerStatements [ 	format["this && alive ZMM_%1_OBJ", _zoneID], 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
-	"" ];
-									
-// Create Failure Trigger
-_faiTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-_faiTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID], 
-	format["ZMM_%1_MAN setDamage 1; ['ZMM_%1_TSK', 'Failed', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID],
+_objTrigger setTriggerStatements [ 	format["this && (alive ZMM_%1_OBJ || !alive ZMM_%1_OBJ)", _zoneID], 
+	format["deleteVehicle ZMM_%1_MAN; ['ZMM_%1_TSK', if (!alive ZMM_%1_OBJ) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
+[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+									
 // Create Task
 private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[(selectRandom _missionDesc) + "<br/><br/>Target Vehicle: <font color='#00FFFF'>%2</font><br/><br/><img width='300' image='%3'/>", _locName, getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], ["Repair"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _targetPos, "CREATED", 1, false, true, "defend"] call BIS_fnc_setTask;
 

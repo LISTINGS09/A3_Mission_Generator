@@ -1,6 +1,9 @@
 params [["_unit", objNull]];
 
-if (isNull _unit) exitWith {};
+if !(alive _unit) exitWith {};
+
+// Force unit to hold - doStop is a 'soft' hold, disableAI stops movement permanently.
+if (random 1 > 0.7) then { doStop _unit } else { _unit disableAI "PATH" };
 
 private _unitEyePos = eyePos _unit;
 

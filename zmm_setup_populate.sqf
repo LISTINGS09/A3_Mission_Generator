@@ -14,8 +14,8 @@ if (!(_locType isEqualTo "Ambient") && (ZZM_Mode == 0 || _forceTask != "")) then
 };
 
 private _doPatrols = missionNamespace getVariable [ format[ "ZMM_%1_Patrols", _zoneID ], true];
-private _doGarrison = missionNamespace getVariable [ format[ "ZMM_%1_Garrison", _zoneID ], 14] > 0;
-private _doRoadblock = missionNamespace getVariable [ format[ "ZMM_%1_Roadblocks", _zoneID ], floor random 2] > 0;
+private _doGarrison = missionNamespace getVariable [ format[ "ZMM_%1_Garrison", _zoneID ], 0] > 0;
+private _doRoadblock = missionNamespace getVariable [ format[ "ZMM_%1_Roadblocks", _zoneID ], 0] > 0;
 private _doSupport = missionNamespace getVariable [ format[ "ZMM_%1_Supports", _zoneID ], 0] > 0;
 private _doQRF = count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) > 0 && missionNamespace getVariable ["ZZM_QRF", 1] == 1;
 private _doIED = missionNamespace getVariable [ format["ZMM_%1_IEDs", _zoneID], 0] > 0 && missionNamespace getVariable ["ZZM_IED", 1] == 1;
@@ -40,7 +40,11 @@ if (ZZM_Mode > 0 && ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) > 0 && isN
 	_clearTrg setTriggerTimeout [10, 10, 10, true];
 	_clearTrg setTriggerStatements [ "count thisList < 4", 
 		format["{ _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']; ZMM_ZoneMarkers = ZMM_ZoneMarkers - [_zoneID];", _zoneID],
-		format["{ _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST]]];
+		format["{ _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST]]];		
 		
-	missionNamespace setVariable [format["TR_%1_CLEAR", _zoneID], _clearTrg];
+	missionNamespace setVariable [format['TR_%1_CLEAR', _zoneID], _clearTrg, true];
+	[_clearTrg, format['TR_%1_CLEAR', _zoneID]] remoteExec ["setVehicleVarName", 0, _clearTrg];
 };
+
+sleep 10;
+[_zoneID] remoteExec ["zmm_fnc_zoneInfo"];

@@ -148,13 +148,6 @@ _objTrigger setTriggerStatements [ 	format["(ZMM_%1_OBJ getVariable ['var_dataSe
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-// Create Failure Trigger
-/*_faiTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-_faiTrigger setTriggerStatements [ 	format["!alive ZMM_%1_OBJ", _zoneID], 
-	format["['ZMM_%1_TSK', 'Failed', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, "Grey"],
-	"" ];
-*/
-
 // Create Task
 _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, getText (configFile >> "CfgVehicles" >> _dataType >> "displayName"), _dataHeading, _dataName, missionNamespace getVariable ["ZZM_ObjectiveCount", 4]], [_dataName] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, _dataName] call BIS_fnc_setTask;
 

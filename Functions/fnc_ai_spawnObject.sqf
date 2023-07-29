@@ -58,7 +58,7 @@ switch (_type) do {
 		_obj = createVehicle [_class, [0,0,0], [], 0, "NONE"];
 		_obj setDir _worldDir;
 		_obj setPosATL _worldPos;
-		if !((_obj buildingPos -1) isEqualTo []) then { [_zoneID, 3, (_obj buildingPos -1)] spawn zmm_fnc_areaGarrison };
+		if !((_obj buildingPos -1) isEqualTo []) then { [_zoneID, 3, _obj] spawn zmm_fnc_areaGarrison };
 	};
 	default {
 		_obj = createSimpleObject [_class, ATLToASL _worldPos];

@@ -76,7 +76,7 @@ private _multiplier = missionNamespace getVariable ["ZZM_Diff", 1];
 private _qrfTime = [900, 600, 300] select (missionNamespace getVariable ["ZZM_Diff", 1]);
 
 missionNamespace setVariable [format[ "ZMM_%1_Patrols", _zoneID ], true];
-missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], round (12 * _multiplier)];
+missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], round (30 * _multiplier)];
 missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime];
 missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], round (3 * _multiplier)];
 
@@ -84,7 +84,7 @@ switch (_locType) do {
 	case "Airport": { 
 		_iconSize = 1.2;
 		_locSize = 1.25;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (15 * _multiplier) + random 10];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (50 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 5)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 3)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], round (8 * _multiplier)];
@@ -93,7 +93,7 @@ switch (_locType) do {
 	case "NameCityCapital": { 
 		_iconSize = 1.1;
 		_locSize = 1.25;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (15 * _multiplier) + random 10];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (50 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 5)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 3)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], round (6 * _multiplier)];
@@ -102,7 +102,7 @@ switch (_locType) do {
 	case "NameCity": { 
 		_iconSize = 1;
 		_locSize = 1;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (15 * _multiplier) + random 10];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (40 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 4)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], (6 * _multiplier)];
@@ -111,7 +111,7 @@ switch (_locType) do {
 	case "NameVillage": { 
 		_iconSize = 0.8;
 		_locSize = 0.75;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (10 * _multiplier) + random 10];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (30 * _multiplier) + random 10];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime + 100]; // Delayed QRF
@@ -121,7 +121,7 @@ switch (_locType) do {
 	case "NameLocal": { 
 		_iconSize = 0.6;
 		_locSize = 0.75;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (8 * _multiplier) + random 6];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (20 * _multiplier) + random 6];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 1.5)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _qrfTime + 200]; // Delayed QRF
@@ -131,7 +131,7 @@ switch (_locType) do {
 	case "Ambient": {
 		_iconSize = 0.4;
 		_locSize = 0.75;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (6 * _multiplier) + random 6];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (20 * _multiplier) + random 6];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], floor (random 1.5)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 1.5)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 0]; // No QRF
@@ -141,7 +141,7 @@ switch (_locType) do {
 	case "Task": {
 		_iconSize = 0.4;
 		_locSize = 0.75;
-		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (8 * _multiplier) + random 8];
+		missionNamespace setVariable [format[ "ZMM_%1_Garrison", _zoneID ], (20 * _multiplier) + random 8];
 		missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 2 + floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_Supports", _zoneID ], floor (random 2)];
 		missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], (6 * _multiplier)];
@@ -204,8 +204,8 @@ if (_locType isEqualTo "Ambient") exitWith {
 	private _setupTrg = createTrigger [ "EmptyDetector", _pos, false ];
 	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, false, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", false ];
-	_setupTrg setTriggerStatements [ "this", 
-		format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
+	_setupTrg setTriggerStatements [ "count thisList > 1  || (this && count allPlayers <= 1)", 
+		format ["[ %1, '%2' ] spawn zmm_fnc_setupPopulate; deleteVehicle this;", _zoneID, _locType], 
 		""];
 };
 
@@ -345,11 +345,12 @@ if (ZZM_Mode > 0 && isNil format["TR_%1_POPULATE", _zoneID]) then {
 	private _setupTrg = createTrigger [ "EmptyDetector", _pos, false ];
 	_setupTrg setTriggerArea [ _triggerRadius, _triggerRadius, 0, false, 150 ];
 	_setupTrg setTriggerActivation [ "ANYPLAYER", "PRESENT", false ];
-	_setupTrg setTriggerStatements [ "count thisList > 1", 
-		format [ "[%1, '%2'] spawn zmm_fnc_setupPopulate;", _zoneID, _locType], 
+	_setupTrg setTriggerStatements [ "count thisList > 1 || (this && count allPlayers <= 1)", 
+		format [ "[%1, '%2'] spawn zmm_fnc_setupPopulate; deleteVehicle this;", _zoneID, _locType], 
 		""];
-		
-	missionNamespace setVariable [format["TR_%1_POPULATE", _zoneID], _setupTrg];
+
+	missionNamespace setVariable [format['TR_%1_POPULATE', _zoneID], _setupTrg, true];
+	[_setupTrg, format['TR_%1_POPULATE', _zoneID]] remoteExec ["setVehicleVarName", 0, _setupTrg];
 } else {
 	// Non-CTI Mode - Fill Zone immediately.
 	[ _zoneID, _locType, _forceTask ] spawn zmm_fnc_setupPopulate;
