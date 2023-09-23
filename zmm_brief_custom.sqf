@@ -1,10 +1,17 @@
 // Functions
 if !(leader player == player) exitWith {};
 
+if !(player diarySubjectExists "ZMMCustom") then { private _idx = player createDiarySubject ["ZMMCustom","ZMM Mission"] };
+
+// Don't do anything if the mission has been selected.
+if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith {};
+
 zmm_fnc_selectLocation = {
 	if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith { systemChat "[ZMM] ERROR: Mission is already in progress."; };
 	systemChat "Click on any Location, then click 'Confirm Selection' in map screen when done.";
-	onMapSingleClick 	"private _locArr = nearestLocations [_pos, ['NameLocal', 'NameVillage', 'NameCity', 'NameCityCapital', 'Airport', 'Hill'], 300, _pos];
+	onMapSingleClick 	"
+						if (missionNamespace getVariable ['ZMM_targetPicked', false]) then exitWith { onMapSingleClick '' };
+						private _locArr = nearestLocations [_pos, ['NameLocal', 'NameVillage', 'NameCity', 'NameCityCapital', 'Airport', 'Hill'], 300, _pos];
 						private _size = 400;
 						private _posID = '';
 						
@@ -46,9 +53,6 @@ zmm_fnc_confirm = {
 	};
 };
 
-// Don't do anything if the mission has been selected.
-if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith {};
-
 if (isNil "loc_mkr") then {
 	private _mkr = createMarker ["loc_mkr",[0,0]];
 	_mkr setMarkerShape "ELLIPSE";
@@ -65,16 +69,72 @@ if (isNil "ZMM_playerSide") then {
 
 ZMM_tasks sort true;
 
-private _ZMMtext = "<font size='18' color='#FF7F00'>Commander Selection</font><br/>";
+private _ZMMcomp = "<font size='18' color='#FF7F00'>Confirm Mission</font><br/><br/>Once happy with all details <execute expression=""[] call zmm_fnc_confirm;"">Confirm Selections</execute> to generate the mission.<br/><br/>";
+_ZMMcomp = _ZMMcomp + format["<br/>ZMM v%1<br/><br/>", missionNamespace getVariable["ZMM_Version",0]];
+	
+player createDiaryRecord ["ZMMCustom", ["3. Confirm Mission", _ZMMcomp]];
 
-private _ZMMtext = _ZMMtext + "<font size='16' color='#80FF00'>Objective Count (If applicable)</font><br/>The number of Objectives/Targets/Data Packets/Waves<br/>";
+
+
+private _ZMMExtra = "<font size='18' color='#FF7F00'>Extra Settings</font><br/><br/>If the mission has been CONFIRMED, changing these will have no effect!<br/><br/><font size='16' color='#80FF00'>Patrol Unit Groups</font><br/>By default unit groups will be chosen by location size and type, they can be overridden using the settings below:<br/>";
+
+{
+	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];
+	_ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat ('%2: ' + str (if ((missionNamespace getVariable ['%1', -1]) < 0) then { 'Mission Default' } else { missionNamespace getVariable ['%1', -1] }))"">Check</execute>] [<execute expression=""missionNamespace setVariable ['%1', -1, true]; systemChat ('%2: Using Mission Default')"">Default</execute>] [<font color='#80FF00'><execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) + 1) min 8, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">Add</execute></font>] [<font color='#CF142B'><execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) - 1) max 0, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">Remove</execute></font>] %2<br/>", _varName, _varText];
+} forEach [
+	["ZMM_CustomSentry", "Sentries (2-3 Units)"],
+	["ZMM_CustomTeam", "Team (4-6 Units)"],
+	["ZMM_CustomSquad", "Squads (8+ Units)"],
+	["ZMM_CustomLight", "Light Vehicles"],
+	["ZMM_CustomMedium", "Medium Vehicles"],
+	["ZMM_CustomHeavy", "Heavy Vehicles"]
+];
+
+_ZMMExtra = _ZMMExtra + "<br/><br/><font size='16' color='#80FF00'>QRF Type</font><br/>If enabled globally, enemy QRF strength will be determined by difficulty settings. At lower difficult CAS and Heavy Vehicles are very unlikely. You can force the QRF type by selecting below, otherwise it will be weighted by Side (INDFOR always has weaker units and support).<br/><br/>";
+
+{
+	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];
+	_ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat 'QRF: %2';missionNamespace setVariable ['ZMM_QRFType', %1, true]; missionNamespace setVariable ['ZZM_QRF', 1, true];"">Select</execute>] %2 (%3)<br/>", _forEachIndex, _varName, _varText];
+} forEach [
+	["General","Light to Heavy Vehicles"],
+	["Motorized","Light Vehicles"],
+	["Mechanised","Medium Vehicles"],
+	["Armoured","Heavy Vehicles"],
+	["Airborne","Helicopter-based Infantry with Fixed Wing/Rotary CAS"],
+	["Infantry","Ground Fireteams and Squads"],
+	["Helicopter","Paratroopers, Landed Infantry and CAS"],
+	["Aircraft","Ground Fireteams and Squads with Fixed Wing CAS"]
+];
+
+_ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat 'QRF: %2';missionNamespace setVariable ['ZMM_QRFType', %1, true]; missionNamespace setVariable ['ZZM_QRF', 1, true];"">Select</execute>] %2<br/>", -1, "Random"];
+
+_ZMMExtra = _ZMMExtra + "<br/>Global QRF Settings: <font color='#80FF00'><execute expression=""systemChat 'QRF Enabled';missionNamespace setVariable ['ZZM_QRF', 1, true];"">Enable</execute></font> | <font color='#CF142B'><execute expression=""systemChat 'QRF Disabled';missionNamespace setVariable ['ZZM_QRF', 0, true];"">Disable</execute></font>";
+
+
+_ZMMExtra = _ZMMExtra + "<br/>Global IED Settings: <font color='#80FF00'><execute expression=""systemChat 'IEDs Enabled';missionNamespace setVariable ['ZZM_IED', 1, true];"">Enable</execute></font> | <font color='#CF142B'><execute expression=""systemChat 'IEDs Disabled';missionNamespace setVariable ['ZZM_IED', 0, true];"">Disable</execute></font>";
+
+player createDiaryRecord ["ZMMCustom", ["2. Extra Settings", _ZMMExtra]];
+
+
+
+/*
+
+private _ZMMLoc = "<font size='18' color='#FF7F00'>Select Location</font><br/><br/><execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute> and choose where to begin your Assignment. Any place not on water may be selected.";
+
+player createDiaryRecord ["ZMMCustom", ["2. Select Location", _ZMMLoc]];
+
+*/
+
+private _ZMMtext = "<font size='18' color='#FF7F00'>Choose Mission</font><br/><br/>";
+
+_ZMMtext = _ZMMtext + "<font size='16' color='#80FF00'>Objective Count (If applicable)</font><br/>The number of Objectives/Targets/Data Packets/Waves<br/>";
 {
 	_ZMMtext = _ZMMtext + format["<execute expression=""missionNamespace setVariable['ZZM_ObjectiveCount', %2, true]; '[ZMM] %1: Objective Counter - %2' remoteExec ['SystemChat'];"">%2</execute> | ", name player, _x ];
 } forEach [1,2,3,4,5,6,7,8];
 
 private _ZMMtext = _ZMMtext + "<execute expression=""missionNamespace setVariable['ZZM_ObjectiveCount', 1 + (floor(random 4)), true]; '[ZMM] Objective Count: Random' remoteExec ['SystemChat'];"">Random</execute><br/><br/>";
 
-private _ZMMtext = _ZMMtext + "<font size='16' color='#80FF00'>1. Choose Mission</font><br/>
+private _ZMMtext = _ZMMtext + "<font size='16' color='#80FF00'>Choose Mission</font><br/>
 	Choosing any option below will attempt to force a type of mission (if the objective cannot be created, an alternative will be chosen).
 	<br/><execute expression=""missionNamespace setVariable['ZMM_MissionChoice', '', true]; format['[ZMM] %1 switched to mission type: Random', name player] remoteExec ['SystemChat'];"">Random</execute> - Choose a random objective <font color='#00FFFF'>DEFAULT</font>.<br/>";
 	
@@ -98,23 +158,6 @@ private _lastType = "";
 	];
 } forEach ZMM_tasks;
 
-_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>2. Select Location</font><br/><execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute> and choose where to begin your Assignment. Any place not on water may be selected.";
-_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>3. Choose Unit Groups</font><br/>By default unit groups will be chosen by location size and type, they can be overridden using the settings below:<br/>";
+player createDiaryRecord ["ZMMCustom", ["1. Choose Mission", _ZMMtext]];
 
-{
-	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];
-	_ZMMtext = _ZMMtext + format["[<execute expression=""systemChat ('%2: ' + str (if ((missionNamespace getVariable ['%1', -1]) < 0) then { 'Mission Default' } else { missionNamespace getVariable ['%1', -1] }))"">CHK</execute>] [<execute expression=""missionNamespace setVariable ['%1', -1, true]; systemChat ('%2: Using Mission Default')"">Default</execute>] [<execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) + 1) min 8, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">+</execute>] [<execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) - 1) max 0, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">-</execute>] %2<br/>", _varName, _varText];
-} forEach [
-	["ZMM_CustomSentry", "Sentries (2-3 Units)"],
-	["ZMM_CustomTeam", "Team (4-6 Units)"],
-	["ZMM_CustomSquad", "Squads (8+ Units)"],
-	["ZMM_CustomLight", "Light Vehicles"],
-	["ZMM_CustomMedium", "Medium Vehicles"],
-	["ZMM_CustomHeavy", "Heavy Vehicles"]
-];
-
-_ZMMtext = _ZMMtext + "<br/><br/><font size='16' color='#80FF00'>4. Confirm</font><br/>Once happy with your location <execute expression=""[] call zmm_fnc_confirm;"">Confirm Selection</execute><br/><br/>";
-_ZMMtext = _ZMMtext + format["<br/>ZMM v%1<br/><br/>", missionNamespace getVariable["ZMM_Version",0]];
-	
-
-player createDiaryRecord ["diary", ["Mission Selection", _ZMMtext]];
+[] spawn zmm_fnc_selectLocation;

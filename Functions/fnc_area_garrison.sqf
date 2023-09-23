@@ -31,8 +31,8 @@ private _grp = createGroup [_side, true];
 	
 	private _bPos = _bld buildingPos -1; 
 	
-	if (count _bPos > 1) then {
-		private _places = if (count _bPos > 6) then { 4 + random 4 } else { 2 + random 2 };
+	if (count _bPos > 0) then {
+		private _places = if (count _bPos > 6) then { ceil random 4 } else { 2 };
 		
 		for "_i" from 0 to _places do {
 			if (count _bPos < 1 || _enemyCount < 1) exitWith {};

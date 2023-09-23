@@ -68,7 +68,7 @@ private _endActivation = [];
 										
 	missionNamespace setVariable [format["ZMM_%1_TR_%2", _zoneID, _forEachIndex], _childTrigger, true];
 
-	[_zoneID, ((count (_x buildingPos -1)) / 2) max (4 + random 4), _x buildingPos -1] call zmm_fnc_areaGarrison; // Fill with some units.
+	[_zoneID, ((count (_x buildingPos -1)) / 2) max (4 + random 4), _x] call zmm_fnc_areaGarrison; // Fill with some units.
 } forEach _targetArr;
 
 

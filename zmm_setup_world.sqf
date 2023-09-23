@@ -42,7 +42,10 @@ private _counter = 0;
 		
 		if (!_bypass) then {
 			// Water Check for small islands
-			if !(surfaceIsWater (_pos getPos [_radius, 0]) && surfaceIsWater (_pos getPos [_radius, 90]) && surfaceIsWater (_pos getPos [_radius, 180]) && surfaceIsWater (_pos getPos [_radius, 270])) then { 
+			private _water = 0;
+			{ if (surfaceIsWater (_pos getPos [_radius, _x])) then { _water = _water + 1 } } forEach [0,45,90,135,180,225,270,315];
+			
+			if ((_water / 8) < 0.875) then { 
 				// Objective Zone
 				if _create then { 
 					// Are we in CTI Mode?

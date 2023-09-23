@@ -64,6 +64,7 @@ private _endActivation = [];
 	[_zoneID, ((count (_x buildingPos -1)) / 2) max (4 + random 4), _x] call zmm_fnc_areaGarrison; // Fill with some units.
 } forEach _targetArr;
 
+_endActivation pushBack true; // Fix single objective join
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];

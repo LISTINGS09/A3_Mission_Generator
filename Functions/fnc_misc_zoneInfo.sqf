@@ -1,4 +1,4 @@
-//[1] execVM "scripts\ZMM\Functions\fnc_misc_enemyInfo.sqf";
+//[1] execVM "scripts\ZMM\Functions\fnc_misc_zoneInfo.sqf";
 if !hasInterface exitWith {};
 
 params [["_zoneID", 0]];
@@ -29,9 +29,8 @@ private _ZMMtext = format["<font size='18' color='#80FF00'>Intel for %1 (ID#%2)<
 			if (_doIED) then { "<br/>The enemy is known to be using IEDs with motion detector triggers - Slow movement will not set them off.<br/>" } else { "" }
 		];
 
-if !(player diarySubjectExists "IntelZMM") then { private _idx = player createDiarySubject ["intelZMM","Intel"] };
+if !(player diarySubjectExists "IntelZMM") then { private _idx = player createDiarySubject ["intelZMM","ZMM Intel"] };
 player createDiaryRecord ["intelZMM", [format["Intel - %1",_location], _ZMMtext]];
-
 
 
 // Admin Menu for Zones - Check if player is authorised admin (or 2600K) ;)
@@ -57,7 +56,7 @@ private _encodeText = {
 	toString _chars
 };
 
-private _triggerList = (allMissionObjects "EmptyDetector" select { _x distance2D _centre <= 500 });
+private _triggerList = (allMissionObjects "EmptyDetector" select { _x distance2D _centre <= 500 && vehicleVarName _x != "" });
 _triggerList sort true;
 
 {	// Trigger Check
@@ -86,6 +85,7 @@ if !(player diarySubjectExists "IntelTRG") then { private _idx = player createDi
 player createDiaryRecord ["IntelTRG", [format["Triggers - %1",_location], _ZMTtext]];
 
 // Tasks
+
 
 
 // Varables

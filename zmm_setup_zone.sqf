@@ -191,6 +191,7 @@ _mrk setMarkerSizeLocal [ _triggerRadius, _triggerRadius];
 
 // Create Building Locations
 private _allBlds = nearestObjects [_pos, ["building","static"], ((_radius * _locSize) max 150), true]; // +static for SOG!
+_allBlds = _allBlds select { !(typeOf _x in ["Land_SPE_bocage_short_mound","Land_SPE_bocage_long_mound"]) }; // Always exclude these
 missionNamespace setVariable [ format["ZMM_%1_Buildings", _zoneID], (_allBlds select {count (_x buildingPos -1) >= 4}) ]; // Set Large Buildings
 
 // *** Ambient Zone - EXIT ***
