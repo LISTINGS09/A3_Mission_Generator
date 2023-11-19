@@ -120,12 +120,14 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	// Child task
 	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate and stabilize <font color='#00FFFF'>%1</font>, then extract them from the area.", name _evacMan], format["Rescue Soldier #%1", _i], format["MKR_%1_OBJ", _zoneID]], objNull, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 	private _childTrigger = createTrigger ["EmptyDetector", _centre, false];
+	_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre],
 		format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],
 		"" ];
 	
 	// Failure trigger when HVT is dead.
 	private _hvtTrigger = createTrigger ["EmptyDetector", _centre, false];
+	_hvtTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 	_hvtTrigger setTriggerStatements [ 	format["!alive ZMM_%1_HVT_%2", _zoneID, _i], 
 		format["['ZMM_%1_SUB_%2', 'Failed', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],
 		"" ];
@@ -137,6 +139,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerStatements [ 	(_hvtActivation joinString " && "), 
 	format["['ZMM_%1_TSK', if (%3) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide, (_hvtFailure joinString " || ")],
 	"" ];

@@ -51,7 +51,7 @@ switch (_type) do {
 		
 		// Add artillery/mortar to the zone supports list.
 		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_%1_MAX", _zoneID] != "") then {
-			[_grpVeh, format["MKR_%1_MAX", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
+			[leader _tempGrp, format["MKR_%1_MAX", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
 		};
 	};
 	case "O": {

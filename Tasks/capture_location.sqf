@@ -112,6 +112,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		// Child task
 		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _flagNo], format['ZMM_%1_TSK', _zoneID]], true, ["Find and capture the flag located somewhere within the marked area.", format["Flag #%1", _flagNo], format["MKR_%1_FLAG_%2", _zoneID, _flagNo]], _relPos, "CREATED", 1, false, true, format["move%1", _flagNo]] call BIS_fnc_setTask;
 		_childTrigger = createTrigger ["EmptyDetector", _centre, false];
+		_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_childTrigger setTriggerStatements [  format["(missionNamespace getVariable [ 'ZMM_%1_FLAG_%2', false ])", _zoneID, _flagNo],
 										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_FLAG_%2';", _zoneID, _flagNo],
 										"" ];
@@ -155,6 +156,7 @@ _enemyGrp spawn { sleep 5; _this enableDynamicSimulation true };
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerStatements [  (_flagActivation joinString " && "), 
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];

@@ -80,6 +80,7 @@ for "_i" from 1 to _bombMax do {
 	// Child task
 	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the IED somewhere within the marked area.<br/><br/>Target Explosive: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", getText (configFile >> "CfgVehicles" >> _bombType >> "displayName"), getText (configFile >> "CfgVehicles" >> _bombType >> "editorPreview")], format["IED #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 	private _childTrigger = createTrigger ["EmptyDetector", getPos _mineObj, false];
+	_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 	_childTrigger setTriggerTimeout [1, 1, 1, true];
 	_childTrigger setTriggerStatements [  format["!alive ZMM_%1_OBJ_%2", _zoneID, _i],
 			format["['ZMM_%1_SUB_%2', if (getMarkerColor 'MKR_%1_OBJ_%2' isEqualTo '') then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],

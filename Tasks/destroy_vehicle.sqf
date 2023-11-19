@@ -123,6 +123,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 1]) do {
 		_vehActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2_DEAD', false])", _zoneID, _vehNo];
 		
 		_childTrigger = createTrigger ["EmptyDetector", _centre, false];
+		_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_childTrigger setTriggerStatements [  format["!alive (missionNamespace getVariable ['ZMM_%1_OBJ_%2', objNull])", _zoneID, _vehNo],
 			format["['ZMM_%1_SUB_%2', [missionNamespace getVariable ['ZMM_%1_OBJ_%2', objNull], true]] spawn BIS_fnc_taskSetDestination;", _zoneID, _vehNo],
 			"" ];

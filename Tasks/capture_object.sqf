@@ -91,6 +91,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		// Child task
 		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _itemNo], format['ZMM_%1_TSK', _zoneID]], true, [format["Search for the object somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='350' image='%2'/>", [getText (configFile >> "CfgVehicles" >> _itemType >> "displayName"),"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_- "] call BIS_fnc_filterString, getText (configFile >> "CfgVehicles" >> _itemType >> "editorPreview")], format["Object #%1", _itemNo], format["MKR_%1_ITEM_%2", _zoneID, _itemNo]], _relPos, "CREATED", 1, false, true, format["move%1", _itemNo]] call BIS_fnc_setTask;
 		_childTrigger = createTrigger ["EmptyDetector", _centre, false];
+		_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_childTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_ITEM_%2', false])", _zoneID, _itemNo],
 			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_ITEM_%2';", _zoneID, _itemNo],
 			"" ];
@@ -141,6 +142,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerStatements [  (_itemActivation joinString " && "), 
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];

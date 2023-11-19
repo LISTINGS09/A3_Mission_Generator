@@ -120,6 +120,7 @@ _itemObj setVariable ["var_zoneID", _zoneID, true];
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_TSK_Completed', false])", _zoneID], 
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { deleteMarker _x } forEach ['MKR_%1_OBJ','MKR_%1_ICO']; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];

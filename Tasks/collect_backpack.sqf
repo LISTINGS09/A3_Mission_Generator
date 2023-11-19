@@ -67,9 +67,11 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		_childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Find and collect the item somewhere within the marked area.<br/><br/>Target: <font color='#00FFFF'>%1</font><br/><br/>", getText (configFile >> "CfgVehicles" >> _itemType >> "displayName")], format["Item #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 		
 		private _objTrigger = createTrigger ["EmptyDetector", _itemPos, false];
+		_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_objTrigger setTriggerStatements [  format["!('%3' in (backpackCargo ZMM_%1_OBJ_%2))", _zoneID, _i, _itemType], 
 			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2'; missionNamespace setVariable ['ZMM_%1_TSK_Counter', (missionNamespace getVariable ['ZMM_%1_TSK_Counter', 0]) + 1, true]; [] spawn { sleep 120; deleteVehicle ZMM_%1_OBJ_%2; }", _zoneID, _i],
 			"" ];
+		
 
 		private _enemyTeam = [];
 		for "_j" from 0 to (3 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _enemyMen] };

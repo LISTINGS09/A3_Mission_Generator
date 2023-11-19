@@ -32,6 +32,7 @@ missionNamespace setVariable [format["ZMM_%1_OBJ_WRECK", _zoneID], _wreck];
 
 private _wreckTask = [[format["ZMM_%1_SUB_WRECK", _zoneID], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the wreck somewhere within the marked area.<br/><br/>Target: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> typeOf _wreck >> "displayName"), getText (configFile >> "CfgVehicles" >> typeOf _wreck >> "editorPreview")], "Destroy Wreck", format["MKR_%1_LOC", _zoneID]], objNull, "CREATED", 1, false, true, "destroy"] call BIS_fnc_setTask;
 private _wreckTrigger = createTrigger ["EmptyDetector", _targetPos, false];
+_wreckTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _wreckTrigger setTriggerArea [5, 5, 0, false];
 _wreckTrigger setTriggerStatements [ "{_x inArea thisTrigger} count allMissionObjects '#explosion' > 0",
 	format["deleteVehicle ZMM_%1_OBJ_WRECK; ['ZMM_%1_SUB_WRECK', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],
@@ -93,6 +94,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		// Child task
 		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Locate the crate somewhere within the marked area.<br/><br/>Target Object: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _ammoType >> "displayName"), getText (configFile >> "CfgVehicles" >> _ammoType >> "editorPreview")], format["Crate #%1", _i], format["MKR_%1_OBJ_%2", _zoneID, _i]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
 		private _childTrigger = createTrigger ["EmptyDetector", _ammoPos, false];
+		_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_childTrigger setTriggerStatements [ format["!alive ZMM_%1_OBJ_%2", _zoneID, _i],
 			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 			"" ];

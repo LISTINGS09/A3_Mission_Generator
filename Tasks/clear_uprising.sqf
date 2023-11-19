@@ -85,6 +85,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) do {
 
 		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Find and eliminate <font color='#FFA500'>%1</font> somewhere near %2.", name _civUnit, _locName], format["%1", name _civUnit], format["MKR_%1_LOC", _zoneID]], getMarkerPos _mrkr, "CREATED", 1, false, true, "kill"] call BIS_fnc_setTask;
 		private _childTrigger = createTrigger ["EmptyDetector", _centre, false];
+		_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_childTrigger setTriggerStatements [  format["!alive ZMM_%1_HVT_%2", _zoneID, _i],
 			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 			"" ];
@@ -176,6 +177,7 @@ for "_i" from 1 to random 1 do {
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerStatements [  (_endActivation joinString " && "), 
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];

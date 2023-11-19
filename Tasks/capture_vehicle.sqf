@@ -134,6 +134,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerStatements [ 	(_vehActivation joinString " && "), 
 	format["['ZMM_%1_TSK', if (%3) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide, (_vehFailure joinString " || ")],
 	"" ];

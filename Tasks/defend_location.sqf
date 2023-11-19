@@ -60,8 +60,8 @@ missionNamespace setVariable [format['TR_%1_TASK_DEFEND', _zoneID], _infTrigger,
 
 // Create Completion Trigger
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
-_objTrigger setTriggerArea [_radius, _radius, 0, false];
 _objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+_objTrigger setTriggerArea [_radius, _radius, 0, false];
 _objTrigger setTriggerTimeout [(_time + 180), (_time + 240), (_time + 300), true];
 _objTrigger setTriggerStatements [ 	"this", 
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],

@@ -1110,7 +1110,7 @@ for "_i" from 1 to _count do {
 			_cpTrigger setTriggerActivation [format["%1",_side], "NOT PRESENT", false];
 			_cpTrigger setTriggerArea [25, 25, 0, false];
 			_cpTrigger setTriggerStatements [  "this", format["'MKR_%1_SI_%2' setMarkerColor 'ColorGrey'", _zoneID, _i], "" ];
-			
+
 			private _hdTrigger = createTrigger ["EmptyDetector", _pos, false];
 			_hdTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 			_hdTrigger setTriggerArea [250, 250, 0, false, 100];

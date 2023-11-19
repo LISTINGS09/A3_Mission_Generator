@@ -40,7 +40,7 @@ private _grp = createGroup [_side, true];
 			private _tempPos = selectRandom _bPos;
 			_bPos = _bPos - [_tempPos];
 			
-			if (count (_tempPos nearEntities ["Man", 2]) < 1) then {
+			if (count (_tempPos nearEntities ["Man", 1]) < 1) then {
 				_bFill = true;
 				_enemyCount = _enemyCount - 1;
 				private _unit = _grp createUnit [selectRandom _enemyMen, getPos _bld, [], 0, "NONE"];

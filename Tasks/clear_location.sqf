@@ -43,6 +43,7 @@ private _gridCount = round (_gridTotal * 0.75);
 missionNamespace setVariable [format["ZMM_%1_TSK_Group", _zoneID], _milGroup];
 
 private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_GRID',0]) >= %2", _zoneID, _gridCount], 
 	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];

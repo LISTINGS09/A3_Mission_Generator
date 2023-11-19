@@ -126,6 +126,7 @@ for "_i" from 1 to _prisMax do {
 
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", _centre, false];
+_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _objTrigger setTriggerStatements [ 	format["!alive ZMM_%1_VEH || missionNamespace getVariable ['ZMM_%1_UNLOCK',false]", _zoneID], 
 	format["['ZMM_%1_TSK', if (%3) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide, format["!alive ZMM_%1_VEH",_zoneID]],
 	"" ];
