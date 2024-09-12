@@ -72,7 +72,7 @@ _fnc_spawnGroup = {
 					(crew _grpVeh) joinSilent _group;
 				};
 				
-				{ _x addCuratorEditableObjects [ crew _grpVeh, true ] } forEach allCurators;
+				{ _x addCuratorEditableObjects [ [_grpVeh] + crew _grpVeh, true ] } forEach allCurators;
 				
 				
 				[driver _grpVeh, _marker, "SHOWMARKER"] spawn zmm_fnc_aiUPS;

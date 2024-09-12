@@ -8,14 +8,14 @@ private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID
 
 //["DEBUG", format["Zone%1 - Creating Garrison: %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
 
-if (getMarkerColor format["MKR_%1_MAX", _zoneID] == "") exitWith { systemChat "No Intel!"; };
+if (getMarkerColor format["MKR_%1_MIN", _zoneID] == "") exitWith { systemChat "No Intel!"; };
 
 private _location = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "Location"];
 private _doPatrols = missionNamespace getVariable [ format[ "ZMM_%1_Patrols", _zoneID ], true];
 private _doGarrison = missionNamespace getVariable [ format[ "ZMM_%1_Garrison", _zoneID ], 0] > 0;
 private _doRoadblock = missionNamespace getVariable [ format[ "ZMM_%1_Roadblocks", _zoneID ], 0] > 0;
 private _doSupport = missionNamespace getVariable [ format[ "ZMM_%1_Supports", _zoneID ], 0] > 0;
-private _doQRF = count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) > 0 && missionNamespace getVariable ["ZZM_QRF", 1] == 1;
+private _doQRF = missionNamespace getVariable ["ZZM_QRF", 1] == 1;
 private _doIED = missionNamespace getVariable [ format["ZMM_%1_IEDs", _zoneID], 0] > 0 && missionNamespace getVariable ["ZZM_IED", 1] == 1;
 
 private _ZMMtext = format["<font size='18' color='#80FF00'>Intel for %1 (ID#%2)</font><br/>", _location, _zoneID] + 

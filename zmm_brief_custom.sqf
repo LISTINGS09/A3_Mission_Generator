@@ -9,38 +9,41 @@ if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith {};
 zmm_fnc_selectLocation = {
 	if (missionNamespace getVariable ["ZMM_targetPicked", false]) exitWith { systemChat "[ZMM] ERROR: Mission is already in progress."; };
 	systemChat "Click on any Location, then click 'Confirm Selection' in map screen when done.";
-	onMapSingleClick 	"
-						if (missionNamespace getVariable ['ZMM_targetPicked', false]) then exitWith { onMapSingleClick '' };
-						private _locArr = nearestLocations [_pos, ['NameLocal', 'NameVillage', 'NameCity', 'NameCityCapital', 'Airport', 'Hill'], 300, _pos];
-						private _size = 400;
-						private _posID = '';
-						
-						if (_pos inArea 'SAFEZONE_PRE0') exitWith { systemChat 'Objective cannot be within safe-zone!'; 'loc_mkr' setMarkerPos [0,0];};
-						
-						if (count _locArr > 0) then {
-							private _loc = _locArr#0;
-							private _cfgLoc = ""getText (_x >> 'name') == text _loc && getText (_x >> 'type') == type _loc"" configClasses (configFile >> 'CfgWorlds' >> worldName >> 'Names');
-							_posID = format['%1 (%2)', text (_locArr#0), getText ((_cfgLoc#0) >> 'type')];
-							_size = (getNumber ((_cfgLoc#0) >> 'radiusA') max getNumber ((_cfgLoc#0) >> 'radiusB')) max _size;
-							ZMM_targetLocation = position (nearestBuilding (position _loc));
-							publicVariableServer 'ZMM_targetLocation';
-							'loc_mkr' setMarkerPos ZMM_targetLocation;
-							'loc_mkr' setMarkerSize [_size,_size];
-						} else {
-							if (surfaceIsWater _pos) then {
-								systemChat 'A flat location must be selected!';
-								ZMM_targetLocation = nil;
-								'loc_mkr' setMarkerPos [0,0];
-							} else {
-								ZMM_targetLocation = _pos;
-								_posID = format ['%1 (Rural Area)', mapGridPosition _pos];
-								publicVariableServer 'ZMM_targetLocation';
-								'loc_mkr' setMarkerPos _pos;
-								'loc_mkr' setMarkerSize [_size,_size];
-							}
-						};
-						format['[ZMM] %1: Location - %2', name player, _posID] remoteExec ['SystemChat'];
-						true";	
+	onMapSingleClick {
+		if (missionNamespace getVariable ['ZMM_targetPicked', false]) exitWith { onMapSingleClick "" };
+		private _locArr = nearestLocations [_pos, ['NameLocal', 'NameVillage', 'NameCity', 'NameCityCapital', 'Airport', 'Hill'], 300, _pos];
+		private _size = 400;
+		private _posID = '';
+		
+		if (_pos inArea 'SAFEZONE_PRE0') exitWith { systemChat 'Objective cannot be within safe-zone!'; 'loc_mkr' setMarkerPos [0,0];};
+		
+		if (count _locArr > 0) then {
+			private _loc = _locArr#0;
+			private _cfgLoc = "getText (_x >> 'name') == text _loc && getText (_x >> 'type') == type _loc" configClasses (configFile >> 'CfgWorlds' >> worldName >> 'Names');
+			_posID = format['%1 (%2)', text (_locArr#0), getText ((_cfgLoc#0) >> 'type')];
+			_size = (getNumber ((_cfgLoc#0) >> 'radiusA') max getNumber ((_cfgLoc#0) >> 'radiusB')) max _size;
+			ZMM_targetLocation = position (nearestBuilding (position _loc));
+			publicVariableServer 'ZMM_targetLocation';
+			'loc_mkr' setMarkerPos ZMM_targetLocation;
+			'loc_mkr' setMarkerSize [_size,_size];
+			onMapSingleClick "";
+		} else {
+			if (surfaceIsWater _pos) then {
+				systemChat 'A flat location must be selected!';
+				ZMM_targetLocation = nil;
+				'loc_mkr' setMarkerPos [0,0];
+			} else {
+				ZMM_targetLocation = _pos;
+				_posID = format ['%1 (Rural Area)', mapGridPosition _pos];
+				publicVariableServer 'ZMM_targetLocation';
+				'loc_mkr' setMarkerPos _pos;
+				'loc_mkr' setMarkerSize [_size,_size];
+				onMapSingleClick "";
+			}
+		};
+		format['[ZMM] %1: Location - %2', name player, _posID] remoteExec ['SystemChat'];
+		true
+	};	
 };
 
 zmm_fnc_confirm = {
@@ -117,14 +120,6 @@ player createDiaryRecord ["ZMMCustom", ["2. Extra Settings", _ZMMExtra]];
 
 
 
-/*
-
-private _ZMMLoc = "<font size='18' color='#FF7F00'>Select Location</font><br/><br/><execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute> and choose where to begin your Assignment. Any place not on water may be selected.";
-
-player createDiaryRecord ["ZMMCustom", ["2. Select Location", _ZMMLoc]];
-
-*/
-
 private _ZMMtext = "<font size='18' color='#FF7F00'>Choose Mission</font><br/><br/>";
 
 _ZMMtext = _ZMMtext + "<font size='16' color='#80FF00'>Objective Count (If applicable)</font><br/>The number of Objectives/Targets/Data Packets/Waves<br/>";
@@ -158,6 +153,23 @@ private _lastType = "";
 	];
 } forEach ZMM_tasks;
 
+private _ZMMtext = _ZMMtext + "<br/><font size='16' color='#80FF00'>Select Location</font><br/><execute expression=""[] call zmm_fnc_selectLocation;"">Select Location</execute> and choose where to begin your Assignment.";
+
 player createDiaryRecord ["ZMMCustom", ["1. Choose Mission", _ZMMtext]];
 
 [] spawn zmm_fnc_selectLocation;
+[] spawn {
+	// Select the ZMM stuff because people can't see it
+	waitUntil { uisleep 1; visibleMap };
+	uisleep 4;
+	
+	_fnc_selectIndex = {
+		params[ "_ctrl", "_name" ];
+
+		for "_i" from 0 to ( lnbSize _ctrl select 0 ) -1 do {
+			if ( _ctrl lnbText [ _i, 0 ] == _name ) exitWith { _ctrl lnbSetCurSelRow _i };
+		};
+	};
+	[uiNamespace getVariable "RscDiary" displayCtrl 1001, "ZMM Mission" ] call _fnc_selectIndex; 
+	[uiNamespace getVariable "RscDiary" displayCtrl 1002, "1. Choose Mission" ] call _fnc_selectIndex;
+};

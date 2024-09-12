@@ -357,4 +357,18 @@ if (ZZM_Mode > 0 && isNil format["TR_%1_POPULATE", _zoneID]) then {
 	[ _zoneID, _locType, _forceTask ] spawn zmm_fnc_setupPopulate;
 };
 
+// Send variables to clients for ZoneInfo details
+{ publicVariable _x } forEach [
+	 format[ "ZMM_%1_Location", _zoneID ]
+	,format[ "ZMM_%1_EnemySide", _zoneID ]
+	,format[ "ZMM_%1_Name", _zoneID ]
+	,format[ "ZMM_%1_Patrols", _zoneID ]
+	,format[ "ZMM_%1_Garrison", _zoneID ]
+	,format[ "ZMM_%1_Roadblocks", _zoneID ]
+	,format[ "ZMM_%1_Supports", _zoneID ]
+	,format[ "ZMM_%1_IEDs", _zoneID ]
+	,"ZZM_QRF"
+	,"ZZM_IED"
+];
+
 _zoneID

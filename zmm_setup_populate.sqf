@@ -33,14 +33,15 @@ if _doQRF then { [_zoneID, true] spawn zmm_fnc_areaQRF };
 if _doIED then { [_zoneID] spawn zmm_fnc_areaIED };
 
 // Change sector colour when cleared on CTI Mode
-if (ZZM_Mode > 0 && ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) > 0 && isNil format["TR_%1_CLEAR", _zoneID]) then {
+if (((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) > 0 && isNil format["TR_%1_CLEAR", _zoneID]) then {
 	private _clearTrg = createTrigger [ "EmptyDetector", missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]], false ];
-	_clearTrg setTriggerArea [ ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0), ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0), 0, false, 150 ];
-	_clearTrg setTriggerActivation [ str (missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST]), "NOT PRESENT", true ];
-	_clearTrg setTriggerTimeout [10, 10, 10, true];
-	_clearTrg setTriggerStatements [ "count thisList < 4", 
+	_clearTrg setTriggerArea [ ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0), ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0), 0, false, 50 ];
+	_clearTrg setTriggerActivation [ "ANY", "PRESENT", false];
+	_clearTrg setTriggerTimeout [5, 5, 5, true];
+	_clearTrg setTriggerStatements [
+		format["ZMM_%1_EnemySide countSide (thisList select { alive _x }) < 4 && ZMM_playerSide countSide (thisList select { alive _x }) > 0", _zoneID],
 		format["{ _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']; ZMM_ZoneMarkers = ZMM_ZoneMarkers - [_zoneID];", _zoneID],
-		format["{ _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST]]];		
+		""];
 		
 	missionNamespace setVariable [format['TR_%1_CLEAR', _zoneID], _clearTrg, true];
 	[_clearTrg, format['TR_%1_CLEAR', _zoneID]] remoteExec ["setVehicleVarName", 0, _clearTrg];

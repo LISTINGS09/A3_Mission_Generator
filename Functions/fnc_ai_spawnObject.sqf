@@ -25,8 +25,8 @@ switch (_type) do {
 		
 		_obj =  createVehicle [_class, [0,0,0], [], 150, "NONE"];
 		_obj setDir _worldDir;
-		_obj setPos _worldPos;
-		//_obj setVehiclePosition [_worldPos, [], 0, "NONE"];
+		//_obj setPos _worldPos;
+		_obj setVehiclePosition [_worldPos, [], 0, "NONE"];
 		
 		if (_obj isKindOf "StaticWeapon") then { _obj setPosATL _worldPos };
 		
@@ -50,8 +50,8 @@ switch (_type) do {
 		{ _x addCuratorEditableObjects [[_grpVeh] + units _tempGrp, true] } forEach allCurators;
 		
 		// Add artillery/mortar to the zone supports list.
-		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_%1_MAX", _zoneID] != "") then {
-			[leader _tempGrp, format["MKR_%1_MAX", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
+		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_%1_MIN", _zoneID] != "") then {
+			[leader _tempGrp, format["MKR_%1_MIN", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
 		};
 	};
 	case "O": {
