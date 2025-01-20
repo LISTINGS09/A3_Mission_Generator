@@ -56,7 +56,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Truck = ["O_SFIA_Truck_02_covered_lxWS"];
 		ZMM_EASTVeh_Util = ["O_SFIA_Truck_02_box_lxWS","O_SFIA_Truck_02_fuel_lxWS","O_SFIA_Truck_02_Ammo_lxWS"];
 		ZMM_EASTVeh_Light = ["O_Tura_Offroad_armor_AT_lxWS","O_Tura_Offroad_armor_armed_lxWS"];
-		ZMM_EASTVeh_Medium = ["O_SFIA_APC_Wheeled_02_hmg_lxWS","O_SFIA_Truck_02_aa_lxWS","O_SFIA_APC_Wheeled_02_hmg_lxWS",["O_SFIA_APC_Tracked_02_cannon_lxWS","[_grpVeh,false,['showCamonetHull',0.5]] call BIS_fnc_initVehicle;"]"O_SFIA_APC_Wheeled_02_hmg_lxWS"];
+		ZMM_EASTVeh_Medium = ["O_SFIA_APC_Wheeled_02_hmg_lxWS","O_SFIA_Truck_02_aa_lxWS","O_SFIA_APC_Wheeled_02_hmg_lxWS",["O_SFIA_APC_Tracked_02_cannon_lxWS","[_grpVeh,false,['showCamonetHull',0.5]] call BIS_fnc_initVehicle;"],"O_SFIA_APC_Wheeled_02_hmg_lxWS"];
 		ZMM_EASTVeh_Heavy = [["O_SFIA_APC_Tracked_02_AA_lxWS","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',0.5]] call BIS_fnc_initVehicle;"],["O_SFIA_APC_Tracked_02_cannon_lxWS","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',1]] call BIS_fnc_initVehicle;"],["O_SFIA_APC_Tracked_02_30mm_lxWS","[_grpVeh,false,['showCamonetHull',0.5,'showSLATHull',1]] call BIS_fnc_initVehicle;"],["O_SFIA_MBT_02_cannon_lxWS","[_grpVeh,false,['showCamonetHull',0.5]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Air = [["O_Heli_Transport_04_covered_F","[_grpVeh,['Black',1]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_CasH = ["O_SFIA_Heli_Attack_02_dynamicLoadout_lxWS"];
