@@ -18,6 +18,7 @@ _fnc_spawnGroup = {
 	if (round _count <= 0) exitWith {};
 	
 	private _side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
+	private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _side], ["O_Solider_F"]];
 	private _unitClass = [];
 	
 	if (_unitType isEqualType "") then {
@@ -38,7 +39,6 @@ _fnc_spawnGroup = {
 	for "_i" from 0 to _count do {	
 		// If type is a number populate a random array of men
 		if (_unitType isEqualType 1) then {
-			private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _side], ["O_Solider_F"]];
 			private _enemyTeam = []; 
 			for "_i" from 0 to (_unitType - 1) do {  _enemyTeam set [_i, selectRandom _enemyMen] };
 			_unitClass = [[_enemyTeam]];
@@ -63,14 +63,18 @@ _fnc_spawnGroup = {
 				
 				if !(_customInit isEqualTo "") then { call compile _customInit; };
 				if !_isAir then { _grpVeh enableDynamicSimulation true };
+							
+				private _soldierArr = [];
+				private _cargoNo = (count fullCrew [_grpVeh, "", true]) min 12;
+		
+				for "_i" from 1 to _cargoNo do { _soldierArr pushBack (if (_cargoNo > 4) then { selectRandom _enemyMen } else { _enemyMen#0 }) }; // Random units for cargo
+	
+				private _tempGrp = [_grpVeh getPos [15, random 360], _side, _soldierArr] call BIS_fnc_spawnGroup;
+				_tempGrp addVehicle _grpVeh;
+		
+				{ if !(_x moveInAny _grpVeh) then { /* deleteVehicle _x */ }; uiSleep 0.1; } forEach (units _tempGrp select { vehicle _x == _x });
 				
-				createVehicleCrew _grpVeh;
-				
-				// Switch units side to Zone side.
-				if (side driver _grpVeh != _side) then {
-					private _group = createGroup [_side, true];
-					(crew _grpVeh) joinSilent _group;
-				};
+				_tempGrp deleteGroupWhenEmpty true;
 				
 				{ _x addCuratorEditableObjects [ [_grpVeh] + crew _grpVeh, true ] } forEach allCurators;
 				

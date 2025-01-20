@@ -24,12 +24,12 @@ if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _target
 private _wreck = (selectRandom [ "Land_Mi8_wreck_F", "Land_Wreck_Heli_02_Wreck_01_F"]) createVehicle _targetPos;
 _wreck setVectorUp surfaceNormal position _wreck;
 
-_wreck addEventHandler ["Explosion", {
+[_wreck, ["Explosion", {
 	params ["_vehicle", "_damage"];
 	for "_i" from 0 to random 3 do { private _exp = "Bo_GBU12_LGB" createVehicle (_vehicle getPos [random 3, random 360]) };
 	deleteVehicle _vehicle;
-	_vehicle removeEventHandler ["Explosion", _thisEventhandler];
-}];
+	[_vehicle, ["Explosion", _thisEventhandler]] remoteExec ["removeEventHandler"];	
+}]] remoteExec ["addEventHandler"];
 
 missionNamespace setVariable [format["ZMM_%1_OBJ_WRECK", _zoneID], _wreck];
 
