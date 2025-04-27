@@ -36,7 +36,7 @@ private _civTypes = ("configName _x isKindOf 'Man' && getText (_x >> ""editorSub
 private _enemyGrp = createGroup [_enemySide, true];
 
 for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) do {
-	private _civType = selectRandom _civTypes;
+	private _civType = selectRandom _enemyMen;
 	private _civPos = [];
 
 	if (random 100 > 50 && {count _bldPos > 0}) then {
@@ -127,7 +127,7 @@ for "_i" from 0 to (random 2) do {
 // Spawn Suicide Bombers
 for "_i" from 1 to random 1 do {
 	private _bombGroup = createGroup [_enemySide, true];
-	private _bomber = _bombGroup createUnit [selectRandom _civTypes, [0,0,0], [], 150, "NONE"];
+	private _bomber = _bombGroup createUnit [selectRandom _enemyMen, [0,0,0], [], 150, "NONE"];
 	[_bomber] joinSilent _bombGroup;
 	_bomber setPos ((leader _enemyGrp) findEmptyPosition [1, 50]);
 	_bomber setDir random 360;

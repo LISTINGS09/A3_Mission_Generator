@@ -37,6 +37,7 @@ switch (_type) do {
 
 		private _tempGrp = [_obj getPos [15, random 360], _side, _crewArr] call BIS_fnc_spawnGroup;
 		
+		_tempGrp addVehicle _obj;
 		{ _x moveInAny _obj } forEach units _tempGrp;
 
 		// Run custom init for vehicle (set camos etc).
@@ -58,7 +59,10 @@ switch (_type) do {
 		_obj = createVehicle [_class, [0,0,0], [], 0, "NONE"];
 		_obj setDir _worldDir;
 		_obj setPosATL _worldPos;
-		if !((_obj buildingPos -1) isEqualTo []) then { [_zoneID, 3, _obj] spawn zmm_fnc_areaGarrison };
+		if !((_obj buildingPos -1) isEqualTo []) then { 
+			[_obj, true, "ColorGrey", "SolidFull"] call BIS_fnc_boundingBoxMarker;
+			[_zoneID, 3, _obj] spawn zmm_fnc_areaGarrison;
+		};
 	};
 	default {
 		_obj = createSimpleObject [_class, ATLToASL _worldPos];

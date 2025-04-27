@@ -2,6 +2,7 @@
 switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	case 1: {
 		// WEST - Germany (Sturmtroopers)
+		ZMM_WESTFactionName = "Germany (Sturmtroopers)";
 		ZMM_WESTFlag = ["SPE_FlagCarrier_GER", "\WW2\SPE_Core_t\Data_t\Flags\flag_GER_co.paa"];
 		ZMM_WESTMan = ["SPE_sturmtrooper_SquadLead","SPE_sturmtrooper_mgunner","SPE_sturmtrooper_rifleman","SPE_sturmtrooper_medic","SPE_sturmtrooper_rifleman","SPE_sturmtrooper_stggunner","SPE_sturmtrooper_rifleman","SPE_sturmtrooper_amgunner","SPE_sturmtrooper_LAT_rifleman","SPE_sturmtrooper_ober_grenadier","SPE_sturmtrooper_rifleman"];
 		ZMM_WESTVeh_Truck = ["SPE_ST_OpelBlitz"];
@@ -15,6 +16,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	};
 	default {
 		/// WEST - Germany (Wehrmacht)
+		ZMM_WESTFactionName = "Germany (Wehrmacht)";
 		ZMM_WESTFlag = ["SPE_FlagCarrier_GER", "\WW2\SPE_Core_t\Data_t\Flags\flag_GER_co.paa"];
 		ZMM_WESTMan = ["SPE_GER_SquadLead","SPE_GER_rifleman","SPE_GER_mgunner","SPE_GER_medic","SPE_GER_rifleman","SPE_GER_amgunner","SPE_GER_rifleman","SPE_GER_LAT_Rifleman","SPE_GER_ober_grenadier","SPE_GER_rifleman"];
 		ZMM_WESTVeh_Truck = ["SPE_OpelBlitz"];
@@ -32,6 +34,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	case 1: {
 		// EAST - US
+		ZMM_EASTFactionName = "USA";
 		ZMM_EASTFlag = ["SPE_FlagCarrier_USA", "\WW2\SPE_Core_t\Data_t\Flags\flag_USA_co.paa"];
 		ZMM_EASTMan = ["SPE_US_Rangers_SquadLead","SPE_US_Rangers_HMGunner","SPE_US_Rangers_rifleman","SPE_US_Rangers_medic","SPE_US_Rangers_rifleman","SPE_US_Rangers_AHMGunner","SPE_US_Rangers_rifleman","SPE_US_Rangers_grenadier","SPE_US_Rangers_Rifleman_AmmoBearer","SPE_US_Rangers_rifleman"];
 		ZMM_EASTVeh_Truck = ["SPE_US_M3_Halftrack_Unarmed"];
@@ -46,6 +49,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	case 2: {
 		/// EAST - Germany (Wehrmacht)
+		ZMM_EASTFactionName = "Germany (Wehrmacht)";
 		ZMM_EASTFlag = ["SPE_FlagCarrier_GER", "\WW2\SPE_Core_t\Data_t\Flags\flag_GER_co.paa"];
 		ZMM_EASTMan = ["SPE_GER_SquadLead","SPE_GER_rifleman","SPE_GER_mgunner","SPE_GER_medic","SPE_GER_rifleman","SPE_GER_amgunner","SPE_GER_rifleman","SPE_GER_LAT_Rifleman","SPE_GER_ober_grenadier","SPE_GER_rifleman"];
 		ZMM_EASTVeh_Truck = ["SPE_OpelBlitz"];
@@ -59,6 +63,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	}; 
 	case 3: {
 		// EAST - French
+		ZMM_EASTFactionName = "French";
 		ZMM_EASTFlag = ["SPE_FlagCarrier_FFF", "\WW2\SPE_Core_t\Data_t\Flags\flag_FFF_co.paa"];
 		ZMM_EASTMan = ["SPE_FR_SquadLead","SPE_FR_Rifleman_Carbine","SPE_FR_Autorifleman","SPE_FR_Rifleman","SPE_FR_Assist_SquadLead","SPE_FR_Rifleman_Carbine","SPE_FR_AT_Soldier","SPE_FR_Rifleman","SPE_FR_Grenadier","SPE_FR_Rifleman"];
 		ZMM_EASTVeh_Truck = ["SPE_FFI_OpelBlitz"];
@@ -73,6 +78,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	default {	
 		// EAST - Germany (Sturmtroopers)
+		ZMM_EASTFactionName = "Germany (Sturmtroopers)";
 		ZMM_EASTFlag = ["SPE_FlagCarrier_GER", "\WW2\SPE_Core_t\Data_t\Flags\flag_GER_co.paa"];
 		ZMM_EASTMan = ["SPE_sturmtrooper_SquadLead","SPE_sturmtrooper_mgunner","SPE_sturmtrooper_rifleman","SPE_sturmtrooper_medic","SPE_sturmtrooper_rifleman","SPE_sturmtrooper_stggunner","SPE_sturmtrooper_rifleman","SPE_sturmtrooper_amgunner","SPE_sturmtrooper_LAT_rifleman","SPE_sturmtrooper_ober_grenadier","SPE_sturmtrooper_rifleman"];
 		ZMM_EASTVeh_Truck = ["SPE_ST_OpelBlitz"];
@@ -90,6 +96,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	case 1: {
 		// GUER - French
+		ZMM_GUERFactionName = "French";
 		ZMM_GUERFlag = ["SPE_FlagCarrier_FFF", "\WW2\SPE_Core_t\Data_t\Flags\flag_FFF_co.paa"];
 		ZMM_GUERMan = ["SPE_FR_SquadLead","SPE_FR_Rifleman_Carbine","SPE_FR_Autorifleman","SPE_FR_Rifleman","SPE_FR_Assist_SquadLead","SPE_FR_Rifleman_Carbine","SPE_FR_AT_Soldier","SPE_FR_Rifleman","SPE_FR_Grenadier","SPE_FR_Rifleman"];
 		ZMM_GUERVeh_Truck = ["SPE_FFI_OpelBlitz"];
@@ -104,6 +111,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	default {
 		// GUER - US
+		ZMM_GUERFactionName = "USA";
 		ZMM_GUERFlag = ["SPE_FlagCarrier_USA", "\WW2\SPE_Core_t\Data_t\Flags\flag_USA_co.paa"];
 		ZMM_GUERMan = ["SPE_US_Rangers_SquadLead","SPE_US_Rangers_HMGunner","SPE_US_Rangers_rifleman","SPE_US_Rangers_medic","SPE_US_Rangers_rifleman","SPE_US_Rangers_AHMGunner","SPE_US_Rangers_rifleman","SPE_US_Rangers_grenadier","SPE_US_Rangers_Rifleman_AmmoBearer","SPE_US_Rangers_rifleman"];
 		ZMM_GUERVeh_Truck = ["SPE_US_M3_Halftrack_Unarmed"];

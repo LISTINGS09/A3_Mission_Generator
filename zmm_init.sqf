@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.49;
+ZMM_Version = 4.7;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Template = "vanilla"; // Force Template
@@ -117,8 +117,10 @@ if isServer then {
 		case "WS": { call compileScript [format["%1\zmm_factions_sahara.sqf", ZMM_FolderLocation]] };
 		case "SPE": { call compileScript [format["%1\zmm_factions_spe.sqf", ZMM_FolderLocation]] };
 		case "RHS": { call compileScript [format["%1\zmm_factions_rhs.sqf", ZMM_FolderLocation]] };
-		default { call compileScript [format["%1\zmm_factions_vanilla.sqf", ZMM_FolderLocation]] };
+		default { call compileScript [format["%1\zmm_factions_vanilla.sqf", ZMM_FolderLocation]] };		
 	};
+	// Broadcast Factions loaded from above
+	{ missionNamespace setVariable [format["ZMM_%1FactionName", _x], missionNamespace getVariable [format["ZMM_%1FactionName", _x], "Unknown"], true] } forEach [WEST, EAST, INDEPENDENT];
 	
 	// Register Functions
 	if (isNil("zmm_fnc_aiUPS")) then {zmm_fnc_aiUPS = compileFinal preprocessFileLineNumbers format["%1\Functions\fnc_ai_ups.sqf", ZMM_FolderLocation]; };

@@ -7,6 +7,8 @@ params [["_location", [0,0,0]], ["_side", EAST]];
 private _man = missionNamespace getVariable [format["ZMM_%1Man",_side],["O_Soldier_F"]];
 private _vehicle = selectRandom (missionNamespace getVariable [format["ZMM_%1Veh_CasH",_side], (missionNamespace getVariable [format["ZMM_%1Veh_Cas",_side],[]])]);
 
+if (isNil "_vehicle") exitWith {};
+
 sleep random 30;
 
 private _groupMax = 99; // Maximum para groups

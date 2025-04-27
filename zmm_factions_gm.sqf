@@ -3,6 +3,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	// West Germany - Summer Soldiers
 	case 1; case 2; case 3; case 4; case 5; case 6: {
 		private _suffix = ["_des","_oli","_ols","_trp","_wdl","_wds","_un","_win","_wiw","_olw"] select (missionNamespace getVariable ["f_param_factionWest",-1]);
+		ZMM_WESTFactionName = "West Germany (Summer)";
 		ZMM_WESTFlag = ["gm_flag_GE", "\gm\gm_core\data\flags\gm_flag_GE_co.paa"];
 		ZMM_WESTMan = ["gm_ge_army_grenadier_g3a3_80_ols","gm_ge_army_rifleman_g3a3_80_ols","gm_ge_army_squadleader_g3a3_p2a1_80_ols","gm_ge_army_machinegunner_mg3_80_ols"];
 		ZMM_WESTVeh_Truck = ["gm_ge_army_u1300l_cargo"];
@@ -19,6 +20,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	// West Germany - Winter Soldiers
 	case 7; case 8; case 9; case 10: {
 		private _suffix = ["_des","_oli","_ols","_trp","_wdl","_wds","_un","_win","_wiw","_olw"] select (missionNamespace getVariable ["f_param_factionWest",-1]);
+		ZMM_WESTFactionName = "West Germany (Winter)";
 		ZMM_WESTFlag = ["gm_flag_GE", "\gm\gm_core\data\flags\gm_flag_GE_co.paa"];
 		ZMM_WESTMan = ["gm_ge_army_machinegunner_mg3_parka_80_win","gm_ge_army_rifleman_g3a3_parka_80_win","gm_ge_army_squadleader_g3a3_p2a1_parka_80_win","gm_ge_army_grenadier_g3a3_parka_80_win"];
 		ZMM_WESTVeh_Truck = ["gm_ge_army_u1300l_cargo"];
@@ -35,6 +37,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	// CDF 2022 - Woodland
 	case 11: {
 		private _suffix = ["_wdl","_oli","_win","_olw"] select ((missionNamespace getVariable ["f_param_factionWest",-1]) - 11);
+		ZMM_WESTFactionName = "CDF (Woodland)";
 		ZMM_WESTFlag = ["gm_flag_GE", "\gm\gm_core\data\flags\gm_flag_GE_co.paa"];
 		ZMM_WESTMan = ["gmx_cdf2022_army_rifleman_trg21_digittsko","gmx_cdf2022_army_machinegunner_pk_digittsko","gmx_cdf2022_army_rifleman_trg21_digittsko","gmx_cdf2022_army_antitank_trg21_pzf3_digittsko","gmx_cdf2022_army_rifleman_trg21_digittsko","gmx_cdf2022_army_squadleader_trg21_digittsko"];
 		ZMM_WESTVeh_Truck = ["gmx_cdf2022_ural4320_cargo_wdl"];
@@ -51,6 +54,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	// CDF 2022 - Olive (_oli)
 	case 12: {	
 		private _suffix = ["_wdl","_oli","_win","_olw"] select ((missionNamespace getVariable ["f_param_factionWest",-1]) - 11);
+		ZMM_WESTFactionName = "CDF (Olive)";
 		ZMM_WESTFlag = ["gm_flag_GE", "\gm\gm_core\data\flags\gm_flag_GE_co.paa"];
 		ZMM_WESTMan = ["gmx_cdf2022_army_rifleman_trg21_digittsko","gmx_cdf2022_army_machinegunner_pk_digittsko","gmx_cdf2022_army_rifleman_trg21_digittsko","gmx_cdf2022_army_antitank_trg21_pzf3_digittsko","gmx_cdf2022_army_rifleman_trg21_digittsko","gmx_cdf2022_army_squadleader_trg21_digittsko"];
 		ZMM_WESTVeh_Truck = [["gmx_cdf2022_ural4320_cargo_wdl","[_grpVeh,['gmx_cdf2022_oli',1]] spawn BIS_fnc_initVehicle;"]];
@@ -66,6 +70,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		
 	// CDF 2022 - Winter (_win)
 	case 13: {
+		ZMM_WESTFactionName = "CDF (Winter)";
 		ZMM_WESTFlag = ["gm_flag_GE", "\gm\gm_core\data\flags\gm_flag_GE_co.paa"];
 		ZMM_WESTMan = ["gmx_cdf2022_army_sf_machinegunner_pk_digittsko","gmx_cdf2022_army_sf_rifleman_g3a4ebr_mcam","gmx_cdf2022_army_sf_squadleader_g3a4ebr_mcam","gmx_cdf2022_army_sf_demolition_g3a4ebr_mcam"];
 		ZMM_WESTVeh_Truck = [["gmx_cdf2022_ural4320_cargo_wdl","[_grpVeh,['gmx_cdf2022_win',1]] spawn BIS_fnc_initVehicle;"]];
@@ -80,6 +85,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	};
 	// CDF 2022 - Olive Winter (_olw)
 	case 14: {
+		ZMM_WESTFactionName = "CDF (Olive Winter)";
 		ZMM_WESTFlag = ["gm_flag_GE", "\gm\gm_core\data\flags\gm_flag_GE_co.paa"];
 		ZMM_WESTMan = ["gmx_cdf2022_army_sf_machinegunner_pk_digittsko","gmx_cdf2022_army_sf_rifleman_g3a4ebr_mcam","gmx_cdf2022_army_sf_squadleader_g3a4ebr_mcam","gmx_cdf2022_army_sf_demolition_g3a4ebr_mcam"];
 		ZMM_WESTVeh_Truck = [["gmx_cdf2022_ural4320_cargo_wdl","[_grpVeh,['gmx_cdf2022_olw',1]] spawn BIS_fnc_initVehicle;"]];
@@ -94,6 +100,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 	};
 	// CDF 1980 - Summer
 	default { 
+		ZMM_WESTFactionName = "CDF Old (Summer)";
 		ZMM_WESTFlag = ["gm_flag_GE", "\gm\gm_core\data\flags\gm_flag_GE_co.paa"];
 		ZMM_WESTMan = ["gmx_cdf_army_antitank_ak74_rpg7_ttsko","gmx_cdf_army_rifleman_ak74_ttsko","gmx_cdf_army_machinegunner_rpk_ttsko","gmx_cdf_army_rifleman_ak74_ttsko","gmx_cdf_army_squadleader_ak74_ttsko","gmx_cdf_army_rifleman_ak74_ttsko","gmx_cdf_army_rifleman_ak74_ttsko"];
 		ZMM_WESTVeh_Truck = ["gmx_cdf_ural4320_cargo_wdl"];
@@ -112,6 +119,7 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	case 1: {
 		// EAST - EAST GERMANY - Olive (Mud)
+		ZMM_EASTFactionName = "East Germany (Mud)";
 		ZMM_EASTFlag = ["gm_flag_GC", "\gm\gm_core\data\flags\gm_flag_GC_co.paa"];
 		ZMM_EASTMan = ["gm_gc_army_rifleman_mpiak74n_80_str","gm_gc_army_squadleader_mpiak74n_80_str","gm_gc_army_machinegunner_pk_80_str","gm_gc_army_antitank_mpiak74n_rpg7_80_str","gm_gc_army_squadleader_mpiak74n_80_str"];
 		ZMM_EASTVeh_Truck = ["gm_gc_army_ural4320_cargo_ols"];
@@ -126,6 +134,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	case 2: {
 		// EAST - EAST GERMANY - Woodland
+		ZMM_EASTFactionName = "East Germany (Woodland)";
 		ZMM_EASTFlag = ["gm_flag_GC", "\gm\gm_core\data\flags\gm_flag_GC_co.paa"];
 		ZMM_EASTMan = ["gm_gc_army_rifleman_mpiak74n_80_str","gm_gc_army_squadleader_mpiak74n_80_str","gm_gc_army_machinegunner_pk_80_str","gm_gc_army_antitank_mpiak74n_rpg7_80_str","gm_gc_army_squadleader_mpiak74n_80_str"];
 		ZMM_EASTVeh_Truck = ["gm_gc_army_ural4320_cargo_wdl"];
@@ -140,6 +149,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	case 3: {
 		// EAST - EAST GERMANY Winter
+		ZMM_EASTFactionName = "East Germany (Winter)";
 		ZMM_EASTFlag = ["gm_flag_GC", "\gm\gm_core\data\flags\gm_flag_GC_co.paa"];
 		ZMM_EASTMan = ["gm_gc_army_rifleman_mpiak74n_80_win","gm_gc_army_squadleader_mpiak74n_80_win","gm_gc_army_machinegunner_pk_80_win","gm_gc_army_antitank_mpiak74n_rpg7_80_win","gm_gc_army_squadleader_mpiak74n_80_win"];
 		ZMM_EASTVeh_Truck = ["gm_gc_army_ural4320_cargo_win"];
@@ -154,6 +164,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	case 4: {
 		// EAST - EAST GERMANY Winter (Olive)
+		ZMM_EASTFactionName = "East Germany (Olive Winter)";
 		ZMM_EASTFlag = ["gm_flag_GC", "\gm\gm_core\data\flags\gm_flag_GC_co.paa"];
 		ZMM_EASTMan = ["gm_gc_army_rifleman_mpiak74n_80_win","gm_gc_army_squadleader_mpiak74n_80_win","gm_gc_army_machinegunner_pk_80_win","gm_gc_army_antitank_mpiak74n_rpg7_80_win","gm_gc_army_squadleader_mpiak74n_80_win"];
 		ZMM_EASTVeh_Truck = ["gm_gc_army_ural4320_cargo_olw"];
@@ -168,6 +179,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	case 5: {
 		// EAST - EAST GERMANY White
+		ZMM_EASTFactionName = "East Germany (White)";
 		ZMM_EASTFlag = ["gm_flag_GC", "\gm\gm_core\data\flags\gm_flag_GC_co.paa"];
 		ZMM_EASTMan = ["gm_gc_army_rifleman_mpiak74n_80_win","gm_gc_army_squadleader_mpiak74n_80_win","gm_gc_army_machinegunner_pk_80_win","gm_gc_army_antitank_mpiak74n_rpg7_80_win","gm_gc_army_squadleader_mpiak74n_80_win"];
 		ZMM_EASTVeh_Truck = ["gm_gc_army_ural4320_cargo_un"];
@@ -182,6 +194,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	case 6: {
 		// EAST - Poland Winter (Olive)
+		ZMM_EASTFactionName = "Poland (Olive Winter)";
 		ZMM_EASTFlag = ["gm_flag_PL", "\gm\gm_core\data\flags\gm_flag_PL_co.paa"];
 		ZMM_EASTMan = ["gm_pl_army_rifleman_akm_80_win","gm_pl_army_squadleader_akm_80_win","gm_pl_army_machinegunner_pk_80_win","gm_pl_army_antitank_akm_rpg7_80_win"];
 		ZMM_EASTVeh_Truck = ["gm_pl_army_ural4320_cargo_win"];
@@ -196,6 +209,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	case 7: {
 		// EAST - Poland Summer (Olive)
+		ZMM_EASTFactionName = "Poland (Olive Summer)";
 		ZMM_EASTFlag = ["gm_flag_PL", "\gm\gm_core\data\flags\gm_flag_PL_co.paa"];
 		ZMM_EASTMan = ["gm_pl_army_grenadier_akm_pallad_80_moro","gm_pl_army_rifleman_akm_80_moro","gm_pl_army_machinegunner_rpk_80_moro","gm_pl_army_rifleman_akm_80_moro","gm_pl_army_antitank_akm_rpg7_80_moro","gm_pl_army_rifleman_akm_80_moro","gm_pl_army_machinegunner_pk_80_moro","gm_pl_army_squadleader_akm_80_moro","gm_pl_army_rifleman_akm_80_moro","gm_pl_army_antiair_akm_9k32m_80_moro"];
 		ZMM_EASTVeh_Truck = ["gm_pl_army_ural4320_cargo"];
@@ -210,6 +224,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	case 8: {
 		// EAST - EAST GERMANY - Desert
+		ZMM_EASTFactionName = "East Germany (Desert)";
 		ZMM_EASTFlag = ["gm_flag_GC", "\gm\gm_core\data\flags\gm_flag_GC_co.paa"];
 		ZMM_EASTMan = ["gm_gc_army_rifleman_mpiak74n_80_str","gm_gc_army_squadleader_mpiak74n_80_str","gm_gc_army_machinegunner_pk_80_str","gm_gc_army_antitank_mpiak74n_rpg7_80_str","gm_gc_army_squadleader_mpiak74n_80_str"];
 		ZMM_EASTVeh_Truck = ["gm_gc_army_ural4320_cargo_des"];
@@ -224,6 +239,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};	
 	case 9: {
 		// EAST - GMX ChDKz
+		ZMM_EASTFactionName = "ChDKz";
 		ZMM_EASTFlag = ["gm_flag_PL", "\gm\gm_core\data\flags\gm_flag_PL_co.paa"];
 		ZMM_EASTMan = ["gmx_chdkz_army_rifleman_akm_mix","gmx_chdkz_army_squadleader_akm_win","gmx_chdkz_army_rifleman_akm_mix","gmx_chdkz_army_antitank_akm_rpg7_mix","gmx_chdkz_army_machinegunner_rpk_mix","gmx_chdkz_army_rifleman_akm_mix","gmx_chdkz_army_grenadier_akm_pallad_mix"];
 		ZMM_EASTVeh_Truck = ["gmx_chdkz_ural4320_cargo_wdr"];
@@ -238,6 +254,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 	};
 	default {
 		// EAST - EAST GERMANY - Olive
+		ZMM_EASTFactionName = "East Germany (Olive)";
 		ZMM_EASTFlag = ["gm_flag_GC", "\gm\gm_core\data\flags\gm_flag_GC_co.paa"];
 		ZMM_EASTMan = ["gm_gc_army_rifleman_mpiak74n_80_str","gm_gc_army_squadleader_mpiak74n_80_str","gm_gc_army_machinegunner_pk_80_str","gm_gc_army_antitank_mpiak74n_rpg7_80_str","gm_gc_army_squadleader_mpiak74n_80_str"];
 		ZMM_EASTVeh_Truck = ["gm_gc_army_ural4320_cargo"];
@@ -256,6 +273,7 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	case 1: {
 		// GUER - Denmark (Woodland)
+		ZMM_GUERFactionName = "Denmark (Woodland)";
 		ZMM_GUERFlag = ["gm_flag_DK", "\gm\gm_core\data\flags\gm_flag_DK_co.paa"];
 		ZMM_GUERMan = ["gm_dk_army_antiair_gvm95_fim43_90_m84","gm_dk_army_antitank_gvm95_m72a3_90_m84","gm_dk_army_antitank_gvm95_pzf84_90_m84","gm_dk_army_machinegunner_mg3_90_m84","gm_dk_army_marksman_g3a3_90_m84","gm_dk_army_rifleman_gvm95_90_m84","gm_dk_army_squadleader_gvm95_p2a1_90_m84"];
 		ZMM_GUERVeh_Truck = ["gm_dk_army_u1300l_container"];
@@ -270,6 +288,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	case 2: {
 		// GUER - Denmark (Desert)
+		ZMM_GUERFactionName = "Denmark (Desert)";
 		ZMM_GUERFlag = ["gm_flag_DK", "\gm\gm_core\data\flags\gm_flag_DK_co.paa"];
 		ZMM_GUERMan = ["gm_dk_army_antiair_gvm95_fim43_90_m84","gm_dk_army_antitank_gvm95_m72a3_90_m84","gm_dk_army_antitank_gvm95_pzf84_90_m84","gm_dk_army_machinegunner_mg3_90_m84","gm_dk_army_marksman_g3a3_90_m84","gm_dk_army_rifleman_gvm95_90_m84","gm_dk_army_squadleader_gvm95_p2a1_90_m84"];
 		ZMM_GUERVeh_Truck = ["gm_dk_army_u1300l_container_des"];
@@ -284,6 +303,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	case 3: {
 		// GUER - Denmark (Winter)
+		ZMM_GUERFactionName = "Denmark (Winter)";
 		ZMM_GUERFlag = ["gm_flag_DK", "\gm\gm_core\data\flags\gm_flag_DK_co.paa"];
 		ZMM_GUERMan = ["gm_ge_army_sf_rifleman_g3a4_parka_80_win","gm_ge_army_sf_antitank_mp5a2_pzf84_parka_80_win","gm_ge_army_sf_antiair_mp5a3_fim43_parka_80_win","gm_ge_army_sf_grenadier_hk69a1_parka_80_win","gm_ge_army_sf_machinegunner_g8a2_parka_80_win","gm_ge_army_sf_squadleader_mp5sd3_p2a1_parka_80_win"];
 		ZMM_GUERVeh_Truck = ["gm_dk_army_u1300l_container_win"];
@@ -298,6 +318,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	case 4: {
 		// GUER - Poland Winter
+		ZMM_GUERFactionName = "Poland (Winter)";
 		ZMM_GUERFlag = ["gm_flag_PL", "\gm\gm_core\data\flags\gm_flag_PL_co.paa"];
 		ZMM_GUERMan = ["gm_pl_army_rifleman_akm_80_win","gm_pl_army_squadleader_akm_80_win","gm_pl_army_machinegunner_pk_80_win","gm_pl_army_antitank_akm_rpg7_80_win"];
 		ZMM_GUERVeh_Truck = ["gm_pl_army_ural4320_cargo_win"];
@@ -312,6 +333,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	case 5: {
 		// GUER - GMX Revolutionaries
+		ZMM_GUERFactionName = "Revolutionaries";
 		ZMM_GUERFlag = ["gm_flag_PL", "\gm\gm_core\data\flags\gm_flag_PL_co.paa"];
 		ZMM_GUERMan = ["gm_xx_army_squadleader_m16a1_80_grn","gm_xx_army_rifleman_01_akm_alp","gm_xx_army_machinegunner_rpk_80_oli","gm_xx_army_assault_ak74nk_80_wdl","gm_xx_army_antitank_hk53a2_rpg7_80_oli"];
 		ZMM_GUERVeh_Truck = ["gmx_chdkz_ural4320_cargo_wdl"];
@@ -326,6 +348,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	case 6: {
 		// GUER - GMX SYNDIKAT
+		ZMM_GUERFactionName = "Syndikat";
 		ZMM_GUERFlag = ["Flag_Syndikat_F", "\A3\Data_F_Exp\Flags\flag_SYND_CO.paa"];
 		ZMM_GUERMan = ["I_C_Soldier_Para_7_F","I_C_Soldier_Para_5_F","I_C_Soldier_Para_1_F","I_C_Soldier_Para_4_F","I_C_Soldier_Para_2_F","I_C_Soldier_Para_6_F","I_C_Soldier_Para_1_F"];
 		ZMM_GUERVeh_Truck = ["gmx_chdkz_ural4320_cargo_wdl"];
@@ -340,6 +363,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	case 7: {
 		// GUER - AAF 1990
+		ZMM_GUERFactionName = "AAF 1990";
 		ZMM_GUERFlag = ["Flag_AAF_F", "\A3\Data_F_Exp\Flags\Flag_AAF_CO.paa"];
 		ZMM_GUERMan = ["I_Soldier_F","I_Soldier_LAT_F","I_Soldier_GL_F","I_Soldier_AR_F"];
 		ZMM_GUERVeh_Truck = ["gmx_aaf_u1300l_cargo_wdl"];
@@ -355,6 +379,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	case 8: {
 		// GUER - GMX ChDKz
+		ZMM_GUERFactionName = "ChDKz";
 		ZMM_GUERFlag = ["gm_flag_PL", "\gm\gm_core\data\flags\gm_flag_PL_co.paa"];
 		ZMM_GUERMan = ["gmx_chdkz_army_rifleman_akm_mix","gmx_chdkz_army_squadleader_akm_win","gmx_chdkz_army_rifleman_akm_mix","gmx_chdkz_army_antitank_akm_rpg7_mix","gmx_chdkz_army_machinegunner_rpk_mix","gmx_chdkz_army_rifleman_akm_mix","gmx_chdkz_army_grenadier_akm_pallad_mix"];
 		ZMM_GUERVeh_Truck = ["gmx_chdkz_ural4320_cargo_wdl"];
@@ -369,6 +394,7 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 	};
 	default {
 		// GUER - Poland Summer
+		ZMM_GUERFactionName = "Poland (Summer)";
 		ZMM_GUERFlag = ["gm_flag_PL", "\gm\gm_core\data\flags\gm_flag_PL_co.paa"];
 		ZMM_GUERMan = ["gm_pl_army_grenadier_akm_pallad_80_moro","gm_pl_army_rifleman_akm_80_moro","gm_pl_army_machinegunner_rpk_80_moro","gm_pl_army_rifleman_akm_80_moro","gm_pl_army_antitank_akm_rpg7_80_moro","gm_pl_army_rifleman_akm_80_moro","gm_pl_army_machinegunner_pk_80_moro","gm_pl_army_squadleader_akm_80_moro","gm_pl_army_rifleman_akm_80_moro","gm_pl_army_antiair_akm_9k32m_80_moro"];
 		ZMM_GUERVeh_Truck = ["gm_pl_army_ural4320_cargo"];
