@@ -31,6 +31,13 @@ if (random 100 > 50 && count _bldPos > 0) then {
 	_dataPos = selectRandom _bldPos;
 	_dataObj setPosATL _dataPos;	
 	_inBuilding = true;
+	
+	private _mkr = createMarkerLocal [format["MKR_%1_OBJ", _zoneID], _pos];
+	_mkr setMarkerShapeLocal "ELLIPSE";
+	_mkr setMarkerBrushLocal "SolidBorder";
+	_mkr setMarkerAlphaLocal 0.3;
+	_mkr setMarkerColorLocal "ColorEast";
+	_mkr setMarkerSizeLocal [50,50];
 } else {
 	_dataType = selectRandom ["B_UAV_02_dynamicLoadout_F", "B_UAV_05_F", "B_UGV_01_F", "O_UAV_02_dynamicLoadout_F"];
 	
@@ -39,7 +46,8 @@ if (random 100 > 50 && count _bldPos > 0) then {
 	} else { 
 		_dataPos = [[_centre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, 150, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos 
 	};
-
+	
+	_dataPos set [2,0];
 	_dataObj = createVehicle [_dataType, _dataPos, [], 5, "NONE"];
 	_dataObj setDir random 360;
 	_dataObj lock true;
@@ -53,7 +61,6 @@ if (random 100 > 50 && count _bldPos > 0) then {
 		private _crater = createSimpleObject ["Crater", getPosASL _dataObj];
 		private _debirs = createSimpleObject ["Land_Garbage_square5_F", getPosASL _dataObj];
 	} else {
-		_dataObj setPos ((getPos _dataObj) vectorAdd [0,0,-1]);
 		_dataObj setVectorDirAndUp [[-0.33,0.66,-0.33], [-0.33,0.13,0.66]];
 		
 		_dataPos = getPos _dataObj;
@@ -75,6 +82,8 @@ _dataHeading = selecTRandom [
 
 _dataObj setVariable ["var_dataType", _dataHeading, true];
 _dataObj setVariable ["var_zoneID", _zoneID, true];
+_dataObj setVariable ["var_dataName", _dataName, true];
+
 
 [_dataObj, 
 	"<t color='#00FF80'>Start Transmission</t>", 
@@ -83,7 +92,7 @@ _dataObj setVariable ["var_zoneID", _zoneID, true];
 	"!(_target getVariable ['var_dataSent', false]) && !(_target getVariable ['var_isSending', false]) && _this distance2d _target < 3", 
 	"!(_target getVariable ['var_dataSent', false]) && !(_target getVariable ['var_isSending', false]) && _caller distance2d _target < 3", 
 	{}, 
-	{ parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Initiating</t><br/><br/><t size='1.5' color='#FFFF00'>Synchronising</t><br/><t color='#FFFF00'></t><br/><br/><t size='1.75' color='#CCCCCC'>%2&#37;</t><br/><br/>", _dataName, (round ((_this select 4) * 4.16))] remoteExec ["hintSilent"]}, 
+	{ parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Initiating</t><br/><br/><t size='1.5' color='#FFFF00'>Synchronising</t><br/><t color='#FFFF00'></t><br/><br/><t size='1.75' color='#CCCCCC'>%2&#37;</t><br/><br/>", _target getVariable "var_dataName", (round ((_this select 4) * 4.16))] remoteExec ["hintSilent"]}, 
 	{ 
 		_target setVariable ["var_isSending", true, true]; 
 		_target setVariable ["var_packetNo", (_target getVariable ["var_packetNo", 0]) + 1, true]; 
@@ -93,15 +102,15 @@ _dataObj setVariable ["var_zoneID", _zoneID, true];
 		   private _percent = 0; 
 		   private _max = 60; 
 		   for "_i" from 0 to _max do { 
-				parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Sending</t><br/><br/><t size='1.5' color='#FFFF00'>Packet %2/%3</t><br/><t color='#FFFF00'></t><br/><br/><t size='1.75' color='#CCCCCC'>%4&#37;</t><br/><br/>", _dataName, _target getVariable "var_packetNo", _packetMax, round ((_percent / _max) * 100)] remoteExec ["hintSilent"]; 
+				parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Sending</t><br/><br/><t size='1.5' color='#FFFF00'>Packet %2/%3</t><br/><t color='#FFFF00'></t><br/><br/><t size='1.75' color='#CCCCCC'>%4&#37;</t><br/><br/>", _target getVariable "var_dataName", _target getVariable "var_packetNo", _packetMax, round ((_percent / _max) * 100)] remoteExec ["hintSilent"]; 
 				_percent = _percent + 1; 
 				uiSleep 1; 
 		   }; 
 			
-		   parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Sent</t><br/><br/><t size='1.5' color='#FFFF00'>Packet %2/%3</t><br/><t color='#FFFF00'></t><br/><br/><t size='1.5' color='#CCCCCC'>Waiting for Action</t><br/><br/>", _dataName, _target getVariable "var_packetNo", _packetMax] remoteExec ["hintSilent"]; 
+		   parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Sent</t><br/><br/><t size='1.5' color='#FFFF00'>Packet %2/%3</t><br/><t color='#FFFF00'></t><br/><br/><t size='1.5' color='#CCCCCC'>Waiting for Action</t><br/><br/>", _target getVariable "var_dataName", _target getVariable "var_packetNo", _packetMax] remoteExec ["hintSilent"]; 
 		   _target setVariable ["var_isSending", false, true]; 
 		} else { 
-			parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Sending</t><br/><br/><t size='1.5' color='#00CD00'>Complete</t><br/><t color='#00CD00'></t><br/><br/><t size='1.5' color='#CCCCCC'>Shutting Down</t><br/><br/>", _dataName] remoteExec ["hintSilent"]; 
+			parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Sending</t><br/><br/><t size='1.5' color='#00CD00'>Complete</t><br/><t color='#00CD00'></t><br/><br/><t size='1.5' color='#CCCCCC'>Shutting Down</t><br/><br/>", _target getVariable "var_dataName"] remoteExec ["hintSilent"]; 
 			_target setVariable ["var_dataSent", true, true]; 
 			[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
 			uiSleep 1; 
@@ -110,7 +119,7 @@ _dataObj setVariable ["var_zoneID", _zoneID, true];
 		uiSleep 5; 
 		"" remoteExec ["hintSilent"]; 
 		}, 
-	{ parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Sending</t><br/><br/><t size='1.5' color='#FF0000'>Cancelled</t><br/><br/><br/><br/><br/>", _dataName] remoteExec ["hintSilent"]; }, 
+	{ parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Sending</t><br/><br/><t size='1.5' color='#FF0000'>Cancelled</t><br/><br/><br/><br/><br/>", _target getVariable "var_dataName"] remoteExec ["hintSilent"]; }, 
 	[], 
 	30, 
 	10,
@@ -145,7 +154,7 @@ _bldArr deleteAt (_bldArr find _dataPos);
 // Create Completion Trigger
 _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
 _objTrigger setTriggerStatements [ 	format["(ZMM_%1_OBJ getVariable ['var_dataSent', false])", _zoneID], 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_OBJ','MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
 // Create Task

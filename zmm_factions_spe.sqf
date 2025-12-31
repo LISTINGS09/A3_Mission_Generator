@@ -14,6 +14,20 @@ switch (missionNamespace getVariable ["f_param_factionWest",-1]) do {
 		ZMM_WESTVeh_Convoy = ["SPE_ST_SdKfz250_1","SPE_ST_OpelBlitz","SPE_ST_PzKpfwIII_J"];
 		ZMM_WESTVeh_Static = ["SPE_ST_MG42_Lafette_Deployed"];
 	};
+	case 2: {
+		/// WEST - Germany (Afrika Korps)
+		ZMM_WESTFactionName = "Germany (Afrika Korps)";
+		ZMM_WESTFlag = ["SPE_FlagCarrier_GER", "\WW2\SPE_Core_t\Data_t\Flags\flag_GER_co.paa"];
+		ZMM_WESTMan = ["SPEX_GER_DAK_SquadLead","SPEX_GER_DAK_rifleman_2","SPEX_GER_DAK_mgunner2","SPEX_GER_DAK_medic","SPEX_GER_DAK_rifleman","SPEX_GER_DAK_amgunner","SPEX_GER_DAK_rifleman_lite","SPEX_GER_DAK_AT_grenadier","SPEX_GER_DAK_Assist_SquadLead","SPEX_GER_DAK_Driver_Lite"];
+		ZMM_WESTVeh_Truck = ["SPEX_DAK_OpelBlitz","[_grpVeh,['DAK_camo1',1]] call BIS_fnc_initVehicle;"];
+		ZMM_WESTVeh_Util = [["SPEX_DAK_OpelBlitz_Fuel","[_grpVeh,['DAK_camo1',1],['tent_hide_source',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_OpelBlitz_Ammo","[_grpVeh,['DAK_camo1',1],['tent_hide_source',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_WESTVeh_Light = [["SPEX_DAK_R200_MG34","[_grpVeh,['DAK_camo1',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_SdKfz250_1","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_WESTVeh_Medium = [["SPEX_DAK_OpelBlitz_Flak38","[_grpVeh,['DAK_camo1',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_PzKpfwIII_J","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_PzKpfwIII_L","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_PzKpfwIV_G","[_grpVeh,['Camo8',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_WESTVeh_Heavy = ["SPEX_DAK_PzKpfwVI_H1","[_grpVeh,['Muster',1]] call BIS_fnc_initVehicle;"];
+		ZMM_WESTVeh_CasP = ["SPE_FW190F8"];
+		ZMM_WESTVeh_Convoy = [["SPEX_DAK_SdKfz250_1","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_OpelBlitz","[_grpVeh,['DAK_camo1',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_PzKpfwIII_J","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_WESTVeh_Static = ["SPEX_DAK_MG34_Lafette_Deployed"];
+	}; 
 	default {
 		/// WEST - Germany (Wehrmacht)
 		ZMM_WESTFactionName = "Germany (Wehrmacht)";
@@ -76,6 +90,20 @@ switch (missionNamespace getVariable ["f_param_factionEast",-1]) do {
 		ZMM_EASTVeh_Convoy = [["SPE_SdKfz250_1","[_grpVeh,['Panzergrau',1]] call BIS_fnc_initVehicle;"],"SPE_FFI_OpelBlitz",["SPE_PzKpfwIII_J","[_grpVeh,['Panzergrau',1]] call BIS_fnc_initVehicle;"]];
 		ZMM_EASTVeh_Static = ["SPE_ST_MG42_Lafette_Deployed"];
 	};
+	case 4: {	
+		// EAST - Germany (Fallschirmjägers)
+		ZMM_EASTFactionName = "Germany (Fallschirmjägers)";
+		ZMM_EASTFlag = ["SPE_FlagCarrier_GER", "\WW2\SPE_Core_t\Data_t\Flags\flag_GER_co.paa"];
+		ZMM_EASTMan = ["SPEX_FSJ_DAK_SquadLead","SPEX_FSJ_DAK_Mgunner2","SPEX_FSJ_DAK_Solder","SPEX_FSJ_DAK_medic_soldat","SPEX_FSJ_DAK_Solder","SPEX_FSJ_DAK_HMG_AmmoBearer","SPEX_FSJ_DAK_Solder","SPEX_FSJ_DAK_amgunner","SPEX_FSJ_DAK_AT_grenadier","SPEX_FSJ_DAK_Assist_SquadLead","SPEX_FSJ_DAK_Solder"];
+		ZMM_EASTVeh_Truck = ["SPEX_DAK_OpelBlitz","[_grpVeh,['DAK_camo1',1]] call BIS_fnc_initVehicle;"];
+		ZMM_EASTVeh_Util = [["SPEX_DAK_OpelBlitz_Fuel","[_grpVeh,['DAK_camo1',1],['tent_hide_source',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_OpelBlitz_Ammo","[_grpVeh,['DAK_camo1',1],['tent_hide_source',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Light = [["SPEX_DAK_R200_MG34","[_grpVeh,['DAK_camo1',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_SdKfz250_1","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Medium = [["SPEX_DAK_OpelBlitz_Flak38","[_grpVeh,['DAK_camo1',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_PzKpfwIII_J","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_PzKpfwIII_L","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_PzKpfwIV_G","[_grpVeh,['Camo8',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Heavy = ["SPEX_DAK_PzKpfwVI_H1","[_grpVeh,['Muster',1]] call BIS_fnc_initVehicle;"];
+		ZMM_EASTVeh_CasP = ["SPE_FW190F8"];
+		ZMM_EASTVeh_Convoy = [["SPEX_DAK_SdKfz250_1","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_OpelBlitz","[_grpVeh,['DAK_camo1',1]] call BIS_fnc_initVehicle;"],["SPEX_DAK_PzKpfwIII_J","[_grpVeh,['DAK',1]] call BIS_fnc_initVehicle;"]];
+		ZMM_EASTVeh_Static = ["SPEX_DAK_MG34_Lafette_Deployed"];
+	};
 	default {	
 		// EAST - Germany (Sturmtroopers)
 		ZMM_EASTFactionName = "Germany (Sturmtroopers)";
@@ -108,6 +136,21 @@ switch (missionNamespace getVariable ["f_param_factionGuer",-1]) do {
 		ZMM_GUERVeh_CasP = ["SPE_P47"];
 		ZMM_GUERVeh_Convoy = [["SPE_SdKfz250_1","[_grpVeh,['Panzergrau',1]] call BIS_fnc_initVehicle;"],"SPE_FFI_OpelBlitz",["SPE_PzKpfwIII_J","[_grpVeh,['Panzergrau',1]] call BIS_fnc_initVehicle;"]];
 		ZMM_GUERVeh_Static = ["SPE_ST_MG42_Lafette_Deployed"];
+	};
+	case 2: {
+		// GUER - UK
+		ZMM_GUERFactionName = "UK";
+		ZMM_GUERFlag = ["Flag_UK_F", "\A3\Data_F\Flags\Flag_UK_CO.paa"];
+		ZMM_GUERMan = ["SPEX_CW_KD_42_Sergeant","SPEX_CW_KD_42_Bren_gunner","SPEX_CW_KD_42_rifleman","SPEX_CW_KD_42_Medic","SPEX_CW_KD_42_rifleman","SPEX_CW_KD_42_Bren_asst","SPEX_CW_KD_42_rifleman","SPEX_CW_KD_42_piat_gunner","SPEX_CW_KD_42_Team_Leader","SPEX_CW_KD_42_rifleman"];
+		ZMM_GUERVeh_Truck = ["SPEX_CW_trop_Bedford_MWD"];
+		ZMM_GUERVeh_Util = ["SPEX_CW_trop_Bedford_MWD_Fuel","SPEX_CW_trop_Bedford_MWD_Ammo","SPEX_CW_trop_Bedford_MWD_Repair"];
+		ZMM_GUERVeh_Light = ["SPEX_CW_Trop_G503_MB_M2","SPEX_CW_Trop_Humber_LRC"];
+		ZMM_GUERVeh_Medium = ["SPEX_CW_Trop_Humber_LRC","SPEX_CW_Trop_Sherman_II","SPEX_CW_Trop_Sherman_V_Early","SPEX_CW_Trop_Sherman_V"];
+		ZMM_GUERVeh_Heavy = ["SPEX_CW_Trop_M10"];
+		ZMM_GUERVeh_Air = ["SPEX_C47_Skytrain"];
+		ZMM_GUERVeh_CasP = ["SPE_P47"];
+		ZMM_GUERVeh_Convoy = ["SPEX_CW_Trop_Sherman_II","SPEX_CW_trop_Bedford_MWD","SPEX_CW_Trop_Sherman_V_Early"];
+		ZMM_GUERVeh_Static = ["SPE_M2_M3","SPE_M45_Quadmount"];
 	};
 	default {
 		// GUER - US

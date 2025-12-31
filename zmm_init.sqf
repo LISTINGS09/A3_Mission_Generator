@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.7;
+ZMM_Version = 4.72;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Template = "vanilla"; // Force Template
@@ -221,7 +221,7 @@ if isServer then {
 		
 		// Check Units
 		private _unitArray = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
-		{ if !(isClass (configFile >> "CfgVehicles" >> _x)) then { _x set [_forEachIndex,""];	["ERROR", format["Invalid Unit '%1' in ZMM_%2Man.", _obj, _side]] call zmm_fnc_logMsg } } forEach _unitArray;
+		{ if !(isClass (configFile >> "CfgVehicles" >> _x)) then { ["ERROR", format["Invalid Unit '%1' in ZMM_%2Man.", _x, _side]] call zmm_fnc_logMsg; _unitArray set [_forEachIndex,""]; } } forEach _unitArray;
 		
 		if (count _unitArray == 0) then {
 			["ERROR", format["Variable '%1' has no valid classes in.", format["ZMM_%1Man", _side]]] call zmm_fnc_logMsg 

@@ -93,7 +93,8 @@ private _ZMMExtra = "<font size='18' color='#FF7F00'>Extra Settings</font><br/><
 	["ZMM_CustomHeavy", "Heavy Vehicles"]
 ];
 
-_ZMMExtra = _ZMMExtra + "<br/><br/><font size='16' color='#80FF00'>QRF Type</font><br/>If enabled globally, enemy QRF strength will be determined by difficulty settings. At lower difficult CAS and Heavy Vehicles are very unlikely. You can force the QRF type by selecting below, otherwise it will be weighted by Side (INDFOR always has weaker units and support).<br/><br/>";
+_ZMMExtra = _ZMMExtra + "<br/><br/><font size='16' color='#80FF00'>QRF Type</font><br/>If enabled globally, enemy QRF strength will be determined by difficulty settings. At lower difficult CAS and Heavy Vehicles are very unlikely. You can force the QRF type by selecting below, otherwise it will be weighted by Side (INDFOR will always have weaker units and support).<br/><br/>";
+
 
 {
 	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];

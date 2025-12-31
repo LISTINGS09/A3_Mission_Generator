@@ -33,7 +33,7 @@ private _milGroup = [_locPos, _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
 [_milGroup, _centre, 10] call bis_fnc_taskPatrol;
 
 // Create Enemy Heatmap
-private _gridTotal = [_zoneID, _centre] spawn zmm_fnc_fillGrid;
+private _gridTotal = [_zoneID, _centre] call zmm_fnc_fillGrid;
 private _gridCount = round (_gridTotal * 0.75);
 
 // Add to Zeus

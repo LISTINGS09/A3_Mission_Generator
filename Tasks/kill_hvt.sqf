@@ -69,18 +69,19 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			_x unlinkItem (hmd _x);
 			_x setSkill 0.5 + random 0.3;
 			_x setUnitPos "MIDDLE";
-			_x setVariable ["var_zID", _zoneID, true];
-			_x setVariable ["var_uID", _i, true];
+			_x setVariable ["var_zoneID", _zoneID, true];
+			_x setVariable ["var_unitID", _i, true];
 			removeFromRemainsCollector [_x];
+
 			
 			if (_inBuilding) then { _x disableAI "PATH" };
 			
 			_x addEventHandler ["Killed", {
 				params ["_unit", "_killer"];
-				private _zID = _unit getVariable ["var_zID", 0];
-				private _uID = _unit getVariable ["var_uID", 0];
+				private _zID = _unit getVariable ["var_zoneID", 0];
+				private _uID = _unit getVariable ["var_unitID", 0];
 				
-				private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zID, _uID], getPos _unit];
+				private _mrkr = createMarker [format["MKR_%1_LOC_%2", _zID, _uID], getPos _unit];
 				_mrkr setMarkerShape "ICON";
 				_mrkr setMarkerType "mil_unknown";
 				_mrkr setMarkerAlpha 0.4;
@@ -100,9 +101,10 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 					[_target, _actionId] remoteExec ["BIS_fnc_holdActionRemove"];
 					_caller playAction "PutDown";
 					sleep 1;
-					private _zID = _target getVariable ["var_zID", 0];
-					private _uID = _target getVariable ["var_uID", 0];
+					private _zID = _target getVariable ["var_zoneID", 0];
+					private _uID = _target getVariable ["var_unitID", 0];
 					deleteMarker format["MKR_%1_OBJ_%2", _zID, _uID];
+					deleteMarker format["MKR_%1_LOC_%2", _zID, _uID];
 					[name _caller, format["Target %1 is %2.", selectRandom ["verified", "confirmed", "identified"], selectRandom ["eliminated","deceased","dead","killed"]]] remoteExec ["BIS_fnc_showSubtitle"];
 					addToRemainsCollector [_target];
 					
