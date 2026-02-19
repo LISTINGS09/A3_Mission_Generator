@@ -96,7 +96,7 @@ _dataObj setVariable ["var_dataName", _dataName, true];
 	{ 
 		_target setVariable ["var_isSending", true, true]; 
 		_target setVariable ["var_packetNo", (_target getVariable ["var_packetNo", 0]) + 1, true]; 
-		private _packetMax = (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]); 
+		private _packetMax = (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]);
 
 		if ((_target getVariable "var_packetNo") <= _packetMax) then { 
 		   private _percent = 0; 
