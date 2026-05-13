@@ -1,18 +1,18 @@
 // Set-up mission variables.
 // TODO Spawn some bunkers?
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _enemySide], ["O_Soldier_F"]];
 private _playerSide = missionNamespace getVariable [ "ZMM_playerSide", WEST ];
-private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
+private _locations = missionNamespace getVariable [ format["ZMM_Z%1_FlatLocations", _zoneID], [] ];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
-private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
+private _tskRadius = ((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = selectRandom [
+private _tskDesc = selectRandom [
 		"Secure the area around <font color='#0080FF'>%1</font color> then locate and capture the <font color='#00FFFF'>%2 flag%3</font color> in the area.",
 		"Capture <font color='#0080FF'>%1</font color> by claiming the surrounding area and locating the <font color='#00FFFF'>%2 flag%3</font color> somewhere in the area.",
 		"<font color='#0080FF'>%1</font color> is occupied by enemy forces, eliminate them and secure the area by claiming the <font color='#00FFFF'>%2 flag%3</font color>.",
@@ -42,7 +42,7 @@ private _zmm_getFlag = {
 		default { ["Flag_White_F", "\A3\Data_F\Flags\Flag_White_CO.paa"]};
 	};
 		
-	_flagVar = missionNamespace getVariable [ format[ "ZMM_%1Flag", _flagSide ], _defaultFlag ];
+	_flagVar = missionNamespace getVariable [ format[ "ZMM_%1_Flag", _flagSide ], _defaultFlag ];
 	
 	// Return Texture
 	if (_getTexture) exitWith { _flagVar select 1 };
@@ -55,7 +55,7 @@ private _enemyGrp = createGroup [_enemySide, true];
 private _flagNo = 0;
 private _flagType = [ _enemySide, false ] call _zmm_getFlag;
 private _flagPTex = [ _playerSide, true ] call _zmm_getFlag;
-private _flagActivation = [];
+private _tskActivation = [];
 
 for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	private _flagPos = [];
@@ -64,7 +64,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		_flagPos = selectRandom _locations;
 		_locations deleteAt (_locations find _flagPos);
 	} else { 
-		_flagPos = [[_centre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+		_flagPos = [[_tskCentre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, _tskRadius, 1, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos;
 	};
 		
 	_flagPos = _flagPos findEmptyPosition [1, 15, _flagType];
@@ -98,20 +98,20 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			10 
 		] remoteExec ["bis_fnc_holdActionAdd", 0, _flagObj];
 			
-		_flagActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_FLAG_%2', false])", _zoneID, _flagNo];
+		_tskActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_FLAG_%2', false])", _zoneID, _flagNo];
 		
 		_relPos = [ position _flagObj, random 75, random 360 ] call BIS_fnc_relPos;
 		
-		_mrk = createMarker [ format[ "MKR_%1_FLAG_%2", _zoneID, _flagNo ], _relPos ];
-		_mrk setMarkerShape "ELLIPSE";
-		_mrk setMarkerBrush "SolidBorder";
-		_mrk setMarkerAlpha 0.5;
-		_mrk setMarkerColor format[ "color%1", _enemySide ];
-		_mrk setMarkerSize [ 75, 75 ];
+		_flagMarker = createMarker [ format[ "MKR_%1_FLAG_%2", _zoneID, _flagNo ], _relPos ];
+		_flagMarker setMarkerShape "ELLIPSE";
+		_flagMarker setMarkerBrush "SolidBorder";
+		_flagMarker setMarkerAlpha 0.5;
+		_flagMarker setMarkerColor format[ "color%1", _enemySide ];
+		_flagMarker setMarkerSize [ 75, 75 ];
 		
 		// Child task
 		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _flagNo], format['ZMM_%1_TSK', _zoneID]], true, ["Find and capture the flag located somewhere within the marked area.", format["Flag #%1", _flagNo], format["MKR_%1_FLAG_%2", _zoneID, _flagNo]], _relPos, "CREATED", 1, false, true, format["move%1", _flagNo]] call BIS_fnc_setTask;
-		_childTrigger = createTrigger ["EmptyDetector", _centre, false];
+		_childTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
 		_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_childTrigger setTriggerStatements [  format["(missionNamespace getVariable [ 'ZMM_%1_FLAG_%2', false ])", _zoneID, _flagNo],
 										format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_FLAG_%2';", _zoneID, _flagNo],
@@ -146,6 +146,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			{ _x addCuratorEditableObjects [[_flagObj] + units _milGroup, true] } forEach allCurators;
 			
 			// Wait before setting DS to allow positions to set.
+			_milGroup setGroupIdGlobal [format["ZMM_%1_OBJGRP_%2", _zoneID, _i]];
 			_milGroup spawn { sleep 5; _this enableDynamicSimulation true };
 		};
 	};
@@ -154,17 +155,22 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 // Wait before setting DS to allow positions to set.
 _enemyGrp spawn { sleep 5; _this enableDynamicSimulation true };
 
+if (_tskActivation isEqualTo []) exitWith {
+	["ERROR", format["Zone %1 failed to generate objectives", _zoneID]] call zmm_fnc_misc_logMsg;
+	false
+};
+
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
-_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-_objTrigger setTriggerStatements [  (_flagActivation joinString " && "), 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+private _tskTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
+_tskTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+_tskTrigger setTriggerStatements [  (_tskActivation joinString " && "), 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _locName, count _flagActivation, if (count _flagActivation > 1) then {"s"} else {""}], ["Capture"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "attack"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_tskDesc, _locName, count _tskActivation, if (count _tskActivation > 1) then {"s"} else {""}], ["Capture"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "attack"] call BIS_fnc_setTask;
 
 true

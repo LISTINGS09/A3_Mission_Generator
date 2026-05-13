@@ -1,14 +1,12 @@
+// zmm_fnc_areaMilitarise
 if !isServer exitWith {};
-
 params [["_zoneID", 0], ["_enemyCount", 30]];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _side], []];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _side], ["O_Soldier_F"]];
 
-if (count _enemyMen isEqualTo 0) exitWith { ["ERROR", format["Zone%1 - Area Militarise - (%2) No valid units passed, were global unit variables declared?", _zoneID, _side]] call zmm_fnc_logMsg };
-
-// Always populate military buildings.
+// TODO RANK THESE SO TIER 1 IS ALWAYS OCCUPIED (Towers etc)
 
 private _milPrimary = [
 	"Land_Cargo_HQ_V1_F","Land_Cargo_HQ_V2_F","Land_Cargo_HQ_V3_F","Land_Cargo_HQ_V4_F","Land_Medevac_HQ_V1_F",
@@ -22,6 +20,7 @@ private _milPrimary = [
 	"Land_Bunker_01_HQ_F","Land_Bunker_01_big_F","Land_Bunker_01_small_F","Land_Bunker_01_tall_F",
 	"Land_Cargo_Tower_V1_No1_F","Land_Cargo_Tower_V1_No2_F","Land_Cargo_Tower_V1_No3_F","Land_Cargo_Tower_V1_No4_F","Land_Cargo_Tower_V1_No5_F","Land_Cargo_Tower_V1_No6_F","Land_Cargo_Tower_V1_No7_F",
 	"Land_ControlTower_01_F","Land_ControlTower_02_F",
+	"Land_i_Shed_Ind_F","Land_SM_01_shed_F",
 	"Land_DeerStand_01_F","Land_DeerStand_02_F",
 	"Land_GuardTower_01_F","Land_GuardTower_02_F","Land_MilOffices_V1_F",
 	"Land_i_Barracks_V1_F","Land_i_Barracks_V2_F","Land_u_Barracks_V2_F","Land_vn_airport_02_controltower_f",
@@ -36,35 +35,109 @@ private _milPrimary = [
 	"vn_o_snipertree_01","vn_o_snipertree_02","vn_o_snipertree_03","vn_o_snipertree_04"
 ];
 
-private _milGrp = createGroup [_side, true];
+if (_enemyCount < 1 || count _enemyMen == 0) exitWith {};
+
+private _buildingArr = [];
 private _milBlds = nearestObjects [_centre, _milPrimary, 500];
 
 {
-	if (count units _milGrp > _enemyCount) exitWith {};
-	
-	if (random 1 > 0.25 || count (_x buildingPos -1) < 5) then {
-		private _pos = selectRandom (_x buildingPos -1);
-		
-		if (count (_pos nearEntities ["Man", 1]) < 1) then {
-			private _type = selectRandom _enemyMen;	
-			private _unit = _milGrp createUnit [_type, [0,0,0], [], 150, "NONE"];
-			[_unit] joinSilent _milGrp; 
-			_unit setPosATL _pos;
-			
-			// Force unit to hold - doStop is a 'soft' hold, disableAI stops movement permanently.
-			if (random 1 > 0.7) then { doStop _unit } else { _unit disableAI "PATH" };
-			
-			[_unit] spawn zmm_fnc_unitDirPos;
-		};
+	if (isNil {_x getVariable "ZAU_BuildingPositions"} || isNil {_x getVariable "ZAU_BuildingSide"}) then {
+		private _positions = _x buildingPos -1;
+		_x setVariable ["ZAU_BuildingPositions", _positions];
+		_x setVariable ["ZAU_BuildingSide", _side];
+		_buildingArr pushBack _x;
 	};
 } forEach _milBlds;
 
-if (count units _milGrp > 0) then {
-	["DEBUG", format["Zone%1 - Area Militarise - Garrison Created: %2 units", _zoneID, count units _milGrp]] call zmm_fnc_logMsg;
-	
-	_milGrp setVariable ["VCM_DISABLE", true];
-	_milGrp enableDynamicSimulation true;
-
-	//Add to Zeus
-	{ _x addCuratorEditableObjects [units _milGrp, true] } forEach allCurators;
+if (count _buildingArr isEqualTo 0) exitWith {
+	["DEBUG", format["Zone%1 - Area Military - No buildings found in zone", _zoneID]] call zmm_fnc_misc_logMsg;
 };
+
+["DEBUG", format["Zone%1 - Area Military - Creating: %2 units in %3 buildings", _zoneID, _enemyCount, count _buildingArr]] call zmm_fnc_misc_logMsg;
+
+private _milLocs = [];
+
+// Fill Military Buildings
+{
+	private _bld = _x;
+	
+	if (_enemyCount <= 0) exitWith {};
+	
+	if !(_bld getVariable ["ZAU_BuildingDone", false]) then {
+		// Add Garrison
+		private _enemyTeam = [];
+		private _bpa = _bld getVariable ["ZAU_BuildingPositions", []];
+		private _fillNo = (2 + floor (random 3)) min (count _bpa);
+		
+		if (_fillNo == 0) exitWith {};
+		
+		for "_i" from 0 to _fillNo do { _enemyTeam set [_i, selectRandom _enemyMen] };
+		//format["[ZAU] Spawning Garrison at %1", _bMid] call _fnc_log;
+		
+		private _nearPos = (getPos _bld) findEmptyPosition [2, 15, "B_Soldier_F" ];
+		
+		// SERVER ONLY MARKER
+		_milLocs pushBack (getPos _bld);
+		private _mrk = createMarkerLocal [format ["MKR_Z%1_L%2_MILI", _zoneID, _forEachIndex], getPos _bld];
+		_mrk setMarkerTypeLocal "mil_dot";
+		_mrk setMarkerColorLocal "ColorYellow";
+		_mrk setMarkerAlphaLocal 0.6;
+		_mrk setMarkerTextLocal format ["MILI_Z%1_L%2", _zoneID, _forEachIndex];
+		
+		private _grp = [_nearPos , _side, _enemyTeam] call BIS_fnc_spawnGroup;
+		_grp setGroupIdGlobal [format["Z%1_G%2_MILI", _zoneID, _forEachIndex]];
+		_grp setVariable ["VCM_DISABLE", true];
+		_grp deleteGroupWhenEmpty true;
+		
+		{
+			private _unit = _x;
+			if (count _bpa < 1) exitWith {};
+			
+			_enemyCount = _enemyCount - 1;
+			
+			private _tempPos = selectRandom _bpa;
+			_bpa = _bpa - [_tempPos];
+			
+			if (count (_tempPos nearEntities ["Man", 1]) < 1) then {
+				_unit setPosATL _tempPos;				
+				[_unit] spawn zmm_fnc_misc_unitDirPos;
+			};
+		} foreach (units _grp);
+		
+		{ _x addCuratorEditableObjects [units _grp] } forEach allCurators;
+		_grp enableDynamicSimulation true;
+
+		private _rad = (round (sizeOf typeOf _bld)) max 40;
+		private _trg = createTrigger ["EmptyDetector", getPos _bld];
+		_trg setTriggerArea [_rad, _rad, 0, false, 15];
+		_trg setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+		_trg setTriggerInterval 5;
+		_trg setTriggerStatements [
+			"this", 
+			"{ if (local _x) then { if (!(_x checkAIFeature 'PATH') && random 1 < 0.2) then { doStop _x; _x enableAI 'PATH' }; }; } forEach (allUnits inAreaArray thisTrigger);",
+			"{ if (local _x) then { if !(_x checkAIFeature 'PATH') then { _x doFollow leader _x; _x enableAI 'PATH' }; }; } forEach (allUnits inAreaArray thisTrigger);"
+		];
+
+		_bld setVariable ["ZAU_BuildingDone", true];
+		sleep 1;
+	};
+} forEach (_buildingArr call BIS_fnc_arrayShuffle);
+
+// Identify HQ with lots of military buildings nearby
+private _milPositions = ([
+		_milLocs select { private _pos = _x; ( count ( _milLocs select { _x distance2D _pos < 100 })) >= 3 },
+		[], 
+		{ private _pos = _x; count ( _milLocs select { _x distance2D _pos < 100 })},
+		"DESCEND"
+	] call BIS_fnc_sortBy);
+
+if (count _milPositions < 1) exitWith {};
+
+private _mrk = createMarkerLocal [format ["MKR_Z%1_HQ", _zoneID], _milPositions#0];
+_mrk setMarkerTypeLocal "mil_objective";
+_mrk setMarkerColorLocal "ColorYellow";
+_mrk setMarkerAlphaLocal 0.6;
+_mrk setMarkerTextLocal format ["Z%1_HQ", _zoneID];
+
+
+

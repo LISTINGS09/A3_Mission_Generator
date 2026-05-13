@@ -1,18 +1,18 @@
 // v1.0
 // Set-up mission variables.
 // TODO: Add support for ZZM_ObjectiveCount
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]], ["_bld", objNull ] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]], ["_bld", objNull ] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _enemySide], ["O_Soldier_F"]];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
-private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
-private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
+private _locations = missionNamespace getVariable [ format["ZMM_Z%1_FlatLocations", _zoneID], [] ];
+private _tskRadius = ((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = selectRandom [
+private _tskDesc = selectRandom [
 		"Locate and rescue <font color='#00FFFF'>%2 %3s</font> who have been captured nearby %1.",
 		"Save <font color='#00FFFF'>%2 %3s</font> who were spotted by the enemy entering %1, they must be saved.",
 		"There are <font color='#00FFFF'>%2 %3s</font> who where trying to flee %1 but were captured and are awaiting execution, rescue them.",
@@ -28,8 +28,8 @@ private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 { _locations pushBack position _x } forEach _buildings;
 
 // Create HVT Team
-private _hvtActivation = [];
-private _hvtFailure = [];
+private _tskActivation = [];
+private _tskFailure = [];
 private _hvtGroup = createGroup civilian;
 private _inBuilding = true;
 
@@ -58,13 +58,14 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			_hvtPos = selectRandom _locations;
 			_locations deleteAt (_locations find _hvtPos);
 		} else { 
-			_hvtPos = [_centre getPos [50 + random _radius, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+			_hvtPos = [_tskCentre getPos [50 + random _tskRadius, random 360], 1, _tskRadius, 1, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos;
 		};
 		
 		_hvtPos = _hvtPos findEmptyPosition [1, 50, _hvtClass];
 	};
 		
 	private _hvtObj = _hvtGroup createUnit [_hvtClass, [0,0,0], [], 150, "NONE"];
+	_hvtGroup setGroupIdGlobal [format["ZMM_%1_HVTGRP_%2", _zoneID, _i]];
 	[_hvtObj] joinSilent _hvtGroup;
 	_hvtObj setCaptive true;
 	_hvtObj setPosATL _hvtPos;
@@ -105,21 +106,21 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 	
 	// Child task
 	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Rescue %2, a captured %1 from enemy forces, ensuring they come to no harm.<br/><br/>Target: <font color='#00FFFF'>%2</font><br/><br/><img width='350' image='%3'/>", _rescueType, name _hvtObj, getText (configFile >> "CfgVehicles" >> _hvtClass >> "editorPreview")], format["Rescue %1", name _hvtObj], format["MKR_%1_OBJ", _zoneID]], getMarkerPos _mrkr, "CREATED", 1, false, true, format["move%1", _i]] call BIS_fnc_setTask;
-	_childTrigger = createTrigger ["EmptyDetector", _centre, false];
+	_childTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
 	_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _centre],
+	_childTrigger setTriggerStatements [  format["(alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400)", _zoneID, _i, _tskCentre],
 		format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _i],
 		"" ];
 	
 	// Failure trigger when HVT is dead.
-	private _hvtTrigger = createTrigger ["EmptyDetector", _centre, false];
+	private _hvtTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
 	_hvtTrigger setTriggerStatements [ 	format["!alive ZMM_%1_HVT_%2", _zoneID, _i], 
 		format["['ZMM_%1_SUB_%2', 'Failed', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 		"" ];
 										
 	// Build success trigger when HVT is alive and far from objective.
-	_hvtActivation pushBack format["((alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400) || !alive ZMM_%1_HVT_%2)", _zoneID, _i, _centre];
-	_hvtFailure pushBack format["(!alive ZMM_%1_HVT_%2)", _zoneID, _i];
+	_tskActivation pushBack format["((alive ZMM_%1_HVT_%2 && ZMM_%1_HVT_%2 distance2D %3 > 400) || !alive ZMM_%1_HVT_%2)", _zoneID, _i, _tskCentre];
+	_tskFailure pushBack format["(!alive ZMM_%1_HVT_%2)", _zoneID, _i];
 	
 	if (!isNil "ace_captives_setHandcuffed") then {
 		[_hvtObj, true] call ace_captives_setHandcuffed;
@@ -177,20 +178,26 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 		};
 	} forEach units _milGroup;
 
+	_milGroup setGroupIdGlobal [format["ZMM_%1_OBJGRP_%2", _zoneID, _i]];
 	{ _x addCuratorEditableObjects [[_hvtObj] + units _milGroup, true] } forEach allCurators;
 };
 
+if (_tskActivation isEqualTo []) exitWith {
+	["ERROR", format["Zone %1 failed to generate objectives", _zoneID]] call zmm_fnc_misc_logMsg;
+	false
+};
+
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", _centre, false];
-_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-_objTrigger setTriggerStatements [ 	(_hvtActivation joinString " && "), 
-	format["['ZMM_%1_TSK', if (%3) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide, (_hvtFailure joinString " || ")],
+_tskTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
+_tskTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+_tskTrigger setTriggerStatements [ 	(_tskActivation joinString " && "), 
+	format["['ZMM_%1_TSK', if (%3) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide, (_tskFailure joinString " || ")],
 	"" ];
 	
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _locName, count units _hvtGroup, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "help"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_tskDesc, _locName, count units _hvtGroup, _rescueType], ["Rescue"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "help"] call BIS_fnc_setTask;
 
 true

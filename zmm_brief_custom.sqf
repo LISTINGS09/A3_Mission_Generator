@@ -77,17 +77,13 @@ _ZMMcomp = _ZMMcomp + format["<br/>ZMM v%1<br/><br/>", missionNamespace getVaria
 	
 player createDiaryRecord ["ZMMCustom", ["3. Confirm Mission", _ZMMcomp]];
 
-
-
 private _ZMMExtra = "<font size='18' color='#FF7F00'>Extra Settings</font><br/><br/>If the mission has been CONFIRMED, changing these will have no effect!<br/><br/><font size='16' color='#80FF00'>Patrol Unit Groups</font><br/>By default unit groups will be chosen by location size and type, they can be overridden using the settings below:<br/>";
 
 {
 	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];
-	_ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat ('%2: ' + str (if ((missionNamespace getVariable ['%1', -1]) < 0) then { 'Mission Default' } else { missionNamespace getVariable ['%1', -1] }))"">Check</execute>] [<execute expression=""missionNamespace setVariable ['%1', -1, true]; systemChat ('%2: Using Mission Default')"">Default</execute>] [<font color='#80FF00'><execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) + 1) min 8, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">Add</execute></font>] [<font color='#CF142B'><execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) - 1) max 0, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">Remove</execute></font>] %2<br/>", _varName, _varText];
+	_ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat ('%2: ' + str (if ((missionNamespace getVariable ['%1', -1]) < 0) then { 'Dynamic' } else { missionNamespace getVariable ['%1', -1] }))"">Check</execute>] [<execute expression=""missionNamespace setVariable ['%1', -1, true]; systemChat ('%2: Using Dynamic')"">Default</execute>] [<font color='#80FF00'><execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) + 1) min 8, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">Add</execute></font>] [<font color='#CF142B'><execute expression=""missionNamespace setVariable ['%1', ((missionNamespace getVariable ['%1', 0]) - 1) max 0, true]; systemChat ('%2: ' + str (missionNamespace getVariable ['%1', 0]))"">Remove</execute></font>] %2<br/>", _varName, _varText];
 } forEach [
-	["ZMM_CustomSentry", "Sentries (2-3 Units)"],
-	["ZMM_CustomTeam", "Team (4-6 Units)"],
-	["ZMM_CustomSquad", "Squads (8+ Units)"],
+	["ZMM_CustomInfantry", "Infantry"],
 	["ZMM_CustomLight", "Light Vehicles"],
 	["ZMM_CustomMedium", "Medium Vehicles"],
 	["ZMM_CustomHeavy", "Heavy Vehicles"]
@@ -95,11 +91,11 @@ private _ZMMExtra = "<font size='18' color='#FF7F00'>Extra Settings</font><br/><
 
 _ZMMExtra = _ZMMExtra + "<br/><br/><font size='16' color='#80FF00'>QRF Type</font><br/>If enabled globally, enemy QRF strength will be determined by difficulty settings. At lower difficult CAS and Heavy Vehicles are very unlikely. You can force the QRF type by selecting below, otherwise it will be weighted by Side (INDFOR will always have weaker units and support).<br/><br/>";
 
-
 {
 	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];
 	_ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat 'QRF: %2';missionNamespace setVariable ['ZMM_QRFType', %1, true]; missionNamespace setVariable ['ZZM_QRF', 1, true];"">Select</execute>] %2 (%3)<br/>", _forEachIndex, _varName, _varText];
 } forEach [
+	["Dynamic","Based on player count"],
 	["General","Light to Heavy Vehicles"],
 	["Motorized","Light Vehicles"],
 	["Mechanised","Medium Vehicles"],
@@ -114,12 +110,9 @@ _ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat 'QRF: %2';miss
 
 _ZMMExtra = _ZMMExtra + "<br/>Global QRF Settings: <font color='#80FF00'><execute expression=""systemChat 'QRF Enabled';missionNamespace setVariable ['ZZM_QRF', 1, true];"">Enable</execute></font> | <font color='#CF142B'><execute expression=""systemChat 'QRF Disabled';missionNamespace setVariable ['ZZM_QRF', 0, true];"">Disable</execute></font>";
 
-
 _ZMMExtra = _ZMMExtra + "<br/>Global IED Settings: <font color='#80FF00'><execute expression=""systemChat 'IEDs Enabled';missionNamespace setVariable ['ZZM_IED', 1, true];"">Enable</execute></font> | <font color='#CF142B'><execute expression=""systemChat 'IEDs Disabled';missionNamespace setVariable ['ZZM_IED', 0, true];"">Disable</execute></font>";
 
 player createDiaryRecord ["ZMMCustom", ["2. Extra Settings", _ZMMExtra]];
-
-
 
 private _ZMMtext = "<font size='18' color='#FF7F00'>Choose Mission</font><br/><br/>";
 

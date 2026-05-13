@@ -1,14 +1,12 @@
 //[1] execVM "scripts\ZMM\Functions\fnc_misc_zoneInfo.sqf";
-if !hasInterface exitWith {};
+if !isServer exitWith {};
 
 params [["_zoneID", 0]];
 
 private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]];
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 
-//["DEBUG", format["Zone%1 - Creating Garrison: %2 units (%3 positions)", _zoneID, _enemyCount, count _bPos]] call zmm_fnc_logMsg;
-
-if (getMarkerColor format["MKR_%1_MIN", _zoneID] == "") exitWith { systemChat "No Intel!"; };
+if (getMarkerColor format["MKR_Z%1_MIN", _zoneID] == "") exitWith {};
 
 private _location = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "Location"];
 private _doPatrols = missionNamespace getVariable [ format[ "ZMM_%1_Patrols", _zoneID ], true];
@@ -18,22 +16,35 @@ private _doSupport = missionNamespace getVariable [ format[ "ZMM_%1_Supports", _
 private _doQRF = missionNamespace getVariable ["ZZM_QRF", 1] == 1;
 private _doIED = missionNamespace getVariable [ format["ZMM_%1_IEDs", _zoneID], 0] > 0 && missionNamespace getVariable ["ZZM_IED", 1] == 1;
 
+private _enemyVehs = (vehicles inAreaArray format["MKR_Z%1_MAX", _zoneID]) select {
+		side _x getFriend ZMM_playerSide < 0.6 &&
+		count crew _x > 0
+	};
+
+private _enemyInfGroups = allGroups select {
+	side _x getFriend ZMM_playerSide < 0.6 &&
+	count units _x > 0 &&
+	vehicle leader _x == leader _x &&
+	leader _x inArea format["MKR_Z%1_MAX", _zoneID]
+};
+
 private _ZMMtext = format["<font size='18' color='#80FF00'>Intel for %1 (ID#%2)</font><br/>", _location, _zoneID] + 
 	format["
 			<br/>%1%2
 			<br/>%3%4%5",
-			((((vehicles inAreaArray format["MKR_%1_MAX", _zoneID]) select { side _x getFriend ZMM_playerSide < 0.6 && count crew _x > 0}) apply {  getText (configFile >> "CfgVehicles" >> typeOf _x >> "displayName") }) call BIS_fnc_consolidateArray) apply { format["%2x <font color='#00FFFF'>%1</font><br/>", _x#0, _x#1] } joinString "",
-			format["%1x <font color='#00FFFF'>Infantry Groups</font><br/>", { side _x getFriend ZMM_playerSide < 0.6 && count units _x >= 2 && vehicle leader _x == leader _x} count ((allGroups apply { leader _x }) inAreaArray format["MKR_%1_MAX", _zoneID])],
+			((_enemyVehs apply { getText (configFile >> "CfgVehicles" >> typeOf _x >> "displayName") }) call BIS_fnc_consolidateArray) apply { format["%2x <font color='#00FFFF'>%1</font><br/>", _x#0, _x#1] } joinString "",
+			format["%1x <font color='#00FFFF'>Infantry Groups</font><br/>", (count _enemyInfGroups) min 2],
 			if (_doGarrison) then { "<br/>Enemy forces will have occupied buildings within the marked zone.<br/>" } else { "" },
 			if (_doRoadblock || _doSupport) then { "<br/>Roadblocks or support buildings are present in the area and will likely have a mechanised or motorised vehicle nearby.<br/>" } else { "" },
 			if (_doIED) then { "<br/>The enemy is known to be using IEDs with motion detector triggers - Slow movement will not set them off.<br/>" } else { "" }
 		];
 
-if !(player diarySubjectExists "IntelZMM") then { private _idx = player createDiarySubject ["intelZMM","ZMM Intel"] };
-player createDiaryRecord ["intelZMM", [format["Intel - %1",_location], _ZMMtext]];
-
+[player,["intelZMM","Location Intel"]] remoteExec ["createDiarySubject"];
+[player,["intelZMM",[format["Intel - %1",_location], _ZMMtext]]] remoteExec ["createDiaryRecord"];
 
 // Admin Menu for Zones - Check if player is authorised admin (or 2600K) ;)
+
+/*
 private _show = serverCommandAvailable "#kick";
 private _uidList = ["76561197970695190"]; // 2600K
 if ((getPlayerUID player) in _uidList || !isMultiplayer) then { _show = true };
@@ -83,6 +94,7 @@ _triggerList sort true;
 
 if !(player diarySubjectExists "IntelTRG") then { private _idx = player createDiarySubject ["IntelTRG","ZMM Admin"] };
 player createDiaryRecord ["IntelTRG", [format["Triggers - %1",_location], _ZMTtext]];
+*/
 
 // Tasks
 

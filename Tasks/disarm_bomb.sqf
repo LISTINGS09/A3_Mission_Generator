@@ -1,14 +1,14 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
-private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
+private _locations = missionNamespace getVariable [format["ZMM_Z%1_FlatLocations", _zoneID], []];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = [
+private _tskDesc = [
 		"Locate and disarm <font color='#00FFFF'>%1 Explosives</font> that have been planted around %2.",
 		"Search %2 to locate and diffuse <font color='#00FFFF'>%1 IEDs</font> that have been placed there.",
 		"Find and disarm <font color='#00FFFF'>%1 Explosive Charges</font> located at %2.",
@@ -28,15 +28,15 @@ if (count _positions < _bombMax) then {
 };
 
 private _bombCount = 0;
-private _bombActivation = [];
+private _tskActivation = [];
 private _bombMarker = [];
 private _inBuild = true;
-private _radius = 20;
+private _tskRadius = 20;
 
 // Create locations if none exist
 if (_positions isEqualTo []) then {
 	for "_i" from 0 to _bombMax do {
-		_positions pushBack (_centre getPos [25 + random 50, random 360]);
+		_positions pushBack (_tskCentre getPos [25 + random 50, random 360]);
 	};
 };
 
@@ -53,7 +53,7 @@ for "_i" from 1 to _bombMax do {
 		if (_bombPos#2 == 0) then {
 			_bombPos = _bombPos findEmptyPosition [1, 25, "B_Soldier_F"];
 			_inBuild = false;
-			_radius = 10;
+			_tskRadius = 10;
 		};
 		
 		_bombCount = _bombCount + 1;
@@ -63,10 +63,10 @@ for "_i" from 1 to _bombMax do {
 		
 		// If the crate was moved safely, create the task.
 		if (alive _bombObj) then {
-			private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _bombObj getPos [random _radius, random 360]];
+			private _mrkr = createMarker [format["MKR_%1_OBJ_%2", _zoneID, _i], _bombObj getPos [random _tskRadius, random 360]];
 			_mrkr setMarkerShape "ELLIPSE";
 			_mrkr setMarkerBrush "SolidBorder";
-			_mrkr setMarkerSize [_radius,_radius];
+			_mrkr setMarkerSize [_tskRadius,_tskRadius];
 			_mrkr setMarkerAlpha 0.4;
 			_mrkr setMarkerColor format["Color%1",_enemySide];
 			_bombMarker pushBack _mrkr;
@@ -75,7 +75,7 @@ for "_i" from 1 to _bombMax do {
 		
 			if !_inBuild then {
 				for "_i" from 1 to 360 step 25 do {
-					private _relPos = AGLToASL ((getMarkerPos _mrkr) getPos [_radius + 1,_i]);
+					private _relPos = AGLToASL ((getMarkerPos _mrkr) getPos [_tskRadius + 1,_i]);
 
 					if ((_bombMarker findIf { _relPos inArea _x} < 0) && !(lineIntersects [_relPos, _relPos vectorAdd [0,0,15]]))  then {
 						_obj = createSimpleObject [_sign, _relPos];
@@ -94,23 +94,28 @@ for "_i" from 1 to _bombMax do {
 				format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 				"" ];
 			
-			_bombActivation pushBack format["!alive ZMM_%1_OBJ_%2", _zoneID, _i];
+			_tskActivation pushBack format["!alive ZMM_%1_OBJ_%2", _zoneID, _i];
 			
 			{ _x addCuratorEditableObjects [[_bombObj], true] } forEach allCurators;
 		};
 	};
 };
 
+if (_tskActivation isEqualTo []) exitWith {
+	["ERROR", format["Zone %1 failed to generate objectives", _zoneID]] call zmm_fnc_misc_logMsg;
+	false
+};
+
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-_objTrigger setTriggerStatements [  (_bombActivation joinString " && "), 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+_tskTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
+_tskTrigger setTriggerStatements [  (_tskActivation joinString " && "), 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _bombCount, _locName], ["Disarm"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _tskDesc, _bombCount, _locName], ["Disarm"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;
 
 true

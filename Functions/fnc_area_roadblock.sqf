@@ -9,23 +9,23 @@ params [
 	["_forceLayout", -1]
 ];
 
-if (_centre isEqualTo [0,0,0]) exitWith { ["ERROR", format["Zone%1 - Invalid roadblock location: %1 (%2)", _zoneID, _centre]] call zmm_fnc_logMsg };
+if (_centre isEqualTo [0,0,0]) exitWith { ["ERROR", format["Zone%1 - Invalid roadblock location: %1 (%2)", _zoneID, _centre]] call zmm_fnc_misc_logMsg };
 
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locations = missionNamespace getVariable [ format[ "ZMM_%1_BlockLocations", _zoneID ], []]; // Takes too long to populate - Left blank
 
 private _radius = missionNamespace getVariable [ format[ "ZMM_%1_Radius", _zoneID ], 150];
 private _count = missionNamespace getVariable [format["ZMM_%1_Roadblocks", _zoneID], 1];
-private _menArr = missionNamespace getVariable [format["ZMM_%1Man",_side],[]];
+private _menArr = missionNamespace getVariable [format["ZMM_%1_Man",_side],[]];
 
-private _vehL = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
-private _vehM = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
-private _vehH = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
-private _hmgArr = missionNamespace getVariable [format["ZMM_%1Veh_Static",_side],[]];
+private _vehL = missionNamespace getVariable [format["ZMM_%1_Light",_side],[]];
+private _vehM = missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]];
+private _vehH = missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]];
+private _hmgArr = missionNamespace getVariable [format["ZMM_%1_Static",_side],[]];
 
 if (_count == 0) then { _count = 1 };
 
-["DEBUG", format["Zone%1 - Creating Roadblocks: %2", _zoneID, _count]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Creating Roadblocks: %2", _zoneID, _count]] call zmm_fnc_misc_logMsg;
 
 // Populate Vehicles
 private _vehArr = _vehL;
@@ -101,7 +101,7 @@ private _buildingList = [
 	]
 ];
 
-["DEBUG", format["Zone%1 - Creating Roadblocks: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Creating Roadblocks: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_misc_logMsg;
 
 for "_i" from 1 to _count do {
 	if (count _locations == 0) exitWith {};
@@ -109,6 +109,8 @@ for "_i" from 1 to _count do {
 	private _road = selectRandom _locations;
 	private _pos = getPos _road;
 	_locations deleteAt (_locations find _road);
+	
+	if ( isMultiplayer && {allPlayers findIf { alive _x && _x distance2D _pos < 500 } > -1} ) exitWith {};
 	
 	private _key = "Land_ClutterCutter_small_F" createVehicleLocal (getPosATL _road);
 	
@@ -134,7 +136,7 @@ for "_i" from 1 to _count do {
 	private _list = _buildingList#_bID;
 	private _icon = "o_installation";
 	
-	["DEBUG", format["Zone%1 - Area Roadblock - Spawning: %4 of %5 - ID%2 at %3", _zoneID, _bID, _pos, _i, _count]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Area Roadblock - Spawning: %4 of %5 - ID%2 at %3", _zoneID, _bID, _pos, _i, _count]] call zmm_fnc_misc_logMsg;
 	
 	{
 		_x params ["_type", ["_class",""], ["_rel",[0,0,0]], ["_dir", 0], ["_flat", true]];
@@ -149,7 +151,7 @@ for "_i" from 1 to _count do {
 	private _tempGrp = [_key getPos [25, random 360], _side, _grpArr] call BIS_fnc_spawnGroup;
 	[_tempGrp, getPos _key] call BIS_fnc_taskDefend;
 	_tempGrp deleteGroupWhenEmpty true;
-	_tempGrp enableDynamicSimulation true;
+	_tempGrp spawn { sleep 5; _this enableDynamicSimulation true };
 	{ _x addCuratorEditableObjects [units _tempGrp, true] } forEach allCurators;
 	
 	if (_showMarker) then {

@@ -1,12 +1,12 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyMen = missionNamespace getVariable format["ZMM_%1Man", _enemySide];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _enemySide], ["O_Soldier_F"]];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
-private _missionDesc = [
+private _tskDesc = [
 		"A <font color='#00FFFF'>%2</font> has been spotted at %1, find, kill and confirm the deaths of the <font color='#00FFFF'>%3 Members</font>.",
 		"A <font color='#00FFFF'>%2</font> has been spotted moving around %1, hunt them down and verify the elimination of the <font color='#00FFFF'>%3 Targets</font>.",
 		"Track and eliminate a <font color='#00FFFF'>%2</font> somewhere near %1. You will need to confirm the identity of the <font color='#00FFFF'>%3 Targets</font> when killed.",
@@ -22,9 +22,9 @@ private _grpName = format["%1 %2", selectRandom ["Elite","Specialist","Special",
 // Create Objective
 private _enemyTeam = [];
 for "_j" from 0 to (3 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _enemyMen] };
-private _milGroup = [([_centre, 1, 150, 2, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos), _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
-private _endActivation = [];
-private _headGear = selectRandom ["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen_F","H_Beret_EAF_01_F"];
+private _milGroup = [([_tskCentre, 1, 150, 2, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos), _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
+private _tskActivation = [];
+private _headGear = selectRandom (["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen_F","H_Beret_EAF_01_F"] select { isClass (configFile >> "CfgWeapons" >> _x) });
 
 {
 	_x addHeadGear _headGear;
@@ -39,7 +39,7 @@ private _headGear = selectRandom ["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen
 		private _zoneID = _unit getVariable ["var_zoneID", 0];
 		private _unitID = _unit getVariable ["var_unitID", 0];
 		
-		private _mrkr = createMarker [format["MKR_%1_LOC_%2", _zoneID, _unitID], getPos _unit];
+		private _mrkr = createMarker [format["MKR_Z%1_LOC_%2", _zoneID, _unitID], getPos _unit];
 		_mrkr setMarkerShape "ICON";
 		_mrkr setMarkerType "mil_unknown";
 		_mrkr setMarkerAlpha 0.4;
@@ -60,7 +60,7 @@ private _headGear = selectRandom ["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen
 			sleep 1;
 			private _zoneID = _target getVariable ["var_zoneID", 0];
 			private _unitID = _target getVariable ["var_unitID", 0];
-			deleteMarker format["MKR_%1_LOC_%2", _zoneID, _unitID];
+			deleteMarker format["MKR_Z%1_LOC_%2", _zoneID, _unitID];
 			[name _caller, format["Target %1 as %2.", selectRandom ["verified", "confirmed", "identified"], selectRandom ["Eliminated","Deceased","Dead","Killed"]]] remoteExec ["BIS_fnc_showSubtitle"];
 			addToRemainsCollector [_target];
 			
@@ -73,30 +73,35 @@ private _headGear = selectRandom ["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen
 		10 
 	] remoteExec ["bis_fnc_holdActionAdd", 0, _x];
 	
-	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], true, [format["Verify the elimination of <font color='#FFA500'>%1</font> somewhere near %2.", name _x, _locName], format["%1", name _x], format["MKR_%1_LOC", _zoneID]], objNull, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
+	private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _forEachIndex], format['ZMM_%1_TSK', _zoneID]], true, [format["Verify the elimination of <font color='#FFA500'>%1</font> somewhere near %2.", name _x, _locName], format["%1", name _x], format["MKR_Z%1_LOC", _zoneID]], objNull, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
 	
-	_endActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2', false])", _zoneID, _forEachIndex];
+	_tskActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2', false])", _zoneID, _forEachIndex];
 } forEach units _milGroup;
 
-[_milGroup, _centre, 15] call bis_fnc_taskPatrol;
+[_milGroup, _tskCentre, 15] call bis_fnc_taskPatrol;
 
 private _headText = if (isClass (configFile >> "CfgWeapons" >> headgear (leader _milGroup))) then {
 		format["<br/><br/>You will need to verify the identity of each group member when eliminated. The targets can be identified as those wearing a <font color='#00FFFF'>%1</font>.<br/><br/><img image='%2' width='60'/>", getText (configFile >> "CfgWeapons" >> headgear (leader _milGroup) >> "displayName"), getText (configFile >> "CfgWeapons" >> headgear (leader _milGroup) >> "picture")];
 	} else { "" };
 
-// Add to Zeus
+_milGroup setGroupIdGlobal [format["ZMM_%1_HVTGRP_%2", _zoneID, _i]];
 { _x addCuratorEditableObjects [units _milGroup, true] } forEach allCurators;
 
-private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
-_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-_objTrigger setTriggerStatements [ 	(_endActivation joinString " && "),
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+if (_tskActivation isEqualTo []) exitWith {
+	["ERROR", format["Zone %1 failed to generate objectives", _zoneID]] call zmm_fnc_misc_logMsg;
+	false
+};
+
+// Create Completion Trigger
+private _tskTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
+_tskTrigger setTriggerStatements [  (_tskActivation joinString " && "), 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _missionDesc, _locName, _grpName, count units _milGroup] + _headText, ["Hunter"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "kill"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[selectRandom _tskDesc, _locName, _grpName, count units _milGroup] + _headText, ["Hunter"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "kill"] call BIS_fnc_setTask;
 
 true

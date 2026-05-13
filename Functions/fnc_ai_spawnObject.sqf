@@ -13,13 +13,17 @@ params [
 if (_class isEqualTo "") exitWith {};
 
 private _obj = objNull;
-private _manArr = missionNamespace getVariable [format["ZMM_%1Man",_side], ["B_Soldier_F"]];
-		
-//["DEBUG", format["SpawnObject - %1: %2 [%3]", _type, _class, _side]] call zmm_fnc_logMsg;
+private _manArr = missionNamespace getVariable [format["ZMM_%1_Man",_side], ["B_Soldier_F"]];
+
+
+//["DEBUG", format["SpawnObject - %1: %2 [%3]", _type, _class, _side]] call zmm_fnc_misc_logMsg;
 
 switch (_type) do {
 	case "V": {
 		private _customInit = "";
+		private _uid = missionNamespace getVariable [format["ZMM_%1_UID",_side], 1];
+		missionNamespace setVariable [format["ZMM_%1_UID",_side], _uid + 1];
+		
 		// If _class is array, extract the custom init.
 		if (_class isEqualType []) then { _customInit = _class#1; _class = _class#0 };
 		
@@ -32,27 +36,21 @@ switch (_type) do {
 		
 		if (canMove _obj && canFire _obj) then { _obj setVehicleLock "LOCKEDPLAYER" };
 		
-		private _crewArr = [];
-		for "_j" from 1 to (count ((fullCrew [_obj, "", true]) - fullCrew [_obj, "cargo", true] - fullCrew [_obj, "turret", true])) do { _crewArr pushBack (selectRandom _manArr) };
-
-		private _tempGrp = [_obj getPos [15, random 360], _side, _crewArr] call BIS_fnc_spawnGroup;
+		private _tempGrp = [_obj, _side] call zmm_fnc_qrf_spawnCrew;
+		_tempGrp setGroupIdGlobal [format["ZMM_G%1_VEH%2", _zoneID, _uid]];
 		
-		_tempGrp addVehicle _obj;
-		{ _x moveInAny _obj } forEach units _tempGrp;
-
 		// Run custom init for vehicle (set camos etc).
 		private _grpVeh = _obj;
 		if !(_customInit isEqualTo "") then { call compile _customInit; };
 		
 		private _clear = createVehicle ["Land_ClutterCutter_large_F", _worldPos, [], 0, "CAN_COLLIDE"];
 		
-		_tempGrp deleteGroupWhenEmpty true;
 		if !(_obj isKindOf "StaticWeapon") then { _tempGrp enableDynamicSimulation true };
 		{ _x addCuratorEditableObjects [[_grpVeh] + units _tempGrp, true] } forEach allCurators;
 		
 		// Add artillery/mortar to the zone supports list.
-		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_%1_MIN", _zoneID] != "") then {
-			[leader _tempGrp, format["MKR_%1_MIN", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
+		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_Z%1_MAX", _zoneID] != "") then {
+			[leader _tempGrp, format["MKR_Z%1_MAX", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
 		};
 	};
 	case "O": {

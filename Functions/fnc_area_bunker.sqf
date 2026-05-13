@@ -6,28 +6,28 @@ params [
 	["_centre", (missionNamespace getVariable [ format[ "ZMM_%1_Location", _this#0], [0,0,0]])]
 ];
 
-if (_centre isEqualTo [0,0,0]) exitWith { ["ERROR", format["Zone%1 - Invalid bunker location: %1 (%2)", _zoneID, _centre]] call zmm_fnc_logMsg; false };
+if (_centre isEqualTo [0,0,0]) exitWith { ["ERROR", format["Zone%1 - Invalid bunker location: %1 (%2)", _zoneID, _centre]] call zmm_fnc_misc_logMsg; false };
 
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locations = missionNamespace getVariable [ format[ "ZMM_%1_BunkerLocations", _zoneID ], []];
 
 private _radius = missionNamespace getVariable [ format[ "ZMM_%1_Radius", _zoneID ], 150];
 private _count = missionNamespace getVariable [format["ZMM_%1_Bunkers", _zoneID], 1];
-private _menArr = missionNamespace getVariable [format["ZMM_%1Man",_side],[]];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man",_side],["O_Soldier_F"]];
+private _vehLight = missionNamespace getVariable [format["ZMM_%1_Light",_side],[]];
+private _vehMedium = missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]];
+private _vehHeavy = missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]];
+private _vehUtil = missionNamespace getVariable [format["ZMM_%1_Util",_side],[]];
+private _vehStatic = missionNamespace getVariable [format["ZMM_%1_Static",_side],[]];
 
-private _vehL = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
-private _vehM = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
-private _vehH = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
-private _vehU = missionNamespace getVariable [format["ZMM_%1Veh_Util",_side],[]];
-private _hmgArr = missionNamespace getVariable [format["ZMM_%1Veh_Static",_side],[]];
 
 if (_count == 0) then { _count = 1 };
 
 private _vehArr = [];
-if (count _vehL > 1) then { _vehArr append _vehL; _vehArr append _vehL; }; // Common
-if (count _vehM > 1) then { _vehArr append _vehM; }; // Medium
+if (count _vehLight > 1) then { _vehArr append _vehLight; _vehArr append _vehLight; }; // Common
+if (count _vehMedium > 1) then { _vehArr append _vehMedium; }; // Medium
 
-if (count _hmgArr == 0) then { _hmgArr = ["B_GMG_01_high_F","B_HMG_01_high_F"] };
+if (count _vehStatic == 0) then { _vehStatic = ["B_GMG_01_high_F","B_HMG_01_high_F"] };
 
 if (count _locations == 0) then {
 	// Find Bunker Locations
@@ -59,8 +59,8 @@ if (count _locations == 0) then {
 private _buildingList = [
 	[
 		["S","Land_PaperBox_open_full_F", [-3.25,-3.125,0], 120],,
-		["V", selectRandom _hmgArr, [5,-2,0.1], 135],
-		["V", selectRandom _hmgArr, [-5.75,-1.5,0.1], 270],
+		["V", selectRandom _vehStatic, [5,-2,0.1], 135],
+		["V", selectRandom _vehStatic, [-5.75,-1.5,0.1], 270],
 		["S","Land_CampingChair_V2_F", [1.88916,2.20898,0], 150],
 		["S","Land_Bunker_01_blocks_1_F", [-7.375,0.75,0], 270],
 		["S","Land_Bunker_01_blocks_1_F", [-1,-5.375,0], 180],
@@ -75,7 +75,7 @@ private _buildingList = [
 		["S","Land_CampingTable_F", [1.375,2.75,0], 180],
 		["S","Land_BagFence_Short_F", [-7,-0.875,0], 85],
 		["S","Land_BagFence_Short_F", [-6.875,-2.5,0], 85],
-		["V", selectRandom (_vehL + _vehM), [-3.875,-9.50195,0.2], 105],
+		["V", selectRandom (_vehLight + _vehMedium), [-3.875,-9.50195,0.2], 105],
 		["S","Land_Bunker_01_small_F", [-0.125,5.375,0], 180],
 		["S","Land_Bunker_01_blocks_1_F", [-6.5,4.125,0], 300],
 		["S","Land_Bunker_01_blocks_1_F", [6.75,0.25,0], 90],
@@ -95,8 +95,8 @@ private _buildingList = [
 		["S","Land_BagBunker_Small_F", [-3.25,2.5,0], 150],
 		["O","Land_Razorwire_F", [-4.6792,6.66699,0], 165],
 		["S","Land_BagFence_Round_F", [-6.25,1.125,0], 135],
-		["V", selectRandom _hmgArr, [-3.25,2.5,0.1], 330],
-		["V", selectRandom (_vehL + _vehM), [-10.25,0.873047,0.2], 0],
+		["V", selectRandom _vehStatic, [-3.25,2.5,0.1], 330],
+		["V", selectRandom (_vehLight + _vehMedium), [-10.25,0.873047,0.2], 0],
 		["S","Land_PaperBox_open_empty_F", [2.0708,-2.33301,0], 0],
 		["S","Land_PaperBox_open_full_F", [1.32031,-0.333008,0], 120],
 		["S","Land_BarrelTrash_grey_F", [0.875,-3.125,0], 0],
@@ -122,14 +122,14 @@ private _buildingList = [
 		["O","Land_Razorwire_F", [-6.75,2.25,0], 90],
 		["S","Land_BagFence_Round_F", [-3.20801,2.91406,0], 135],
 		["S","Land_BagFence_Round_F", [-3.25,0.75,0], 45],
-		["V", selectRandom _hmgArr, [0.25,4.125,0.1], 0],
+		["V", selectRandom _vehStatic, [0.25,4.125,0.1], 0],
 		["S","MetalBarrel_burning_F", [4.125,-2.125,0], 300],
 		["S","Land_BagFence_Corner_F", [5.23975,-3.75195,0], 90],
 		["S","Land_CratesWooden_F", [3.75,-0.25,0], 90],
 		["S","Land_CampingTable_F", [6.75,0,0], 90],
 		["S","Land_BagFence_Short_F", [5.5,-2.375,0], 90],
 		["S","Land_BagFence_Long_F", [3.5,-4.125,0], 180],
-		["V", selectRandom (_vehM + _vehH), [6.75,-8.5,0], 75],
+		["V", selectRandom (_vehMedium + _vehHeavy), [6.75,-8.5,0], 75],
 		["S","Land_HBarrier_3_F", [5.5,0.125,0], 90],
 		["S","Land_CampingChair_V2_F", [7.29102,0.51416,0], 60],
 		["S","Land_BagFence_Corner_F", [5.125,2.125,0], 0],
@@ -142,7 +142,7 @@ private _buildingList = [
 		["S","Land_BagFence_Round_F", [-4.3584,-3.21045,0], 45],
 		["S","Land_BagFence_Long_F", [-2.10815,-3.83545,0], 0],
 		["S","Land_BagFence_Long_F", [-4.98315,-0.585449,0], 270],
-		["V", selectRandom _hmgArr, [-3.125,1.25,0.1], 0],
+		["V", selectRandom _vehStatic, [-3.125,1.25,0.1], 0],
 		["S","Land_BagBunker_Small_F", [-3.35815,1.41455,0], 180],
 		["S","Land_BagFence_Round_F", [-0.852783,4.6084,0], 135],
 		["S","MetalBarrel_burning_F", [0.516846,-0.335449,0], 300],
@@ -157,7 +157,7 @@ private _buildingList = [
 	[
 		["S","Land_CratesShabby_F", [-3.125,-4.625,0], 336],
 		["S","Land_CratesWooden_F", [-4.875,-5,0], 0],
-		["V", selectRandom (_vehL + _vehM), [-3.75,-9.37695,0.2], 285],
+		["V", selectRandom (_vehLight + _vehMedium), [-3.75,-9.37695,0.2], 285],
 		["S","Land_PaperBox_open_empty_F", [-3.375,-1.5,0], 0],
 		["S","Land_HBarrier_3_F", [-4.125,-3.25,0], 0],
 		["S","Land_HBarrier_3_F", [-5.0459,-0.884766,0], 90],
@@ -166,7 +166,7 @@ private _buildingList = [
 		["S","Land_BarrelSand_F", [3.17139,-4.79639,0], 0],
 		["S","Land_CampingTable_F", [3,-6.25,0], 270],
 		["S","Land_CampingChair_V2_F", [2.45898,-6.76416,0], 240],
-		["V", selectRandom _hmgArr, [0.375,1.25,0.1], 0],
+		["V", selectRandom _vehStatic, [0.375,1.25,0.1], 0],
 		["S","Land_Pallets_F", [3.54639,-1.42139,0], 165],
 		["S","Land_BagBunker_Small_F", [0.296387,1.07861,0], 180],
 		["O","Land_Razorwire_F", [0.250488,5.69385,0], 180],
@@ -184,8 +184,8 @@ private _buildingList = [
 		["S","Land_BagFence_Round_F", [-6.44751,-2.96729,0], 45],
 		["S","Land_CampingTable_F", [-4,-4.875,0], 180],
 		["S","Land_CampingChair_V2_F", [-3.48584,-5.41602,0], 150],
-		["V", selectRandom (_vehL + _vehM), [-1,-10.877,0.2], 105],
-		["V", selectRandom _hmgArr, [-1.25,2.75,2.8], 0],
+		["V", selectRandom (_vehLight + _vehMedium), [-1,-10.877,0.2], 105],
+		["V", selectRandom _vehStatic, [-1.25,2.75,2.8], 0],
 		["O","Land_BagBunker_Tower_F", [-0.100586,2.57666,0], 90],
 		["S","Land_BagFence_End_F", [-5.19727,0.282715,0], 180],
 		["S","Land_BagFence_Round_F", [-6.44727,-0.342285,0], 135],
@@ -203,16 +203,16 @@ private _buildingList = [
 		["S","Land_BagFence_Round_F", [-3.27661,5.86475,0], 225],
 		["S","Land_BagFence_Long_F", [-6.15186,3.61475,0], 90],
 		["S","Land_BagFence_Long_F", [-6.375,-0.625,0], 90],
-		["V", selectRandom _hmgArr, [-4.125,5.25,0.1], 0],
+		["V", selectRandom _vehStatic, [-4.125,5.25,0.1], 0],
 		["S","Land_CampingTable_F", [-4.75,0.25,0], 180],
 		["S","Land_CampingChair_V2_F", [-4.23584,-0.291016,0], 150],
-		["V", selectRandom (_vehL + _vehM), [-11.375,0.623047,0.2], 345],
+		["V", selectRandom (_vehLight + _vehMedium), [-11.375,0.623047,0.2], 345],
 		["S","Land_HBarrier_3_F", [-2.27686,-5.63525,0], 180],
 		["S","Land_Sacks_heap_F", [-1.875,-7.25,0], 180],
 		["S","Land_BagFence_Round_F", [3.09814,-5.26025,0], 315],
 		["S","Land_BagFence_Long_F", [0.598145,-5.88525,0], 180],
 		["S","Land_PaperBox_open_full_F", [0.598145,-2.13525,0], 75],
-		["V", selectRandom _hmgArr, [2.75,2,2.8], 0],
+		["V", selectRandom _vehStatic, [2.75,2,2.8], 0],
 		["S","Land_HBarrier_3_F", [3.84814,-2.63525,0], 90],
 		["O","Land_BagBunker_Tower_F", [1.34814,1.73975,0], 90],
 		["S","Land_BagFence_Corner_F", [4.12012,3.28174,2.75], 180],
@@ -231,7 +231,7 @@ private _buildingList = [
 		["S","Land_MetalBarrel_F", [3.302,-1.71094,0], 60],
 		["S","Land_MetalBarrel_F", [2.92725,-1.06152,0], 270],
 		["S","Land_HBarrier_1_F", [-6.94775,2.31348,0], 195],
-		["V", selectRandom _hmgArr, [-0.375,2.375,2.8], 0],
+		["V", selectRandom _vehStatic, [-0.375,2.375,2.8], 0],
 		["S","Land_HBarrier_3_F", [-5.19775,2.56348,0], 165],
 		["S","Land_Pallets_F", [-8.375,2.875,0], 270],
 		["O","Land_BagBunker_Tower_F", [0.677246,2.31348,0], 90],
@@ -245,14 +245,14 @@ private _buildingList = [
 		["S","Land_CampingChair_V2_F", [7.38916,1.33398,0], 150]
 	],
 	[
-		["V", selectRandom _hmgArr, [-1.625,1.625,2.8], 0],
+		["V", selectRandom _vehStatic, [-1.625,1.625,2.8], 0],
 		["O","Land_BagBunker_Tower_F", [0.121582,1.479,0], 90],
 		["S","Land_Sacks_heap_F", [-1.375,-4.625,0], 60],
 		["S","Land_BagFence_Round_F", [-2,-5.625,0], 45],
 		["S","Land_BagFence_Short_F", [-2.625,-3.75,0], 270],
 		["S","Land_BagFence_Short_F", [-0.25,-6.25,0], 180],
-		["V", selectRandom (_vehL + _vehM), [-8.75,-2.50195,0.2], 345],
-		["V", selectRandom _hmgArr, [1.125,-4.875,0.1], 180],
+		["V", selectRandom (_vehLight + _vehMedium), [-8.75,-2.50195,0.2], 345],
+		["V", selectRandom _vehStatic, [1.125,-4.875,0.1], 180],
 		["S","Land_HBarrier_3_F", [3.99658,-2.896,0], 90],
 		["S","Land_CampingChair_V2_F", [2.08398,-3.13916,0], 240],
 		["S","Land_CampingTable_F", [2.625,-2.625,0], 270],
@@ -269,7 +269,7 @@ private _buildingList = [
 		["S","Land_BagFence_Short_F", [-0.624756,-5.875,0], 180],
 		["S","Land_BagFence_Long_F", [-2.74976,-5.875,0], 180],
 		["S","Land_PaperBox_open_empty_F", [-6.75,-2.375,0], 0],
-		["V", selectRandom _hmgArr, [-3.25,2.125,2.8], 0],
+		["V", selectRandom _vehStatic, [-3.25,2.125,2.8], 0],
 		["O","Land_BagBunker_Tower_F", [-1.47388,1.74951,0], 90],
 		["O","Land_Razorwire_F", [-1.34888,5.49951,0], 180],
 		["S","Land_WoodenTable_small_F", [-1.25,-4.125,0], 120],
@@ -277,17 +277,17 @@ private _buildingList = [
 		["S","Land_Pallets_stack_F", [-4.375,-2.25,0], 165],
 		["S","Land_BagFence_Long_F", [-5.59888,-2.62549,0], 270],
 		["S","Land_PaperBox_open_full_F", [2.375,-6.5,0], 195],
-		["V", selectRandom _hmgArr, [4.875,1.875,0.1], 90],
+		["V", selectRandom _vehStatic, [4.875,1.875,0.1], 90],
 		["S","Land_BagFence_Round_F", [5.62842,3.75391,0], 225],
 		["S","Land_BagFence_Short_F", [3.77612,4.49951,0], 180],
 		["S","Land_BagFence_Long_F", [6.27612,1.24951,0], 90],
-		["V", selectRandom (_vehL + _vehM), [8.625,-4.50195,0.2], 30]
+		["V", selectRandom (_vehLight + _vehMedium), [8.625,-4.50195,0.2], 30]
 	],
 	[
 		["S","Land_PaperBox_closed_F", [-1.125,-5.125,0], 225],
 		["S","Land_BarrelSand_F", [-2.5,-4.875,0], 0],
-		["V", selectRandom (_vehL + _vehM), [-3.625,-7.75195,0.2], 285],
-		["V", selectRandom _hmgArr, [-3.25,1.875,2.8], 0],
+		["V", selectRandom (_vehLight + _vehMedium), [-3.625,-7.75195,0.2], 285],
+		["V", selectRandom _vehStatic, [-3.25,1.875,2.8], 0],
 		["S","Land_HBarrier_3_F", [-2.3269,-2.82178,0], 90],
 		["O","Land_BagBunker_Tower_F", [-1.4519,1.80322,0], 90],
 		["S","Land_CratesWooden_F", [-4.75,-2.25,0], 180],
@@ -308,7 +308,7 @@ private _buildingList = [
 		["S","Land_HBarrier_1_F", [-3.875,-5.5,0], 105],
 		["S","Land_WoodenTable_small_F", [-3,-4.125,0], 105],
 		["S","Land_ChairWood_F", [-2.91772,-3.53906,0], 0],
-		["V", selectRandom (_vehL + _vehM), [-10.5,-0.251953,0.2], 345],
+		["V", selectRandom (_vehLight + _vehMedium), [-10.5,-0.251953,0.2], 345],
 		["S","Land_HBarrier_1_F", [-6.1228,3.45313,0], 240],
 		["S","MetalBarrel_burning_F", [-4.25,0.5,0], 300],
 		["S","Land_Pallets_F", [-6.25,1.75,0], 255],
@@ -318,12 +318,12 @@ private _buildingList = [
 		["S","Land_HBarrier_3_F", [1.354,-5.64209,0], 180],
 		["S","Land_WaterBarrel_F", [0.481201,-0.938965,0], 360],
 		["S","Land_PaperBox_closed_F", [-1.0188,-1.18896,0], 90],
-		["V", selectRandom _hmgArr, [-0.75,2.875,2.8], 0],
+		["V", selectRandom _vehStatic, [-0.75,2.875,2.8], 0],
 		["O","Land_BagBunker_Tower_F", [1.2312,2.68604,0], 90]
 	],
 	[
-		["V", selectRandom (_vehL + _vehM), [-5.75,-6.25195,0.2], 285],
-		["V", selectRandom _hmgArr, [-2,3,0.1], 0],
+		["V", selectRandom (_vehLight + _vehMedium), [-5.75,-6.25195,0.2], 285],
+		["V", selectRandom _vehStatic, [-2,3,0.1], 0],
 		["S","MetalBarrel_burning_F", [-4.875,0.5,0], 300],
 		["S","Land_BagBunker_Small_F", [-2.31201,2.66846,0], 180],
 		["O","Land_Razorwire_F", [-1.18701,5.91846,0], 180],
@@ -332,7 +332,7 @@ private _buildingList = [
 		["S","Land_ChairWood_F", [-2.25537,-1.47461,0], 270],
 		["S","Land_BagFence_Short_F", [-4.43701,-1.95654,0], 105],
 		["S","Land_BagFence_Long_F", [-4.18701,0.293457,0], 90],
-		["V", selectRandom _hmgArr, [2.75,-1,0.1], 90],
+		["V", selectRandom _vehStatic, [2.75,-1,0.1], 90],
 		["S","Land_PaperBox_closed_F", [3.875,2.75,0], 300],
 		["S","Land_Sacks_heap_F", [1.375,-4.25,0], 180],
 		["S","Land_CratesShabby_F", [0.437988,0.918945,0], 0],
@@ -348,9 +348,9 @@ private _buildingList = [
 		["S","Land_Sacks_heap_F", [-6.50342,-3.2998,0], 210],
 		["S","Land_BagFence_Round_F", [-4.30078,-4.34277,0], 45],
 		["S","Land_BagFence_Short_F", [-2.55054,-4.96777,0], 0],
-		["V", selectRandom (_vehL + _vehM), [0.875,-7.75195,0.2], 255],
+		["V", selectRandom (_vehLight + _vehMedium), [0.875,-7.75195,0.2], 255],
 		["S","Land_PaperBox_open_empty_F", [-3.80054,-0.967773,0], 0],
-		["V", selectRandom _hmgArr, [0.125,2.125,0.1], 0],
+		["V", selectRandom _vehStatic, [0.125,2.125,0.1], 0],
 		["S","Land_Pallets_F", [-6.25,0.375,0], 120],
 		["S","Land_PaperBox_closed_F", [-6.375,-1.375,0], 225],
 		["S","Land_BagBunker_Small_F", [-0.175537,2.03223,0], 180],
@@ -368,10 +368,10 @@ private _buildingList = [
 		["S","Land_Pallet_F", [-2.48535,-4.58545,0], 95],
 		["S","Land_WoodenTable_small_F", [-0.451172,-5.2373,0], 255],
 		["S","Land_ChairWood_F", [-0.192383,-5.87744,0], 150],
-		["V", selectRandom (_vehL + _vehM), [3.5,-7.75195,0.2], 60],
+		["V", selectRandom (_vehLight + _vehMedium), [3.5,-7.75195,0.2], 60],
 		["S","Land_PaperBox_open_empty_F", [-1.61035,-1.08545,0], 105],
-		["V", selectRandom _hmgArr, [-3,3.625,0.1], 315],
-		["V", selectRandom _hmgArr, [1.625,3.125,0.1], 0],
+		["V", selectRandom _vehStatic, [-3,3.625,0.1], 315],
+		["V", selectRandom _vehStatic, [1.625,3.125,0.1], 0],
 		["S","Land_CratesPlastic_F", [-0.360352,-1.83545,0], 120],
 		["S","Land_Pallets_F", [-4.27466,-2.01416,0], 330],
 		["S","Land_PaperBox_closed_F", [-2.48535,-2.83545,0], 0],
@@ -390,8 +390,8 @@ private _buildingList = [
 		["S","Land_PaperBox_closed_F", [1.375,-4.75,0], 195],
 		["S","Land_BagFence_Round_F", [0.749756,-2.875,0], 45],
 		["S","Land_BagFence_Long_F", [3,-3.625,0], 0],
-		["V", selectRandom (_vehL + _vehM), [-5.875,-4.87695,0.2], 300],
-		["V", selectRandom _hmgArr, [0.375,3.75,0.1], 0],
+		["V", selectRandom (_vehLight + _vehMedium), [-5.875,-4.87695,0.2], 300],
+		["V", selectRandom _vehStatic, [0.375,3.75,0.1], 0],
 		["S","Land_Pallets_F", [-7.375,0.5,0], 210],
 		["S","Land_BagBunker_Small_F", [0.0510254,3.44629,0], 180],
 		["S","Land_WoodenTable_small_F", [-2,-0.75,0], 300],
@@ -400,7 +400,7 @@ private _buildingList = [
 		["S","Land_BagFence_Round_F", [-5.32397,1.82129,0], 135],
 		["S","Land_BagFence_Long_F", [-2.94897,2.44629,0], 0],
 		["S","Land_BagFence_Round_F", [5.5,-3,0], 315],
-		["V", selectRandom _hmgArr, [5.125,-1,0.1], 90],
+		["V", selectRandom _vehStatic, [5.125,-1,0.1], 90],
 		["S","Land_BagFence_Round_F", [5.62524,1.75,0], 225],
 		["S","Land_BagFence_Long_F", [3.17603,2.44629,0], 180],
 		["S","Land_BagFence_Long_F", [6.25,-0.75,0], 90]
@@ -417,8 +417,8 @@ private _buildingList = [
 		["S","Land_CampingTable_F", [-3.5,-3,0], 270],
 		["S","Land_BagFence_Short_F", [2.47021,-3.71777,0], 0],
 		["S","Land_BagFence_Short_F", [-3.22656,-1.33203,0], 0],
-		["V", selectRandom _hmgArr, [4.625,0.5,0.1], 30],
-		["V", selectRandom _hmgArr, [-2.875,2.625,0.1], 0],
+		["V", selectRandom _vehStatic, [4.625,0.5,0.1], 30],
+		["V", selectRandom _vehStatic, [-2.875,2.625,0.1], 0],
 		["S","Land_GarbageWashingMachine_F", [0.25,5.75,0], 15],
 		["S","Land_BagBunker_Small_F", [4.125,0.5,0], 210],
 		["S","Land_BagFence_Round_F", [-5.0791,-0.586426,0], 45],
@@ -428,10 +428,10 @@ private _buildingList = [
 		["S","Land_BagFence_Short_F", [-0.529785,1.15723,0], 270],
 		["S","Land_BagFence_Short_F", [-5.77637,1.29932,0], 90],
 		["S","Land_BagFence_Long_F", [0.845215,0.407227,0], 180],
-		["V", selectRandom (_vehL + _vehM), [9.5,-5.37695,0.2], 60]
+		["V", selectRandom (_vehLight + _vehMedium), [9.5,-5.37695,0.2], 60]
 	],
 	[
-		["V", selectRandom _hmgArr, [-1.625,0.25,4.4], 0],
+		["V", selectRandom _vehStatic, [-1.625,0.25,4.4], 0],
 		["S","Land_HBarrier_3_F", [-3.28564,3.70117,0], 180],
 		["S","Land_HBarrier_3_F", [-4.16064,1.45117,0], 90],
 		["S","Land_Sacks_heap_F", [-0.875,-5,0], 135],
@@ -440,7 +440,7 @@ private _buildingList = [
 		["S","Land_BagFence_Short_F", [-0.910645,3.70117,0], 0],
 		["S","Land_BagFence_Long_F", [-4.16064,-1.79883,0], 90],
 		["S","Land_GarbageBags_F", [-2.03564,-1.79883,0], 0],
-		["V", selectRandom (_vehM + _vehH), [-8.375,-1.125,0], 0],
+		["V", selectRandom (_vehMedium + _vehHeavy), [-8.375,-1.125,0], 0],
 		["S","Land_HBarrier_3_F", [2.96436,3.45117,0], 180],
 		["S","Land_HBarrier_3_F", [3.83936,1.20117,0], 270],
 		["S","Land_BarrelTrash_grey_F", [-0.160645,-2.54883,0], 360],
@@ -452,7 +452,7 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [4.33936,-1.79883,0], 90]
 	],
 	[
-		["V", selectRandom _hmgArr, [-5,-3.25,0.1], 270],
+		["V", selectRandom _vehStatic, [-5,-3.25,0.1], 270],
 		["S","Land_HBarrier_3_F", [-2.79102,3.4375,0], 180],
 		["S","MetalBarrel_burning_F", [-3.41602,-1.1875,0], 90],
 		["S","Land_Pallet_MilBoxes_F", [-3.25,-6.625,0], 180],
@@ -463,8 +463,8 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [-3.16602,-5.4375,0], 0],
 		["S","Land_BagFence_Long_F", [-6.16602,0.4375,0], 90],
 		["S","Land_BagFence_Long_F", [-6.16602,-2.4375,0], 90],
-		["V", selectRandom (_vehM + _vehH), [-9.875,0.25,0], 0],
-		["V", selectRandom _hmgArr, [0.375,3,4.4], 0],
+		["V", selectRandom (_vehMedium + _vehHeavy), [-9.875,0.25,0], 0],
+		["V", selectRandom _vehStatic, [0.375,3,4.4], 0],
 		["S","Land_HBarrier_3_F", [0.458984,3.4375,0], 180],
 		["S","Land_HBarrier_3_F", [5.45898,0.4375,0], 90],
 		["S","Land_WaterBarrel_F", [7.08398,-0.3125,0], 0],
@@ -482,7 +482,7 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [5.45898,-2.6875,0], 90]
 	],
 	[
-		["V", selectRandom _hmgArr, [-2.625,2.625,0.1], 0],
+		["V", selectRandom _vehStatic, [-2.625,2.625,0.1], 0],
 		["S","Land_BagBunker_Small_F", [-2.92627,2.49707,0], 180],
 		["S","Land_Pallet_vertical_F", [-5.33813,0.56543,0], 120],
 		["S","Land_Sacks_heap_F", [-6.75,-5.125,0], 150],
@@ -492,7 +492,7 @@ private _buildingList = [
 		["S","Land_BagFence_Round_F", [-8.6604,-2.37793,0], 74],
 		["S","Land_BagFence_Long_F", [-5.59424,0.887695,0], 300],
 		["S","CamoNet_BLUFOR_open_F", [0.479004,0.344727,0], 0],
-		["V", selectRandom _hmgArr, [4.875,1.125,0.1], 45],
+		["V", selectRandom _vehStatic, [4.875,1.125,0.1], 45],
 		["S","Land_PortableLongRangeRadio_F", [2.85498,-3.13086,0], 220],
 		["S","Land_BottlePlastic_V1_F", [2.74487,-3.76953,0], 293],
 		["S","Land_BottlePlastic_V1_F", [2.52075,-3.74707,0], 53],
@@ -518,12 +518,12 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [1.16943,1.74902,0], 180
 	],
 	[
-		["V", selectRandom _hmgArr, [-4.875,0.875,0.1], 315],
+		["V", selectRandom _vehStatic, [-4.875,0.875,0.1], 315],
 		["S","Land_Pallet_vertical_F", [-2.68994,-2.7334,0], 200],
 		["S","Land_BagFence_Round_F", [-5.78149,1.9668,0], 135],
 		["S","Land_BagFence_Long_F", [-6.40625,-0.533203,0], 90],
 		["S","Land_BagFence_Long_F", [-3.40625,2.5918,0], 180],
-		["V", selectRandom _hmgArr, [3,3.5,0.1], 0],
+		["V", selectRandom _vehStatic, [3,3.5,0.1], 0],
 		["S","Land_BagBunker_Small_F", [2.59375,3.2168,0], 180],
 		["S","Land_WoodenTable_small_F", [-1.125,0.5,0], 210],
 		["S","CamoNet_BLUFOR_F", [0.224365,-0.899414,0], 180],
@@ -536,7 +536,7 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [-0.65625,2.5918,0], 180]
 	],
 	[
-		["V", selectRandom _hmgArr, [-0.75,4.625,0.1], 0],
+		["V", selectRandom _vehStatic, [-0.75,4.625,0.1], 0],
 		["S","Land_HBarrier_3_F", [-2.82202,2.62891,0], 0],
 		["S","Land_BagBunker_Small_F", [-0.947021,4.25391,0], 180],
 		["S","Land_WoodenTable_small_F", [-3.875,-0.75,0], 240],
@@ -550,7 +550,7 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [-6.69702,-0.496094,0], 105],
 		["S","Land_HBarrier_1_F", [1.05298,2.75391,0], 0],
 		["S","CamoNet_BLUFOR_open_F", [0.302979,0.00390625,0], 0],
-		["V", selectRandom _hmgArr, [0.75,-5.5,0.1], 180],
+		["V", selectRandom _vehStatic, [0.75,-5.5,0.1], 180],
 		["S","Land_HBarrier_3_F", [2.17798,1.25488,0], 0],
 		["S","Land_HBarrier_3_F", [-0.0720215,-2.49609,0], 90],
 		["S","Land_BagFence_End_F", [2.55298,-4.99512,0], 345],
@@ -566,7 +566,7 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [2.55298,4.62891,0], 0]
 	],
 	[
-		["V", selectRandom _hmgArr, [-2.875,4.5,2.8], 0],
+		["V", selectRandom _vehStatic, [-2.875,4.5,2.8], 0],
 		["S","Land_HBarrier_3_F", [-6.77148,0.637695,0], 90],
 		["S","Land_HBarrier_3_F", [-2.39648,-3.6123,0], 0],
 		["S","Land_HBarrier_3_F", [-6.77148,-2.3623,0], 90],
@@ -577,7 +577,7 @@ private _buildingList = [
 		["S","Land_BagFence_Round_F", [-4.10742,-5.2793,0], 315],
 		["S","Land_BagFence_Round_F", [0.228516,0.262695,0], 315],
 		["S","Land_BagFence_Long_F", [-2.27148,-0.362305,0], 180],
-		["V", selectRandom _hmgArr, [4.75,3.875,0.1], 60],
+		["V", selectRandom _vehStatic, [4.75,3.875,0.1], 60],
 		["S","Land_HBarrier_3_F", [6.21729,-2.80957,0], 90],
 		["S","Land_HBarrier_3_F", [6.21729,0.31543,0], 90],
 		["S","Land_HBarrier_3_F", [3.97852,-3.7373,0], 0],
@@ -602,7 +602,7 @@ private _buildingList = [
 		["S","Land_ChairWood_F", [-2.6543,-0.547852,0], 60],
 		["S","Land_BagFence_Round_F", [-6.96899,-2.05469,0], 72],
 		["S","CamoNet_BLUFOR_open_F", [1.03149,-0.807617,0], 180],
-		["V", selectRandom _hmgArr, [3.625,4.375,0.1], 0],
+		["V", selectRandom _vehStatic, [3.625,4.375,0.1], 0],
 		["S","Land_BagBunker_Small_F", [3.40161,4.08691,0], 180],
 		["S","Land_CncBarrierMedium_F", [7.40649,0.0664063,0], 75],
 		["S","Land_PlasticCase_01_small_F", [7.40698,-1.86035,0], 347],
@@ -616,7 +616,7 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [6.28149,2.19238,0], 62]
 	],
 	[
-		["V", selectRandom _hmgArr, [-1.625,-5.375,0.1], 180],
+		["V", selectRandom _vehStatic, [-1.625,-5.375,0.1], 180],
 		["S","Land_CncBarrierMedium_F", [-2.7915,2.86816,0], 165],
 		["S","Land_CncBarrierMedium_F", [-2.2915,0.618164,0], 165],
 		["S","Land_CncBarrierMedium_F", [-3.66699,-3.50684,0], 90],
@@ -628,7 +628,7 @@ private _buildingList = [
 		["S","Land_BagFence_Round_F", [-6.16699,1.11914,0], 120],
 		["S","Land_BagFence_Short_F", [-4.41699,2.24316,0], 345],
 		["S","Land_BagFence_Long_F", [-0.958984,-6.54785,0], 180],
-		["V", selectRandom _hmgArr, [0.125,4.375,0.1], 0],
+		["V", selectRandom _vehStatic, [0.125,4.375,0.1], 0],
 		["S","Land_BagBunker_Small_F", [-0.166992,3.99316,0], 180],
 		["S","Land_CampingChair_V2_F", [1.25,-2.625,0], 203],
 		["S","Land_CampingChair_V2_F", [2.375,-2.5,0], 168],
@@ -650,7 +650,7 @@ private _buildingList = [
 	],
 	[
 		["S","Land_PaperBox_open_empty_F", [-3.59497,-2.78027,0], 0],
-		["V", selectRandom _hmgArr, [-3.125,3.875,0.1], 0],
+		["V", selectRandom _vehStatic, [-3.125,3.875,0.1], 0],
 		["S","Land_BagBunker_Small_F", [-3.21973,3.21875,0], 180],
 		["S","Land_CampingChair_V1_F", [-0.978516,-3.01855,0], 60],
 		["S","Land_Bucket_clean_F", [-2.25024,-3.09961,0], 270],
@@ -684,7 +684,7 @@ private _buildingList = [
 		["S","Land_BagFence_Long_F", [6.15454,-2.03125,0], 120]
 	],
 	[
-		["V", selectRandom _hmgArr, [-3.5,1.625,4.5], 0],
+		["V", selectRandom _vehStatic, [-3.5,1.625,4.5], 0],
 		["S","Land_HBarrier_3_F", [-3.87109,4.65332,0], 180],
 		["S","Land_HBarrier_3_F", [-5.87109,-2.34668,0], 270],
 		["S","Land_HBarrier_3_F", [-5.87109,3.65332,0], 270],
@@ -696,7 +696,7 @@ private _buildingList = [
 		["S","Land_BagFence_Short_F", [-5.87109,-4.84668,0], 90],
 		["S","Land_GarbageBags_F", [-3.37109,2.27832,0], 333],
 		["S","Land_PaperBox_open_empty_F", [-0.246094,2.90332,0], 90],
-		["V", selectRandom _hmgArr, [3.58398,0.163086,0.1], 90],
+		["V", selectRandom _vehStatic, [3.58398,0.163086,0.1], 90],
 		["S","Land_HBarrier_3_F", [-0.871094,4.65332,0], 180],
 		["S","Land_HBarrier_3_F", [2.12891,4.65332,0], 180],
 		["S","Land_Pallets_F", [1.51465,-8.54395,0], 315],
@@ -718,7 +718,7 @@ private _buildingList = [
 	]
 ];
 
-["DEBUG", format["Zone%1 - Area Bunker - Creating: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Area Bunker - Creating: %2 in %4 positions (%3m)", _zoneID, _count, _radius, count _locations]] call zmm_fnc_misc_logMsg;
 
 for "_i" from 1 to _count do {
 	private _pos = [];
@@ -727,6 +727,8 @@ for "_i" from 1 to _count do {
 	
 	private _pos = selectRandom _locations;
 	_locations deleteAt (_locations find _pos);
+	
+	if ( isMultiplayer && {allPlayers findIf { alive _x && _x distance2D _pos < 500 } > -1} ) exitWith { false };
 	
 	private _key = "Land_HelipadEmpty_F" createVehicleLocal _pos;
 	_key setDir random 360;
@@ -738,7 +740,7 @@ for "_i" from 1 to _count do {
 	_bID = floor random count _buildingList;
 	(_buildingList#_bID) params ["_icon", "_buildingObjects"];
 	
-	["DEBUG", format["Zone%1 - Creating Site: %2 (%3)", _zoneID, _bID, _icon]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Creating Site: %2 (%3)", _zoneID, _bID, _icon]] call zmm_fnc_misc_logMsg;
 
 	{
 		_x params ["_type", ["_class",""], ["_rel",[0,0,0]], ["_dir", 0], ["_flat", true]];
@@ -748,9 +750,10 @@ for "_i" from 1 to _count do {
 
 	// Create a local patrolling group
 	private _grpArr = [];
-	for "_j" from 0 to (1 + random 3) do { _grpArr pushBack (selectRandom _menArr) };
+	for "_j" from 0 to (1 + random 3) do { _grpArr pushBack (selectRandom _enemyMen) };
 
 	private _tempGrp = [_key getPos [15, random 360], _side, _grpArr] call BIS_fnc_spawnGroup;
+	_tempGrp setGroupIdGlobal [format["ZMM_Z%1_G%2_BUNKER", _zoneID, _i]];
 	[_tempGrp, getPos _key] call BIS_fnc_taskDefend;
 	_tempGrp deleteGroupWhenEmpty true;
 	_tempGrp enableDynamicSimulation true;

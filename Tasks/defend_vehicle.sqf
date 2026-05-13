@@ -1,12 +1,12 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
-private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
+private _tskRadius = ((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = [
+private _tskDesc = [
 		"Enemy forces are trying to filter though <font color='#00FFFF'>%1</font>. Assist the civilian with repairs and defend the vehicle, before extracting it from the area.",
 		"A number of enemy groups are advancing towards <font color='#00FFFF'>%1</font>. Help with the repairing of the vehicle and hold the location until the vehicle has been repaired and it can be driven away.",
 		"Eliminate all enemy forces heading into <font color='#00FFFF'>%1</font>. Enemy forces may already be present, secure and assist with the repairs of a disabled vehicle. When repaired, drive it from the location.",
@@ -15,26 +15,7 @@ private _missionDesc = [
 		"Enemy forces are planning to invade <font color='#00FFFF'>%1</font>. Eliminate any enemy forces already present, then defend and assist with repairing a vehicle until fully working. You should then extract with the vehicle."
 	];
 	
-if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; missionNamespace setVariable [format["ZMM_%1_Location", _zoneID], _targetPos]; };
- 
-if (count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) == 0) then { 
-	private _QRFLocs = [];
-	private _qrfDist = if ((_radius * 3) < 1000) then { 1500 } else { (_radius * 3) min 2000 };
-
-	for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
-		private _roads = ((_centre getPos [_qrfDist, _i]) nearRoads 150) select {count (roadsConnectedTo _x) > 0};
-		private _tempPos = [];	
-		
-		_tempPos = if (count _roads > 0) then { getPos (_roads#0) } else { (_centre getPos [_qrfDist, _i]) isFlatEmpty  [15, -1, -1, -1, -1, false] };
-		
-		if !(_tempPos isEqualTo []) then {
-			if ({_x distance2D _tempPos < 350} count _QRFLocs == 0) then {
-				_QRFLocs pushBack _tempPos;
-			};
-		};
-	};
-	missionNamespace setVariable [ format["ZMM_%1_QRFLocations", _zoneID], _QRFLocs ]; // Set QRF Locations
-};
+if (_tskCentre isEqualTo _tskPos || _tskPos isEqualTo [0,0,0]) then { _tskPos = [_tskCentre, 25, 200, 5, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos; _tskPos set [2,0]; missionNamespace setVariable [format["ZMM_%1_Location", _zoneID], _tskPos]; };
 
 // Overwrite depending on location
 private _waves = 5;
@@ -46,11 +27,10 @@ selectRandom [
 	["C_Truck_02_transport_F", [[-0.3,-3,-0.1], [0.3,-2,-0.1], [-0.3,-1,-0.1], [0.3,0,-0.1]], ["Land_GarbageBarrel_02_F"]],
 	["C_Van_01_transport_F", [[0,-1,0.3], [0,-2.5,0.3]], ["Land_WoodenCrate_01_stack_x5_F","Land_WoodenCrate_01_stack_x3_F"]],
 	["C_Truck_02_covered_F", [[0,-2.5,0]], ["Box_NATO_AmmoVeh_F","Box_EAF_AmmoVeh_F","Box_East_AmmoVeh_F","Box_IND_AmmoVeh_F","Land_CargoBox_V1_F"]]
-	
 ] params ["_vehClass", "_objAtt", "_objArr"];
 
 private _iconName = "Repair";
-private _veh = createVehicle [_vehClass, _targetPos, [], 0, "NONE"];
+private _veh = createVehicle [_vehClass, _tskPos, [], 0, "NONE"];
 _veh allowDamage false;
 _veh setFuel 0;
 _veh setPos (getPos _veh vectorAdd [0, 0, 3]);
@@ -136,7 +116,7 @@ _civObj allowDamage false;
 missionNamespace setVariable [format["ZMM_%1_MAN", _zoneID], _civObj];
 
 // Create Information Trigger
-private _qrfTrigger = createTrigger ["EmptyDetector", _targetPos, false];
+private _qrfTrigger = createTrigger ["EmptyDetector", _tskPos, false];
 _qrfTrigger setTriggerArea [100, 100, 0, false, 150];
 _qrfTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _qrfTrigger setTriggerTimeout [240, 240, 240, true];
@@ -148,18 +128,18 @@ _qrfTrigger setTriggerStatements [ "this",
 { _x addCuratorEditableObjects [[_veh,_civObj], true] } forEach allCurators;
 
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", _targetPos, false];
-_objTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
-_objTrigger setTriggerArea [_radius, _radius, 0, true];
-_objTrigger triggerAttachVehicle [_veh];
-_objTrigger setTriggerStatements [ 	format["this && (alive ZMM_%1_OBJ || !alive ZMM_%1_OBJ)", _zoneID], 
-	format["deleteVehicle ZMM_%1_MAN; ['ZMM_%1_TSK', if (!alive ZMM_%1_OBJ) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+private _tskTrigger = createTrigger ["EmptyDetector", _tskPos, false];
+_tskTrigger setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
+_tskTrigger setTriggerArea [_tskRadius, _tskRadius, 0, true];
+_tskTrigger triggerAttachVehicle [_veh];
+_tskTrigger setTriggerStatements [ 	format["this && (alive ZMM_%1_OBJ || !alive ZMM_%1_OBJ)", _zoneID], 
+	format["deleteVehicle ZMM_%1_MAN; ['ZMM_%1_TSK', if (!alive ZMM_%1_OBJ) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 									
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[(selectRandom _missionDesc) + "<br/><br/>Target Vehicle: <font color='#00FFFF'>%2</font><br/><br/><img width='300' image='%3'/>", _locName, getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], ["Repair"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _targetPos, "CREATED", 1, false, true, "defend"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[(selectRandom _tskDesc) + "<br/><br/>Target Vehicle: <font color='#00FFFF'>%2</font><br/><br/><img width='300' image='%3'/>", _locName, getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], ["Repair"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskPos, "CREATED", 1, false, true, "defend"] call BIS_fnc_setTask;
 
 true

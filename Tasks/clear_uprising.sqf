@@ -1,19 +1,19 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _enemySide], ["O_Soldier_F"]];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
-private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
-private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
+private _locations = missionNamespace getVariable [ format["ZMM_Z%1_FlatLocations", _zoneID], [] ];
+private _tskRadius = ((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
 private _missionType = [ "Militia", "Insurgent", "Rebel", "Rogue", "Bandit" ];
 private _missionRank = [ "General", "Supervisor", "Lieutenant", "Soldier", "Leader", "Assassin" ];
 
-private _missionDesc = selectRandom [
+private _tskDesc = selectRandom [
 		"A local <font color='#00FFFF'>%3 %4</font> and their team are attempting to negotiate an arms deal with forces in %1. Eliminate all %2 members of the group found somewhere inside the marked locations.",
 		"Eliminate a <font color='#00FFFF'>%3 %4</font> and their guards (%2 infantry) who have entered %1 to trade intel with enemy forces there, clear all guards at the marked locations.",
 		"A group of %2 infantry lead by <font color='#00FFFF'>%3 %4</font> have entered %1 in an attempt to join forces with the enemy. Eliminate all members of the group found at the marked locations.",
@@ -28,11 +28,11 @@ private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 // Merge all locations
 { _locations pushBack position _x } forEach _buildings;
 
-private _endActivation = [];
+private _tskActivation = [];
 private _civMarkers = [];
 private _civCount = 0;
 private _civTypes = ("configName _x isKindOf 'Man' && getText (_x >> ""editorSubcategory"") isEqualTo ""EdSubcat_Personnel_Bandits""" configClasses (configFile >> "CfgVehicles")) apply { configName _x };
-//private _foundAreas = (selectBestPlaces [_centre, 250,"(6*hills + 2*forest + 4*houses + 1.5*meadow + 2*trees) - (100*sea)", 100, 10]) apply { _x # 0 };
+//private _foundAreas = (selectBestPlaces [_tskCentre, 250,"(6*hills + 2*forest + 4*houses + 1.5*meadow + 2*trees) - (100*sea)", 100, 10]) apply { _x # 0 };
 private _enemyGrp = createGroup [_enemySide, true];
 
 for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) do {
@@ -48,11 +48,13 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) do {
 			_civPos = selectRandom _locations;
 			_locations deleteAt (_locations find _civPos);
 		} else { 
-			_civPos = [_centre getPos [50 + random _radius, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+			_civPos = [_tskCentre getPos [50 + random _tskRadius, random 360], 1, _tskRadius, 1, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos;
 		};
 		
 		_civPos = _civPos findEmptyPosition [1, 50, _civType];
 	};
+	
+	_enemyGrp setGroupIdGlobal [format["ZMM_%1_OBJGRP_%2", _zoneID, _i]];
 	
 	private _civUnit = _enemyGrp createUnit [_civType, [0,0,0], [], 50, "NONE"];
 	[_civUnit] joinSilent _enemyGrp;
@@ -61,8 +63,8 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) do {
 	_civUnit setCombatMode "RED";
 	_civUnit setBehaviour "AWARE";
 	
-	if !(isNil "zmm_fnc_unitDirPos") then {
-		[_civUnit] call zmm_fnc_unitDirPos;
+	if !(isNil "zmm_fnc_misc_unitDirPos") then {
+		[_civUnit] call zmm_fnc_misc_unitDirPos;
 	} else {
 		_civUnit setDir random 360;
 	};
@@ -81,10 +83,10 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) do {
 		uiSleep 0.5; // Allow time for name to generate.
 		missionNamespace setVariable [format["ZMM_%1_HVT_%2", _zoneID, _i], _civUnit];	
 		
-		_endActivation pushBack format["!alive ZMM_%1_HVT_%2", _zoneID, _i];
+		_tskActivation pushBack format["!alive ZMM_%1_HVT_%2", _zoneID, _i];
 
-		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Find and eliminate <font color='#FFA500'>%1</font> somewhere near %2.", name _civUnit, _locName], format["%1", name _civUnit], format["MKR_%1_LOC", _zoneID]], getMarkerPos _mrkr, "CREATED", 1, false, true, "kill"] call BIS_fnc_setTask;
-		private _childTrigger = createTrigger ["EmptyDetector", _centre, false];
+		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _i], format['ZMM_%1_TSK', _zoneID]], true, [format["Find and eliminate <font color='#FFA500'>%1</font> somewhere near %2.", name _civUnit, _locName], format["%1", name _civUnit], format["MKR_Z%1_LOC", _zoneID]], getMarkerPos _mrkr, "CREATED", 1, false, true, "kill"] call BIS_fnc_setTask;
+		private _childTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
 		_childTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 		_childTrigger setTriggerStatements [  format["!alive ZMM_%1_HVT_%2", _zoneID, _i],
 			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
@@ -120,6 +122,8 @@ for "_i" from 0 to (random 2) do {
 	
 	// Add Hunters to Zeus
 	{ _x addCuratorEditableObjects [units _huntGroup, true] } forEach allCurators;
+	
+	_huntGroup setGroupIdGlobal [format["ZMM_%1_HNTGRP_%2", _zoneID, _i + 1]];
 	
 	_huntGroup spawn { sleep 10; _this enableDynamicSimulation true };
 };
@@ -172,20 +176,27 @@ for "_i" from 1 to random 1 do {
 	// Add Bombers to Zeus
 	{ _x addCuratorEditableObjects [[_bomber],true] } forEach allCurators;
 	
+	_bombGroup setGroupIdGlobal [format["ZMM_%1_BMBGRP_%2", _zoneID, _i]];
+	
 	_bombGroup spawn { sleep 5; _this enableDynamicSimulation true };
 };
 
+if (_tskActivation isEqualTo []) exitWith {
+	["ERROR", format["Zone %1 failed to generate objectives", _zoneID]] call zmm_fnc_misc_logMsg;
+	false
+};
+
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
-_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-_objTrigger setTriggerStatements [  (_endActivation joinString " && "), 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+private _tskTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
+_tskTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+_tskTrigger setTriggerStatements [  (_tskActivation joinString " && "), 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _locName, count units _enemyGrp, selectRandom _missionType, selectRandom _missionRank], ["Uprising"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "meet"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_tskDesc, _locName, count units _enemyGrp, selectRandom _missionType, selectRandom _missionRank], ["Uprising"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "meet"] call BIS_fnc_setTask;
 
 true

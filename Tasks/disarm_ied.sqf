@@ -1,13 +1,13 @@
 // Disarm an IED along a road or location.
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = selectRandom [
+private _tskDesc = selectRandom [
 		"Locate and disarm or destroy <font color='#00FFFF'>%1 IEDs</font> that have been planted around %2.",
 		"Search %2 to locate and diffuse or destroy <font color='#00FFFF'>%1 IEDs</font> that have been placed there.",
 		"Find, disarm or destroy <font color='#00FFFF'>%1 IEDs</font> located at %2.",
@@ -15,7 +15,7 @@ private _missionDesc = selectRandom [
 		"<font color='#00FFFF'>%1 IEDs</font> have been placed within %2. Find, disarm or destroy all the explosives."
 	];
 
-_missionDesc = _missionDesc + "<br/><br/>The IEDs are wired to a motion sensor; walking or crawling slowly to an IED will stop it from detonating.<br/><br/>IEDs can either be disarmed by an engineer or disabled with an explosive.";
+_tskDesc = _tskDesc + "<br/><br/>The IEDs are wired to a motion sensor; walking or crawling slowly to an IED will stop it from detonating.<br/><br/>IEDs can either be disarmed by an engineer or disabled with an explosive.";
 	
 private _bombMax = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
 private _bombLocs = [];
@@ -25,14 +25,14 @@ private _bombLocs = [];
 	if ({ _road distance2D _x < 100 } count _bombLocs == 0) then {
 		_bombLocs pushBack (_road getPos [(boundingBoxReal _road#0#0) * 0.5, ((_road getDir ((roadsConnectedTo _road)#0)) + 90) + selectRandom [0,180]]); // Left or right of road.
 	};
-} forEach (_centre nearRoads 250);
+} forEach (_tskCentre nearRoads 250);
 
-private _bombActivation = []; // Also counter
+private _tskActivation = []; // Also counter
 
 // Create locations if none exist
 if (count _bombLocs < _bombMax) then {
 	for "_i" from 0 to (_bombMax) do {
-		_bombLocs pushBack (_centre getPos [50 + random 50, random 360]);
+		_bombLocs pushBack (_tskCentre getPos [50 + random 50, random 360]);
 	};
 };
 
@@ -86,7 +86,7 @@ for "_i" from 1 to _bombMax do {
 			format["['ZMM_%1_SUB_%2', if (getMarkerColor 'MKR_%1_OBJ_%2' isEqualTo '') then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; deleteMarker 'MKR_%1_OBJ_%2';", _zoneID, _i],
 		"" ];
 	
-	_bombActivation pushBack format["!alive ZMM_%1_OBJ_%2", _zoneID, _i];
+	_tskActivation pushBack format["!alive ZMM_%1_OBJ_%2", _zoneID, _i];
 	
 	{ _x addCuratorEditableObjects [[_mineObj], true] } forEach allCurators;
 };
@@ -122,16 +122,21 @@ for "_i" from 0 to 8 do {
 	};
 };
 
+if (_tskActivation isEqualTo []) exitWith {
+	["ERROR", format["Zone %1 failed to generate objectives", _zoneID]] call zmm_fnc_misc_logMsg;
+	false
+};
+
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-_objTrigger setTriggerStatements [  (_bombActivation joinString " && "), 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+_tskTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
+_tskTrigger setTriggerStatements [  (_tskActivation joinString " && "), 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, count _bombActivation, _locName], ["Disarm"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_tskDesc, count _tskActivation, _locName], ["Disarm"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;
 
 true

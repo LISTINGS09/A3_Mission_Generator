@@ -5,7 +5,7 @@ if !isServer exitWith {};
 [] spawn {
 	waitUntil {time > 5};
 	if (isNil "ZMM_targetPicked") then {
-		["INFO", "The Commander must choose an Objective location! (Press M)"] call zmm_fnc_logMsg;
+		["INFO", "The Commander must choose an Objective location! (Press M)"] call zmm_fnc_misc_logMsg;
 	};
 };
 

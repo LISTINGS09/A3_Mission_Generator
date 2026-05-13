@@ -1,17 +1,17 @@
 // v 1.0
 // Spawns a minefield and either adds a CASVAC mission or recover object mission.
 // TODO: Add support for ZZM_ObjectiveCount
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 
-if (_centre isEqualTo _targetPos || _targetPos isEqualTo [0,0,0]) then { _targetPos = [_centre, 25, 200, 5, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos; _targetPos set [2,0]; };
+if (_tskCentre isEqualTo _tskPos || _tskPos isEqualTo [0,0,0]) then { _tskPos = [_tskCentre, 25, 200, 5, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos; _tskPos set [2,0]; };
 
-if (isNil "_targetPos") then { _targetPos = selectRandom (missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [_centre getPos [50, random 360]] ]) };
+if (isNil "_tskPos") then { _tskPos = selectRandom (missionNamespace getVariable [ format["ZMM_Z%1_FlatLocations", _zoneID], [_tskCentre getPos [50, random 360]] ]) };
 
-private _missionDesc = selectRandom [
+private _tskDesc = selectRandom [
 	"An allied Scout Team has hit an enemy minefield nearby %1, locate and stabilise the survivors and evacuate them back to HQ.",
 	"A Recon Unit reported discovering an enemy minefield at %1, contact was lost shortly afterwards. Locate the unit and recover any survivors at the site.",
 	"While under fire from enemy forces, an allied team have wandered into an minefield. Move into the area and secure the allied team somewhere at %1, extracting any survivors.",
@@ -21,14 +21,14 @@ private _missionDesc = selectRandom [
 ];
 	
 // Create Wreck
-private _cutter = "Land_ClutterCutter_small_F" createVehicle _targetPos;
-private _crater = createSimpleObject ["Crater", AGLToASL _targetPos];
+private _cutter = "Land_ClutterCutter_small_F" createVehicle _tskPos;
+private _crater = createSimpleObject ["Crater", AGLToASL _tskPos];
 _crater setVectorUp surfaceNormal position _crater;
 _crater setPos ((getPos _crater) vectorAdd [0,0,0.02]);
 
 // Create Bodies
 for "_i" from 1 to (random 3) do {
-	private _man = (createGroup civilian) createUnit ["C_man_w_worker_F", _targetPos, [], 0, "NONE"];
+	private _man = (createGroup civilian) createUnit ["C_man_w_worker_F", _tskPos, [], 0, "NONE"];
 	_man disableAI "MOVE";
 	
 	_man spawn {
@@ -54,9 +54,9 @@ private _mineType = selectRandom ["APERSBoundingMine","APERSMine"];
 
 for "_i" from -25 to 25 step 5 do {
 	for "_j" from -25 to 25 step 5 do {
-		_minePos = _targetPos vectorAdd [_i, _j];
+		_minePos = _tskPos vectorAdd [_i, _j];
 		_minePos set [2, 0.02];
-		if (random 1 > 0.65 && _targetPos distance2D _minePos > 2 && !surfaceIsWater _minePos && count(lineIntersectsObjs [_minePos, [_minePos#0, _minePos#1, 20]]) == 0) then {
+		if (random 1 > 0.65 && _tskPos distance2D _minePos > 2 && !surfaceIsWater _minePos && count(lineIntersectsObjs [_minePos, [_minePos#0, _minePos#1, 20]]) == 0) then {
 			private _mine = createMine [_mineType, _minePos, [], 3];
 			_enemySide revealMine _mine;
 			CIVILIAN revealMine _mine;
@@ -64,7 +64,7 @@ for "_i" from -25 to 25 step 5 do {
 	};
 };
 
-private _randPos = _targetPos getPos [random 125, random 360];
+private _randPos = _tskPos getPos [random 125, random 360];
 
 private _mrkr = createMarker [format["MKR_%1_OBJ", _zoneID], _randPos];
 _mrkr setMarkerShape "ELLIPSE";
@@ -83,7 +83,7 @@ _mrkr setMarkerColor "ColorRed";
 private _evacMan = (createGroup civilian) createUnit ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];	
 _evacMan allowDamage false;
 _evacMan disableAI "MOVE";
-_evacMan setPos (_targetPos getPos [random 1, random 360]);
+_evacMan setPos (_tskPos getPos [random 1, random 360]);
 _evacMan setDir random 360;
 
 _evacMan spawn {
@@ -134,7 +134,7 @@ if !(isClass(configFile >> "CfgPatches" >> "ace_main")) then {
 };
 
 // Only enable damage when players are near.
-private _allowDmgTrigger = createTrigger ["EmptyDetector", _targetPos, false];
+private _allowDmgTrigger = createTrigger ["EmptyDetector", _tskPos, false];
 _allowDmgTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _allowDmgTrigger setTriggerArea [25, 25, 0, false, 25];
 _allowDmgTrigger setTriggerStatements [	"this", 
@@ -142,17 +142,17 @@ _allowDmgTrigger setTriggerStatements [	"this",
 	"" ];
 
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
-_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-_objTrigger setTriggerStatements [ format["alive ZMM_%1_HVT && %2 distance2D ZMM_%1_HVT > 300", _zoneID, _centre], 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { deleteMarker _x } forEach ['MKR_%1_OBJ','MKR_%1_ICO']; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+private _tskTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
+_tskTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+_tskTrigger setTriggerStatements [ format["alive ZMM_%1_HVT && %2 distance2D ZMM_%1_HVT > 300", _zoneID, _tskCentre], 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { deleteMarker _x } forEach ['MKR_%1_OBJ','MKR_%1_ICO']; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + (format[_missionDesc, _locName]), ["CASVAC"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + (format[_tskDesc, _locName]), ["CASVAC"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "mine"] call BIS_fnc_setTask;
 
 
 

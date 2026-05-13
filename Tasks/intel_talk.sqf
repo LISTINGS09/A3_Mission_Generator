@@ -1,14 +1,14 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _buildings = missionNamespace getVariable [format["ZMM_%1_Buildings", _zoneID], []];
-private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
-private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 100; // Area of Zone.
+private _locations = missionNamespace getVariable [format["ZMM_Z%1_FlatLocations", _zoneID], []];
+private _tskRadius = ((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0) max 100; // Area of Zone.
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 
-private _missionDesc = selectRandom [
+private _tskDesc = selectRandom [
 		"Locate and speak to <font color='#00FFFF'>%1 Undercover Informants</font> with information on %2 within %3.",
 		"Search around %3 for <font color='#00FFFF'>%1 Contacts</font> regarding %2.",
 		"Allied forces wish to identify %2 near %3, speak to <font color='#00FFFF'>%1 Civilians</font> and obtain their intel.",
@@ -41,7 +41,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 			_civPos = selectRandom _locations;
 			_locations deleteAt (_locations find _civPos);
 		} else { 
-			_civPos = [_centre getPos [50 + random _radius, random 360], 1, _radius, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos;
+			_civPos = [_tskCentre getPos [50 + random _tskRadius, random 360], 1, _tskRadius, 1, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos;
 		};
 		
 		_civPos = _civPos findEmptyPosition [1, 50, _civType];
@@ -107,15 +107,15 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 3]) do {
 };
 
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-_objTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_TSK_Counter',0]) >= %2", _zoneID, _civCount], 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+private _tskTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
+_tskTrigger setTriggerStatements [  format["(missionNamespace getVariable ['ZMM_%1_TSK_Counter',0]) >= %2", _zoneID, _civCount], 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, _civCount, _civInfo, _locName], ["Talk"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "talk"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_tskDesc, _civCount, _civInfo, _locName], ["Talk"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "talk"] call BIS_fnc_setTask;
 
 true

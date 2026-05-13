@@ -9,7 +9,7 @@ params [
 	["_radius", (missionNamespace getVariable [ format[ "ZMM_%1_Radius", _this#0], 300])]
 ];
 
-if (_centre isEqualTo [0,0,0]) exitWith { ["ERROR", format["Zone%1 - Invalid IED location: %1 (%2)", _zoneID, _centre]] call zmm_fnc_logMsg };
+if (_centre isEqualTo [0,0,0]) exitWith { ["ERROR", format["Zone%1 - Invalid IED location: %1 (%2)", _zoneID, _centre]] call zmm_fnc_misc_logMsg };
 
 private _mineLocs = [];
 
@@ -29,7 +29,7 @@ if (count _mineLocs < _count) then {
 	};
 };
 
-["DEBUG", format["Zone%1 - Area IED - Creating: %2 in %4 positions (%3m)", _zoneID, ((_count * 3) max 6), _radius, count _mineLocs]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Area IED - Creating: %2 in %4 positions (%3m)", _zoneID, ((_count * 3) max 6), _radius, count _mineLocs]] call zmm_fnc_misc_logMsg;
 
 // Generate the IEDs.
 for "_i" from 0 to ((_count * 3) max 6) do {

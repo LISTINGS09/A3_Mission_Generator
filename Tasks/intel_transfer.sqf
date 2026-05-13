@@ -1,13 +1,13 @@
 // Set-up mission variables.
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], [] ];
+private _locations = missionNamespace getVariable [ format["ZMM_Z%1_FlatLocations", _zoneID], [] ];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
-private _enemyMen = missionNamespace getVariable [format["ZMM_%1Man", _enemySide], ["O_Solider_F"]];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _enemySide], ["O_Soldier_F"]];
 
-private _missionDesc = selectRandom [
+private _tskDesc = selectRandom [
 		"We have tracked a leak of %2 to a <font color='#00FFFF'>%1</font> at this location, find it and %3 the data in <font color='#00FFFF'>%4 Packets</font>.",
 		"A <font color='#00FFFF'>%1</font> containing %2 has been located. Find it and %3 the data from it in a series of <font color='#00FFFF'>%4 Packets</font>.",
 		"We've picked up a signal indicating a <font color='#00FFFF'>%1</font> is in the area. It contains %2 and is vital it is recovered; locate it and %3 the data in <font color='#00FFFF'>%4 Packets</font>.",
@@ -44,7 +44,7 @@ if (random 100 > 50 && count _bldPos > 0) then {
 	if (count _locations > 0) then { 
 		_dataPos = selectRandom _locations;
 	} else { 
-		_dataPos = [[_centre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, 150, 1, 0, 0.5, 0, [], [ _centre, _centre ]] call BIS_fnc_findSafePos 
+		_dataPos = [[_tskCentre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, 150, 1, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos 
 	};
 	
 	_dataPos set [2,0];
@@ -149,15 +149,17 @@ _bldArr deleteAt (_bldArr find _dataPos);
 	};
 } forEach units _milGroup;
 
+_milGroup setGroupIdGlobal [format["ZMM_%1_OBJGRP", _zoneID]];
+
 { _x addCuratorEditableObjects [[_dataObj] + units _milGroup, true] } forEach allCurators;
 
 // Create Completion Trigger
-_objTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
-_objTrigger setTriggerStatements [ 	format["(ZMM_%1_OBJ getVariable ['var_dataSent', false])", _zoneID], 
-	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_OBJ','MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide],
+_tskTrigger = createTrigger ["EmptyDetector", [0,0,0], false];
+_tskTrigger setTriggerStatements [ 	format["(ZMM_%1_OBJ getVariable ['var_dataSent', false])", _zoneID], 
+	format["['ZMM_%1_TSK', 'Succeeded', true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'Color%2' } forEach ['MKR_%1_OBJ','MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide],
 	"" ];
 
 // Create Task
-_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, getText (configFile >> "CfgVehicles" >> _dataType >> "displayName"), _dataHeading, _dataName, missionNamespace getVariable ["ZZM_ObjectiveCount", 4]], [_dataName] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, _dataName] call BIS_fnc_setTask;
+_missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_tskDesc, getText (configFile >> "CfgVehicles" >> _dataType >> "displayName"), _dataHeading, _dataName, missionNamespace getVariable ["ZZM_ObjectiveCount", 4]] + format["<br/><br/>Reference: <font color='#00FFFF'>ZMM_%1_OBJ</font><br/><br/>", _zoneID], [_dataName] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, _dataName] call BIS_fnc_setTask;
 
 true

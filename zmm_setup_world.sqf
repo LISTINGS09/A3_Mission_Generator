@@ -3,7 +3,7 @@
 
 if !isServer exitWith {};
 
-["INFO", format["Populating World: %1 (%2km)", worldName, round (worldSize / 1000)]] call zmm_fnc_logMsg;
+["INFO", format["Populating World: %1 (%2km)", worldName, round (worldSize / 1000)]] call zmm_fnc_misc_logMsg;
 
 private _counter = 0;
 {
@@ -74,4 +74,4 @@ private _counter = 0;
 	_counter = _counter + 1;
 } forEach (allMissionObjects "logic" select { str _x find "ZMM_LOC_" >= 0 });
 
-["INFO", format["Populating World: Complete (%1 Zones)", _counter]] call zmm_fnc_logMsg;
+["INFO", format["Populating World: Complete (%1 Zones)", _counter]] call zmm_fnc_misc_logMsg;

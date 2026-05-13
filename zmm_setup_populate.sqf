@@ -17,15 +17,16 @@ private _doPatrols = missionNamespace getVariable [ format[ "ZMM_%1_Patrols", _z
 private _doGarrison = missionNamespace getVariable [ format[ "ZMM_%1_Garrison", _zoneID ], 0] > 0;
 private _doRoadblock = missionNamespace getVariable [ format[ "ZMM_%1_Roadblocks", _zoneID ], 0] > 0;
 private _doSupport = missionNamespace getVariable [ format[ "ZMM_%1_Supports", _zoneID ], 0] > 0;
-private _doQRF = count (missionNamespace getVariable [ format["ZMM_%1_QRFLocations", _zoneID], []]) > 0 && missionNamespace getVariable ["ZZM_QRF", 1] == 1;
+private _doQRF = missionNamespace getVariable ["ZZM_QRF", 1] == 1;
 private _doIED = missionNamespace getVariable [ format["ZMM_%1_IEDs", _zoneID], 0] > 0 && missionNamespace getVariable ["ZZM_IED", 1] == 1;
 
-["DEBUG", format["Zone%1 - Setup Populate - %2 %3 [%4%5%6%7]", _zoneID, _locType, _forceTask, ["","+Patrols"] select _doPatrols, ["","+Garrison"] select _doGarrison, ["","+Roadblock"] select _doRoadblock, ["","+Support"] select _doSupport, ["","+QRF"] select _doQRF]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Setup Populate - %2 %3 [%4%5%6%7]", _zoneID, _locType, _forceTask, ["","+Patrols"] select _doPatrols, ["","+Garrison"] select _doGarrison, ["","+Roadblock"] select _doRoadblock, ["","+Support"] select _doSupport, ["","+QRF"] select _doQRF]] call zmm_fnc_misc_logMsg;
 
 // Populate the area
 if _doPatrols then { [_zoneID, _locType] call zmm_fnc_areaPatrols };
-if _doGarrison then { [_zoneID] spawn zmm_fnc_areaGarrison; 
-	if !(_locType isEqualTo "Ambient") then { [_zoneID] spawn zmm_fnc_areaMilitarise };
+if _doGarrison then { 
+	[_zoneID] spawn zmm_fnc_areaMilitarise;
+	[_zoneID] spawn zmm_fnc_areaGarrison;
 };
 if _doRoadblock then { [_zoneID] spawn zmm_fnc_areaRoadblock };
 if _doSupport then { [_zoneID] spawn zmm_fnc_areaSupport };
@@ -33,19 +34,21 @@ if _doQRF then { [_zoneID, true] spawn zmm_fnc_areaQRF };
 if _doIED then { [_zoneID] spawn zmm_fnc_areaIED };
 
 // Change sector colour when cleared on CTI Mode
-if (((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) > 0 && isNil format["TR_%1_CLEAR", _zoneID]) then {
+if (((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0) > 0 && isNil format["TR_%1_CLEAR", _zoneID]) then {
 	private _clearTrg = createTrigger [ "EmptyDetector", missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], [0,0,0]], false ];
-	_clearTrg setTriggerArea [ ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0), ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0), 0, false, 50 ];
+	_clearTrg setTriggerArea [ ((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0), ((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0), 0, false, 50 ];
 	_clearTrg setTriggerActivation [ "ANY", "PRESENT", false];
 	_clearTrg setTriggerTimeout [5, 5, 5, true];
 	_clearTrg setTriggerStatements [
 		format["ZMM_%1_EnemySide countSide (thisList select { alive _x }) < 4 && ZMM_playerSide countSide (thisList select { alive _x }) > 0", _zoneID],
-		format["{ _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']; ZMM_ZoneMarkers = ZMM_ZoneMarkers - [_zoneID];", _zoneID],
+		format["{ _x setMarkerColor 'ColorGrey' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']; ZMM_ZoneMarkers = ZMM_ZoneMarkers - [_zoneID];", _zoneID],
 		""];
 		
 	missionNamespace setVariable [format['TR_%1_CLEAR', _zoneID], _clearTrg, true];
 	[_clearTrg, format['TR_%1_CLEAR', _zoneID]] remoteExec ["setVehicleVarName", 0, _clearTrg];
 };
 
-sleep 10;
-[_zoneID] remoteExec ["zmm_fnc_zoneInfo"];
+_zoneID spawn {
+	sleep 60;
+	[_this] remoteExec ["zmm_fnc_zoneInfo"];
+};

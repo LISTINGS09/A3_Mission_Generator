@@ -1,15 +1,15 @@
 // Capture a Utility or Armoured vehicle.
-params [ ["_zoneID", 0], ["_targetPos", [0,0,0]] ];
+params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 
-private _centre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _targetPos];
+private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _locations = missionNamespace getVariable [format["ZMM_%1_FlatLocations", _zoneID], []];
-private _vehUtil = missionNamespace getVariable[format["ZMM_%1Veh_Util",_enemySide],[""]];
-private _vehMed = missionNamespace getVariable[format["ZMM_%1Veh_Medium",_enemySide],[""]];
+private _locations = missionNamespace getVariable [format["ZMM_Z%1_FlatLocations", _zoneID], []];
+private _vehUtil = missionNamespace getVariable[format["ZMM_%1_Util",_enemySide],[""]];
+private _vehMed = missionNamespace getVariable[format["ZMM_%1_Medium",_enemySide],[""]];
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
-private _radius = ((getMarkerSize format["MKR_%1_MIN", _zoneID])#0) max 150; // Area of Zone.
+private _tskRadius = ((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0) max 150; // Area of Zone.
 
-private _missionDesc = selectRandom [
+private _tskDesc = selectRandom [
 		"Commandeer <font color='#00FFFF'>%1 %2</font> that has been abandoned in %3.",
 		"An enemy crews have dismounted from <font color='#00FFFF'>%1 %2</font> within %3, move in and secure them.",
 		"Capture <font color='#00FFFF'>%1 %2</font> somewhere in %3.",
@@ -20,16 +20,17 @@ private _missionDesc = selectRandom [
 	
 private _vehNo = 0;
 private _vehArr =  [];
-private _roadPos = (_centre nearRoads _radius) apply { getPos _x };
-private _vehActivation = [];
-private _vehFailure = [];
+private _roadPos = (_tskCentre nearRoads _tskRadius) apply { getPos _x };
+private _tskActivation = [];
+private _tskFailure = [];
+private _tskCount = missionNamespace getVariable ["ZZM_ObjectiveCount", 2];
 
 {
 	private _veh = _x;
 	if (_x isEqualType []) then { _veh = _x#0 };
 	
 	if !(isClass (configFile >> "CfgVehicles" >> _veh)) then {
-		["WARNING", format["Invalid vehicle class: %1", _veh]] call zmm_fnc_logMsg;
+		["WARNING", format["Invalid vehicle class: %1", _veh]] call zmm_fnc_misc_logMsg;
 		_veh = "";
 	};
 	_vehArr set [_forEachIndex, _veh];
@@ -37,7 +38,7 @@ private _vehFailure = [];
 
 _vehArr = _vehArr - [""];
 
-for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
+for "_i" from 1 to _tskCount do {
 	private _vehClass = selectRandom _vehArr;
 	private _vehPos = [0,0,0];
 
@@ -46,16 +47,16 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
 			_vehPos = selectRandom _locations;
 			_locations deleteAt (_locations find _vehPos);
 		} else {
-			_vehPos = _centre findEmptyPosition [50, 150, _vehClass];
+			_vehPos = _tskCentre findEmptyPosition [50, 150, _vehClass];
 		};
 	} else {
 		_vehPos = selectRandom _roadPos;
 		_roadPos deleteAt (_roadPos find _vehPos);
 	};
 
-	if ((missionNamespace getVariable ["ZZM_ObjectiveCount", 1] isEqualTo 1 && _targetPos isNotEqualTo _centre && _targetPos isNotEqualTo [0,0,0]) || count _vehPos == 0) then { _vehPos = _targetPos };
+	if ((missionNamespace getVariable ["ZZM_ObjectiveCount", 1] isEqualTo 1 && _tskPos isNotEqualTo _tskCentre && _tskPos isNotEqualTo [0,0,0]) || count _vehPos == 0) then { _vehPos = _tskPos };
 	
-	["DEBUG", format["capture_vehicle (%1) - Creating %2 at %3", _zoneID, _vehClass, _vehPos]] call zmm_fnc_logMsg;
+	["DEBUG", format["capture_vehicle (%1) - Creating %2 at %3", _zoneID, _vehClass, _vehPos]] call zmm_fnc_misc_logMsg;
 
 	private _vehObj = createVehicle [_vehClass, _vehPos, [], 0, "NONE"];
 	private _randAnim = [];
@@ -105,12 +106,12 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
 			10] remoteExec ["bis_fnc_holdActionAdd", 0, _vehObj];
 			
 		// Create Completion Trigger
-		_vehActivation pushBack format["(triggerActivated ZMM_%1_TRIGGER_%2 || !alive ZMM_%1_OBJ_%2)", _zoneID, _vehNo];
-		_vehFailure pushBack format["(!alive ZMM_%1_OBJ_%2)", _zoneID, _vehNo];
+		_tskActivation pushBack format["(triggerActivated ZMM_%1_TRIGGER_%2 || !alive ZMM_%1_OBJ_%2)", _zoneID, _vehNo];
+		_tskFailure pushBack format["(!alive ZMM_%1_OBJ_%2)", _zoneID, _vehNo];
 		
-		_vehSucceed = createTrigger ["EmptyDetector", _centre, false];
+		_vehSucceed = createTrigger ["EmptyDetector", _tskCentre, false];
 		_vehSucceed setTriggerActivation ["VEHICLE", "NOT PRESENT", false];
-		_vehSucceed setTriggerArea [_radius * 2, _radius * 2, 0, true];
+		_vehSucceed setTriggerArea [_tskRadius * 2, _tskRadius * 2, 0, true];
 		_vehSucceed triggerAttachVehicle [_vehObj];
 		_vehSucceed setTriggerStatements [ format["this && alive ZMM_%1_OBJ_%2", _zoneID, _vehNo],
 			format["['ZMM_%1_SUB_%2', 'Succeeded', true] spawn BIS_fnc_taskSetState;", _zoneID, _vehNo],
@@ -119,7 +120,7 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
 		missionNamespace setVariable [format["ZMM_%1_TRIGGER_%2", _zoneID, _vehNo], _vehSucceed];
 			
 		// Failure trigger when HVT is dead.
-		private _vehFail = createTrigger ["EmptyDetector", _centre, false];
+		private _vehFail = createTrigger ["EmptyDetector", _tskCentre, false];
 		_vehFail setTriggerStatements [ format["!alive ZMM_%1_OBJ_%2", _zoneID, _vehNo], 
 			format["['ZMM_%1_SUB_%2', 'Failed', true] spawn BIS_fnc_taskSetState;", _zoneID, _vehNo],
 			"" ];
@@ -128,21 +129,26 @@ for "_i" from 1 to (missionNamespace getVariable ["ZZM_ObjectiveCount", 2]) do {
 		{ _x addCuratorEditableObjects [[_vehObj], true] } forEach allCurators;
 		
 		// Child task
-		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _vehNo], format['ZMM_%1_TSK', _zoneID]], true, [format["Capture the empty vehicle found somewhere within the area. Interact with the vehicle to unlock it.<br/><br/>Target Vehicle: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], format["Vehicle #%1", _vehNo], format["MKR_%1_LOC", _zoneID]], nil, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
+		private _childTask = [[format["ZMM_%1_SUB_%2", _zoneID, _vehNo], format['ZMM_%1_TSK', _zoneID]], true, [format["Capture the empty vehicle found somewhere within the area. Interact with the vehicle to unlock it.<br/><br/>Target Vehicle: <font color='#00FFFF'>%1</font><br/><br/><img width='300' image='%2'/>", getText (configFile >> "CfgVehicles" >> _vehClass >> "displayName"), getText (configFile >> "CfgVehicles" >> _vehClass >> "editorPreview")], format["Vehicle #%1", _vehNo], format["MKR_Z%1_LOC", _zoneID]], nil, "CREATED", 1, false, true, "target"] call BIS_fnc_setTask;
 	} else { deleteVehicle _vehObj };
 };
 
+if (_tskActivation isEqualTo []) exitWith {
+	["ERROR", format["Zone %1 failed to generate objectives", _zoneID]] call zmm_fnc_misc_logMsg;
+	false
+};
+
 // Create Completion Trigger
-private _objTrigger = createTrigger ["EmptyDetector", _centre, false];
-_objTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
-_objTrigger setTriggerStatements [ 	(_vehActivation joinString " && "), 
-	format["['ZMM_%1_TSK', if (%3) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_%1_LOC','MKR_%1_MIN']", _zoneID, ZMM_playerSide, (_vehFailure joinString " || ")],
+private _tskTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
+_tskTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
+_tskTrigger setTriggerStatements [ 	(_tskActivation joinString " && "), 
+	format["['ZMM_%1_TSK', if (%3) then { 'Failed' } else { 'Succeeded' }, true] spawn BIS_fnc_taskSetState; missionNamespace setVariable ['ZMM_DONE', true, true]; { _x setMarkerColor 'ColorGrey' } forEach ['MKR_Z%1_LOC','MKR_Z%1_MIN']", _zoneID, ZMM_playerSide, (_tskFailure joinString " || ")],
 	"" ];
 
-missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _objTrigger, true];
-[_objTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _objTrigger];
+missionNamespace setVariable [format['TR_%1_TASK_DONE', _zoneID], _tskTrigger, true];
+[_tskTrigger, format['TR_%1_TASK_DONE', _zoneID]] remoteExec ["setVehicleVarName", 0, _tskTrigger];
 
 // Create Task
-private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_missionDesc, count _vehActivation, if (count _vehActivation > 1) then {"Vehicles"} else {"Vehicle"}, _locName], ["Steal"] call zmm_fnc_nameGen, format["MKR_%1_LOC", _zoneID]], _centre, "CREATED", 1, false, true, "truck"] call BIS_fnc_setTask;
+private _missionTask = [format["ZMM_%1_TSK", _zoneID], true, [format["<font color='#00FF80'>Mission (#ID%1)</font><br/>", _zoneID] + format[_tskDesc, count _tskActivation, if (count _tskActivation > 1) then {"Vehicles"} else {"Vehicle"}, _locName], ["Steal"] call zmm_fnc_nameGen, format["MKR_Z%1_LOC", _zoneID]], _tskCentre, "CREATED", 1, false, true, "truck"] call BIS_fnc_setTask;
 
 true

@@ -2,17 +2,40 @@ if !isServer exitWith {};
 
 if ((missionNamespace getVariable ["ZZM_Mode", 0]) isEqualTo 0) exitWith {}; // Only CTI Mode needs intel.
 
-params ["_value"]; // ARRAY/UNIT can be passed.
+params [
+	"_reference",
+	["_type", "object"],
+	["_chance", 40]
+];
 
-private _intelType = selectRandom ["Land_Suitcase_F","Land_PlasticCase_01_small_F","Land_PlasticCase_01_small_gray_F","Land_MetalCase_01_small_F"];
+if (_chance >= random 100) exitWith {};
+
+// Position Object - Add intel on the object
+if (typeOf _reference isEqualType objNull) exitWith {
+	private _unit = _reference;
+	private _intelType = ["Files", "FileTopSecret", "FilesSecret", "FlashDisk", "DocumentsSecret", "Wallet_ID", "FileNetworkStructure", "MobilePhone", "SmartPhone"];
+
+	private _containers = [];
+	if !(isNull (uniformContainer _unit)) then {_containers pushBack 1;};
+	if !(isNull (vestContainer _unit)) then {_containers pushBack 2;};
+
+	switch (selectRandom _containers) do {
+		case 1: { _unit addItemToUniform (selectRandom _intelType) };
+		case 2: { _unit addItemToVest (selectRandom _intelType) };
+		default { _unit addMagazineGlobal (selectRandom _intelType) };
+	};
+	
+	// TODO - What happens when the intel is taken?
+};
 
 // Position Array - Create intel at the location.
-if (_value isEqualType []) exitWith {
-	_intel = createVehicle [_intelType, [0,0,0], [], 0, "NONE"];
-	_intel setPosATL _value;
+if (typeOf _reference isEqualType []) exitWith {
+	private _intelType = selectRandom ["Land_Suitcase_F","Land_PlasticCase_01_small_F","Land_PlasticCase_01_small_gray_F","Land_MetalCase_01_small_F"];
+
+	private _intel = createVehicle [_intelType, _reference, [], 0, "NONE"];
 
 	[_intel, 
-		"<t color='#00FF80'>Gather Intel</t>", 
+		"<t color='#00FF80'>Take Intel</t>", 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
 		"\a3\ui_f\data\IGUI\Cfg\holdActions\holdAction_search_ca.paa", 
 		"_this distance2d _target < 3", 

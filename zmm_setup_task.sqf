@@ -8,7 +8,7 @@ if (isNil "_zoneID") then {
 	private _markersAll = missionNamespace getVariable ["ZMM_ZoneMarkers", []];
 	private _markersFar = [];
 	
-	if (_markersAll isEqualTo []) exitWith { ["ERROR", "Setup Task - No more markers remaining in 'ZMM_ZoneMarkers'!"] call zmm_fnc_logMsg }; // No markers!
+	if (_markersAll isEqualTo []) exitWith { ["ERROR", "Setup Task - No more markers remaining in 'ZMM_ZoneMarkers'!"] call zmm_fnc_misc_logMsg }; // No markers!
 	
 	{
 		_mkr = _x;
@@ -24,7 +24,7 @@ if (isNil "_zoneID") then {
 	_zoneID = parseNumber ((_foundZone splitString "_") select 1);
 };
 
-if (isNil "_zoneID") exitWith { ["ERROR", "Invalid Objective Zone"] call zmm_fnc_logMsg };
+if (isNil "_zoneID") exitWith { ["ERROR", "Invalid Objective Zone"] call zmm_fnc_misc_logMsg };
 
 // Set global mission variable to false.
 missionNamespace setVariable ["ZMM_DONE", false, true];
@@ -33,7 +33,7 @@ missionNamespace setVariable ["ZMM_ZONE", _zoneID, true];
 // Find a Main Objective
 private _centre = missionNamespace getVariable [ format[ "ZMM_%1_Location", _zoneID ], [0,0,0] ];
 private _side = missionNamespace getVariable [ format[ "ZMM_%1_EnemySide", _zoneID ], EAST ];
-private _radius = (getMarkerSize format["MKR_%1_MIN", _zoneID]) select 0;
+private _radius = (getMarkerSize format["MKR_Z%1_MIN", _zoneID]) select 0;
 private _locName = missionNamespace getVariable [format["ZMM_%1_Name", _zoneID], "this Location"];
 private _locType = missionNamespace getVariable [format["ZMM_%1_Type", _zoneID], "Custom"];
 private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], []];
@@ -51,7 +51,7 @@ private _objectives = if (_filterTask != "") then {
 	
 // If we've no objectives, exit
 if (count _objectives == 0) exitWith { 
-	["ERROR", format["Zone%1 - No objectives (%2, %3)", _zoneID, _locName, _centre]] call zmm_fnc_logMsg;
+	["ERROR", format["Zone%1 - No objectives (%2, %3)", _zoneID, _locName, _centre]] call zmm_fnc_misc_logMsg;
 	false
 };
 
@@ -79,7 +79,7 @@ private _argument = switch (_args) do {
 	
 	// Get Flat Location
 	case "Location": { 
-		private _locations = missionNamespace getVariable [ format["ZMM_%1_FlatLocations", _zoneID], []];
+		private _locations = missionNamespace getVariable [ format["ZMM_Z%1_FlatLocations", _zoneID], []];
 		[_zoneID, if (count _locations > 0) then { selectRandom _locations } else { nil } ] 
 	};
 	
@@ -96,12 +96,12 @@ if (count _overWrite > 0) then {
 	if !_roadblock then { missionNamespace setVariable [format[ "ZMM_%1_Roadblocks", _zoneID ], 0] };	
 };
 
-["DEBUG", format["Zone%1 - Setup Task - Compiling Script '%2' script '%3'", _zoneID, _argument, _script]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Setup Task - Compiling Script '%2' script '%3'", _zoneID, _argument, _script]] call zmm_fnc_misc_logMsg;
 
 private _handle = _argument spawn compile preprocessFileLineNumbers format["%1\tasks\%2", ZMM_FolderLocation, _script];
 
 // Force activate population of the zone
-private _popTrigger = missionNamespace getVariable [format["TR_%1_POPULATE", _zoneID],objNull];
+private _popTrigger = missionNamespace getVariable [format["TR_Z%1_POPULATE", _zoneID],objNull];
 if (_popTrigger isKindOf "EmptyDetector") then { _popTrigger setTriggerStatements ["true",(triggerStatements _popTrigger)#1,(triggerStatements _popTrigger)#2]; };
 
 true

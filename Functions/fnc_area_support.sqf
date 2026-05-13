@@ -17,17 +17,17 @@ private _locations = missionNamespace getVariable [ format[ "ZMM_%1_SupportLocat
 
 private _radius = missionNamespace getVariable [ format[ "ZMM_%1_Radius", _zoneID ], 150];
 private _count = missionNamespace getVariable [format["ZMM_%1_Supports", _zoneID], 1];
-private _menArr = missionNamespace getVariable [format["ZMM_%1Man",_side],[]];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man",_side],[]];
 
-private _vehL = missionNamespace getVariable [format["ZMM_%1Veh_Light",_side],[]];
-private _vehM = missionNamespace getVariable [format["ZMM_%1Veh_Medium",_side],[]];
-private _vehH = missionNamespace getVariable [format["ZMM_%1Veh_Heavy",_side],[]];
-private _vehU = missionNamespace getVariable [format["ZMM_%1Veh_Util",_side],[]];
-private _hmgArr = missionNamespace getVariable [format["ZMM_%1Veh_Static",_side],[]];
+private _vehL = missionNamespace getVariable [format["ZMM_%1_Light",_side],[]];
+private _vehM = missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]];
+private _vehH = missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]];
+private _vehU = missionNamespace getVariable [format["ZMM_%1_Util",_side],[]];
+private _hmgArr = missionNamespace getVariable [format["ZMM_%1_Static",_side],[]];
 
 if (_count == 0) then { _count = 1 };
 
-["DEBUG", format["Zone%1 - Creating Support: Count %2 at %3%4", _zoneID, _count, _centre, [""," [FORCED]"] select _forcePos]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Creating Support: Count %2 at %3%4", _zoneID, _count, _centre, [""," [FORCED]"] select _forcePos]] call zmm_fnc_misc_logMsg;
 
 private _vehArr = _vehL;
 if ((missionNamespace getVariable ["ZZM_Diff", 1]) >= 1) then { _vehArr append _vehM };
@@ -226,13 +226,15 @@ private _buildingList = [
 	]
 ];
 
-["DEBUG", format["Zone%1 - Creating Support: %2 in %3 positions (%4 types)", _zoneID, _count, count _locations, count _buildingList]] call zmm_fnc_logMsg;
+["DEBUG", format["Zone%1 - Creating Support: %2 in %3 positions (%4 types)", _zoneID, _count, count _locations, count _buildingList]] call zmm_fnc_misc_logMsg;
 
 for "_i" from 1 to _count do {	
 	if (count _locations == 0) exitWith { false	};
 	
 	private _pos = selectRandom _locations;
 	_locations deleteAt (_locations find _pos);
+	
+	if ( isMultiplayer && {allPlayers findIf { alive _x && _x distance2D _pos < 500 } > -1} ) exitWith { false};
 	
 	private _key = "Land_HelipadEmpty_F" createVehicleLocal _pos;
 	_key setDir random 360;
@@ -244,7 +246,7 @@ for "_i" from 1 to _count do {
 	_bID = if (_forceLayout >= 0 && _forceLayout < count _buildingList) then { _forceLayout } else { floor random count _buildingList };
 	(_buildingList#_bID) params ["_icon", "_list"];
 	
-	["DEBUG", format["Zone%1 - Area Support - Spawning: %5 of %6 - ID%2 (%3) at %4", _zoneID, _bID, _icon, _pos, _i, _count]] call zmm_fnc_logMsg;
+	["DEBUG", format["Zone%1 - Area Support - Spawning: %5 of %6 - ID%2 (%3) at %4", _zoneID, _bID, _icon, _pos, _i, _count]] call zmm_fnc_misc_logMsg;
 	
 	{
 		_x params ["_type", ["_class",""], ["_rel",[0,0,0]], ["_dir", 0], ["_flat", true]];
@@ -254,12 +256,13 @@ for "_i" from 1 to _count do {
 	
 	// Create a local patrolling group
 	private _grpArr = [];
-	for "_j" from 0 to (1 + random 3) do { _grpArr pushBack (selectRandom _menArr) };
+	for "_j" from 0 to (1 + random 3) do { _grpArr pushBack (selectRandom _enemyMen) };
 
 	private _tempGrp = [_key getPos [15, random 360], _side, _grpArr] call BIS_fnc_spawnGroup;
+	_tempGrp setGroupIdGlobal [format["ZMM_Z%1_G%2_SUPPORT", _zoneID, _i]];
 	[_tempGrp, getPos _key] call BIS_fnc_taskDefend;
 	_tempGrp deleteGroupWhenEmpty true;
-	_tempGrp enableDynamicSimulation true;
+	_tempGrp spawn { sleep 5; _this enableDynamicSimulation true };
 	{ _x addCuratorEditableObjects [units _tempGrp, true] } forEach allCurators;
 	
 	if (_showMarker) then {
