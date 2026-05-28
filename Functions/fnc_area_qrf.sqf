@@ -1,5 +1,6 @@
 if !isServer exitWith {};
-// [99, false, 30, nil, 7] spawn ZMM_fnc_areaQRF;
+// [99, false, 30, 6, -1] spawn ZMM_fnc_areaQRF;
+
 params [
 	["_zoneID", 0],
 	["_triggerOnly", false],
@@ -10,11 +11,12 @@ params [
 ];
 
 private _side = missionNamespace getVariable [format["ZMM_%1_enemySide", _zoneID], EAST];
+private _difficulty = missionNamespace getVariable ["ZZM_Diff", 1];
 
 //_randomWeightedElement = ;
 private _qrfTypes = [
 	"Dynamic"
-	,"Reserve"
+	,"General"
 	,"Motorized"
 	,"Mechanised"
 	,"Armoured"
@@ -22,6 +24,7 @@ private _qrfTypes = [
 	,"Infantry"
 	,"Helicopter"
 	,"Aircraft"
+	,"Naval"
 ];
 
 // INDEP QRF Weighting
@@ -34,7 +37,8 @@ private _indQRF = [
 	5,	0.5, 				// Airborne
 	6,	4.0, 				// Infantry
 	7,	(0.5 * ZZM_Diff), 	// Helicopter
-	8,	(0.25 * ZZM_Diff)	// Aircraft
+	8,	(0.25 * ZZM_Diff),	// Aircraft
+	9,	1					// Naval
 ];
 
 // OPFOR QRF Weighting
@@ -47,7 +51,8 @@ private _opfQRF = [
 	5,	2.0, 				// Airborne
 	6,	2.5, 				// Infantry
 	7,	(1.0 * ZZM_Diff),	// Helicopter
-	8,	(0.5 * ZZM_Diff)	// Aircraft
+	8,	(0.5 * ZZM_Diff),	// Aircraft
+	9,	1					// Naval
 ];
 
 // Overwrite QRF type if specified
@@ -70,8 +75,7 @@ if _triggerOnly exitWith {
 	
 	_centre = missionNamespace getVariable [ format[ "ZMM_%1_Location", _zoneID ], [0,0,0]];
 	_radius = (getMarkerSize format["MKR_Z%1_MAX", _zoneID]) select 0;
-	_timeOut = (missionNamespace getVariable ['ZMM_%1_QRFTime', 600]) / 2;
-
+	_timeOut = (missionNamespace getVariable [format["ZMM_%1_QRFTime", _zoneID], 600]) / 2;
 	_detectedTrg = createTrigger ["EmptyDetector", _centre, false];
 	
 	// No side defined, so active when players are near, otherwise allow stealth.
@@ -114,9 +118,329 @@ private _vehBoat = missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]]
 private _vehAirCas = _vehAirHeli + _vehAirPlane;
 
 
+	["Airborne","Waves of rotary based infantry groups, mostly unarmed vehicles"],
+	["Infantry","Infantry only, no vehicles or supports will spawn"],
+	["Helicopter","Infantry and airborne forces such a paratroopers supported by armed helicopters"],
+	["Aircraft","Infantry and light vehicles supportd with Fixed Wing CAS at later stages"],
+	["Naval","Waves of infantry with Boat and Air support prioritised"],
+
 // Prebuild the defined waves
+private _waveInfo = [];
 
-
+if (_qrfType > 0) then {
+	private _unitCount = round linearConversion [8, 20, count (allPlayers select { alive _x }), 4, 12, true];
+	private _qrfName = _qrfTypes select _qrfType;
+	switch (_qrfType) do {
+		case "General": {
+			_waveInfo = [
+				// Wave 1
+				[
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 4
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 5
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["house", _unitCount],
+					["house", _unitCount]
+				],
+				// Wave 6
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["house", _unitCount],
+					["house", _unitCount]
+				]
+			];
+		};
+		case "Motorized": {
+			_waveInfo = [
+				// Wave 1
+				[
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 4
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 5
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["house", _unitCount],
+					["house", _unitCount]
+				]
+			];
+		};
+		case "Mechanised": {
+			_waveInfo = [
+				// Wave 1
+				[
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 4
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]])],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 5
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]])],
+					["house", _unitCount],
+					["house", _unitCount]
+				]
+			];
+		};
+		case "Armoured": {
+			_waveInfo = [
+				// Wave 1
+				[
+					["road", selectRandom (missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]])],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom (missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]])],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom (missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]])],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 4
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["road", selectRandom (missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]])],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 5
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["road", selectRandom (missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]])],
+					["house", _unitCount]
+				]
+			];
+		};
+		case "Airborne": {
+			_waveInfo = [
+				// Wave 1
+				[
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["air","drop"], selectRandom ((missionNamespace getVariable [format["ZMM_%1_Air",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_CasH",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				]
+			];
+		};
+		case "Infantry": {
+			_waveInfo = [
+				// Wave 1
+				[
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 4
+				[
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				]
+			];
+		};
+		case "Helicopter": {
+			_waveInfo = [
+				// Wave 1
+				[
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["air","drop"], selectRandom ((missionNamespace getVariable [format["ZMM_%1_Air",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_CasH",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 4
+				[
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["air"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["air"], selectRandom ((missionNamespace getVariable [format["ZMM_%1_Air",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_CasH",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				]
+			];
+		};
+		case "Aircraft": {
+			_waveInfo = [
+				// Wave 1
+				[
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["air"], selectRandom (missionNamespace getVariable [format["ZMM_%1_CasH",_side],[]])],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 4
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 5
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["cas", selectRandom (missionNamespace getVariable [format["ZMM_%1_CasP",_side],[]])],
+					["house", _unitCount]
+				],
+				// Wave 6
+				[
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Light",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Truck",_side],[]]))],
+					["road", selectRandom (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]])],
+					["road", selectRandom ((missionNamespace getVariable [format["ZMM_%1_Heavy",_side],[]]) + (missionNamespace getVariable [format["ZMM_%1_Medium",_side],[]]))],
+					["house", _unitCount]
+				]
+			];
+		};
+		case "Naval": {
+			_waveInfo = [
+				// Wave 1
+				[
+					[selectRandom ["sea"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]])],
+					[selectRandom ["sea"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]])],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 2
+				[
+					[selectRandom ["sea"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]])],
+					[selectRandom ["sea"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]])],
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				],
+				// Wave 3
+				[
+					[selectRandom ["sea"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]])],
+					[selectRandom ["sea"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]])],
+					[selectRandom ["sea"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]])],
+					[selectRandom ["air","drop"], selectRandom (missionNamespace getVariable [format["ZMM_%1_Air",_side],[]])],
+					[selectRandom ["land","house"], _unitCount],
+					[selectRandom ["land","house"], _unitCount]
+				]
+			];
+		};
+	};
+};
 
 // Get difficulty settings
 ZQR_difficulty = missionNamespace getVariable ["f_param_ZMMDiff", missionNamespace getVariable ["ZZM_Diff", 1]];
@@ -278,12 +602,13 @@ for [{_wave = 1}, {_wave <= ZQR_waveMax}, {_wave = _wave + 1}] do {
 		["DEBUG", format["Wave %1 - Aborted - No players within %2 meters!", _wave, _spawnDist + 1000]] call zmm_fnc_misc_logMsg;
 	};
 	
-	private _waveInfo = [];
-	if (count (missionNamespace getVariable ["ZQR_WaveDetail",[]]) == 0) then {
+	if (_waveInfo isEqualTo [] || count (missionNamespace getVariable ["ZQR_WaveDetail",[]]) == 0) then {
 		_waveInfo = [_wave] call zmm_fnc_qrf_createWave;
 	} else {
 		 _waveInfo = ZQR_WaveDetail select ((_wave - 1) min (count ZQR_WaveDetail - 1));
 	};
+	
+	// TODO CHECK FOR VALID POSITIONS AND DEFAULT INF IF NONE FOUND
 	
 	//["DEBUG", format["Starting Zone %1 - Wave %2/%3 - %4 %5", _instance, _wave, ZQR_waveMax, _side, _waveInfo]] call zmm_fnc_misc_logMsg;
 	

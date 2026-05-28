@@ -53,7 +53,7 @@ if (count _buildingArr isEqualTo 0) exitWith {
 	["DEBUG", format["Zone%1 - Area Military - No buildings found in zone", _zoneID]] call zmm_fnc_misc_logMsg;
 };
 
-["DEBUG", format["Zone%1 - Area Military - Creating: %2 units in %3 buildings", _zoneID, _enemyCount, count _buildingArr]] call zmm_fnc_misc_logMsg;
+["DEBUG", format["Zone%1 - Area Military - Creating: %2 units (%3 buildings)", _zoneID, _enemyCount, count _buildingArr]] call zmm_fnc_misc_logMsg;
 
 private _milLocs = [];
 

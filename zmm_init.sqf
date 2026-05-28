@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.74;
+ZMM_Version = 4.75;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer;
 // ZZM_Template = "vanilla"; // Force Template
@@ -28,7 +28,7 @@ if (isNil "ZZM_Template") then {
 	if ("gm_core" in activatedAddons) exitWith { ZZM_Template = "GM" };
 	if ("ww2_spe_core_c_data_c" in activatedAddons) exitWith { ZZM_Template = "SPE" };
 	if ("vn_data_f" in activatedAddons) exitWith { ZZM_Template = "VN" };
-	if ("data_f_lxws" in activatedAddons) exitWith { ZZM_Template = "WS" };
+	if ("data_f_lxws" in activatedAddons && toLower worldName in ["sefrouramal"]) exitWith { ZZM_Template = "WS" };
 };
 
 // Register Tasks

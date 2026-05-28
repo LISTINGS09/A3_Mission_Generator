@@ -30,7 +30,7 @@ _infTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _infTrigger setTriggerTimeout [120, 120, 120, true];
 _infTrigger setTriggerStatements [  "this", 
 	format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend %1 for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
-	[] spawn { sleep 140; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
+	[] spawn { sleep 60; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
 	[] spawn { sleep 150; [ %3, false, %4, %5, 5 ] spawn zmm_fnc_areaQRF; };
 	deleteVehicle TR_%3_TASK_DEFEND;
 	", _locName, _time / 60, _zoneID, _delay, _waves],

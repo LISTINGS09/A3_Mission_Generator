@@ -32,13 +32,13 @@ private _gunners = (
 private _effectivePlayers = (_players * (1 + (_gunners * 0.6))) * (0.75 + (_difficulty * 0.25));
 
 private _locLevel = switch (_locType) do {
-	case "Airport": { 10 };
-	case "NameCityCapital": { 8 };
-	case "NameCity": { 6 };
-	case "NameVillage": { 4 };
-	case "NameLocal": { 2 };
-	case "Ambient": { 2 };
-	default { 1 };
+	case "Airport": { 12 };
+	case "NameCityCapital": { 12 };
+	case "NameCity": { 10 };
+	case "NameVillage": { 8 };
+	case "NameLocal": { 6 };
+	case "Ambient": { 4 };
+	default { 5 };
 };
 
 _locLevel = _locLevel * _difficulty;

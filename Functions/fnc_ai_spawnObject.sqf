@@ -36,8 +36,8 @@ switch (_type) do {
 		
 		if (canMove _obj && canFire _obj) then { _obj setVehicleLock "LOCKEDPLAYER" };
 		
-		private _tempGrp = [_obj, _side] call zmm_fnc_qrf_spawnCrew;
-		_tempGrp setGroupIdGlobal [format["ZMM_G%1_VEH%2", _zoneID, _uid]];
+		([_obj, _side] call zmm_fnc_qrf_spawnCrew) params ["_crewGrp",["_cargoGrps",[]]];
+		_crewGrp setGroupIdGlobal [format["ZMM_G%1_VEH%2", _zoneID, _uid]];
 		
 		// Run custom init for vehicle (set camos etc).
 		private _grpVeh = _obj;
@@ -45,12 +45,12 @@ switch (_type) do {
 		
 		private _clear = createVehicle ["Land_ClutterCutter_large_F", _worldPos, [], 0, "CAN_COLLIDE"];
 		
-		if !(_obj isKindOf "StaticWeapon") then { _tempGrp enableDynamicSimulation true };
-		{ _x addCuratorEditableObjects [[_grpVeh] + units _tempGrp, true] } forEach allCurators;
+		if !(_obj isKindOf "StaticWeapon") then { _crewGrp enableDynamicSimulation true };
+		{ _x addCuratorEditableObjects [[_grpVeh] + units _crewGrp, true] } forEach allCurators;
 		
 		// Add artillery/mortar to the zone supports list.
 		if ("Artillery" in getArray (configFile >> "CfgVehicles" >> _class >> "availableForSupportTypes") && getMarkerType format["MKR_Z%1_MAX", _zoneID] != "") then {
-			[leader _tempGrp, format["MKR_Z%1_MAX", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
+			[leader _crewGrp, format["MKR_Z%1_MAX", _zoneID], "SHOWMARKER"] spawn zmm_fnc_aiUPS;
 		};
 	};
 	case "O": {

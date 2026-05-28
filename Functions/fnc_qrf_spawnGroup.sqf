@@ -12,8 +12,11 @@ params [
 	["_UPSMkr",""]				// ZMM Compatability - If this exists will call UPS to allow patrol instead of travel
 ];
 
+
 if (_startClass isEqualTo "") exitWith { ["WARNING", format["spawnGroup - Empty Unit Passed: %1 (%2)", _startClass, _side]] call zmm_fnc_misc_logMsg };
-if (_tries > 5 || count _spawnArray == 0 || count _targetPos == 0) exitWith {};
+if (_tries > 5 || count _spawnArray == 0 || count _targetPos == 0) exitWith {
+	["WARNING", format["spawnGroup - Exiting: %1 %2 %3", _tries, _spawnArray, _targetPos]] call zmm_fnc_misc_logMsg
+};
 
 private _id = if (_zoneID > 0) then { _zoneID } else { missionNamespace getVariable ["ZQR_wave", 0] };
 private _uid = (missionNamespace getVariable ["ZQR_count", 0]) + 1;	
@@ -23,7 +26,7 @@ ZQR_count = _uid;
 
 private _unitClass = _startClass;
 private _mainGrp = grpNull;
-private _suppGrp = grpNull;
+private _suppGrps = [];
 private _grpVeh = objNull;
 private _vehType = "";
 private _customInit = "";
@@ -81,28 +84,29 @@ if (_unitClass isEqualType "") then {
 		if (_isArmed && (count (fullCrew [_grpVeh, "cargo", true]) <= 4)) then { _fillVeh = false };
 	};
 	
-	_mainGrp = [_grpVeh, _side, _fillVeh] call zmm_fnc_qrf_spawnCrew;
+	([_grpVeh, _side, _fillVeh] call zmm_fnc_qrf_spawnCrew) params ["_crewGrp","_cargoGrps"];
+	_mainGrp = _crewGrp;
 	_mainGrp setGroupIdGlobal [format["QRF_W%1_G%2", _id, _uid]];
 	
 	["DEBUG", format["W%1_G%2 - spawnGroup %3%4%5", _id, _uid, _unitClass, if (_fillVeh) then { " with inf" } else {""}, _startingPos]] call zmm_fnc_misc_logMsg;
 	// Leave group as main if its unarmed, otherwise split them into a infantry group
 	if _fillVeh then {
-		{
-			if (isNull _suppGrp) then {
-				_suppGrp = createGroup [_side, true];
-				_suppGrp setGroupIdGlobal [format["QRF_W%1_G%2_INF", _id, _uid]];
-				_suppGrp addVehicle _grpVeh;
-				_wp = _suppGrp addWaypoint [_targetPos, 50];
-				_wp setWaypointType "GUARD";
-			};
-			[_x#0] joinSilent _suppGrp;
-		} forEach ((fullCrew [_grpVeh, "cargo"]) + (if (count (fullCrew [_grpVeh, "turret"]) <= 4) then { [] } else { fullCrew [_grpVeh, "turret"] }));
+		{ 
+			_x setGroupIdGlobal [format["QRF_W%1_G%2_INF%3", _id, _uid, _forEachIndex]];
+			_x addVehicle _grpVeh;
+			_wp = _x addWaypoint [_targetPos, 50];
+			_wp setWaypointType "GUARD";
+		} forEach _cargoGrps;
+	
+		{ [_x#0] joinSilent (_cargoGrps#0) } forEach (if (count (fullCrew [_grpVeh, "turret"]) <= 4) then { [] } else { fullCrew [_grpVeh, "turret"] });
+		_suppGrps = _cargoGrps;
 	};
 } else {
 	["DEBUG", format["W%1_G%2 - spawnGroup %3", _id, _uid, _unitClass]] call zmm_fnc_misc_logMsg;
 	_mainGrp = [_startingPos, _side, _unitClass] call BIS_fnc_spawnGroup;
 	_mainGrp deleteGroupWhenEmpty true;
 	_mainGrp setGroupIdGlobal [format["QRF_W%1_G%2", _id, _uid]];
+	{ _x addCuratorEditableObjects [units _mainGrp] } forEach allCurators;
 		
 	_vehArray = (units _mainGrp apply { assignedVehicle _x }) - [objNull];
 	
@@ -112,6 +116,7 @@ if (_unitClass isEqualType "") then {
 		_isArmed = [_grpVeh] call zmm_fnc_misc_isArmed;
 		uiSleep 0.5;
 		{ _x moveInAny _grpVeh; if (vehicle _x == _x) then { deleteVehicle _x } } forEach (units _mainGrp select { vehicle _x == _x });
+		{ _x addCuratorEditableObjects [[_grpVeh]] } forEach allCurators;
 	};
 };
 
@@ -121,8 +126,6 @@ if (!isNull _grpVeh && (_vehType == "air" || (random 1 > 0.2 && _isArmed))) then
 if !(isNil "_customInit") then { 
 	if !(_customInit isEqualTo "") then { call compile _customInit; };
 };
-
-{ _x addCuratorEditableObjects [[_grpVeh] + (units _mainGrp) + (units _suppGrp)] } forEach allCurators;
 
 // *** UPS Marker was passed, so don't set any further waypoints. ***
 if (_UPSMkr != "") exitWith { ([leader _mainGrp, _UPSMkr] + (if (_vehType == "man") then { ["RANDOM", "SHOWMARKER"] } else { ["SHOWMARKER"] })) spawn zmm_fnc_aiUPS };
@@ -139,14 +142,8 @@ switch (toLower _vehType) do {
 	
 	// BOAT VEHICLES
 	case "ship": {
-		private _hasInf = !isNull _suppGrp;
-		
-		_wp = _mainGrp addWaypoint [_startingPos, 0];
-		_wp setWaypointSpeed "FULL";
-		_wp setWaypointType "MOVE";
-		
 		// Armed with no cargo, nothing to dismount
-		if (_isArmed && !_hasInf) exitWith {
+		if (_isArmed && count _suppGrps == 0) exitWith {
 			_wp = _mainGrp addWaypoint [_startingPos, 300];
 			_wp setWaypointType "SAD";
 			_mainGrp setCombatMode "RED";
@@ -154,15 +151,19 @@ switch (toLower _vehType) do {
 			_wp setWaypointType "GUARD";
 		};
 		
-		// Find a random point nearby for rough landing position
-		private _beachPos = _targetPos getPos [300, random 360];
-		for [{_i = 100}, {_i <= (_startingPos distance2D _beachPos)}, {_i = _i + 50}] do {			
-			private _checkLand = _beachPos getPos [_i, _beachPos getDir _startingPos];
-			if (surfaceIsWater _checkLand) exitWith { _beachPos = _checkLand };
+		// Find shoreline from sea spawn toward target
+		private _beachPos = _targetPos;
+		private _dir = _startingPos getDir _targetPos;
+
+		// Search along the route
+		for "_i" from 0 to (_startingPos distance2D _targetPos) step 50 do {
+			private _checkPos = _startingPos getPos [_i, _dir];
+			if !(surfaceIsWater _checkPos) exitWith { _beachPos = _checkPos getPos [-25, _dir] };
 		};
 		
 		_wp = _mainGrp addWaypoint [_beachPos, 0];
 		_wp setWaypointType "MOVE";
+		_wp setWaypointSpeed "FULL";
 		_wp setWaypointCompletionRadius 50;
 		_wp setWaypointStatements ["true", "
 			if (vehicle this == this|| !local this) exitWith {};
@@ -195,36 +196,32 @@ switch (toLower _vehType) do {
 			_wp = _mainGrp addWaypoint [selectRandom _spawnArray, 50];
 			_wp setWaypointSpeed "NORMAL";
 			_wp setWaypointType "MOVE";
-			
-			_wp = _mainGrp addWaypoint [selectRandom _spawnArray, 50];
-			_wp setWaypointType "MOVE";
-			
-			_wp = _mainGrp addWaypoint [selectRandom _spawnArray, 300];
-			_wp setWaypointType "GUARD";
-		} else {
-			_wp = _mainGrp addWaypoint [_targetPos, 300];
-			_wp setWaypointType "SAD";
-			
-			_wp = _mainGrp addWaypoint [_targetPos, 50];
-			_wp setWaypointType "GUARD";
 		};
 		
-		if _hasInf then {
-			_wp = _suppGrp addWaypoint [_beachPos, 0];
-			_wp setWaypointType "GETOUT";
-			_wp setWaypointCompletionRadius 50;
+		_wp = _mainGrp addWaypoint [selectRandom _spawnArray, 50];
+		_wp setWaypointType "MOVE";
+		
+		_wp = _mainGrp addWaypoint [selectRandom _spawnArray, 300];
+		_wp setWaypointType "GUARD";
+		
+		if (count _suppGrps > 0) then {
+			 {
+				_wp = _x addWaypoint [_beachPos, 0];
+				_wp setWaypointType "GETOUT";
+				_wp setWaypointCompletionRadius 50;
+					
+				_wp = _x addWaypoint [_targetPos, 300];
+				_wp setWaypointType "SAD";
 				
-			_wp = _suppGrp addWaypoint [_targetPos, 300];
-			_wp setWaypointType "SAD";
-			
-			_wp = _suppGrp addWaypoint [_targetPos, 50];
-			_wp setWaypointType "GUARD";
+				_wp = _x addWaypoint [_targetPos, 50];
+				_wp setWaypointType "GUARD";
+			} forEach _suppGrps;
 		};
 	};
 	
 	// AIR VEHICLES
 	case "air": {
-		private _hasInf = !isNull _suppGrp;
+		private _hasInf = count _suppGrps > 0;
 		
 		// Armed with no cargo, nothing to dismount
 		if (_isArmed && !_hasInf) exitWith {
@@ -288,21 +285,23 @@ switch (toLower _vehType) do {
 		// Infantry WPs 
 		if _hasInf then {
 			_mainGrp setBehaviour "CARELESS";
-			_wp = _suppGrp addWaypoint [_infPos, 0];
-			_wp setWaypointType "GETOUT";
-			_wp setWaypointCompletionRadius 200;
+			{
+				_wp = _x addWaypoint [_infPos, 0];
+				_wp setWaypointType "GETOUT";
+				_wp setWaypointCompletionRadius 200;
+					
+				_wp = _x addWaypoint [_targetPos, 300];
+				_wp setWaypointType "SAD";
 				
-			_wp = _suppGrp addWaypoint [_targetPos, 300];
-			_wp setWaypointType "SAD";
-			
-			_wp = _suppGrp addWaypoint [_targetPos, 50];
-			_wp setWaypointType "GUARD";
+				_wp = _x addWaypoint [_targetPos, 50];
+				_wp setWaypointType "GUARD";
+			} forEach _suppGrps;
 		};
 	};
 	
 	// ANY OTHER VEHICLE TYPES
 	default {
-		private _hasInf = !isNull _suppGrp;
+		private _hasInf = count _suppGrps > 0;
 		
 		_wp = _mainGrp addWaypoint [_startingPos, 0];
 		_wp setWaypointType "MOVE";
@@ -341,15 +340,17 @@ switch (toLower _vehType) do {
 		};
 		
 		if _hasInf then {
-			_wp = _suppGrp addWaypoint [_targetPos, 0];
-			_wp setWaypointType "GETOUT";
-			_wp setWaypointCompletionRadius _radius;
-			
-			_wp = _suppGrp addWaypoint [_targetPos, 300];
-			_wp setWaypointType 'SAD';
-			
-			_wp = _suppGrp addWaypoint [_targetPos, 50];
-			_wp setWaypointType 'GUARD';
+			{
+				_wp = _x addWaypoint [_targetPos, 0];
+				_wp setWaypointType "GETOUT";
+				_wp setWaypointCompletionRadius _radius;
+				
+				_wp = _x addWaypoint [_targetPos, 300];
+				_wp setWaypointType 'SAD';
+				
+				_wp = _x addWaypoint [_targetPos, 50];
+				_wp setWaypointType 'GUARD';
+			} forEach _suppGrps;
 		};
 	};
 };

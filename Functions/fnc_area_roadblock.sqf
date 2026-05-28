@@ -12,7 +12,7 @@ params [
 if (_centre isEqualTo [0,0,0]) exitWith { ["ERROR", format["Zone%1 - Invalid roadblock location: %1 (%2)", _zoneID, _centre]] call zmm_fnc_misc_logMsg };
 
 private _side = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
-private _locations = missionNamespace getVariable [ format[ "ZMM_%1_BlockLocations", _zoneID ], []]; // Takes too long to populate - Left blank
+private _locations = missionNamespace getVariable [ format[ "ZMM_%1_RoadLocs", _zoneID ], []]; // Takes too long to populate - Left blank
 
 private _radius = missionNamespace getVariable [ format[ "ZMM_%1_Radius", _zoneID ], 150];
 private _count = missionNamespace getVariable [format["ZMM_%1_Roadblocks", _zoneID], 1];
@@ -149,6 +149,7 @@ for "_i" from 1 to _count do {
 	for "_j" from 0 to (1 + random 3) do { _grpArr pushBack (selectRandom _menArr) };
 
 	private _tempGrp = [_key getPos [25, random 360], _side, _grpArr] call BIS_fnc_spawnGroup;
+	_tempGrp setGroupIdGlobal [format["ZMM_Z%1_G%2_ROAD", _zoneID, _i]];
 	[_tempGrp, getPos _key] call BIS_fnc_taskDefend;
 	_tempGrp deleteGroupWhenEmpty true;
 	_tempGrp spawn { sleep 5; _this enableDynamicSimulation true };
@@ -178,7 +179,7 @@ for "_i" from 1 to _count do {
 	};
 };
 
-missionNamespace setVariable [ format[ "ZMM_%1_BlockLocations", _zoneID ], _locations];
+missionNamespace setVariable [ format[ "ZMM_%1_RoadLocs", _zoneID ], _locations];
 
 _centre set [2,0];
 _centre

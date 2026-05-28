@@ -89,21 +89,22 @@ private _ZMMExtra = "<font size='18' color='#FF7F00'>Extra Settings</font><br/><
 	["ZMM_CustomHeavy", "Heavy Vehicles"]
 ];
 
-_ZMMExtra = _ZMMExtra + "<br/><br/><font size='16' color='#80FF00'>QRF Type</font><br/>If enabled globally, enemy QRF strength will be determined by difficulty settings. At lower difficult CAS and Heavy Vehicles are very unlikely. You can force the QRF type by selecting below, otherwise it will be weighted by Side (INDFOR will always have weaker units and support).<br/><br/>";
+_ZMMExtra = _ZMMExtra + "<br/><br/><font size='16' color='#80FF00'>QRF Type</font><br/>If enabled globally, enemy QRF strength will be determined by player and difficulty settings. If playing an objective, QRF will only respond to the objective location, not ambient locations. At lower difficulty CAS and Heavy Vehicles are very unlikely. You can force the QRF type by selecting below, otherwise it will default to dynamic. Bringing armed vehicles will multiply the difficulty.<br/><br/>";
 
 {
 	_x params [["_varName", "ERROR"], ["_varText", "ERROR"]];
-	_ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat 'QRF: %2';missionNamespace setVariable ['ZMM_QRFType', %1, true]; missionNamespace setVariable ['ZZM_QRF', 1, true];"">Select</execute>] %2 (%3)<br/>", _forEachIndex, _varName, _varText];
+	_ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat 'QRF %2 selected';missionNamespace setVariable ['ZMM_QRFType', %1, true]; missionNamespace setVariable ['ZZM_QRF', 1, true];"">Select</execute>] <font color='#00FFFF'>%2</font> - %3.<br/>", _forEachIndex, _varName, _varText];
 } forEach [
-	["Dynamic","Based on player count"],
-	["General","Light to Heavy Vehicles"],
-	["Motorized","Light Vehicles"],
-	["Mechanised","Medium Vehicles"],
-	["Armoured","Heavy Vehicles"],
-	["Airborne","Helicopter-based Infantry with Fixed Wing/Rotary CAS"],
-	["Infantry","Ground Fireteams and Squads"],
-	["Helicopter","Paratroopers, Landed Infantry and CAS"],
-	["Aircraft","Ground Fireteams and Squads with Fixed Wing CAS"]
+	["* Dynamic *","Based on player count"],
+	["General","Infantry with support including heavy vehicles"],
+	["Motorized","Infantry with light and unarmed assets only"],
+	["Mechanised","Infantry supported by IFVs, APC or transports"],
+	["Armoured","At least one heavy vehicle per wave, lots of vehicles"],
+	["Airborne","Rotary based infantry, mostly unarmed helicopters"],
+	["Infantry","Infantry only, no vehicles or supports will spawn"],
+	["Helicopter","Infantry and airborne forces in helicopters"],
+	["Aircraft","Infantry and light vehicles with fixed wing"],
+	["Naval","infantry with amphibious support prioritised"]
 ];
 
 _ZMMExtra = _ZMMExtra + format["[<execute expression=""systemChat 'QRF: %2';missionNamespace setVariable ['ZMM_QRFType', %1, true]; missionNamespace setVariable ['ZZM_QRF', 1, true];"">Select</execute>] %2<br/>", -1, "Random"];

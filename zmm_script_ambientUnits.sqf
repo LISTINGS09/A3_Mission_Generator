@@ -28,7 +28,6 @@ if (isNil "ZAU_FadeMarker" ) 	then { ZAU_FadeMarker = false };// Allow locations
 // Script Variables
 ZAU_Loop = true;
 ZAU_UnitsActive = [];
-ZAU_Side = if (isNil "_side") then { CIVILIAN } else { _side };
 
 private _loopNo = 1;
 
@@ -201,8 +200,8 @@ while {ZAU_Loop} do {
 			if (
 				!(surfaceIsWater (getPosATL _x)) &&
 				{count _positions > 2}
-			) then {
-				if (isNil {_x getVariable "ZAU_BuildingPositions"} || isNil {_x getVariable "ZAU_BuildingSide"}) then { 
+			) then {	
+				if ((_x getVariable ["ZAU_BuildingSide", sideUnknown]) != _side) then {
 					_x setVariable ["ZAU_BuildingPositions", _positions];
 					_x setVariable ["ZAU_BuildingSide", _side];
 				};
