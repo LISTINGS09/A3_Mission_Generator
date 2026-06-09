@@ -43,6 +43,8 @@ private _locLevel = switch (_locType) do {
 
 _locLevel = _locLevel * _difficulty;
 
+missionNamespace setVariable [format["ZMM_%1_Level", _zoneID], _locLevel];
+
 // Unit Counts
 private _unitCount = round linearConversion [8, 30, _effectivePlayers, 2, 12, true];
 	
@@ -68,10 +70,10 @@ private _lastPos = [];
 ["DEBUG", format["Zone%1 - Area Patrols (%2 level: %8):%3%4%5%6%7", 
 	_zoneID,
 	_locType,
-	if (_infantryGroups > 0) then { " INF:" + str _infantryGroups + " (" + str _unitCount + ")" } else { "" },
-	if (_lightGroups > 0) then { " LGT:" + str _lightGroups } else { "" },
-	if (_mediumGroups > 0) then { " MED:" + str _mediumGroups } else { "" },
-	if (_heavyGroups > 0) then { " HVY:" + str _heavyGroups } else { "" },
+	if (_infantryGroups > 0) then { " I:" + str _infantryGroups + " (" + str _unitCount + ")" } else { "" },
+	if (_lightGroups > 0) then { " L:" + str _lightGroups } else { "" },
+	if (_mediumGroups > 0) then { " M:" + str _mediumGroups } else { "" },
+	if (_heavyGroups > 0) then { " H:" + str _heavyGroups } else { "" },
 	if (([_customInf,_customLight,_customMedium,_customHeavy] findIf { _x >= 0 }) >= 0) then { " [CUSTOM]" } else { " [DEFAULT]" },
 	_locLevel
 	]

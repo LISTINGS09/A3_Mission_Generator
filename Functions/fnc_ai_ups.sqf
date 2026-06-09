@@ -39,7 +39,7 @@ if (isNil "ZAI_Debug") then { ZAI_Debug = !isMultiplayer }; // Disable debug mod
 // Message Logging Function
 _ZAI_fnc_LogMsg = {
 	params [["_lev", ""], ["_msg", ""]];
-	if (ZAI_Debug || _lev != "DEBUG") then { 
+	if (ZAI_Debug || _lev == "ERROR") then { 
 		systemChat format["UPS %1: %2",_lev, _msg];
 		diag_log text format["[UPS] %1: %2",_lev, _msg];
 	};

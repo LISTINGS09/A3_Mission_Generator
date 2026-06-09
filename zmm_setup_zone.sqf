@@ -37,9 +37,9 @@ private _locLevel = switch (_locType) do {
 	case "NameCity": { 10 };
 	case "NameVillage": { 8 };
 	case "NameLocal": { 6 };
-	case "Ambient": { 4 };
 	case "Task": { 6 };
-	default { 4 };
+	case "Custom": { 6 };
+	default { 4 }; // Ambient
 };
 
 _locLevel = _locLevel * (0.75 + (_difficulty * 0.25));;
@@ -69,12 +69,13 @@ missionNamespace setVariable [format[ "ZMM_%1_QRFTime", _zoneID ], _zoneQRFTime 
 missionNamespace setVariable [format[ "ZMM_%1_QRFWaves", _zoneID ], _zoneQRFWaves ];
 missionNamespace setVariable [format[ "ZMM_%1_IEDs", _zoneID ], _zoneIEDs];
 
-["DEBUG", format["Zone%1 - Setup Zone - %2 - %3%4%5%6%7%8", _zoneID, _locType, _side,
+["DEBUG", format["Zone%1 - Setup Zone - %2 (Level %9) - %3%4%5%6%7%8", _zoneID, _locType, _side,
 		if (_zoneGarrison > 0) then { " Garrison:" + str _zoneGarrison } else { "" },
 		if (_zoneRoadblocks > 0) then { " Roadblock:" + str _zoneRoadblocks } else { "" },
 		if (_zoneSupport > 0) then { " Supports:" + str _zoneSupport } else { "" },
 		if (_zoneQRFWaves > 0) then { " Waves:" + str _zoneQRFWaves } else { "" },
-		if (_zoneIEDs > 0) then { " IEDs:" + str _zoneIEDs } else { "" }
+		if (_zoneIEDs > 0) then { " IEDs:" + str _zoneIEDs } else { "" },
+		_locLevel
 	]] call zmm_fnc_misc_logMsg;
 
 // Create Markers
@@ -91,15 +92,17 @@ _mrk setMarkerAlpha 0.3;
 _mrk setMarkerColor format["color%1", _side];
 _mrk setMarkerSize [ _radius * _locSize, _radius * _locSize];
 
-// SERVER ONLY MARKER
-if (!isDedicated) then {
-	_mrk = createMarkerLocal [ format["MKR_Z%1_MAX", _zoneID], _pos ];
-	_mrk setMarkerShapeLocal "ELLIPSE";
-	_mrk setMarkerBrushLocal "BORDER";
-	_mrk setMarkerAlphaLocal 0.2;
-	_mrk setMarkerColorLocal format["color%1", _side];
-	_mrk setMarkerSizeLocal [ _radius * 2, _radius * 2];
+_mrk = createMarker [ format["MKR_Z%1_MAX", _zoneID], _pos ];
+_mrk setMarkerShape "ELLIPSE";
+_mrk setMarkerBrush "BORDER";
+_mrk setMarkerAlpha 0;
+_mrk setMarkerColor format["color%1", _side];
+_mrk setMarkerSize [ _radius * 2, _radius * 2];
 
+// SERVER ONLY MARKER
+if (isServer) then {
+	_mrk setMarkerAlphaLocal 0.3; // Set MKR_Z%1_MAX visible
+	
 	// SERVER ONLY MARKER
 	_mrk = createMarkerLocal [ format["MKR_Z%1_TRG", _zoneID], _pos ];
 	_mrk setMarkerShapeLocal "ELLIPSE";

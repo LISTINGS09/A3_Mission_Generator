@@ -33,7 +33,7 @@ if (count _enemyMen isEqualTo 0) exitWith { ["ERROR", format["Zone%1 (%2) - No v
 		//missionNamespace setVariable [format["ZMM_%1_UID",_zoneID], _uid + 1];
 		
 		private _grp = createGroup [_side, true];
-		_grp setGroupId [format["ZMM_Z%1_%2_GARRISON", _zoneID, _forEachIndex]];
+		_grp setGroupId [format["Z%1_%2_GARRISON", _zoneID, _forEachIndex]];
 
 		private _places = if (count _bPos > 6) then { ceil random 4 } else { 2 };
 		
