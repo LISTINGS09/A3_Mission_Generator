@@ -80,19 +80,19 @@ private _lastPos = [];
 ] call zmm_fnc_misc_logMsg;
 
 for "_i" from 1 to (if (_customInf >= 0) then { _customInf } else { _infantryGroups }) do {
-	[_centre, _spawnArr, _side, _unitCount, 200, 0, _zoneID, _mkrSm] call zmm_fnc_qrf_spawnGroup;
+	[_zoneID, _centre, _spawnArr, _side, _unitCount, 200, 0, _mkrSm] call zmm_fnc_qrf_spawnGroup;
 };
 
 for "_i" from 1 to (if (_customLight >= 0) then { _customLight } else { _lightGroups }) do {
-	[_centre, _spawnArr, _side, selectRandom (missionNamespace getVariable [format["ZMM_%1_Light",_side], []]), 300, 0, _zoneID, selectRandom [_mkrLg,_mkrSm]] call zmm_fnc_qrf_spawnGroup;
+	[_zoneID, _centre, _spawnArr, _side, selectRandom (missionNamespace getVariable [format["ZMM_%1_Light",_side], []]), 300, 0, selectRandom [_mkrLg,_mkrSm]] call zmm_fnc_qrf_spawnGroup;
 };
 
 for "_i" from 1 to (if (_customMedium >= 0) then { _customMedium } else { _mediumGroups }) do {
-	[_centre, _spawnArr, _side, selectRandom (missionNamespace getVariable [format["ZMM_%1_Medium",_side], []]), 300, 0, _zoneID, selectRandom [_mkrLg,_mkrSm]] call zmm_fnc_qrf_spawnGroup;
+	[_zoneID, _centre, _spawnArr, _side, selectRandom (missionNamespace getVariable [format["ZMM_%1_Medium",_side], []]), 300, 0, selectRandom [_mkrLg,_mkrSm]] call zmm_fnc_qrf_spawnGroup;
 };
 
 for "_i" from 1 to (if (_customHeavy >= 0) then { _customHeavy } else { _heavyGroups }) do {
-	[_centre, _spawnArr, _side, selectRandom (missionNamespace getVariable [format["ZMM_%1_Heavy",_side], []]), 400, 0, _zoneID, selectRandom [_mkrLg,_mkrSm]] call zmm_fnc_qrf_spawnGroup;
+	[_zoneID, _centre, _spawnArr, _side, selectRandom (missionNamespace getVariable [format["ZMM_%1_Heavy",_side], []]), 400, 0, selectRandom [_mkrLg,_mkrSm]] call zmm_fnc_qrf_spawnGroup;
 };
 
 missionNamespace setVariable [format[ "ZMM_%1_PatrolsEnabled", _zoneID], false];

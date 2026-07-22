@@ -1,8 +1,8 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.76;
+ZMM_Version = 4.78;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
-ZMM_Debug = !isMultiplayer;
+ZMM_Debug = !isMultiplayer || (missionNamespace getVariable ["f_param_debugMode",0] == 1);
 // ZZM_Template = "vanilla"; // Force Template
 // ZZM_Mode = 0; // Objective Selection
 // ZZM_Mode = 1; // CTI Intel Mode

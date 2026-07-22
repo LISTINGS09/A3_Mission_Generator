@@ -19,9 +19,9 @@ if !(_tskRadius isEqualType 0) then { _tskRadius = 25 };
 	
 // Overwrite depending on location
 private _waves = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
-private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) max 200;
+private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) min 200;
 private _timePerWave = 300;
-private _time = _waves * _timePerWave;
+private _time = (_waves * _timePerWave) + 300;
 
 // Create Information Trigger
 private _infTrigger = createTrigger ["EmptyDetector", _tskCentre, false];
@@ -29,8 +29,8 @@ _infTrigger setTriggerArea [_tskRadius, _tskRadius, 0, false, 150];
 _infTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _infTrigger setTriggerTimeout [120, 120, 120, true];
 _infTrigger setTriggerStatements [  "this", 
-	format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend %1 for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];
-	[] spawn { sleep 60; [ %3, false, %4, %5 ] spawn zmm_fnc_areaQRF; };
+	format["['Command','Additional enemy forces are inbound ETA 5 Minutes. Defend %1 for %2 minutes.'] remoteExec ['BIS_fnc_showSubtitle',0];	
+	[] spawn { sleep 60; [ %3, false, %4, %5, 0 ] spawn zmm_fnc_areaQRF; };
 	[] spawn { sleep 150; [ %3, false, %4, %5, 5 ] spawn zmm_fnc_areaQRF; };
 	deleteVehicle TR_%3_TASK_DEFEND;
 	", _locName, _time / 60, _zoneID, _delay, _waves],

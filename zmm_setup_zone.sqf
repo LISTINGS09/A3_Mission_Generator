@@ -42,18 +42,18 @@ private _locLevel = switch (_locType) do {
 	default { 4 }; // Ambient
 };
 
-_locLevel = _locLevel * (0.75 + (_difficulty * 0.25));;
+_locLevel = _locLevel * (0.45 + (_difficulty * 0.55));
 
 private _iconSize = linearConversion [  4, 12, _locLevel, 0.4, 1.2, true];
 private _locSize = linearConversion [ 4, 12, _locLevel, 0.75, 1.25, true ];
 
 private _zonePatrol = true;
-private _zoneGarrison = round linearConversion [ 4,	12,	_locLevel,	15 + random 5,	45 + random 10,	true ];
-private _zoneRoadblocks = round linearConversion [ 4, 12, _locLevel, random 1, 2 + random 2, true ];
-private _zoneSupport = round linearConversion [ 4, 12, _locLevel, random 1, 2 + random 2, true ];
-private _zoneQRFTime = round linearConversion [ 4, 12, _locLevel, 1200, 300, true ];
-private _zoneQRFWaves = round linearConversion [ 4, 12, _locLevel, 0, 8, true ];
-private _zoneIEDs = round linearConversion [ 4, 12, _locLevel, 0, 3, true ];
+private _zoneGarrison = round linearConversion [ 4,	14,	_locLevel,	20,	50,	true ];
+private _zoneRoadblocks = round linearConversion [ 6, 14, _locLevel, 0, 2, true ];
+private _zoneSupport = round linearConversion [ 8, 14, _locLevel, 0, 1, true ];
+private _zoneQRFTime = round linearConversion [ 4, 14, _locLevel, 1200, 300, true ];
+private _zoneQRFWaves = round linearConversion [ 4, 14, _locLevel, 0, 8, true ];
+private _zoneIEDs = round linearConversion [ 4, 14, _locLevel, 0, 3, true ];
 
 // Ambient zones have no QRF
 if (_locType isEqualTo "Ambient") then { _zoneQRFTime = 0; _zoneQRFWaves = 0 };

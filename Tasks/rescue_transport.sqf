@@ -99,10 +99,7 @@ zmm_fnc_releasePrisoners = {
 private _prisMax = getNumber (configFile >> "CfgVehicles" >> _vehType >> "transportSoldier");
 
 for "_i" from 1 to _prisMax do {
-
-	private _civGrp = createGroup civilian;
-	_civGrp setGroupIdGlobal [format["ZMM_OBJ%1_CIV%2", _zoneID, _i]];
-	private _tempMan = _civGrp ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];
+	private _tempMan = createAgent ["C_man_w_worker_F", [0,0,0], [], 150, "NONE"];
 	_tempMan setVariable ["BIS_fnc_animalBehaviour_disable", true];
 	_tempMan assignAsCargo _tskVeh;
 	_tempMan moveInCargo _tskVeh;

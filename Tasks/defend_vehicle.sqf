@@ -19,7 +19,7 @@ if (_tskCentre isEqualTo _tskPos || _tskPos isEqualTo [0,0,0]) then { _tskPos = 
 
 // Overwrite depending on location
 private _waves = 5;
-private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) max 200;
+private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) min 200;
 
 // Select vehicle type
 selectRandom [
@@ -85,10 +85,10 @@ missionNamespace setVariable [format["ZMM_%1_OBJ", _zoneID], _veh];
 			parseText format["<br/><img size='2' image='\a3\ui_f\data\IGUI\Cfg\simpleTasks\types\%1_ca.paa'/><br/><br/><t size='1.5'>Checking</t><br/>%2<br/><br/><t size='1.5' color='#00CD00'>Complete</t><br/><t color='#00CD00'></t><br/><br/><t size='1.5' color='#CCCCCC'>Vehicle Ready!</t><br/><br/>", "repair", getText (configFile >> "CfgVehicles" >> typeOf _target >> "displayName")] remoteExec ["hintSilent"]; 
 			_target setVariable ["var_allDone", true, true]; 
 			[ _target, _actionID ] remoteExec ["BIS_fnc_holdActionRemove"];
-			_target setFuel 1;
-			_target setDamage 0;
-			_target engineOn true;
-			_target lock false;
+			[_target, 1] remoteExec ["setFuel", _target];
+			[_target, 0] remoteExec ["setDamage", _target];
+			[_target, true] remoteExec ["engineOn", _target];
+			[_target, false] remoteExec ["lock", _target];
 			
 			[_repairMan, { if (!alive _this) exitWith {}; 
 				[name _this,"Vehicle is repaired; it is all yours!"] remoteExec ["BIS_fnc_showSubtitle"];
@@ -121,7 +121,13 @@ _qrfTrigger setTriggerArea [100, 100, 0, false, 150];
 _qrfTrigger setTriggerActivation ["ANYPLAYER", "PRESENT", false];
 _qrfTrigger setTriggerTimeout [240, 240, 240, true];
 _qrfTrigger setTriggerStatements [ "this",
-	format["_nul = [] spawn {  [ %2, false, %3, (%4 / 2), 5 ] spawn zmm_fnc_areaQRF; sleep 10; [ %2, false, %3, %4 ] spawn zmm_fnc_areaQRF; sleep 10; [ %2, false, %3, %4, 0] spawn zmm_fnc_areaQRF; }", 0, _zoneID, _delay, _waves],
+	format["_nul = [] spawn {
+			[ %2, false, %3, (%4 / 2), 5 ] spawn zmm_fnc_areaQRF; 
+			sleep 10;
+			[ %2, false, %3, %4 ] spawn zmm_fnc_areaQRF;
+			sleep 10;
+			[ %2, false, %3, %4, 0 ] spawn zmm_fnc_areaQRF;
+		}", 0, _zoneID, _delay, _waves],
 	"" ];
 
 // Add to Zeus

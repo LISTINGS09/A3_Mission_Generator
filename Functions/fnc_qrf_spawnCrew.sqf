@@ -11,7 +11,7 @@ private _crewPositions = fullCrew [_veh, "", true];
 private _vehicleCrewSeats = _crewPositions select { (_x # 1) in ["driver", "gunner", "commander", "turret"] };
 private _cargoSeats = _crewPositions select { (_x # 1) isEqualTo "cargo" };
 private _crewCount = count _vehicleCrewSeats;
-private _enemyMen = missionNamespace getVariable [ format ["ZMM_%1_Man", _side], ["O_Soldier_F"]];
+private _enemyMen = missionNamespace getVariable [ format ["ZMM_%1_Man", _side], [(["O_Soldier_F","B_Soldier_F","I_Soldier_F"] select (_side call BIS_fnc_sideID))]];
 private _spawnPos = _veh getPos [5, random 360];
 
 // MAIN VEHICLE CREW

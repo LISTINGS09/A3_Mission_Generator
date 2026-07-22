@@ -43,7 +43,7 @@ if (_tskPos isEqualTo []) then {
 
 // Overwrite depending on location
 private _waves = missionNamespace getVariable ["ZZM_ObjectiveCount", 3];
-private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) max 200;
+private _delay = (missionNamespace getVariable [format[ "ZMM_%1_QRFTime", _zoneID ], 300]) min 200;
 private _timePerWave = 300;
 private _time = _waves * _timePerWave;
 

@@ -82,22 +82,23 @@ private _tskObj = objNull;
 	
 	["DEBUG", format["destroy_convoy (%1) - Creating %2 at %3", _zoneID, _vehType, _vehPos]] call zmm_fnc_misc_logMsg;
 	
-	private _tskVeh = createVehicle [_vehType, _vehPos, [], 0, "NONE"];
+	// MUST BE CALLED THIS VARIABLE FOR INIT SCRIPTS!!
+	private _grpVeh = createVehicle [_vehType, _vehPos, [], 0, "NONE"];
 	
 	// Run custom script if provided
 	if (_customInit != "") then { _nul = call compile _customInit };
 		
-	missionNamespace setVariable [format["ZMM_%1_VEH_%2", _zoneID, _forEachIndex], _tskVeh];	
+	missionNamespace setVariable [format["ZMM_%1_VEH_%2", _zoneID, _forEachIndex], _grpVeh];	
 	
-	private _cargoS = count fullCrew [_tskVeh, "cargo", true];
-	private _cargoF = count fullCrew [_tskVeh, "turret", true];	
-	private _crew = (count fullCrew [_tskVeh, "", true]) - _cargoS - _cargoF;
+	private _cargoS = count fullCrew [_grpVeh, "cargo", true];
+	private _cargoF = count fullCrew [_grpVeh, "turret", true];	
+	private _crew = (count fullCrew [_grpVeh, "", true]) - _cargoS - _cargoF;
 
 	// Create crew.
 	for "_i" from 1 to _crew do {
 		_tempMan = _enemyGrp createUnit [selectRandom _manList, [0,0,0], [], 150, "NONE"];
 		[_tempMan] joinSilent _enemyGrp; 
-		_tempMan moveInAny _tskVeh;
+		_tempMan moveInAny _grpVeh;
 	};
 	
 	// TODO: FFV Seats not included? Open FIA trucks are empty!
@@ -108,12 +109,12 @@ private _tskObj = objNull;
 		for "_i" from 1 to (_cargoS + _cargoF) do {
 			_tempMan = _cargoGrp createUnit [selectRandom _manList, [0,0,0], [], 150, "NONE"];
 			[_tempMan] joinSilent _enemyGrp; 
-			_tempMan moveInAny _tskVeh;
+			_tempMan moveInAny _grpVeh;
 		};
 		
 		// Add a beret to the middle transport group.
 		if (_forEachIndex == 1) then {
-			_tskObj = selectRandom (if (count units _cargoGrp > 0) then { units _cargoGrp } else { crew _tskVeh });
+			_tskObj = selectRandom (if (count units _cargoGrp > 0) then { units _cargoGrp } else { crew _grpVeh });
 			_tskObj addHeadgear "H_Beret_blk";
 			_tskObj setVariable ["var_zoneID", _zoneID, true];
 			_tskObj setVariable ["var_itemType", _itemType, true];
@@ -125,11 +126,11 @@ private _tskObj = objNull;
 		{ _x addCuratorEditableObjects [units _cargoGrp, true] } forEach allCurators;
 	};
 		
-	if (alive _tskVeh) then {
+	if (alive _grpVeh) then {
 		// Add to Zeus
-		{ _x addCuratorEditableObjects [[_tskVeh], true] } forEach allCurators;
+		{ _x addCuratorEditableObjects [[_grpVeh], true] } forEach allCurators;
 		
-		_tskVeh setConvoySeparation 20;
+		_grpVeh setConvoySeparation 20;
 	
 		_tskActivation pushBack format["!alive ZMM_%1_VEH_%2", _zoneID, _forEachIndex];
 	

@@ -1,28 +1,23 @@
-// [getPos selectRandom allPlayers select { alive _x }, [[0,0,0]], EAST, selectRandom ZMM_GUER_CasP] call zmm_fnc_qrf_spawnGroup;
-// [getPos (selectRandom (allPlayers select { alive _x })), [((selectRandom (allPlayers select { alive _x })) getPos [4000, random 360])], EAST, selectRandom ZMM_GUER_CasP] call zmm_fnc_qrf_spawnGroup;
+// [0, getPos player, [player getPos [3000, random 360]], EAST, 8] call zmm_fnc_qrf_spawnGroup;
+// [0, getPos (selectRandom (allPlayers select { alive _x })), [((selectRandom (allPlayers select { alive _x })) getPos [4000, random 360])], EAST, selectRandom ZMM_GUER_CasP] call zmm_fnc_qrf_spawnGroup;
 // zmm_fnc_qrf_spawnGroup
 params [
+	["_zoneID", 0],				// The instance this group belongs to
 	["_targetPos", []],			// Target Destination to stop at
 	["_spawnArray", []],		// Array of String/Object/Marker Starting Positions
 	["_side", WEST],			// Side of spawned vehicle
 	["_startClass", ""],		// Classname, Config, Number or Array [classname,code]
 	["_spawnDistCheck", 500],	// Don't spawn this close to players
 	["_tries", 0],				// If too close to players, then try up to 5 times
-	["_zoneID", 0],				// ZMM Compatability - The Zone this group will belong
 	["_UPSMkr",""]				// ZMM Compatability - If this exists will call UPS to allow patrol instead of travel
 ];
-
 
 if (_startClass isEqualTo "") exitWith { ["WARNING", format["spawnGroup - Empty Unit Passed: %1 (%2)", _startClass, _side]] call zmm_fnc_misc_logMsg };
 if (_tries > 5 || count _spawnArray == 0 || count _targetPos == 0) exitWith {
 	["WARNING", format["spawnGroup - Exiting: %1 %2 %3", _tries, _spawnArray, _targetPos]] call zmm_fnc_misc_logMsg
 };
 
-private _id = if (_zoneID > 0) then { _zoneID } else { missionNamespace getVariable ["ZQR_wave", 0] };
-private _uid = (missionNamespace getVariable ["ZQR_count", 0]) + 1;	
-ZQR_count = _uid;
-
-//["DEBUG", format["W%1_G%2 - qrf_spawnGroup - Starting - %3 [%4] Attempt:%5", _id, _uid, _startClass, _side, _tries]] call zmm_fnc_misc_logMsg;
+//["DEBUG", format["%1 - qrf_spawnGroup - Starting - %2 [%3] Attempt:%4", _gid, _startClass, _side, _tries]] call zmm_fnc_misc_logMsg;
 
 private _unitClass = _startClass;
 private _mainGrp = grpNull;
@@ -41,13 +36,20 @@ private _customInit = "";
 
 private _startingPos = selectRandom _spawnArray;
 _startingPos set [2,0];
-private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _side], ["O_Soldier_F"]];
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _side], [(["O_Soldier_F","B_Soldier_F","I_Soldier_F"] select (_side call BIS_fnc_sideID))]];
 
 // Don't spawn object if too close to any players.
 if ( isMultiplayer && {allPlayers findIf { alive _x && _x distance2D _startingPos < _spawnDistCheck } > -1} ) exitWith {
 	sleep 30;
-	[_targetPos, _spawnArray, _side, _startClass, _spawnDistCheck, _tries + 1, _zoneID, _UPSMkr] call zmm_fnc_qrf_spawnGroup;
+	[_zoneID, _targetPos, _spawnArray, _side, _startClass, _spawnDistCheck, _tries + 1, _UPSMkr] call zmm_fnc_qrf_spawnGroup;
 };
+
+private _id = missionNamespace getVariable [format["ZQR_%1_CurrentWave", _zoneID], 0];
+private _num = (missionNamespace getVariable [format["ZQR_%1_Count", _zoneID], 0]) + 1;	
+missionNamespace setVariable [format["ZQR_%1_Count", _zoneID], _num];
+
+private _gid = format["W%1_G%2", _id, _num];
+if (_UPSMkr != "") then { _gid = format["Z%1_%2", _zoneID, _gid] };
 
 // If _unitClass is array, extract the custom init.
 // if (_unitClass isEqualType []) then { _unitClass params ["_unitClass","_customInit"] }; // Does this overwrite class correctly??
@@ -63,7 +65,7 @@ if (_unitClass isEqualType 1) then {
 
 private _isArmed = false;
 	
-//["DEBUG", format["W%1_G%3 - qrf_spawnGroup - Spawning - %4 [%5] at %6", _id, _uid, _unitClass, _side, _startingPos]] call zmm_fnc_misc_logMsg;
+//["DEBUG", format["%1 - qrf_spawnGroup - Spawning - %2 [%3] at %4", _gid, _unitClass, _side, _startingPos]] call zmm_fnc_misc_logMsg;
 
 if (_unitClass isEqualType "") then {
 	_vehType = toLower getText (configFile >> "CfgVehicles" >> _unitClass >> "vehicleClass");
@@ -86,13 +88,13 @@ if (_unitClass isEqualType "") then {
 	
 	([_grpVeh, _side, _fillVeh] call zmm_fnc_qrf_spawnCrew) params ["_crewGrp","_cargoGrps"];
 	_mainGrp = _crewGrp;
-	_mainGrp setGroupIdGlobal [format["QRF_W%1_G%2", _id, _uid]];
+	_mainGrp setGroupIdGlobal [format["QRF_%1", _gid]];
 	
-	["DEBUG", format["W%1_G%2 - spawnGroup %3%4%5", _id, _uid, _unitClass, if (_fillVeh) then { " with inf" } else {""}, _startingPos]] call zmm_fnc_misc_logMsg;
+	["DEBUG", format["%1 - spawnGroup %2%3%4", _gid, _unitClass, if (_fillVeh) then { " with inf" } else {""}, _startingPos]] call zmm_fnc_misc_logMsg;
 	// Leave group as main if its unarmed, otherwise split them into a infantry group
 	if _fillVeh then {
 		{ 
-			_x setGroupIdGlobal [format["QRF_W%1_G%2_INF%3", _id, _uid, _forEachIndex]];
+			_x setGroupIdGlobal [format["QRF_%1_INF%3", _gid, _forEachIndex]];
 			_x addVehicle _grpVeh;
 			_wp = _x addWaypoint [_targetPos, 50];
 			_wp setWaypointType "GUARD";
@@ -102,10 +104,10 @@ if (_unitClass isEqualType "") then {
 		_suppGrps = _cargoGrps;
 	};
 } else {
-	["DEBUG", format["W%1_G%2 - spawnGroup %3", _id, _uid, _unitClass]] call zmm_fnc_misc_logMsg;
+	["DEBUG", format["%1 - spawnGroup %2", _gid, _unitClass]] call zmm_fnc_misc_logMsg;
 	_mainGrp = [_startingPos, _side, _unitClass] call BIS_fnc_spawnGroup;
 	_mainGrp deleteGroupWhenEmpty true;
-	_mainGrp setGroupIdGlobal [format["QRF_W%1_G%2", _id, _uid]];
+	_mainGrp setGroupIdGlobal [format["QRF_%1", _gid]];
 	{ _x addCuratorEditableObjects [units _mainGrp] } forEach allCurators;
 		
 	_vehArray = (units _mainGrp apply { assignedVehicle _x }) - [objNull];

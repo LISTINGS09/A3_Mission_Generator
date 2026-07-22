@@ -1,10 +1,18 @@
+// [0, getPos player, [player getPos [3000, random 360]], EAST] call zmm_fnc_qrf_spawnPara;
 // zmm_fnc_qrf_spawnPara from QRF
-params [["_targetPos", [0,0,0]], ["_spawnArray", []], ["_side", EAST], ["_veh", ""]];
+params [["_zoneID", 0], ["_targetPos", [0,0,0]], ["_spawnArray", []], ["_side", EAST], ["_veh", []];
 
-private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man",_side],["O_Soldier_F"]];
-private _wave = missionNamespace getVariable ["ZQR_wave", 0];
-private _uid = (missionNamespace getVariable ["ZQR_count", 0]) + 1;	
-missionNamespace setVariable ["ZQR_count", _uid];
+if (_veh == []) then { _veh = [(["O_Heli_Light_02_unarmed_F","B_Heli_Transport_01_F","I_Heli_light_03_unarmed_F"] select (_side call BIS_fnc_sideID))] };
+if (_spawnArray == []) then { _spawnArray = [_targetPos getPos [3000, random 360]] };
+
+private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man",_side], [(["O_Soldier_F","B_Soldier_F","I_Soldier_F"] select (_side call BIS_fnc_sideID))]];
+
+private _id = missionNamespace getVariable [format["ZQR_%1_CurrentWave", _zoneID], 0];
+private _num = (missionNamespace getVariable [format["ZQR_%1_Count", _zoneID], 0]) + 1;	
+missionNamespace setVariable [format["ZQR_%1_Count", _zoneID], _num];
+
+private _gid = format["W%1_G%1", _id, _num];
+if (_zoneID > 0) then { _gid = format["Z%1_%2", _zoneID, _gid] };
 
 private _groupMax = 99; // Maximum para groups
 private _groupSize = 8; // Units number per para group
@@ -15,7 +23,7 @@ _startPos set [2, 350];
 private _customInit = "";
 if (_veh isEqualType []) then { _customInit = _veh#1; _veh = _veh#0 };
 
-["DEBUG", format["W%1_G%2 - spawnPara %3", _wave, _uid, _veh]] call zmm_fnc_misc_logMsg;
+["DEBUG", format["%1 - spawnPara %2", _gid, _veh]] call zmm_fnc_misc_logMsg;
 
 private _grpVeh = createVehicle [_veh, _startPos, [], 0, "NONE"];
 private _dirTo =  _grpVeh getDir _targetPos;
@@ -35,7 +43,7 @@ if !(isNil "_customInit") then { if !(_customInit isEqualTo "") then { call comp
 _grpVeh setVelocityModelSpace [0, 120, 5];
 
 {
-	_x setGroupIdGlobal [format["QRF_W%1_G%2_PARA%3", _wave, _uid, _forEachIndex]];
+	_x setGroupIdGlobal [format["QRF_%1_PARA%2", _gid, _forEachIndex]];
 	private _wp = _x addWaypoint [_targetPos, 0];
 	_wp setWaypointType 'SAD';
 	_wp = _x addWaypoint [_targetPos, 0];
@@ -75,7 +83,7 @@ _wp setWaypointStatements ["true","
 "];
 
 if (([_grpVeh] call zmm_fnc_misc_isArmed) && random 1 > 0.7) then {
-	_grpPilot setGroupIdGlobal [format["QRF_W%1_G%2_CREW", _wave, _uid]];
+	_grpPilot setGroupIdGlobal [format["QRF_%1_CREW", _gid]];
 	_wp = _grpPilot addWaypoint [_targetPos, 0];
 	_wp setWaypointType "SAD";
 	_wp setWaypointCompletionRadius 300;

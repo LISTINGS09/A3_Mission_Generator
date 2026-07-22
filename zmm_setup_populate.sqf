@@ -28,10 +28,10 @@ if _doGarrison then {
 	[_zoneID] spawn zmm_fnc_areaMilitarise;
 	[_zoneID] spawn zmm_fnc_areaGarrison;
 };
-if _doRoadblock then { [_zoneID] spawn zmm_fnc_areaRoadblock };
-if _doSupport then { [_zoneID] spawn zmm_fnc_areaSupport };
-if _doQRF then { [_zoneID, true] spawn zmm_fnc_areaQRF };
-if _doIED then { [_zoneID] spawn zmm_fnc_areaIED };
+if _doRoadblock then { [ _zoneID ] spawn zmm_fnc_areaRoadblock };
+if _doSupport then { [ _zoneID ] spawn zmm_fnc_areaSupport };
+if _doQRF then { [ _zoneID, true ] spawn zmm_fnc_areaQRF };
+if _doIED then { [ _zoneID ] spawn zmm_fnc_areaIED };
 
 // Change sector colour when cleared on CTI Mode
 if (((getMarkerSize format["MKR_Z%1_MIN", _zoneID])#0) > 0 && isNil format["TR_%1_CLEAR", _zoneID]) then {
