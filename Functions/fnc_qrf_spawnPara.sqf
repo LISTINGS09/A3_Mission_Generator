@@ -1,9 +1,15 @@
 // [0, getPos player, [player getPos [3000, random 360]], EAST] call zmm_fnc_qrf_spawnPara;
 // zmm_fnc_qrf_spawnPara from QRF
-params [["_zoneID", 0], ["_targetPos", [0,0,0]], ["_spawnArray", []], ["_side", EAST], ["_veh", []];
+params [
+	["_zoneID", 0],
+	["_targetPos", [0,0,0]],
+	["_spawnArray", []],
+	["_side", EAST],
+	["_veh", ""]
+];
 
-if (_veh == []) then { _veh = [(["O_Heli_Light_02_unarmed_F","B_Heli_Transport_01_F","I_Heli_light_03_unarmed_F"] select (_side call BIS_fnc_sideID))] };
-if (_spawnArray == []) then { _spawnArray = [_targetPos getPos [3000, random 360]] };
+if (_veh isEqualTo "") then { _veh = (["O_Heli_Light_02_unarmed_F","B_Heli_Transport_01_F","I_Heli_light_03_unarmed_F"] select (_side call BIS_fnc_sideID)) };
+if (_spawnArray isEqualTo []) then { _spawnArray = [_targetPos getPos [3000, random 360]] };
 
 private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man",_side], [(["O_Soldier_F","B_Soldier_F","I_Soldier_F"] select (_side call BIS_fnc_sideID))]];
 
@@ -25,7 +31,7 @@ if (_veh isEqualType []) then { _customInit = _veh#1; _veh = _veh#0 };
 
 ["DEBUG", format["%1 - spawnPara %2", _gid, _veh]] call zmm_fnc_misc_logMsg;
 
-private _grpVeh = createVehicle [_veh, _startPos, [], 0, "NONE"];
+private _grpVeh = createVehicle [_veh, _startPos, [], 0, "FLY"];
 private _dirTo =  _grpVeh getDir _targetPos;
 private _dirFrom =  (_grpVeh getDir _targetPos) + 180;
 _grpVeh setDir _dirTo;
