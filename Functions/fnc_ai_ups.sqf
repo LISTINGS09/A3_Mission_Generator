@@ -99,7 +99,7 @@ if ((_grp getVariable ["ZAI_ID", -1]) > 0) exitWith { ["ERROR", format["UPS Alre
 
 // give this group a unique index
 _grpIDx = str ZAI_ID;
-_grp setGroupId [format["ZAI_%1_%2", side _grp, _grpIDx]];
+_grp setGroupIdGlobal [format["ZAI_%1_%2", side _grp, _grpIDx]];
 _grp setVariable ["ZAI_ID", ZAI_ID];
 _grp setVariable ["ZAI_AREA", _areaName];
 

@@ -1,4 +1,5 @@
 //[1] execVM "scripts\ZMM\Functions\fnc_misc_zoneInfo.sqf";
+//[1] call zmm_fnc_zoneInfo;
 if !isServer exitWith {};
 
 params [["_zoneID", 0]];

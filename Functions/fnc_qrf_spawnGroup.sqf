@@ -14,7 +14,7 @@ params [
 
 if (_startClass isEqualTo "") exitWith { ["WARNING", format["spawnGroup - Empty Unit Passed: %1 (%2)", _startClass, _side]] call zmm_fnc_misc_logMsg };
 if (_tries > 5 || count _spawnArray == 0 || count _targetPos == 0) exitWith {
-	["WARNING", format["spawnGroup - Exiting: %1 %2 %3", _tries, _spawnArray, _targetPos]] call zmm_fnc_misc_logMsg
+	["WARNING", format["spawnGroup - Exiting: Tries:%1 Starting:%2 Target:%3", _tries, _spawnArray, _targetPos]] call zmm_fnc_misc_logMsg
 };
 
 //["DEBUG", format["%1 - qrf_spawnGroup - Starting - %2 [%3] Attempt:%4", _gid, _startClass, _side, _tries]] call zmm_fnc_misc_logMsg;
@@ -44,7 +44,7 @@ if ( isMultiplayer && {allPlayers findIf { alive _x && _x distance2D _startingPo
 	[_zoneID, _targetPos, _spawnArray, _side, _startClass, _spawnDistCheck, _tries + 1, _UPSMkr] call zmm_fnc_qrf_spawnGroup;
 };
 
-private _id = missionNamespace getVariable [format["ZQR_%1_CurrentWave", _zoneID], 0];
+private _id = missionNamespace getVariable [format["ZQR_%1_Wave", _zoneID], 0];
 private _num = (missionNamespace getVariable [format["ZQR_%1_Count", _zoneID], 0]) + 1;	
 missionNamespace setVariable [format["ZQR_%1_Count", _zoneID], _num];
 
@@ -224,16 +224,24 @@ switch (toLower _vehType) do {
 	// AIR VEHICLES
 	case "air": {
 		private _hasInf = count _suppGrps > 0;
-		
 		// Armed with no cargo, nothing to dismount
 		if (_isArmed && !_hasInf) exitWith {
-			_wp = _mainGrp addWaypoint [_targetPos, 200];
-			_wp setWaypointType "SAD";
-			_wp setWaypointCompletionRadius 500;
-			_wp setWaypointBehaviour "AWARE";
-			_wp = _mainGrp addWaypoint [_targetPos getPos [400, random 360], 200];
-			_wp setWaypointType "LOITER";
-			_wp setWaypointCompletionRadius 1000;
+			// Blackfish specific logic (CCW Loiter Path)
+			if (typeOf _grpVeh isEqualTo "B_T_VTOL_01_armed_F") then {
+				_grpVeh flyInHeight 250;
+				_wp = _mainGrp addWaypoint [_targetPos, 200];
+				_wp setWaypointType "LOITER";
+				_wp setWaypointLoiterType "CIRCLE_L";
+				_wp setWaypointLoiterRadius 600;
+			} else {
+				_wp = _mainGrp addWaypoint [_targetPos, 200];
+				_wp setWaypointType "SAD";
+				_wp setWaypointCompletionRadius 500;
+				_wp setWaypointBehaviour "AWARE";
+				_wp = _mainGrp addWaypoint [_targetPos getPos [400, random 360], 200];
+				_wp setWaypointType "LOITER";
+				_wp setWaypointCompletionRadius 1000;
+			};
 		};
 		
 		private _infPos = _targetPos;

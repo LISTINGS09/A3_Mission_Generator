@@ -1,6 +1,7 @@
+// [getPos player] call zmm_fnc_misc_findEnemySide;
 params [
 	["_nearPos", [0,0,0]],
-	["_inDist", 2000],
+	["_inDist", 3000],
 	["_markerList",missionNamespace getVariable ["ZMM_LocationMarkerList",[]]]
 ];
 

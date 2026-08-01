@@ -5,7 +5,7 @@ params [
 	["_zoneID", 0],
 	["_triggerOnly", false],
 	["_delay", 300],
-	["_waveMax", 10],
+	["_waveMax", 8],
 	["_qrfType", 0],
 	["_diff",-1]
 ];
@@ -131,7 +131,7 @@ private _vehAirCas = _vehAirHeli + _vehAirPlane;
 private _ZMMwaveInfo = [];
 
 if (_qrfType > 0) then {
-	private _unitCount = round linearConversion [8, 20, count (allPlayers select { alive _x }), 4, 12, true];
+	private _unitCount = round linearConversion [8, 20, count (allPlayers select { alive _x }), 4, 8, true];
 	private _qrfName = _qrfTypes select _qrfType;
 	switch (_qrfName) do {
 		case "Motorized": {
@@ -486,7 +486,7 @@ if (count (missionNamespace getVariable [format["ZMM_%1_Man",_side],[]]) == 0) t
 };
 
 // Position arrays
-private _safePositions = [];
+private _safeMarkers = [];
 private _spawnAir = [];
 private _spawnAirFar = [];
 private _spawnHouse = [];
@@ -496,8 +496,8 @@ private _spawnSea = [];
 
 // Create safe-zones around spawn.
 {
-	if (_x in allMapMarkers) then {		
-		_mkr = createMarkerLocal [format ["safezone_%1", _forEachIndex + 1000], getMarkerPos _x];
+	if (_x in allMapMarkers && count (allMapMarkers select { _x isEqualTo format["safezone_%1",_x] }) == 0) then {
+		_mkr = createMarkerLocal [format ["safezone_%1", _x], getMarkerPos _x];
 		_mkr setMarkerShapeLocal "ELLIPSE";
 		_mkr setMarkerSizeLocal [1000,1000];
 		_mkr setMarkerAlphaLocal 0.25;
@@ -505,7 +505,7 @@ private _spawnSea = [];
 } forEach ["respawn_west","respawn_east","respawn_guerrila","respawn_civilian"];
 
 {	
-	if (["safezone_", toLower _x] call BIS_fnc_inString) then { _safePositions pushBackUnique _x; };
+	if (["safezone_", toLower _x] call BIS_fnc_inString) then { _safeMarkers pushBackUnique _x; };
 } forEach allMapMarkers;
 
 // White list custom spawns - Change this marker if needed!
@@ -518,7 +518,7 @@ for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
 	private _posR = _destination getPos [_spawnDist, _i];
 	_roads = (_posR nearRoads 50) select {((boundingBoxReal _x) select 0) distance2D ((boundingBoxReal _x) select 1) >= 25};
 	
-	if (count _roads > 0 && { _posR inArea _x } count _safePositions == 0) then {
+	if (count _roads > 0 && { _posR inArea _x } count _safeMarkers == 0) then {
 		_road = _roads select 0;
 		if ({_x distance2D _road < 200} count _spawnRoad == 0) then {
 			_spawnRoad pushBackUnique (getPos _road);		
@@ -531,7 +531,7 @@ for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
 	
 	if (_nearBuilds isNotEqualTo []) then {
 		private _nearBuild = _nearBuilds#0;
-		if (_nearBuild distance2D _posH < 100 && { _posH inArea _x } count _safePositions == 0) then {
+		if (_nearBuild distance2D _posH < 100 && { _posH inArea _x } count _safeMarkers == 0) then {
 			private _bpos = _nearBuild buildingPos -1;		
 			_bpos = _bpos select { !(surfaceIsWater _x) };
 			if (count _bpos > 0) then {
@@ -545,7 +545,7 @@ for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
 	
 	// Land Pos not in safe area and more than 400m away from another point	
 	private _posL = _destination getPos [(_spawnDist * 0.5), _i];
-	if (!surfaceIsWater _posL && { _posL inArea _x } count _safePositions == 0) then {
+	if (!surfaceIsWater _posL && { _posL inArea _x } count _safeMarkers == 0) then {
 		if ({_x distance2D _posL < 400} count _spawnLand == 0) then {
 			_posL set [2, 0.5];
 			_spawnLand pushBackUnique _posL;
@@ -554,7 +554,7 @@ for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
 	
 	// Water Pos not in safe area and more than 400m away from another point
 	private _posS = _destination getPos [_spawnDist, _i];
-	if (surfaceIsWater _posS && { _posS inArea _x } count _safePositions == 0) then {
+	if (surfaceIsWater _posS && { _posS inArea _x } count _safeMarkers == 0) then {
 		if ({_x distance2D _posS < 400} count _spawnSea == 0 && (0 - (getTerrainHeightASL _posS)) > 15) then {
 			_posS set [2, (0 - (getTerrainHeightASL _posS))];
 			_spawnSea pushBackUnique _posS;
@@ -563,7 +563,7 @@ for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
 	
 	// Air Pos not in safe area and more than 800m away from another point
 	private _posA = _destination getPos [(_spawnDist * 3), _i];
-	if ({ _posA inArea _x } count _safePositions == 0) then {
+	if ({ _posA inArea _x } count _safeMarkers == 0) then {
 		if ({_x distance2D _posA < 1500} count _spawnAir == 0) then {
 			_posA set [2, 500];
 			_spawnAir pushBackUnique _posA;
@@ -572,7 +572,7 @@ for [{_i = 0}, {_i <= 360}, {_i = _i + 5}] do {
 	
 	// AirFar Pos not in safe area and more than 5000m away from another point
 	private _posAF = _destination getPos [(_spawnDist * 5), _i];
-	if ({ _posAF inArea _x } count _safePositions == 0) then {
+	if ({ _posAF inArea _x } count _safeMarkers == 0) then {
 		if ({_x distance2D _posAF < 5000} count _spawnAirFar == 0) then {
 			_posAF set [2, 500];
 			_spawnAirFar pushBackUnique _posAF;
@@ -611,35 +611,42 @@ if (count _spawnAirFar == 0) then { _spawnAirFar = _spawnAir };
 
 [_side] call zmm_fnc_misc_checkConfig;
 
+
+// Anything forward of this is taken from the ZQRF Script
+
+// MAIN
 // Spawn waves.
 for [{_wave = 1}, {_wave <= (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3])}, {_wave = _wave + 1}] do {
 	missionNamespace setVariable [format["ZQR_%1_Wave", _instance], _wave];
+	missionNamespace setVariable [format["ZQR_%1_Count", _instance], 0];	
 	
 	// Stop spawns if no-one is nearby.
 	if (({ _destination distance2D _x < (_spawnDist + 1000) } count (switchableUnits + playableUnits)) isEqualTo 0 && isMultiplayer) exitWith {
 		["DEBUG", format["Wave %1 - Aborted - No players within %2 meters!", _wave, _spawnDist + 1000]] call zmm_fnc_misc_logMsg;
 	};
 	
-	private _waveInfo = if (isNil "_ZMMwaveInfo") then { [] } else { _ZMMwaveInfo };
-	if (
-		_waveInfo isEqualTo [] || 
-		count (missionNamespace getVariable ["ZQR_WaveDetail",[]]) == 0 ||
-		count (missionNamespace getVariable [format["ZQR_%1_WaveDetail", _instance], []]) == 0
-	) then {
-		_waveInfo = [_wave, _side, _hasLand, _hasRoad, _hasSea, _hasAir, 10] call zmm_fnc_qrf_createWave;
-	} else {
-		// TODO Add support for: ZQR_%1_WaveDetail
-		_waveInfo = ZQR_WaveDetail select ((_wave - 1) min (count ZQR_WaveDetail - 1));
+	private  _waveInfo = [];
+	if (isNil "_ZMMwaveInfo") then { 
+		// Hardcoded Varaible for all waves
+		if (count (missionNamespace getVariable ["ZQR_WaveDetail",missionNamespace getVariable [format["ZQR_%1_WaveDetail", _instance], []]]) > 0) then {
+			private _waveDetail = missionNamespace getVariable ["ZQR_WaveDetail",missionNamespace getVariable [format["ZQR_%1_WaveDetail", _instance], []]];
+			_waveInfo = _waveDetail select ((_wave - 1) min (count _waveDetail - 1));
+		} else {
+			// Dynamically Generated per Wave
+			_waveInfo = [_wave, _side, _hasLand, _hasRoad, _hasSea, _hasAir] call zmm_fnc_qrf_createWave;
+		};
+	} else { 
+		// Hardcoded Varaible for all waves (via ZMM)
+		_waveInfo = _ZMMwaveInfo select ((_wave - 1) min (count _ZMMwaveInfo - 1))
 	};
 	
-	// TODO CHECK FOR VALID POSITIONS AND DEFAULT INF IF NONE FOUND
 	//["DEBUG", format["Starting Zone %1 - Wave %2/%3 - %4 %5", _instance, _wave, (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3]), _side, _waveInfo]] call zmm_fnc_misc_logMsg;
 	{
 		_x params ["_location","_object"];
 		
 		if (_object isEqualType []) then { _object = selectRandom _object };
 		
-		["DEBUG", format["Zone %1 Wave %2/%3 - Spawning %4 (%5)", _instance, _wave, (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3]), _object, _location]] call zmm_fnc_misc_logMsg;
+		["INFO", format["Zone %1 Wave %2/%3 - Spawning %4 (%5)", _instance, _wave, (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3]), _object, _waveInfo]] call zmm_fnc_misc_logMsg;
 	
 		switch (toLower _location) do {
 			case "air": { [_instance, _destination, _spawnAir, _side, _object, 1000] call zmm_fnc_qrf_spawnGroup };

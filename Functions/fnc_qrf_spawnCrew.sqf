@@ -3,7 +3,7 @@ params [
 	"_veh",
 	"_side",
 	["_includeCargo", false],
-	["_cargoGroupMax", 8]
+	["_cargoGroupMax", 6]
 ];
 
 private _difficulty = missionNamespace getVariable [ "f_param_ZMMDiff", missionNamespace getVariable ["ZZM_Diff", 1]];

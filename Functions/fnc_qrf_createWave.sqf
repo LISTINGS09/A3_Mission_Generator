@@ -18,7 +18,7 @@ private _gunners = (
 		_x == gunner vehicle _x
 	})
 ) min 4;
-private _effectivePlayers = (_players * (1 + (_gunners * 0.6))) * (0.75 + (_difficulty * 0.25));
+private _effectivePlayers = (_players * (1 + _gunners * 0.25)) * (0.75 + _difficulty * 0.25);
 
 ["INFO", format["W%1 - qrf_createWave - PLRS:%2 EFCT:%3 - LAND:%4 ROAD:%5 SEA:%6 AIR:%7", _wave, _players, _effectivePlayers, _hasLand, _hasRoad, _hasSea, _hasAir]] call zmm_fnc_misc_logMsg;
 
@@ -36,18 +36,25 @@ private _vehBoat = missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]]
 private _vehAirCas = _vehAirHeli + _vehAirPlane;
 
 // Unit Counts
-private _unitFactor = switch (true) do { case (_wave < 4): { 1 }; case (_wave < 6): { 1 + ((_wave - 3) * 0.5) }; default { 3 }; };
+private _unitFactor = switch (true) do {
+	case (_wave <= 3): { 1 };
+	case (_wave <= 4): { 1.1 };
+	case (_wave <= 5): { 1.25 };
+	default { 1.5 };
+};
+
 private _unitCount = (
 		round (
-			4 * _unitFactor *
-			(0.75 + (_difficulty * 0.25)) *
-			(1 + ((_players - 4) * 0.03 max 0))
+			4 *
+			_unitFactor *
+			(0.75 + _difficulty * 0.25) *
+			(1 + ((_players - 4) max 0) * 0.03)
 		)
-	) min 12 max 3;
+	) max 3 min 6;
 
 // Group Counts
 private _infantryFactor = switch (true) do { case (_wave < 3): { 0.75 }; case (_wave < 5): { 1.25 }; default { 2 }; };
-private _infantryGroups = (round((_effectivePlayers / 3) * _infantryFactor * _difficulty)) max 1 min 6;
+private _infantryGroups = (round((_effectivePlayers / 4) * _infantryFactor * _difficulty)) max 1 min 5;
 private _lightVehGroups = (floor((_effectivePlayers / 10) * (_wave / 3) * _difficulty)) min 4;
 private _mediumVehGroups = if (_wave >= 3) then { floor((_effectivePlayers / 12) * ((_wave - 2) / 3) * _difficulty) min 3 } else { 0 };
 private _heavyVehGroups = if (_wave >= 5) then { floor((_effectivePlayers / 14) * ((_wave - 4) / 4) * _difficulty) min 2 } else { 0 };
@@ -73,11 +80,11 @@ private _fnc_defaultType = {
 	};
 };
 
-private _chanceHigh = random 1 < (((((_wave min 6) - 1) / (6 - 1)) * 0.5) min 0.5);
-private _chanceLow = random 1 < (((((_wave min 6) - 1) / (6 - 1)) * 0.2) min 0.2);
-
 if (_infantryGroups > 0) then {
 	for "_i" from 1 to _infantryGroups do {
+		private _chanceHigh = random 1 < (((((_wave min 6) - 1) / (6 - 1)) * 0.5) min 0.5);
+		private _chanceLow = random 1 < (((((_wave min 6) - 1) / (6 - 1)) * 0.2) min 0.2);
+	
 		switch (true) do {
 			case (_chanceHigh && _hasRoad && {count _vehTruck > 0} ): {
 				_waveInfo pushBack ["road", selectRandom _vehTruck];
@@ -97,6 +104,8 @@ if (_infantryGroups > 0) then {
 
 if (_lightVehGroups > 0) then {
 	for "_i" from 1 to _lightVehGroups do {
+		private _chanceHigh = random 1 < (((((_wave min 6) - 1) / (6 - 1)) * 0.5) min 0.5);
+		
 		switch (true) do {
 			case (_chanceHigh && _hasRoad && {count _vehTruck > 0}): {
 				_waveInfo pushBack ["road", selectRandom _vehTruck];
@@ -116,6 +125,8 @@ if (_lightVehGroups > 0) then {
 
 if (_mediumVehGroups > 0) then {
 	for "_i" from 1 to _mediumVehGroups do {
+		private _chanceLow = random 1 < (((((_wave min 6) - 1) / (6 - 1)) * 0.2) min 0.2);
+		
 		switch (true) do {
 			case (_chanceLow && _hasAir && {count _vehAirTransport > 0}): {
 				_waveInfo pushBack [ selectRandom ["air", "drop"], selectRandom _vehAirTransport];
@@ -138,6 +149,8 @@ if (_mediumVehGroups > 0) then {
 
 if (_heavyVehGroups > 0) then {
 	for "_i" from 1 to _heavyVehGroups do {
+		private _chanceLow = random 1 < (((((_wave min 6) - 1) / (6 - 1)) * 0.2) min 0.2);
+		
 		// 20% chance to replace with airdrop
 		switch (true) do {
 			case (_chanceLow && _hasAir && {count _vehAirTransport > 0}): {
@@ -172,6 +185,6 @@ if (_planeVehGroups > 0 && {count _vehAirCas > 0}) then {
 	};
 };
 
-["INFO", format["W%1 - qrf_createWave - INF:%2 LGT:%3 MED:%4 HVY:%5 AIR:%6", _wave, _infantryGroups, _lightVehGroups, _mediumVehGroups, _heavyVehGroups, _planeVehGroups]] call zmm_fnc_misc_logMsg;
+["INFO", format["W%1 - qrf_createWave - INF:%2(%3) LGT:%4 MED:%5 HVY:%6 AIR:%7", _wave, _infantryGroups, _unitCount, _lightVehGroups, _mediumVehGroups, _heavyVehGroups, _planeVehGroups]] call zmm_fnc_misc_logMsg;
 
 _waveInfo
