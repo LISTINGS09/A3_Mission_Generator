@@ -14,10 +14,10 @@ params [
 
 if (_startClass isEqualTo "") exitWith { ["WARNING", format["spawnGroup - Empty Unit Passed: %1 (%2)", _startClass, _side]] call zmm_fnc_misc_logMsg };
 if (_tries > 5 || count _spawnArray == 0 || count _targetPos == 0) exitWith {
-	["WARNING", format["spawnGroup - Exiting: Tries:%1 Starting:%2 Target:%3", _tries, _spawnArray, _targetPos]] call zmm_fnc_misc_logMsg
+	["WARNING", format["spawnGroup - Exiting: %1 %2 %3", _tries, _spawnArray, _targetPos]] call zmm_fnc_misc_logMsg
 };
 
-//["DEBUG", format["%1 - qrf_spawnGroup - Starting - %2 [%3] Attempt:%4", _gid, _startClass, _side, _tries]] call zmm_fnc_misc_logMsg;
+["DEBUG", format["%1 - qrf_spawnGroup - Creating - %2 [%3] Attempt:%4", _zoneID, _startClass, _side, _tries]] call zmm_fnc_misc_logMsg;
 
 private _unitClass = _startClass;
 private _mainGrp = grpNull;

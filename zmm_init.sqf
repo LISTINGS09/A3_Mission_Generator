@@ -1,6 +1,6 @@
 // Start ZMM by running:
 // [] execVM "scripts\ZMM\zmm_init.sqf";
-ZMM_Version = 4.79;
+ZMM_Version = 4.8;
 ZMM_FolderLocation = "scripts\ZMM"; // No '\' at end!
 ZMM_Debug = !isMultiplayer || (missionNamespace getVariable ["f_param_debugMode",0] == 1);
 // ZZM_Template = "vanilla"; // Force Template
@@ -41,7 +41,8 @@ ZMM_tasks = [
 	,["Denial", "Destroy Cache", "Take out a number of enemy weapons caches", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Anywhere", "destroy_cache.sqf"]
 	,["Denial", "Destroy Target", "One or more specific buildings must be destroyed", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Anywhere", "destroy_target.sqf"]
 	,["Denial", "Eliminate Group", "Track down and eliminate a group of infantry", "\A3\ui_f\data\igui\cfg\simpleTasks\types\destroy_ca.paa", "Anywhere", "kill_group.sqf"]
-	,["Intel", "Intel Transfer", "Transfer data from a Terminal or UAV", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Anywhere", "intel_transfer.sqf"]
+	,["Intel", "Intel Transfer (UAV)", "Transfer data from a UAV", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Anywhere", "intel_transfer_uav.sqf"]
+	,["Intel", "Intel Transfer (Box)", "Transfer data from a Terminal", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Anywhere", "intel_transfer_uav.sqf"]
 	,["Intel", "Intel Search", "Track down intelligence left behind by an operative", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Anywhere", "intel_garbage.sqf"]
 	,["Intel", "Intel Meeting", "Obtain key intel by talking to local informants", "\A3\ui_f\data\igui\cfg\simpleTasks\types\intel_ca.paa", "Anywhere", "intel_talk.sqf"]
 	,["Recovery", "Collect Backpack", "Find and collect one or more special backpacks", "\A3\ui_f\data\igui\cfg\simpleTasks\types\search_ca.paa", "Anywhere", "collect_backpack.sqf"]

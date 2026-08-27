@@ -128,7 +128,7 @@ private _vehBoat = missionNamespace getVariable [format["ZMM_%1_Boat",_side],[]]
 private _vehAirCas = _vehAirHeli + _vehAirPlane;
 
 // Prebuild the defined waves
-private _ZMMwaveInfo = [];
+private _ZMMwaveInfo = nil;
 
 if (_qrfType > 0) then {
 	private _unitCount = round linearConversion [8, 20, count (allPlayers select { alive _x }), 4, 8, true];
@@ -611,9 +611,6 @@ if (count _spawnAirFar == 0) then { _spawnAirFar = _spawnAir };
 
 [_side] call zmm_fnc_misc_checkConfig;
 
-
-// Anything forward of this is taken from the ZQRF Script
-
 // MAIN
 // Spawn waves.
 for [{_wave = 1}, {_wave <= (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3])}, {_wave = _wave + 1}] do {
@@ -626,7 +623,7 @@ for [{_wave = 1}, {_wave <= (missionNamespace getVariable [format["ZQR_%1_WaveMa
 	};
 	
 	private  _waveInfo = [];
-	if (isNil "_ZMMwaveInfo") then { 
+	if (isNil "_ZMMwaveInfo") then {
 		// Hardcoded Varaible for all waves
 		if (count (missionNamespace getVariable ["ZQR_WaveDetail",missionNamespace getVariable [format["ZQR_%1_WaveDetail", _instance], []]]) > 0) then {
 			private _waveDetail = missionNamespace getVariable ["ZQR_WaveDetail",missionNamespace getVariable [format["ZQR_%1_WaveDetail", _instance], []]];
@@ -640,13 +637,13 @@ for [{_wave = 1}, {_wave <= (missionNamespace getVariable [format["ZQR_%1_WaveMa
 		_waveInfo = _ZMMwaveInfo select ((_wave - 1) min (count _ZMMwaveInfo - 1))
 	};
 	
+	["INFO", format["Zone %1 Wave %2/%3 - Starting %4 Attack Groups: %5", _instance, _wave, (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3]), count _waveInfo, _waveInfo]] call zmm_fnc_misc_logMsg;
+	
 	//["DEBUG", format["Starting Zone %1 - Wave %2/%3 - %4 %5", _instance, _wave, (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3]), _side, _waveInfo]] call zmm_fnc_misc_logMsg;
 	{
 		_x params ["_location","_object"];
 		
-		if (_object isEqualType []) then { _object = selectRandom _object };
-		
-		["INFO", format["Zone %1 Wave %2/%3 - Spawning %4 (%5)", _instance, _wave, (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3]), _object, _waveInfo]] call zmm_fnc_misc_logMsg;
+		["INFO", format["Zone %1 Wave %2/%3 - Spawning %4 (%5)", _instance, _wave, (missionNamespace getVariable [format["ZQR_%1_WaveMax", _instance], 3]), _location, _object]] call zmm_fnc_misc_logMsg;
 	
 		switch (toLower _location) do {
 			case "air": { [_instance, _destination, _spawnAir, _side, _object, 1000] call zmm_fnc_qrf_spawnGroup };

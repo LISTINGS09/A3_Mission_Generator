@@ -42,6 +42,7 @@ _allGrids resize ((missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) min 8
 
 		private _gridSize = 50;
 		private _gridPos = _x apply { ((floor (_x / 100))*100) + _gridSize };
+		_gridPos set [2,0];
 				
 		private _mrk = createMarker [ format[ "MKR_%1_ICON_%2", _zoneID, _gridID ], _gridPos];
 		_mrk setMarkerShape "RECTANGLE";
@@ -61,7 +62,7 @@ _allGrids resize ((missionNamespace getVariable ["ZZM_ObjectiveCount", 4]) min 8
 			
 		_tskActivation pushBack format["(missionNamespace getVariable ['ZMM_%1_OBJ_%2', false])", _zoneID, _gridID];
 			
-		for "_i" from 0 to 1 + random 2 do {
+		for "_i" from 0 to 1 + random 3 do {
 			private _unitType = selectRandom _enemyMen;
 			private _unit = _enemyGrp createUnit [_unitType, _gridPos getPos [random 25, random 360], [], 0, "NONE"];
 			[_unit] joinSilent _enemyGrp; 

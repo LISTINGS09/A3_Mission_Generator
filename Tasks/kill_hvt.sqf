@@ -29,7 +29,7 @@ private _bldPos = _buildings apply { selectRandom (_x buildingPos -1) };
 
 private _tskActivation = [];
 private _counter = 0;
-private _hat = selectRandom (["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen_F","H_Beret_EAF_01_F"] select { isClass (configFile >> "CfgWeapons" >> _x) });
+private _hat = selectRandom ((missionNamespace getVariable ["ZMM_Task_Kill_HVT_Hat", ["H_Beret_blk","H_Beret_CSAT_01_F","H_Beret_gen_F","H_Beret_EAF_01_F"]]) select { isClass (configFile >> "CfgWeapons" >> _x) });
 private _alias = selectRandom ["Butcher", "Diablo", "Doctor", "Reaper", "Scorpion", "Hyena", "Jackal", "Lion", "Serpent"];
 private _team = selectRandom ["Henchmen", "Generals", "Commandos", "Sympathisers", "Associates", "Bodyguards", "Protectors", "Guards"];
 	

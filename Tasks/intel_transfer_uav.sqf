@@ -4,7 +4,6 @@ params [ ["_zoneID", 0], ["_tskPos", [0,0,0]] ];
 private _tskCentre = missionNamespace getVariable [format["ZMM_%1_Location", _zoneID], _tskPos];
 private _enemySide = missionNamespace getVariable [format["ZMM_%1_EnemySide", _zoneID], EAST];
 private _locations = missionNamespace getVariable [ format["ZMM_Z%1_FlatLocations", _zoneID], [] ];
-private _buildings = missionNamespace getVariable [ format["ZMM_%1_Buildings", _zoneID], [] ];
 private _enemyMen = missionNamespace getVariable [format["ZMM_%1_Man", _enemySide], ["O_Soldier_F"]];
 
 private _tskDesc = selectRandom [
@@ -18,61 +17,41 @@ private _tskDesc = selectRandom [
 	
 private _dataName = selectRandom ["Download","Upload"];
 
-private _bldPos = [];
-{ _bldPos append (_x buildingPos -1) } forEach _buildings;
-	
-private _dataType = "Land_DataTerminal_01_F";
+private _dataType = selectRandom (missionNamespace getVariable ["ZMM_Task_Transfer_TermUAV", ["B_UAV_02_dynamicLoadout_F", "B_UAV_05_F", "B_UGV_01_F", "O_UAV_02_dynamicLoadout_F"]]);
 private _dataPos = [0,0,0];
 private _dataObj = objNull;
-private _inBuilding = false;
-
-if (random 100 > 50 && count _bldPos > 0) then {
-	_dataObj = createVehicle [_dataType, [0,0,0], [], 0, "NONE"];
-	_dataPos = selectRandom _bldPos;
-	_dataObj setPosATL _dataPos;	
-	_inBuilding = true;
 	
-	private _mkr = createMarkerLocal [format["MKR_%1_OBJ", _zoneID], _pos];
-	_mkr setMarkerShapeLocal "ELLIPSE";
-	_mkr setMarkerBrushLocal "SolidBorder";
-	_mkr setMarkerAlphaLocal 0.3;
-	_mkr setMarkerColorLocal "ColorEast";
-	_mkr setMarkerSizeLocal [50,50];
-} else {
-	_dataType = selectRandom ["B_UAV_02_dynamicLoadout_F", "B_UAV_05_F", "B_UGV_01_F", "O_UAV_02_dynamicLoadout_F"];
-	
-	if (count _locations > 0) then { 
-		_dataPos = selectRandom _locations;
-	} else { 
-		_dataPos = [[_tskCentre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, 150, 1, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos 
-	};
-	
-	_dataPos set [2,0];
-	_dataObj = createVehicle [_dataType, _dataPos, [], 5, "NONE"];
-	_dataObj setDir random 360;
-	_dataObj lock true;
-	_dataObj setVehicleAmmo 0;
-	_dataObj enableSimulationGlobal false;
-	_dataObj allowDamage false;
-	_dataObj setDamage [0.6,false];
-	removeFromRemainsCollector [_dataObj];
-	
-	if (_dataType in ["B_UGV_01_F"]) then {
-		private _crater = createSimpleObject ["Crater", getPosASL _dataObj];
-		private _debirs = createSimpleObject ["Land_Garbage_square5_F", getPosASL _dataObj];
-	} else {
-		_dataObj setVectorDirAndUp [[-0.33,0.66,-0.33], [-0.33,0.13,0.66]];
-		
-		_dataPos = getPos _dataObj;
-		_dataPos set [2,0];
-		
-		private _crater = createSimpleObject ["CraterLong", ATLToASL _dataPos];
-		_crater setDir getDir _dataObj;
-		_crater setVectorUp surfaceNormal position _crater;
-	};
-	
-	//private _smokeObj = createVehicle ["test_EmptyObjectForSmoke", _dataPos, [], 0, "CAN_COLLIDE"];
+if (count _locations > 0) then { 
+	_dataPos = selectRandom _locations;
+} else { 
+	_dataPos = [[_tskCentre, 100 + random 150, random 360] call BIS_fnc_relPos, 1, 150, 1, 0, 0.5, 0, [], [ _tskCentre, _tskCentre ]] call BIS_fnc_findSafePos 
 };
+	
+_dataPos set [2,0];
+_dataObj = createVehicle [_dataType, _dataPos, [], 5, "NONE"];
+_dataObj setDir random 360;
+_dataObj lock true;
+_dataObj setVehicleAmmo 0;
+_dataObj enableSimulationGlobal false;
+_dataObj allowDamage false;
+_dataObj setDamage [0.6,false];
+removeFromRemainsCollector [_dataObj];
+
+if (_dataType in ["B_UGV_01_F"]) then {
+	private _crater = createSimpleObject ["Crater", getPosASL _dataObj];
+	private _debirs = createSimpleObject ["Land_Garbage_square5_F", getPosASL _dataObj];
+} else {
+	_dataObj setVectorDirAndUp [[-0.33,0.66,-0.33], [-0.33,0.13,0.66]];
+	
+	_dataPos = getPos _dataObj;
+	_dataPos set [2,0];
+	
+	private _crater = createSimpleObject ["CraterLong", ATLToASL _dataPos];
+	_crater setDir getDir _dataObj;
+	_crater setVectorUp surfaceNormal position _crater;
+};
+	
+private _smokeObj = createVehicle ["test_EmptyObjectForSmoke", _dataPos, [], 0, "CAN_COLLIDE"];
 
 _dataHeading = selecTRandom [
 		format["%1 Data", selectRandom ["Weapon", "Radio", "Flight", "Mapping", "Survey", "NBC", "Target", "Account"]],
@@ -83,7 +62,6 @@ _dataHeading = selecTRandom [
 _dataObj setVariable ["var_dataType", _dataHeading, true];
 _dataObj setVariable ["var_zoneID", _zoneID, true];
 _dataObj setVariable ["var_dataName", _dataName, true];
-
 
 [_dataObj, 
 	"<t color='#00FF80'>Start Transmission</t>", 
@@ -133,20 +111,11 @@ private _enemyTeam = [];
 for "_j" from 0 to (3 * (missionNamespace getVariable ["ZZM_Diff", 1])) do { _enemyTeam set [_j, selectRandom _enemyMen] };
 		
 private _milGroup = [_dataPos getPos [random 10, random 360], _enemySide, _enemyTeam] call BIS_fnc_spawnGroup;
-	
-private _bldArr = if (_inBuilding) then { (nearestBuilding _dataPos) buildingPos -1 } else { [] };
-_bldArr deleteAt (_bldArr find _dataPos);
 
 {
-	if (count _bldArr > 0) then {
-		private _tempPos = selectRandom _bldArr;
-		_bldArr deleteAt (_bldArr find _tempPos);
-		_x setPosATL _tempPos;
-		_x disableAI "PATH";
-	} else {
-		_x setPos (_dataPos getPos [random 10, random 360]);
-		_x setUnitPos "MIDDLE";
-	};
+	doStop _x;
+	_x setPos (_dataPos getPos [random 10, random 360]);
+	_x setUnitPos "MIDDLE";
 } forEach units _milGroup;
 
 _milGroup setGroupIdGlobal [format["ZMM_%1_OBJGRP", _zoneID]];

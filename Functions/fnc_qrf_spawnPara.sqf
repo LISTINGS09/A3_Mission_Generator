@@ -8,7 +8,11 @@ params [
 	["_veh", ""]
 ];
 
-if (_side isEqualTo CIVILIAN && !isNil "zmm_fnc_misc_findEnemySide") then { _side = [_targetPos] call zmm_fnc_misc_findEnemySide } else { _side = EAST };
+["DEBUG", format["%1 - qrf_spawnPara - Creating - %2 [%3]", _zoneID, _veh, _side]] call zmm_fnc_misc_logMsg;
+
+if (_side isEqualTo CIVILIAN) then {
+	if !(isNil "zmm_fnc_misc_findEnemySide") then { _side = [_targetPos] call zmm_fnc_misc_findEnemySide } else { _side = EAST };
+};
 if (_veh isEqualTo "") then { 
 	private _vehArray = missionNamespace getVariable [format["ZMM_%1_Air",_side],[]];
 	
@@ -61,17 +65,17 @@ if !(isNil "_customInit") then { if !(_customInit isEqualTo "") then { call comp
 
 private _doDelete = false;
 if (count _grpCargo == 0 && !_isArmed) then {
-    // No cargo groups: split pilot group into vehicle crew and infantry cargo
-    private _cargoUnits = (units _grpPilot) select { _x != commander _grpVeh && _x != driver _grpVeh && _x != gunner _grpVeh };
+	// No cargo groups: split pilot group into vehicle crew and infantry cargo
+	private _cargoUnits = (units _grpPilot) select { _x != commander _grpVeh && _x != driver _grpVeh && _x != gunner _grpVeh };
 
-    // Need enough infantry to make a cargo group
-    if (count _cargoUnits >= 4) then {
-        private _cargoGrp = createGroup [_side, true];
-        { [_x] joinSilent _cargoGrp } forEach _cargoUnits;
-        _grpCargo pushBack _cargoGrp;
-    } else {
+	// Need enough infantry to make a cargo group
+	if (count _cargoUnits >= 4) then {
+		private _cargoGrp = createGroup [_side, true];
+		{ [_x] joinSilent _cargoGrp } forEach _cargoUnits;
+		_grpCargo pushBack _cargoGrp;
+	} else {
 		_doDelete = true
-    };
+	};
 } else {
 	if (count _grpCargo > 1) then {
 		private _validCargo = [];

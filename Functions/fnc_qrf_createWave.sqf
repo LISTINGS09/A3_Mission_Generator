@@ -74,9 +74,15 @@ if (_wave >= 3) then {
 // Work out what the default should be
 private _fnc_defaultType = {
 	switch (true) do {
-		case (_hasLand): { [selectRandom ["house","land"], _unitCount] };
-		case (_hasSea): { ["sea", selectRandom _vehBoat] };
-		default { ["air", selectRandom _vehAirTransport] };
+		case (_hasLand): { [ selectRandom ["house","land"], _unitCount] };
+		case (_hasSea): { [ "sea", selectRandom _vehBoat] };
+		default { 
+			if (count _vehAirTransport > 0) then {
+				[ "air", selectRandom _vehAirTransport]
+			} else {
+				 [ selectRandom ["house","land"], _unitCount]
+			};
+		};
 	};
 };
 
@@ -87,10 +93,10 @@ if (_infantryGroups > 0) then {
 	
 		switch (true) do {
 			case (_chanceHigh && _hasRoad && {count _vehTruck > 0} ): {
-				_waveInfo pushBack ["road", selectRandom _vehTruck];
+				_waveInfo pushBack [ "road", selectRandom _vehTruck];
 			};
 			case (_chanceHigh && _hasSea && {count _vehBoat > 0} ): {
-				_waveInfo pushBack ["sea", selectRandom _vehBoat];
+				_waveInfo pushBack [ "sea", selectRandom _vehBoat];
 			};
 			case (_chanceLow && _hasAir && {count _vehAirTransport > 0}): {
 				_waveInfo pushBack [ selectRandom ["air", "drop"], selectRandom _vehAirTransport];
@@ -108,13 +114,13 @@ if (_lightVehGroups > 0) then {
 		
 		switch (true) do {
 			case (_chanceHigh && _hasRoad && {count _vehTruck > 0}): {
-				_waveInfo pushBack ["road", selectRandom _vehTruck];
+				_waveInfo pushBack [ "road", selectRandom _vehTruck];
 			};
 			case (_hasRoad && {count _vehLight > 0}): {
-				_waveInfo pushBack ["road", selectRandom _vehLight];
+				_waveInfo pushBack [ "road", selectRandom _vehLight];
 			};
 			case (_hasSea && {count _vehBoat > 0}): {
-				_waveInfo pushBack ["sea", selectRandom _vehBoat];
+				_waveInfo pushBack [ "sea", selectRandom _vehBoat];
 			};
 			default {
 				_waveInfo pushBack call _fnc_defaultType;
@@ -132,13 +138,13 @@ if (_mediumVehGroups > 0) then {
 				_waveInfo pushBack [ selectRandom ["air", "drop"], selectRandom _vehAirTransport];
 			};
 			case (_hasRoad && {count _vehMedium > 0}): {
-				_waveInfo pushBack ["road", selectRandom _vehMedium];
+				_waveInfo pushBack [ "road", selectRandom _vehMedium];
 			};
 			case (_hasRoad && {count _vehLight > 0}): {
-				_waveInfo pushBack ["road", selectRandom _vehLight];
+				_waveInfo pushBack [ "road", selectRandom _vehLight];
 			};
 			case (_hasSea && {count _vehBoat > 0}): {
-				_waveInfo pushBack ["sea", selectRandom _vehBoat];
+				_waveInfo pushBack [ "sea", selectRandom _vehBoat];
 			};
 			default {
 				_waveInfo pushBack call _fnc_defaultType;
@@ -188,3 +194,4 @@ if (_planeVehGroups > 0 && {count _vehAirCas > 0}) then {
 ["INFO", format["W%1 - qrf_createWave - INF:%2(%3) LGT:%4 MED:%5 HVY:%6 AIR:%7", _wave, _infantryGroups, _unitCount, _lightVehGroups, _mediumVehGroups, _heavyVehGroups, _planeVehGroups]] call zmm_fnc_misc_logMsg;
 
 _waveInfo
+
